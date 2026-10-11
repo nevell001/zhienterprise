@@ -19,6 +19,16 @@ vi.mock('@/utils/auth', () => ({
   removeBlogToken: vi.fn()
 }))
 
+// nprogress 的 done() 延迟约 200ms 才 remove()，vitest 先拆掉 jsdom 环境后该定时器读取
+// document 抛 ReferenceError（测试全过但 vitest exit 1，CI 随机变红）。本文件不校验进度条，桩掉
+vi.mock('nprogress', () => ({
+  default: {
+    configure: vi.fn(),
+    start: vi.fn(),
+    done: vi.fn()
+  }
+}))
+
 const permissionSource = readFileSync(resolve(process.cwd(), 'src/permission.ts'), 'utf-8')
 
 const getBlogGuardBranch = () => {
