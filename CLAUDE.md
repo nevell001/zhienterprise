@@ -62,8 +62,8 @@ No default `docker-compose.yml` exists - must specify dev or prod.
 
 ```bash
 mysql -u root -p
-CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-mysql -u root -p zhiblog < sql/00_init_database.sql
+CREATE DATABASE zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+mysql -u root -p zhienterprise < sql/00_init_database.sql
 ```
 
 **SQL Migration**: 仓库仅保留唯一幂等脚本 `sql/00_init_database.sql`（历史迁移脚本已并入）。
@@ -188,9 +188,9 @@ fell back (e.g. `root`), which is why bare local startup failed against a passwo
 ```bash
 # Database
 DB_HOST=localhost
-DB_USERNAME=zhiblog_app
+DB_USERNAME=zhienterprise_app
 DB_PASSWORD={your_password}
-DB_NAME=zhiblog
+DB_NAME=zhienterprise
 
 # Redis
 REDIS_HOST=localhost

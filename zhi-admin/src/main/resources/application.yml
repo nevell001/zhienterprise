@@ -58,7 +58,7 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:zhiblog}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+        url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:zhienterprise}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
         username: ${DB_USERNAME:root}
         password: ${DB_PASSWORD:#{null}}
         driverClassName: com.mysql.cj.jdbc.Driver

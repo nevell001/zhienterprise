@@ -37,7 +37,7 @@
 ```bash
 git clone https://gitee.com/nevell/zhienterprise.git
 cd zhienterprise
-cp .env.example .env          # 按需修改关键配置，DB_NAME 保持 zhiblog
+cp .env.example .env          # 按需修改关键配置，DB_NAME 默认 zhienterprise
 docker compose -f docker-compose.dev.yml up -d --build
 
 docker compose -f docker-compose.dev.yml ps            # 查看状态
@@ -52,8 +52,8 @@ docker compose -f docker-compose.dev.yml logs -f zhi-admin
 
 ```bash
 mysql -u root -p
-CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-mysql -u root -p zhiblog < sql/00_init_database.sql
+CREATE DATABASE zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+mysql -u root -p zhienterprise < sql/00_init_database.sql
 ```
 
 后端：
@@ -86,13 +86,25 @@ cd zhi-ui && npm install && npm run dev
 - 按已发布评论**重算评论数**
 
 ```bash
-mysql -u root -p zhiblog < sql/00_init_database.sql
+mysql -u root -p zhienterprise < sql/00_init_database.sql
 ```
 
 > 数据卷已存在的 Docker 数据库**不会**再自动执行 `docker-entrypoint-initdb.d`，必须手动重跑一次。
 > 注意幂等是靠 `INSERT IGNORE` 与「按标题判存在」实现的：**已存在的数据行不会被修复**，
 > 需要修正既有数据时另写一次性数据补丁（`sql/99_fix_*.sql` 命名约定）按需执行。
 > 部署提示：`/sitemap.xml`、`/robots.txt` 在后端根路径，Nginx 同源反代时请转发到后端；PV/UV 曲线依赖每小时定时汇总（当天数据约 1 小时延迟）。
+>
+> **存量库更名提示**：数据库名与应用账号已统一为 `zhienterprise` / `zhienterprise_app`。从旧库名（`zhiblog` / `zhiblog_app`）升级时需手工迁移一次——导出旧库、建新库导入、重跑 00 创建新账号并授权，再把 `.env` 的 `DB_NAME` / `DB_USERNAME` 更新为新值：
+>
+> ```bash
+> mysqldump -u root -p zhiblog > db-backup.sql
+> mysql -u root -p -e "CREATE DATABASE zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+> mysql -u root -p zhienterprise < db-backup.sql
+> mysql -u root -p zhienterprise < sql/00_init_database.sql
+> ```
+>
+> 脚本创建的账号用的是占位密码，需同步为 `.env` 的 `DB_PASSWORD`（`ALTER USER 'zhienterprise_app'@'%' IDENTIFIED BY '...'`），否则应用连库会报认证失败。
+> Docker 数据卷已存在时 `docker-entrypoint-initdb.d` 不会重跑，新库/新账号不会自动创建，按上述命令手动执行即可。
 
 ## 📁 项目结构
 
@@ -150,10 +162,10 @@ zhienterprise/
 ```bash
 # 数据库
 DB_HOST=localhost
-DB_USERNAME=zhiblog_app
+DB_USERNAME=zhienterprise_app
 DB_PASSWORD={your_app_password}
 DB_ROOT_PASSWORD={your_root_password}
-DB_NAME=zhiblog
+DB_NAME=zhienterprise
 
 # Redis
 REDIS_HOST=localhost

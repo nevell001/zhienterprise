@@ -34,9 +34,9 @@ services:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       DB_HOST: mysql
-      DB_USERNAME: ${DB_USERNAME:-zhiblog_app}
+      DB_USERNAME: ${DB_USERNAME:-zhienterprise_app}
       DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME:-zhiblog}
+      DB_NAME: ${DB_NAME:-zhienterprise}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -73,8 +73,8 @@ services:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME:-zhiblog}
-      MYSQL_USER: ${DB_USERNAME:-zhiblog_app}
+      MYSQL_DATABASE: ${DB_NAME:-zhienterprise}
+      MYSQL_USER: ${DB_USERNAME:-zhienterprise_app}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "127.0.0.1:3306:3306"  # 仅本地访问

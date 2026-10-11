@@ -19,7 +19,7 @@ services:
           curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2
         done
         java -Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -jar /app/zhi-admin.jar \
-          --spring.datasource.druid.master.url=jdbc:mysql://mysql:3306/${DB_NAME:-zhiblog}?useSSL=false\&serverTimezone=Asia/Shanghai\&allowPublicKeyRetrieval=true\&characterEncoding=utf8\&useUnicode=true \
+          --spring.datasource.druid.master.url=jdbc:mysql://mysql:3306/${DB_NAME:-zhienterprise}?useSSL=false\&serverTimezone=Asia/Shanghai\&allowPublicKeyRetrieval=true\&characterEncoding=utf8\&useUnicode=true \
           --spring.datasource.druid.master.username=$DB_USERNAME \
           --spring.datasource.druid.master.password=$DB_PASSWORD \
           --spring.redis.host=redis \
@@ -72,8 +72,8 @@ services:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME:-zhiblog}
-      MYSQL_USER: ${DB_USERNAME:-zhiblog_app}
+      MYSQL_DATABASE: ${DB_NAME:-zhienterprise}
+      MYSQL_USER: ${DB_USERNAME:-zhienterprise_app}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"

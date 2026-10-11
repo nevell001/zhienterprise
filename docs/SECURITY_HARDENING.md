@@ -185,14 +185,14 @@ set -euo pipefail
 STAMP=$(date +%F)
 OUT=/var/backups/zhiblog
 mkdir -p "$OUT"
-docker exec zhiblog-mysql mysqldump --single-transaction -uroot -p"$DB_ROOT_PASSWORD" zhiblog | gzip > "$OUT/db-$STAMP.sql.gz"
+docker exec zhiblog-mysql mysqldump --single-transaction -uroot -p"$DB_ROOT_PASSWORD" zhienterprise | gzip > "$OUT/db-$STAMP.sql.gz"
 tar czf "$OUT/upload-$STAMP.tar.gz" -C /opt/zhiblog uploadPath
 find "$OUT" -type f -mtime +14 -delete
 ```
 
 - 备份**必须异地**（对象存储/另一台机器），否则服务器被删就一起没了；
 - 上传前加密（`age`/`gpg`）或选服务端加密的存储桶；
-- **每季度真做一次恢复演练**：在测试环境 `gunzip -c db-*.sql.gz | mysql zhiblog` 并打开页面确认。
+- **每季度真做一次恢复演练**：在测试环境 `gunzip -c db-*.sql.gz | mysql zhienterprise` 并打开页面确认。
 
 ### 2.7 `[P1]` 运行时可观测与告警
 

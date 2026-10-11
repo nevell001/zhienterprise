@@ -34,7 +34,7 @@ npm run format:check     # Prettier
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 docker compose -f docker-compose.prod.yml up -d
-mysql -u root -p zhiblog < sql/00_init_database.sql
+mysql -u root -p zhienterprise < sql/00_init_database.sql
 ```
 
 ## Architecture

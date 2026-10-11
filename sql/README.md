@@ -46,10 +46,10 @@
 
 ```bash
 # 1. 创建数据库
-mysql -u root -p -e "CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p -e "CREATE DATABASE zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # 2. 导入初始化脚本
-mysql -u root -p zhiblog < sql/00_init_database.sql
+mysql -u root -p zhienterprise < sql/00_init_database.sql
 ```
 
 ### 已有部署（升级）
@@ -58,10 +58,10 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 ```bash
 # 在 Docker 环境
-docker exec mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" zhiblog < /docker-entrypoint-initdb.d/00_init_database.sql'
+docker exec mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" zhienterprise < /docker-entrypoint-initdb.d/00_init_database.sql'
 
 # 或本地环境
-mysql -u root -p zhiblog < sql/00_init_database.sql
+mysql -u root -p zhienterprise < sql/00_init_database.sql
 ```
 
 这会自动补齐缺失的表/索引/触发器（如 `blog_notification`、FULLTEXT 索引），**不会**删除或覆盖任何已有数据。

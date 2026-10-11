@@ -18,10 +18,10 @@
 -- ✅ 站点管理、系统管理、系统监控、数据统计、系统工具菜单和权限配置
 --
 -- 🎯 使用方法：
--- 1. 创建数据库：CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- 2. 导入本脚本：mysql -u root -p zhiblog < 00_init_database.sql
+-- 1. 创建数据库：CREATE DATABASE zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 2. 导入本脚本：mysql -u root -p zhienterprise < 00_init_database.sql
 -- 3. 完成！不再需要单独执行 index 或 fix 脚本
--- 2. 选择数据库：USE zhiblog;
+-- 2. 选择数据库：USE zhienterprise;
 -- 3. 执行脚本：source /path/to/init_database.sql;
 -- 4. 验证结果：查看最后的统计信息
 --
@@ -35,8 +35,8 @@
 -- ===============================================================
 
 -- 1. 创建数据库和设置应用账号
-CREATE DATABASE IF NOT EXISTS zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE zhiblog;
+CREATE DATABASE IF NOT EXISTS zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE zhienterprise;
 
 -- 创建专用应用账号，避免应用服务依赖root远程访问
 -- ⚠️ 安全警告：部署前必须修改此密码为强密码
@@ -45,10 +45,10 @@ USE zhiblog;
 --    本语句因 IF NOT EXISTS 会被跳过，不会覆盖 .env 配置的密码。
 --    仅当不使用 Docker、手动执行本脚本初始化数据库时，才需要把下面的
 --    'CHANGE_ME_STRONG_PASSWORD_32_CHARS' 改成与 .env 的 DB_PASSWORD 一致；
---    若库中已存在 zhiblog_app（旧密码），还需 ALTER USER 同步密码。
-CREATE USER IF NOT EXISTS 'zhiblog_app'@'%' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD_32_CHARS';
+--    若库中已存在 zhienterprise_app（旧密码），还需 ALTER USER 同步密码。
+CREATE USER IF NOT EXISTS 'zhienterprise_app'@'%' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD_32_CHARS';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES, CREATE ROUTINE, ALTER ROUTINE, EXECUTE, TRIGGER
-ON zhiblog.* TO 'zhiblog_app'@'%';
+ON zhienterprise.* TO 'zhienterprise_app'@'%';
 FLUSH PRIVILEGES;
 
 -- ========== 幂等索引创建辅助存储过程（早期定义，全文使用） ==========
@@ -2457,7 +2457,7 @@ SELECT '⚡ 性能优化建议：' AS performance_title;
 SELECT '1. 定期清理软删除的数据：DELETE FROM blog_article WHERE del_flag = 1 AND update_time < DATE_SUB(NOW(), INTERVAL 30 DAY)' AS tip1;
 SELECT '2. 优化大表查询：使用分页和索引' AS tip2;
 SELECT '3. 启用Redis缓存：减轻数据库压力' AS tip3;
-SELECT '4. 定期备份数据：mysqldump -u root -p zhiblog > backup.sql' AS tip4;
+SELECT '4. 定期备份数据：mysqldump -u root -p zhienterprise > backup.sql' AS tip4;
 
 -- ===============================================================
 -- 📌 文章收藏表
