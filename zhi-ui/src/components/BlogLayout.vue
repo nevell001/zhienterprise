@@ -5,9 +5,9 @@
       <div class="nav-inner">
         <router-link to="/blog" class="nav-left">
           <div class="brand-logo">
-            {{ blogSettings.blog_name?.charAt(0) || '企' }}
+            {{ blogSettings.blog_name?.charAt(0) || '知' }}
           </div>
-          <span class="brand-name">{{ blogSettings.blog_name || '企业官网项目' }}</span>
+          <span class="brand-name">{{ blogSettings.blog_name || '知企建站系统' }}</span>
         </router-link>
         <div class="nav-center">
           <router-link v-for="menu in menus" :key="menu.path" :to="menu.path" class="nav-link">
@@ -164,10 +164,10 @@
       <div class="footer-inner">
         <div class="footer-brand">
           <div class="footer-logo">
-            {{ blogSettings.blog_name?.charAt(0) || '企' }}
+            {{ blogSettings.blog_name?.charAt(0) || '知' }}
           </div>
           <div class="brand-text">
-            <span class="brand-name">{{ blogSettings.blog_name || '企业官网项目' }}</span>
+            <span class="brand-name">{{ blogSettings.blog_name || '知企建站系统' }}</span>
             <p class="brand-desc">
               {{ blogSettings.blog_desc || '分享技术与生活的点滴' }}
             </p>
@@ -222,14 +222,14 @@
       <div class="footer-bottom">
         <p v-if="isCopyrightEnabled">
           © {{ currentYear }}
-          {{ blogSettings.blog_author || blogSettings.blog_name || '企业官网项目' }} · 保留所有权利
+          {{ blogSettings.blog_author || blogSettings.blog_name || '知企建站系统' }} · 保留所有权利
         </p>
         <p v-if="isBeianEnabled && blogSettings.blog_beian" class="beian-info">
           <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
             {{ blogSettings.blog_beian }}
           </a>
         </p>
-        <p class="tech-info">Powered by 企业官网项目 & Element Plus</p>
+        <p class="tech-info">Powered by 知企建站系统 & Element Plus</p>
       </div>
     </footer>
   </div>
@@ -476,7 +476,7 @@ watch(blogSettings, () => {
 
 const applyDefaultSeo = () => {
   const s = (blogSettings.value as any) || {}
-  const siteName = s.blog_name || '企业官网项目'
+  const siteName = s.blog_name || '知企建站系统'
   const siteDesc = s.blog_desc || ''
   applySeo({
     title: s.seo_title || (siteDesc ? `${siteName} - ${siteDesc}` : siteName),

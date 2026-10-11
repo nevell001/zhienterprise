@@ -4,14 +4,14 @@
 
 ### 1. 创建 GitHub 仓库
 
-在 GitHub 上创建一个新仓库 `qiye-guanwang`（不要初始化 README）
+在 GitHub 上创建一个新仓库 `zhienterprise`（不要初始化 README）
 
 ### 2. 配置 GitHub 仓库地址
 
 编辑 `sync-github.sh`，修改 GitHub 仓库地址：
 
 ```bash
-GITHUB_REPO="https://github.com/你的用户名/qiye-guanwang.git"
+GITHUB_REPO="https://github.com/你的用户名/zhienterprise.git"
 ```
 
 ### 3. 添加执行权限
@@ -36,7 +36,7 @@ git push github main
 
 # 或使用 SSH（推荐：不受全球 GitHub 加速代理影响）——只需给 push 配 SSH，
 # fetch 仍走 https 加速代理也可以：
-#   git remote set-url --push github git@github.com:你的用户名/qiye-guanwang.git
+#   git remote set-url --push github git@github.com:你的用户名/zhienterprise.git
 #   ssh -T git@github.com    # 应显示 Hi <用户名>! You've successfully authenticated
 #
 # 注意：若 ~/.gitconfig 里有 url.https://ghproxy.net/https://github.com/.insteadOf 这类
@@ -48,7 +48,7 @@ git push github main
 # 可以临时用显式 URL 走 https 直连推送 —— 注意 -c remote.github.pushurl=... 无法覆盖
 # 已存在的 pushurl（多值配置会累加），必须显式给 URL：
 #   GIT_CONFIG_GLOBAL=<(grep -v insteadOf ~/.gitconfig) \
-#     git -c http.version=HTTP/1.1 push https://github.com/你的用户名/qiye-guanwang.git main --follow-tags
+#     git -c http.version=HTTP/1.1 push https://github.com/你的用户名/zhienterprise.git main --follow-tags
 ```
 
 ## GitHub Token 生成
@@ -63,7 +63,7 @@ git push github main
 
 ```bash
 # 添加 GitHub 远端
-git remote add github https://github.com/你的用户名/qiye-guanwang.git
+git remote add github https://github.com/你的用户名/zhienterprise.git
 
 # 推送到两个仓库（--follow-tags 会一并推送 main 上可达的注释标签）
 git push origin main --follow-tags && git push github main --follow-tags

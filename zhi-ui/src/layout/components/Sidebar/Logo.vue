@@ -30,7 +30,7 @@ defineProps({
   }
 })
 
-const title = import.meta.env?.VITE_APP_TITLE || '企业官网项目'
+const title = import.meta.env?.VITE_APP_TITLE || '知企建站系统'
 const settingsStore = useSettingsStore()
 const sideTheme = computed(() => settingsStore.sideTheme)
 

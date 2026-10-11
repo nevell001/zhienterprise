@@ -273,7 +273,7 @@ const loadHomePage = async () => {
 
     homePage.value = response.data
     // 首页 SEO 用自定义页面的 TDK 覆盖 BlogLayout 的站点默认值；页面不存在时降级回列表
-    const siteName = blogSettings.value.blog_name || '企业官网项目'
+    const siteName = blogSettings.value.blog_name || '知企建站系统'
     applySeo({
       title: homePage.value.seoTitle || `${homePage.value.title} - ${siteName}`,
       description: homePage.value.seoDescription || homePage.value.summary || '',

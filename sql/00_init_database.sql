@@ -870,7 +870,7 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 -- 初始化完整的博客设置数据（38项配置）
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
-('blog_name', '企业官网项目', '博客名称', NOW(), NOW()),
+('blog_name', '知企建站系统', '博客名称', NOW(), NOW()),
 ('blog_desc', '这是记录生活、技术和爱好的博客系统', '博客描述', NOW(), NOW()),
 ('blog_author', 'admin', '博客作者', NOW(), NOW()),
 ('blog_keywords', '博客,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发', '博客关键词', NOW(), NOW()),

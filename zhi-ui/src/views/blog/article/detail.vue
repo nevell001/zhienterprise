@@ -497,7 +497,7 @@ const loadArticleDetail = async () => {
       fetchArticleLikeStatus()
 
       // 应用文章级 SEO（标题/描述/canonical）
-      const siteName = (blogSettings.value as any)?.blog_name || '企业官网项目'
+      const siteName = (blogSettings.value as any)?.blog_name || '知企建站系统'
       applySeo({
         title: `${article.value.title} - ${siteName}`,
         description: article.value.summary || '',

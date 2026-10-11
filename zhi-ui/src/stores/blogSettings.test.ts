@@ -21,7 +21,7 @@ describe('BlogSettings Store 测试', () => {
   describe('初始状态', () => {
     it('应该有默认的博客设置', () => {
       const store = useBlogSettingsStore()
-      expect(store.blogSettings.blog_name).toBe('企业官网项目')
+      expect(store.blogSettings.blog_name).toBe('知企建站系统')
       expect(store.blogSettings.blog_author).toBe('nevell')
       expect(store.blogSettings.comment_enabled).toBe(true)
       expect(store.blogSettings.sidebar_enabled).toBe(true)
@@ -73,13 +73,13 @@ describe('BlogSettings Store 测试', () => {
   describe('getBlogName getter', () => {
     it('应该返回博客名称', () => {
       const store = useBlogSettingsStore()
-      expect(store.getBlogName).toBe('企业官网项目')
+      expect(store.getBlogName).toBe('知企建站系统')
     })
 
     it('当名称为空时应该返回默认值', () => {
       const store = useBlogSettingsStore()
       store.updateBlogSettings({ blog_name: '' })
-      expect(store.getBlogName).toBe('企业官网项目')
+      expect(store.getBlogName).toBe('知企建站系统')
     })
   })
 

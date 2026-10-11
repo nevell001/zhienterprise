@@ -47,7 +47,7 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
   state: (): BlogSettingsStoreState => ({
     blogSettings: {
       // 基本设置
-      blog_name: '企业官网项目',
+      blog_name: '知企建站系统',
       blog_desc: '欢迎来到我的博客',
       blog_author: 'nevell',
       blog_email: '',
@@ -114,7 +114,7 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
     },
 
     getBlogAuthor: (state: BlogSettingsStoreState) => state.blogSettings.blog_author || 'nevell',
-    getBlogName: (state: BlogSettingsStoreState) => state.blogSettings.blog_name || '企业官网项目',
+    getBlogName: (state: BlogSettingsStoreState) => state.blogSettings.blog_name || '知企建站系统',
 
     // 功能开关辅助方法（全站唯一判定口径）：
     // 只有 false / 'false' / '0' / 0 视为关闭，未设置或 true / 'true' / '1' / 1 视为开启

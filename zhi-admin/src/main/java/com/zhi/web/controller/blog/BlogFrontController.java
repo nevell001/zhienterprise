@@ -268,7 +268,7 @@ public class BlogFrontController extends BaseController
         setDefaultSetting(settingsMap, "weibo_url", "");
         setDefaultSetting(settingsMap, "wechat_qr", "");
         setDefaultSetting(settingsMap, "blog_author", "nevell");
-        setDefaultSetting(settingsMap, "blog_name", "企业官网项目");
+        setDefaultSetting(settingsMap, "blog_name", "知企建站系统");
         setDefaultSetting(settingsMap, "blog_desc", "这是一个基于RuoYi-Vue的博客系统");
         setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
         setDefaultSetting(settingsMap, "blog_email", "");
@@ -989,7 +989,7 @@ public class BlogFrontController extends BaseController
         // 从配置中读取博客标题与描述，避免硬编码
         String blogName = blogSettingService.selectSettingValueByKey("blog_name");
         if (blogName == null || blogName.trim().isEmpty()) {
-            blogName = "企业官网项目";
+            blogName = "知企建站系统";
         }
         String blogDesc = blogSettingService.selectSettingValueByKey("blog_desc");
         if (blogDesc == null || blogDesc.trim().isEmpty()) {
