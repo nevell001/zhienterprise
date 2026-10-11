@@ -1,21 +1,21 @@
 -- ===============================================================
--- 🌟 博客系统完整数据库初始化脚本（幂等版）
+-- 🌟 知企建站系统完整数据库初始化脚本（幂等版）
 -- ===============================================================
 -- 📅 创建时间：2025-11-07
 -- 🔧 最后更新：2026-08-26
--- 📝 描述：整合所有SQL文件，创建完整的博客系统数据库
--- 🚀 版本：v2.3.0 (幂等版 - 可重复执行)
+-- 📝 描述：整合所有SQL文件，创建完整的知企建站系统数据库
+-- 🚀 版本：v1.0.0 (幂等版 - 可重复执行)
 --
 -- 📋 包含内容：
 -- ✅ 若依系统基础表结构和数据
 -- ✅ Quartz定时任务表结构
--- ✅ 博客系统表结构和数据（含 blog_notification 站内信通知表）
--- ✅ 博客用户认证系统（博客用户角色、邮箱验证码表）
+-- ✅ 站点系统表结构和数据（含 blog_notification 站内信通知表）
+-- ✅ 注册用户认证系统（注册用户角色、邮箱验证码表）
 -- ✅ 代码生成器表结构
 -- ✅ 性能优化索引（含全文索引 ft_article_title_content）
 -- ✅ 数据完整性约束和触发器（含零日期修复）
 -- ✅ 完整的示例数据
--- ✅ 博客管理、系统管理、系统监控、数据统计、系统工具菜单和权限配置
+-- ✅ 站点管理、系统管理、系统监控、数据统计、系统工具菜单和权限配置
 --
 -- 🎯 使用方法：
 -- 1. 创建数据库：CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -97,16 +97,16 @@ CREATE TABLE IF NOT EXISTS sys_dept (
 ) ENGINE=INNODB AUTO_INCREMENT=200 COMMENT = '部门表';
 
 -- 初始化-部门表数据
-INSERT IGNORE INTO sys_dept VALUES(100,  0,   '0',          '知博技术',   0, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(101,  100, '0,100',      '西安总公司', 1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(103,  101, '0,100,101',  '研发部门',   1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(102,  100, '0,100',      '上海分公司', 2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(104,  101, '0,100,101',  '市场部门',   2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(105,  101, '0,100,101',  '测试部门',   3, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(106,  101, '0,100,101',  '财务部门',   4, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(107,  101, '0,100,101',  '运维部门',   5, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(108,  102, '0,100,102',  '市场部门',   1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT IGNORE INTO sys_dept VALUES(109,  102, '0,100,102',  '财务部门',   2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(100,  0,   '0',          '知企技术',   0, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(101,  100, '0,100',      '西安总公司', 1, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(103,  101, '0,100,101',  '研发部门',   1, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(102,  100, '0,100',      '上海分公司', 2, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(104,  101, '0,100,101',  '市场部门',   2, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(105,  101, '0,100,101',  '测试部门',   3, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(106,  101, '0,100,101',  '财务部门',   4, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(107,  101, '0,100,101',  '运维部门',   5, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(108,  102, '0,100,102',  '市场部门',   1, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(109,  102, '0,100,102',  '财务部门',   2, '知企', '15888888888', 'zhiqi@qq.com', '0', '0', 'admin', NOW(), '', NULL);
 
 -- 2、用户信息表
 CREATE TABLE IF NOT EXISTS sys_user (
@@ -134,8 +134,8 @@ CREATE TABLE IF NOT EXISTS sys_user (
 ) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '用户信息表';
 
 -- 初始化-用户信息表数据
-INSERT IGNORE INTO sys_user VALUES(1,  103, 'admin', '知博', '00', 'zhiblog@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '管理员');
-INSERT IGNORE INTO sys_user VALUES(2,  105, 'zhiblog', '知博', '00', 'zhiblog@qq.com',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '测试员');
+INSERT IGNORE INTO sys_user VALUES(1,  103, 'admin', '知企', '00', 'zhiqi@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '管理员');
+INSERT IGNORE INTO sys_user VALUES(2,  105, 'zhiqi', '知企', '00', 'zhiqi@qq.com',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '测试员');
 
 -- 3、岗位信息表
 CREATE TABLE IF NOT EXISTS sys_post (
@@ -183,7 +183,7 @@ INSERT IGNORE INTO sys_config VALUES(5, '账号自助-是否开启用户注册�
 INSERT IGNORE INTO sys_config VALUES(6, '用户登录-黑名单列表',           'sys.login.blackIPList',            '',              'Y', 'admin', NOW(), '', NULL, '设置登录IP黑名单限制，多个匹配项以;分隔，支持匹配（*通配、网段）');
 INSERT IGNORE INTO sys_config VALUES(7, '用户管理-初始密码修改策略',     'sys.account.initPasswordModify',   '1',             'Y', 'admin', NOW(), '', NULL, '0：初始密码修改策略关闭，没有任何提示，1：提醒用户，如果未修改初始密码，则在登录时就会提醒修改密码对话框');
 INSERT IGNORE INTO sys_config VALUES(8, '用户管理-账号密码更新周期',     'sys.account.passwordValidateDays', '0',             'Y', 'admin', NOW(), '', NULL, '密码更新周期（填写数字，数据初始化值为0不限制，若修改必须为大于0小于365的正整数），如果超过这个周期登录系统时，则在登录时就会提醒修改密码对话框');
-INSERT IGNORE INTO sys_config VALUES(9, '博客头像',                       'blog_avatar',                       '',              'Y', 'admin', NOW(), '', NULL, '博主头像URL，用于前台博客页面显示。与blog_setting表中的blog_avatar保持同步');
+INSERT IGNORE INTO sys_config VALUES(9, '站点头像',                       'blog_avatar',                       '',              'Y', 'admin', NOW(), '', NULL, '站点头像URL，用于站点前台页面显示。与blog_setting表中的blog_avatar保持同步');
 
 -- 5、角色信息表
 CREATE TABLE IF NOT EXISTS sys_role (
@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS sys_role (
 -- 初始化-角色信息表数据
 INSERT IGNORE INTO sys_role VALUES('1', '超级管理员',  'admin',  1, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '超级管理员');
 INSERT IGNORE INTO sys_role VALUES('2', '普通角色',    'common', 2, 2, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '普通角色');
-INSERT IGNORE INTO sys_role VALUES('3', '博客用户',    'blog_user', 3, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '博客普通用户，用于前台注册登录');
+INSERT IGNORE INTO sys_role VALUES('3', '注册用户',    'blog_user', 3, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '注册用户，用于站点前台注册登录');
 
 -- 6、菜单权限表
 CREATE TABLE IF NOT EXISTS sys_menu (
@@ -533,7 +533,7 @@ CREATE TABLE IF NOT EXISTS QRTZ_SIMPROP_TRIGGERS (
     FOREIGN KEY (sched_name, trigger_name, trigger_group) REFERENCES QRTZ_TRIGGERS(sched_name, trigger_name, trigger_group)
 ) ENGINE=INNODB COMMENT = '同步机制的行锁表';
 
--- ========== 导入博客系统完整表结构和数据 ==========
+-- ========== 导入站点系统完整表结构和数据 ==========
 
 -- 定时任务调度表
 CREATE TABLE IF NOT EXISTS sys_job (
@@ -865,32 +865,32 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
   PRIMARY KEY (column_id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 COMMENT = '代码生成字段表';
 
--- ========== 初始化博客系统数据 ==========
+-- ========== 初始化站点系统数据 ==========
 
--- 初始化完整的博客设置数据（38项配置）
+-- 初始化完整的站点设置数据（38项配置）
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
-('blog_name', '知企建站系统', '博客名称', NOW(), NOW()),
-('blog_desc', '这是记录生活、技术和爱好的博客系统', '博客描述', NOW(), NOW()),
-('blog_author', 'admin', '博客作者', NOW(), NOW()),
-('blog_keywords', '博客,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发', '博客关键词', NOW(), NOW()),
-('blog_copyright', 'Copyright © 2025-2026 我的博客. All rights reserved.', '版权信息', NOW(), NOW()),
+('blog_name', '知企建站系统', '站点名称', NOW(), NOW()),
+('blog_desc', '欢迎来到我的站点', '站点描述', NOW(), NOW()),
+('blog_author', 'admin', '站长', NOW(), NOW()),
+('blog_keywords', '企业官网,建站系统,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发', '站点关键词', NOW(), NOW()),
+('blog_copyright', 'Copyright © 2025-2026 我的站点. All rights reserved.', '版权信息', NOW(), NOW()),
 ('blog_beian', '陕ICP备12345678号', '备案信息', NOW(), NOW()),
 
 -- 联系方式设置
-('blog_email', 'admin@example.com', '博客联系邮箱', NOW(), NOW()),
-('blog_url', 'http://localhost:3000', '博客访问地址', NOW(), NOW()),
+('blog_email', 'admin@example.com', '站点联系邮箱', NOW(), NOW()),
+('blog_url', 'http://localhost:3000', '站点访问地址', NOW(), NOW()),
 -- 监控入口（留空表示按站点访问地址自动推导：Prometheus +:9090 / Grafana +:3001 / Actuator 同源）
 ('prometheus_url', '', 'Prometheus 监控地址', NOW(), NOW()),
 ('grafana_url', '', 'Grafana 监控地址', NOW(), NOW()),
 ('actuator_url', '', 'Actuator 监控地址', NOW(), NOW()),
-('blog_avatar', '', '博主头像', NOW(), NOW()),
-('blog_signature', 'Stay hungry, Stay foolish', '博主签名', NOW(), NOW()),
-('blog_start_time', '2025-01-01', '博客创建时间', NOW(), NOW()),
+('blog_avatar', '', '站点头像', NOW(), NOW()),
+('blog_signature', 'Stay hungry, Stay foolish', '站长签名', NOW(), NOW()),
+('blog_start_time', '2025-01-01', '站点创建时间', NOW(), NOW()),
 
 -- 社交媒体设置
-('author_title', '全栈开发工程师', '博主头衔', NOW(), NOW()),
-('author_description', '这个人很懒，什么都没留下', '博主描述', NOW(), NOW()),
+('author_title', '全栈开发工程师', '站长头衔', NOW(), NOW()),
+('author_description', '这个人很懒，什么都没留下', '站长描述', NOW(), NOW()),
 ('github_url', 'https://github.com/nevell', 'GitHub链接', NOW(), NOW()),
 ('weibo_url', '', '微博链接', NOW(), NOW()),
 ('zhihu_url', '', '知乎链接', NOW(), NOW()),
@@ -934,16 +934,16 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('recent_comment_count', '5', '最新评论显示数量', NOW(), NOW()),
 
 -- 内容设置
-('greeting_message', '欢迎来到我的博客！', '欢迎信息', NOW(), NOW()),
+('greeting_message', '欢迎来到我的站点！', '欢迎信息', NOW(), NOW()),
 
 -- SEO优化设置
-('seo_title', '我的博客 - 分享技术与生活', 'SEO标题', NOW(), NOW()),
+('seo_title', '我的站点 - 分享技术与生活', 'SEO标题', NOW(), NOW()),
 ('seo_description', '专注于前后端技术分享，包含Spring Boot、Vue.js、MySQL等技术内容', 'SEO描述', NOW(), NOW()),
 ('seo_canonical_url', '', '规范URL（留空则用当前访问域名）', NOW(), NOW()),
 ('seo_robots', 'index,follow', 'Robots规则', NOW(), NOW()),
 ('seo_favicon', '/favicon.ico', '网站图标', NOW(), NOW());
 
--- 防盗链/域名管理设置（默认关闭，开关与白名单可在后台“博客设置-站点信息”管理）
+-- 防盗链/域名管理设置（默认关闭，开关与白名单可在后台“站点设置-站点信息”管理）
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('referer_enabled', 'false', '防盗链开关（true/false）', NOW(), NOW()),
 ('referer_allowed_domains', 'localhost,127.0.0.1', '防盗链允许域名（逗号、分号或换行分隔）', NOW(), NOW());
@@ -954,10 +954,10 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 
 -- 用户协议与隐私政策（注册页勾选与前台全文页面展示，后台「协议页面」可编辑；HTML 内不得出现单引号）
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
-('user_agreement_content', '<p>更新日期：2026-10-04 · 生效日期：2026-10-04</p><h3>一、协议的接受</h3><p>本站是基于 ZhiBlog 搭建的博客站点，由本站运营者（以下简称「本站」）运营。本《用户协议》（以下简称「本协议」）是您与本站之间关于注册、登录、使用本站账号及使用本站各项服务所订立的契约。</p><p>您在注册页面勾选「我已阅读并同意《用户协议》和《隐私政策》」并完成注册，或以其他方式实际使用本站服务，均表示您已充分阅读、理解并接受本协议的全部内容。若您不同意本协议的任何条款，请勿注册或使用本站服务。</p><h3>二、定义</h3><ul><li>「本站」：指本博客网站及其配套服务；</li><li>「用户」：指通过邮箱验证方式注册并获得本站账号的自然人；</li><li>「用户内容」：指用户在本站发表的评论、留言等内容。</li></ul><h3>三、账号注册与安全</h3><ul><li>您应当具备中华人民共和国法律规定的完全民事行为能力；若您为未成年人，应在监护人的指导下使用本站服务；</li><li>注册时您须提供真实、有效的邮箱地址，并通过邮箱验证码完成验证；昵称为选填项；</li><li>您应妥善保管账号密码，不得出借、出租、转让或与他人共用账号；通过您的账号进行的操作均视为您本人的行为；</li><li>如发现账号被盗用或存在其他安全问题，应立即通过本页提供的联系方式与本站取得联系。</li></ul><h3>四、用户行为规范</h3><p>您承诺在使用本站过程中，遵守《中华人民共和国宪法》《中华人民共和国网络安全法》《中华人民共和国个人信息保护法》等法律法规及公序良俗，不得利用本站制作、复制、发布、传播含有下列内容的信息：</p><ul><li>反对宪法确定的基本原则，危害国家安全、泄露国家秘密、颠覆国家政权、破坏国家统一的；</li><li>宣扬淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；</li><li>侮辱、诽谤他人，侵害他人名誉权、肖像权、隐私权、著作权等合法权益的；</li><li>散布谣言、虚假信息、垃圾广告，或其他与所在页面无关的骚扰信息的；</li><li>其他法律、行政法规禁止的内容。</li></ul><p>您不得以任何技术手段干扰本站的正常运行，或实施恶意注册、刷量、爬取数据等危害站点安全的行为。对违反本条规范的内容与账号，本站有权不经通知采取删除、屏蔽、限制功能、封禁账号等措施，并保留追究法律责任的权利。</p><h3>五、用户内容与知识产权</h3><ul><li>本站的界面设计、程序代码、Logo 等要素的知识产权归本站运营者所有；</li><li>用户内容的著作权归您或原权利人所有；您同意在免费、非独占的范围内授予本站存储、展示、传播用户内容的许可，以实现发表、展示等本站基本功能；</li><li>您承诺用户内容系您原创或已获得合法授权，因用户内容引发的一切纠纷由您自行承担相应责任；</li><li>未经权利人许可，任何一方不得将用户内容用于商业目的。</li></ul><h3>六、内容审核与通知</h3><p>本站开启评论审核功能时，您提交的评论将先经审核，审核通过后方公开展示，审核结果通过站内消息告知您；未通过审核的评论不会公开展示。</p><p>为及时告知评论回复、审核结果等信息，本站会通过站内消息中心向您推送通知；在邮件通知开启时，亦可能向您注册时填写的邮箱发送通知邮件。</p><h3>七、服务的变更、中断与终止</h3><ul><li>本站有权基于运营需要，变更、中断或终止部分或全部服务，并将尽可能提前公告；</li><li>因系统维护、升级、故障或不可抗力导致服务中断的，本站将尽力减少影响，但不承担由此产生的赔偿责任（法律另有规定除外）；</li><li>您可以随时停止使用本站服务；如需注销账号，可通过本页提供的联系方式向本站提出申请。</li></ul><h3>八、免责声明与责任限制</h3><p>本站仅提供信息存储与展示服务，除开启审核功能的内容外，不对用户内容进行事先审查，亦不对用户内容的真实性、完整性、合法性作出保证。对您因使用本站服务所产生的直接或间接损失，在法律允许的最大范围内，本站不承担责任。本站页面包含的指向第三方网站的外部链接，其内容与本站无关。</p><h3>九、法律适用与争议解决</h3><p>本协议的订立、履行与解释适用中华人民共和国法律。因本协议产生的争议，双方应友好协商解决；协商不成的，任何一方可向本站运营者所在地有管辖权的人民法院提起诉讼。</p><h3>十、协议的修订与联系我们</h3><p>本站可能适时修订本协议，修订后的协议将在本页面发布；若您在协议修订后继续使用本站服务，视为接受修订后的协议。</p><p>如您对本协议有任何疑问、意见或建议，可通过「关于」页面提供的联系方式与本站取得联系。</p>', '用户协议内容', NOW(), NOW()),
-('privacy_policy_content', '<p>更新日期：2026-10-04 · 生效日期：2026-10-04</p><h3>一、引言</h3><p>本站（基于 ZhiBlog 搭建的博客站点，以下简称「本站」）深知个人信息对您的重要性。我们将按照《中华人民共和国网络安全法》《中华人民共和国个人信息保护法》等法律法规的要求，以最小必要为原则处理您的个人信息，并采取相应的安全保护措施。本《隐私政策》帮助您了解本站收集哪些信息、如何使用与保护这些信息，以及您享有哪些权利。</p><p>本政策与《用户协议》共同构成您与本站之间的约定。您注册或使用本站服务，即表示您已阅读并同意本政策。</p><h3>二、我们收集的信息</h3><p>本站遵循合法、正当、必要的原则，收集以下信息：</p><ul><li>注册信息：您注册时提供的用户名、昵称（选填）与邮箱地址；密码经单向加密（BCrypt）后存储，本站任何人员均无法获知其明文；</li><li>验证信息：注册、找回密码过程中用于校验身份的邮箱验证码发送记录与图形验证码会话；</li><li>互动信息：您发表的评论、留言，以及点赞、收藏等互动行为数据；</li><li>使用信息：文章浏览量等统计数据，以及为保障站点安全与排查故障而记录的请求日志（如 IP 地址、浏览器类型 User-Agent、访问时间）。</li></ul><h3>三、信息的使用</h3><p>我们将上述信息用于以下目的：</p><ul><li>创建与管理您的账号，完成登录与身份验证；</li><li>展示您发表的评论及昵称、头像等公开互动信息；</li><li>向您推送评论回复、审核结果等站内通知或邮件通知；</li><li>统计文章浏览量等站点运营数据，用于改进内容与服务；</li><li>识别并防范恶意注册、垃圾评论、恶意攻击等危害站点安全的行为。</li></ul><p>本站不会将您的个人信息用于上述目的之外的用途；如确需超出上述范围使用，将再次征得您的同意。</p><h3>四、Cookie 与本地存储</h3><p>您登录后，本站会将登录凭证（Token）保存在您浏览器的本地存储（LocalStorage）中，用于维持登录状态；图形验证码的会话信息将临时保存在服务端。本站不接入任何第三方广告、统计或追踪服务，不会将上述技术用于广告追踪。</p><h3>五、信息的共享与披露</h3><p>本站不会向任何第三方出售您的个人信息，仅在以下情形下发生必要的信息流动：</p><ul><li>邮件服务：验证码与通知邮件需借助第三方邮件服务商发送，该过程仅涉及您的邮箱地址；</li><li>法律要求：根据法律法规规定，或司法机关、行政机关的强制性要求，在必要范围内提供；</li><li>您的同意：经您明确授权的其他情形。</li></ul><h3>六、信息的存储与保护</h3><p>您的信息存储于本站数据库中，存储期限为实现本政策所述目的所必需的最短时间，超出期限后我们将予以删除或匿名化处理。本站采取密码单向加密存储、后台接口登录鉴权、最小权限访问控制等安全措施；建议您通过 HTTPS 访问本站以加密传输过程。</p><p>如不幸发生个人信息安全事件，本站将按照法律法规的要求及时告知您，并采取合理的补救措施。</p><h3>七、您的权利</h3><ul><li>访问与更正：您可随时在「个人中心」查看、修改昵称、头像、邮箱等个人信息；</li><li>删除：您可自行删除自己发表的评论、收藏等内容；</li><li>账号注销：如需注销账号或清空全部个人信息，可通过「关于」页面提供的联系方式联系站长处理；</li><li>撤回同意：您可以选择不再使用本站服务，并要求本站删除相关个人信息。</li></ul><h3>八、未成年人保护</h3><p>本站面向一般用户提供服务。若您是未满 14 周岁的未成年人，请在监护人的陪同与同意下使用本站服务，并由监护人帮助您完成必要的个人信息提供与授权。</p><h3>九、政策的修订</h3><p>本站可能适时修订本政策，修订后的政策将在本页面发布并更新顶部「更新日期」。若变更会实质影响您的权益，本站将以显著方式提示您；若您在政策修订后继续使用本站服务，视为接受修订后的政策。</p><h3>十、联系我们</h3><p>如您对本政策有任何疑问、意见或建议，可通过「关于」页面提供的联系方式与本站取得联系，我们将在收到反馈后尽快答复。</p>', '隐私政策内容', NOW(), NOW());
+('user_agreement_content', '<p>更新日期：2026-10-04 · 生效日期：2026-10-04</p><h3>一、协议的接受</h3><p>本站是基于知企建站系统搭建的站点，由本站运营者（以下简称「本站」）运营。本《用户协议》（以下简称「本协议」）是您与本站之间关于注册、登录、使用本站账号及使用本站各项服务所订立的契约。</p><p>您在注册页面勾选「我已阅读并同意《用户协议》和《隐私政策》」并完成注册，或以其他方式实际使用本站服务，均表示您已充分阅读、理解并接受本协议的全部内容。若您不同意本协议的任何条款，请勿注册或使用本站服务。</p><h3>二、定义</h3><ul><li>「本站」：指本站点及其配套服务；</li><li>「用户」：指通过邮箱验证方式注册并获得本站账号的自然人；</li><li>「用户内容」：指用户在本站发表的评论、留言等内容。</li></ul><h3>三、账号注册与安全</h3><ul><li>您应当具备中华人民共和国法律规定的完全民事行为能力；若您为未成年人，应在监护人的指导下使用本站服务；</li><li>注册时您须提供真实、有效的邮箱地址，并通过邮箱验证码完成验证；昵称为选填项；</li><li>您应妥善保管账号密码，不得出借、出租、转让或与他人共用账号；通过您的账号进行的操作均视为您本人的行为；</li><li>如发现账号被盗用或存在其他安全问题，应立即通过本页提供的联系方式与本站取得联系。</li></ul><h3>四、用户行为规范</h3><p>您承诺在使用本站过程中，遵守《中华人民共和国宪法》《中华人民共和国网络安全法》《中华人民共和国个人信息保护法》等法律法规及公序良俗，不得利用本站制作、复制、发布、传播含有下列内容的信息：</p><ul><li>反对宪法确定的基本原则，危害国家安全、泄露国家秘密、颠覆国家政权、破坏国家统一的；</li><li>宣扬淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；</li><li>侮辱、诽谤他人，侵害他人名誉权、肖像权、隐私权、著作权等合法权益的；</li><li>散布谣言、虚假信息、垃圾广告，或其他与所在页面无关的骚扰信息的；</li><li>其他法律、行政法规禁止的内容。</li></ul><p>您不得以任何技术手段干扰本站的正常运行，或实施恶意注册、刷量、爬取数据等危害站点安全的行为。对违反本条规范的内容与账号，本站有权不经通知采取删除、屏蔽、限制功能、封禁账号等措施，并保留追究法律责任的权利。</p><h3>五、用户内容与知识产权</h3><ul><li>本站的界面设计、程序代码、Logo 等要素的知识产权归本站运营者所有；</li><li>用户内容的著作权归您或原权利人所有；您同意在免费、非独占的范围内授予本站存储、展示、传播用户内容的许可，以实现发表、展示等本站基本功能；</li><li>您承诺用户内容系您原创或已获得合法授权，因用户内容引发的一切纠纷由您自行承担相应责任；</li><li>未经权利人许可，任何一方不得将用户内容用于商业目的。</li></ul><h3>六、内容审核与通知</h3><p>本站开启评论审核功能时，您提交的评论将先经审核，审核通过后方公开展示，审核结果通过站内消息告知您；未通过审核的评论不会公开展示。</p><p>为及时告知评论回复、审核结果等信息，本站会通过站内消息中心向您推送通知；在邮件通知开启时，亦可能向您注册时填写的邮箱发送通知邮件。</p><h3>七、服务的变更、中断与终止</h3><ul><li>本站有权基于运营需要，变更、中断或终止部分或全部服务，并将尽可能提前公告；</li><li>因系统维护、升级、故障或不可抗力导致服务中断的，本站将尽力减少影响，但不承担由此产生的赔偿责任（法律另有规定除外）；</li><li>您可以随时停止使用本站服务；如需注销账号，可通过本页提供的联系方式向本站提出申请。</li></ul><h3>八、免责声明与责任限制</h3><p>本站仅提供信息存储与展示服务，除开启审核功能的内容外，不对用户内容进行事先审查，亦不对用户内容的真实性、完整性、合法性作出保证。对您因使用本站服务所产生的直接或间接损失，在法律允许的最大范围内，本站不承担责任。本站页面包含的指向第三方网站的外部链接，其内容与本站无关。</p><h3>九、法律适用与争议解决</h3><p>本协议的订立、履行与解释适用中华人民共和国法律。因本协议产生的争议，双方应友好协商解决；协商不成的，任何一方可向本站运营者所在地有管辖权的人民法院提起诉讼。</p><h3>十、协议的修订与联系我们</h3><p>本站可能适时修订本协议，修订后的协议将在本页面发布；若您在协议修订后继续使用本站服务，视为接受修订后的协议。</p><p>如您对本协议有任何疑问、意见或建议，可通过「关于」页面提供的联系方式与本站取得联系。</p>', '用户协议内容', NOW(), NOW()),
+('privacy_policy_content', '<p>更新日期：2026-10-04 · 生效日期：2026-10-04</p><h3>一、引言</h3><p>本站（基于知企建站系统搭建的站点，以下简称「本站」）深知个人信息对您的重要性。我们将按照《中华人民共和国网络安全法》《中华人民共和国个人信息保护法》等法律法规的要求，以最小必要为原则处理您的个人信息，并采取相应的安全保护措施。本《隐私政策》帮助您了解本站收集哪些信息、如何使用与保护这些信息，以及您享有哪些权利。</p><p>本政策与《用户协议》共同构成您与本站之间的约定。您注册或使用本站服务，即表示您已阅读并同意本政策。</p><h3>二、我们收集的信息</h3><p>本站遵循合法、正当、必要的原则，收集以下信息：</p><ul><li>注册信息：您注册时提供的用户名、昵称（选填）与邮箱地址；密码经单向加密（BCrypt）后存储，本站任何人员均无法获知其明文；</li><li>验证信息：注册、找回密码过程中用于校验身份的邮箱验证码发送记录与图形验证码会话；</li><li>互动信息：您发表的评论、留言，以及点赞、收藏等互动行为数据；</li><li>使用信息：文章浏览量等统计数据，以及为保障站点安全与排查故障而记录的请求日志（如 IP 地址、浏览器类型 User-Agent、访问时间）。</li></ul><h3>三、信息的使用</h3><p>我们将上述信息用于以下目的：</p><ul><li>创建与管理您的账号，完成登录与身份验证；</li><li>展示您发表的评论及昵称、头像等公开互动信息；</li><li>向您推送评论回复、审核结果等站内通知或邮件通知；</li><li>统计文章浏览量等站点运营数据，用于改进内容与服务；</li><li>识别并防范恶意注册、垃圾评论、恶意攻击等危害站点安全的行为。</li></ul><p>本站不会将您的个人信息用于上述目的之外的用途；如确需超出上述范围使用，将再次征得您的同意。</p><h3>四、Cookie 与本地存储</h3><p>您登录后，本站会将登录凭证（Token）保存在您浏览器的本地存储（LocalStorage）中，用于维持登录状态；图形验证码的会话信息将临时保存在服务端。本站不接入任何第三方广告、统计或追踪服务，不会将上述技术用于广告追踪。</p><h3>五、信息的共享与披露</h3><p>本站不会向任何第三方出售您的个人信息，仅在以下情形下发生必要的信息流动：</p><ul><li>邮件服务：验证码与通知邮件需借助第三方邮件服务商发送，该过程仅涉及您的邮箱地址；</li><li>法律要求：根据法律法规规定，或司法机关、行政机关的强制性要求，在必要范围内提供；</li><li>您的同意：经您明确授权的其他情形。</li></ul><h3>六、信息的存储与保护</h3><p>您的信息存储于本站数据库中，存储期限为实现本政策所述目的所必需的最短时间，超出期限后我们将予以删除或匿名化处理。本站采取密码单向加密存储、后台接口登录鉴权、最小权限访问控制等安全措施；建议您通过 HTTPS 访问本站以加密传输过程。</p><p>如不幸发生个人信息安全事件，本站将按照法律法规的要求及时告知您，并采取合理的补救措施。</p><h3>七、您的权利</h3><ul><li>访问与更正：您可随时在「个人中心」查看、修改昵称、头像、邮箱等个人信息；</li><li>删除：您可自行删除自己发表的评论、收藏等内容；</li><li>账号注销：如需注销账号或清空全部个人信息，可通过「关于」页面提供的联系方式联系站长处理；</li><li>撤回同意：您可以选择不再使用本站服务，并要求本站删除相关个人信息。</li></ul><h3>八、未成年人保护</h3><p>本站面向一般用户提供服务。若您是未满 14 周岁的未成年人，请在监护人的陪同与同意下使用本站服务，并由监护人帮助您完成必要的个人信息提供与授权。</p><h3>九、政策的修订</h3><p>本站可能适时修订本政策，修订后的政策将在本页面发布并更新顶部「更新日期」。若变更会实质影响您的权益，本站将以显著方式提示您；若您在政策修订后继续使用本站服务，视为接受修订后的政策。</p><h3>十、联系我们</h3><p>如您对本政策有任何疑问、意见或建议，可通过「关于」页面提供的联系方式与本站取得联系，我们将在收到反馈后尽快答复。</p>', '隐私政策内容', NOW(), NOW());
 
--- 插入完整的博客分类数据（包含层级结构）
+-- 插入完整的站点分类数据（包含层级结构）
 -- 幂等保护 1：清理历史重跑产生的重复分类（同 alias+name 保留最小 id，且只删没有被文章引用的重复行）
 DELETE c1 FROM `blog_category` c1
 JOIN `blog_category` c2
@@ -984,7 +984,7 @@ INSERT IGNORE INTO `blog_category` (`id`, `name`, `alias`, `description`, `paren
 (10, '读书笔记', 'reading', '读书心得和笔记', 2, 2, 2, 1),
 (11, '旅行见闻', 'travel', '旅行经历和见闻', 2, 3, 3, 1);
 
--- 插入完整的博客标签数据（18个常用标签）
+-- 插入完整的站点标签数据（18个常用标签）
 INSERT IGNORE INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
 -- 核心标签（确保与test_tags.sql一致）
 (1, 'Java', 'Java编程语言相关文章', '#f89820', 'el-icon-cpu', 0),
@@ -1016,7 +1016,7 @@ INSERT IGNORE INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `ar
 (17, 'Git', 'Git版本控制工具', '#F05032', 'el-icon-branch', 0),
 (18, 'Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0);
 
--- 插入完整的博客文章示例数据
+-- 插入完整的站点文章示例数据
 -- 幂等保护：仅在尚无示例文章时插入，避免重跑脚本导致重复
 DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 DELIMITER $$
@@ -1028,7 +1028,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 ('Spring Boot + Vue.js 全栈开发实战', '本文详细介绍如何使用Spring Boot和Vue.js构建现代化的全栈Web应用，包含完整的项目搭建和部署流程。',
 '<h1>Spring Boot + Vue.js 全栈开发实战</h1>
 <h2>📋 项目介绍</h2>
-<p>本项目是基于Spring Boot 3.3.0和Vue.js 3.x构建的现代化博客系统，采用前后端分离架构，提供完整的内容管理功能。</p>
+<p>本项目是基于Spring Boot 3.3.0和Vue.js 3.x构建的现代化企业建站系统，采用前后端分离架构，提供完整的内容管理功能。</p>
 <h2>🛠️ 技术栈详解</h2>
 <h3>后端技术栈</h3>
 <ul>
@@ -1425,11 +1425,11 @@ INSERT IGNORE INTO `blog_friend_link` (`id`, `name`, `url`, `logo`, `description
 (9, 'Redis官网', 'https://redis.io/', 'https://redis.io/images/redis-white.svg', 'Redis内存数据库官方网站', 0, 9),
 (10, 'MySQL官网', 'https://www.mysql.com/', 'https://www.mysql.com/common/logos/logo-mysql-170x115.png', 'MySQL数据库官方网站，提供数据库软件和文档', 0, 10);
 
--- ========== 配置博客管理菜单 ==========
+-- ========== 配置站点管理菜单 ==========
 
--- 博客管理主菜单
+-- 站点管理主菜单
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2000, '博客管理', 0, 1, 'admin/blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '', NULL, '博客管理目录');
+VALUES (2000, '站点管理', 0, 1, 'admin/blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '', NULL, '站点管理目录');
 
 -- 文章管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -1482,16 +1482,16 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2007), (1, 20080);
 
--- 博客设置
+-- 站点设置
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2005, '博客设置', 2000, 7, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'swagger', 'admin', NOW(), '', NULL, '博客设置菜单');
+VALUES (2005, '站点设置', 2000, 7, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'swagger', 'admin', NOW(), '', NULL, '站点设置菜单');
 
--- 为管理员角色分配博客管理菜单权限
+-- 为管理员角色分配站点管理菜单权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 2000), (1, 2001), (1, 2002), (1, 2003), (1, 2004), (1, 2006), (1, 2005);
 
 
--- ========== 配置博客管理按钮权限 ==========
+-- ========== 配置站点管理按钮权限 ==========
 
 -- 文章管理按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1540,14 +1540,14 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 (20063, '友链删除', 2006, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:remove', '#', 'admin', NOW(), '', NULL, ''),
 (20064, '友链导出', 2006, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:export', '#', 'admin', NOW(), '', NULL, '');
 
--- 博客设置按钮权限
+-- 站点设置按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20050, '设置查询', 2005, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:query', '#', 'admin', NOW(), '', NULL, ''),
 (20051, '设置修改', 2005, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:edit', '#', 'admin', NOW(), '', NULL, ''),
 (20052, '设置新增', 2005, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:add', '#', 'admin', NOW(), '', NULL, ''),
 (20053, '设置删除', 2005, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:remove', '#', 'admin', NOW(), '', NULL, '');
 
--- 为管理员角色分配所有博客管理按钮权限
+-- 为管理员角色分配所有站点管理按钮权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 20010), (1, 20011), (1, 20012), (1, 20013), (1, 20014),
 (1, 20015), (1, 20016), (1, 20017), (1, 20018), (1, 20019),
@@ -1560,9 +1560,9 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 2008), (1, 20090), (1, 20091), (1, 20092), (1, 20093), (1, 20094),
 (1, 2009), (1, 20100), (1, 20101), (1, 20102), (1, 20103), (1, 20104);
 
--- 为普通角色(role_id=2)分配博客管理菜单及按钮权限（内容管理员）
+-- 为普通角色(role_id=2)分配站点管理菜单及按钮权限（内容管理员）
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
--- 博客管理主菜单和文章管理
+-- 站点管理主菜单和文章管理
 (2, 2000), (2, 2001),
 -- 文章管理按钮权限（查询、新增、修改、删除、导出）
 (2, 20010), (2, 20011), (2, 20012), (2, 20013), (2, 20014),
@@ -1580,9 +1580,9 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (2, 2004),
 -- 评论管理按钮权限（查询、审核、删除、驳回、导出）
 (2, 20040), (2, 20041), (2, 20042), (2, 20043), (2, 20044),
--- 博客设置
+-- 站点设置
 (2, 2005),
--- 博客设置按钮权限（查询、修改）
+-- 站点设置按钮权限（查询、修改）
 (2, 20050), (2, 20051),
 -- 友链管理
 (2, 2006),
@@ -1597,7 +1597,7 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 -- 自定义页面（查询/新增/修改/删除）
  (2, 2009), (2, 20100), (2, 20101), (2, 20102), (2, 20103);
 
--- 博客用户角色(role_id=3)不分配任何后台菜单，仅通过个人中心（/user/profile）管理个人资料
+-- 注册用户角色(role_id=3)不分配任何后台菜单，仅通过个人中心（/user/profile）管理个人资料
 -- 历史库迁移（幂等）：清理 role_id=3 已分配的后台菜单权限
 DELETE FROM sys_role_menu WHERE role_id = 3 AND menu_id IN (2000, 2001, 2002, 2003, 2004, 2005, 2006,
   20010, 20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019,
@@ -2294,17 +2294,17 @@ UPDATE blog_article SET like_count = 0 WHERE like_count IS NULL;
 UPDATE blog_article SET comment_count = 0 WHERE comment_count IS NULL;
 
 -- 验证关键字段完整性
-SELECT '验证博客文章数据完整性...' AS status;
+SELECT '验证站点文章数据完整性...' AS status;
 SELECT COUNT(*) AS empty_title_articles FROM blog_article WHERE title = '' OR title IS NULL;
 SELECT COUNT(*) AS empty_content_articles FROM blog_article WHERE content = '' OR content IS NULL;
 SELECT COUNT(*) AS invalid_status_articles FROM blog_article WHERE status NOT IN (0, 1);
 SELECT COUNT(*) AS invalid_del_flag_articles FROM blog_article WHERE del_flag NOT IN ('0', '1');
 
-SELECT '验证博客分类数据完整性...' AS status;
+SELECT '验证站点分类数据完整性...' AS status;
 SELECT COUNT(*) AS empty_name_categories FROM blog_category WHERE name = '' OR name IS NULL;
 SELECT COUNT(*) AS invalid_parent_categories FROM blog_category WHERE parent_id NOT IN (SELECT id FROM blog_category) AND parent_id != 0;
 
-SELECT '验证博客标签数据完整性...' AS status;
+SELECT '验证站点标签数据完整性...' AS status;
 SELECT COUNT(*) AS empty_name_tags FROM blog_tag WHERE name = '' OR name IS NULL;
 SELECT COUNT(*) AS duplicate_tags
 FROM (
@@ -2314,7 +2314,7 @@ FROM (
     HAVING COUNT(*) > 1
 ) duplicate_tag_names;
 
-SELECT '验证博客设置数据完整性...' AS status;
+SELECT '验证站点设置数据完整性...' AS status;
 SELECT COUNT(*) AS total_settings FROM blog_setting;
 SELECT COUNT(*) AS duplicate_settings
 FROM (
@@ -2344,11 +2344,11 @@ SELECT 'blog_setting' AS table_name, COUNT(*) AS record_count FROM blog_setting;
 -- ========== 数据库初始化完成 ==========
 
 SELECT '🎉 数据库初始化完成！' AS result;
-SELECT '✅ 若依系统基础表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'sys_%';
-SELECT '✅ 博客系统表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'blog_%';
+SELECT '✅ 系统基础表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'sys_%';
+SELECT '✅ 站点系统表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'blog_%';
 SELECT '✅ Quartz定时任务表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'QRTZ_%';
 SELECT '✅ 代码生成器表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'gen_%';
-SELECT '✅ 博客管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_name = '博客管理' OR parent_id = 2000;
+SELECT '✅ 站点管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_name = '站点管理' OR parent_id = 2000;
 SELECT '✅ 系统管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id BETWEEN 100 AND 107;
 SELECT '✅ 系统监控菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id BETWEEN 109 AND 114 OR menu_id BETWEEN 5000 AND 5013;
 SELECT '✅ 数据统计菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id = 5 OR parent_id = 5;
@@ -2416,7 +2416,7 @@ WHERE a.id IN (1, 2, 4) AND a.del_flag = 0
 GROUP BY a.id, a.title
 ORDER BY a.id;
 
-SELECT '🚀 博客系统已准备就绪，可以开始使用了！' AS final_message;
+SELECT '🚀 知企建站系统已准备就绪，可以开始使用了！' AS final_message;
 
 -- ===============================================================
 -- 📖 使用指南和故障排除
@@ -2460,7 +2460,7 @@ SELECT '3. 启用Redis缓存：减轻数据库压力' AS tip3;
 SELECT '4. 定期备份数据：mysqldump -u root -p zhiblog > backup.sql' AS tip4;
 
 -- ===============================================================
--- 📌 文章收藏表 (v1.3.3 新增)
+-- 📌 文章收藏表
 -- ===============================================================
 CREATE TABLE IF NOT EXISTS blog_bookmark (
     id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
@@ -2569,7 +2569,7 @@ EXECUTE add_message_update_by_stmt;
 DEALLOCATE PREPARE add_message_update_by_stmt;
 
 -- ===============================================================
--- 📌 站内信通知表 (v1.3.6 新增)
+-- 📌 站内信通知表
 -- ===============================================================
 CREATE TABLE IF NOT EXISTS blog_notification (
     id            BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
@@ -2591,10 +2591,10 @@ CREATE TABLE IF NOT EXISTS blog_notification (
 -- 「关于」内置页面（slug=about）：页面管理列表中直接管理，前台 /blog/about 仅渲染此页（无其他兜底来源）；
 -- 幂等：INSERT IGNORE 依赖 slug 唯一键，重跑不覆盖站长在页面管理里的修改；被逻辑删除的行也会阻止重新插入（删除即删除）
 INSERT IGNORE INTO `blog_page` (`title`, `slug`, `summary`, `content`, `status`, `show_in_nav`, `sort`, `create_by`, `create_time`, `update_time`)
-VALUES ('关于', 'about', '', '<p>这是一个基于Spring Boot + Vue.js构建的现代化博客系统。</p><p>主要功能包括：</p><ul><li>文章管理</li><li>分类标签</li><li>评论系统</li><li>搜索功能</li></ul>', '1', '0', 0, 'admin', NOW(), NOW());
+VALUES ('关于', 'about', '', '<p>这是一个基于Spring Boot + Vue.js构建的现代化企业建站系统。</p><p>主要功能包括：</p><ul><li>文章管理</li><li>分类标签</li><li>评论系统</li><li>搜索功能</li></ul>', '1', '0', 0, 'admin', NOW(), NOW());
 
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;
-SELECT 'Gitee: https://gitee.com/nevell/zhiblog' AS gitee;
+SELECT 'Gitee: https://gitee.com/nevell/zhienterprise' AS gitee;
 SELECT 'Email: nevell@foxmail.com' AS email;
 SELECT '✅ 初始化脚本执行完成！祝您使用愉快！' AS complete_message;
