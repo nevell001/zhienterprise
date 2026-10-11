@@ -18,6 +18,7 @@ const {
   getMailConfig,
   saveMailConfig,
   testMailConfig,
+  getPublishedPages,
   ElMessage
 } = vi.hoisted(() => ({
   listSetting: vi.fn(),
@@ -27,6 +28,7 @@ const {
   getMailConfig: vi.fn(),
   saveMailConfig: vi.fn(),
   testMailConfig: vi.fn(),
+  getPublishedPages: vi.fn(),
   ElMessage: { success: vi.fn(), warning: vi.fn(), error: vi.fn() }
 }))
 
@@ -41,6 +43,10 @@ vi.mock('@/api/admin/blog/setting', () => ({
 
 vi.mock('@/api/blog/setting', () => ({
   clearBlogCache: (...args: unknown[]) => clearBlogCache(...args)
+}))
+
+vi.mock('@/api/blog/page', () => ({
+  getPublishedPages: (...args: unknown[]) => getPublishedPages(...args)
 }))
 
 vi.mock('@/plugins/element-plus-service', () => ({
@@ -73,7 +79,11 @@ function mountPage() {
         'el-alert': { props: ['title'], template: '<div class="alert">{{ title }}<slot /></div>' },
         'el-divider': { template: '<hr />' },
         'el-select': { template: '<div><slot /></div>' },
-        'el-option': { template: '<span><slot /></span>' },
+        // 真实 el-option 的可见文案来自 label 属性而非插槽
+        'el-option': {
+          props: ['label', 'value'],
+          template: '<span class="opt">{{ label }}<slot /></span>'
+        },
         'el-color-picker': { props: ['modelValue'], template: '<span class="cp" />' },
         'el-radio-group': ElRadioGroupStub,
         'el-radio-button': { template: '<span class="rb"><slot /></span>' },
@@ -104,6 +114,7 @@ describe('BlogSetting 视图（行为）', () => {
     updateSettingValueByKey.mockResolvedValue({ code: 200 })
     getRegistrationSwitch.mockResolvedValue({ code: 200, data: false })
     clearBlogCache.mockResolvedValue({ code: 200 })
+    getPublishedPages.mockResolvedValue({ code: 200, data: [] })
     getMailConfig.mockResolvedValue({
       code: 200,
       data: {
@@ -140,6 +151,32 @@ describe('BlogSetting 视图（行为）', () => {
     expect(wrapper.find('[data-feature="comment_enabled"]').exists()).toBe(true)
     expect(wrapper.find('[data-feature="like_enabled"]').exists()).toBe(true)
     expect(wrapper.find('[data-feature="guestbook_enabled"]').exists()).toBe(true)
+  })
+
+  it('功能设置包含三个导航裁剪开关（企业官网模式用）', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    expect(wrapper.find('[data-feature="nav_category_enabled"]').exists()).toBe(true)
+    expect(wrapper.find('[data-feature="nav_tag_enabled"]').exists()).toBe(true)
+    expect(wrapper.find('[data-feature="nav_archive_enabled"]').exists()).toBe(true)
+  })
+
+  it('「首页显示」下拉列出已发布的自定义页面', async () => {
+    getPublishedPages.mockResolvedValue({
+      code: 200,
+      data: [
+        { id: 1, title: '关于我们', slug: 'about' },
+        { id: 2, title: '首页', slug: 'home' }
+      ]
+    })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const text = wrapper.text()
+    expect(text).toContain('首页显示')
+    expect(text).toContain('文章列表（默认）')
+    expect(text).toContain('关于我们')
   })
 
   it('评论功能关闭时，评论审核开关被置灰禁用', async () => {

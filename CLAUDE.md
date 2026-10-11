@@ -107,6 +107,7 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 **Blog Feature Toggles** (stored in `blog_setting` table):
 - `comment_review`, `view_count_enabled`, `like_enabled`, `share_enabled`
 - `search_enabled`, `sidebar_enabled`, `footer_enabled`, `copyright_enabled`
+- 企业官网模式: `home_page_slug` (首页接管自定义页面), `nav_category_enabled`, `nav_tag_enabled`, `nav_archive_enabled` (导航裁剪)
 
 **Public vs Admin API Pattern**:
 - `/blog/**` endpoints: Public-facing, use `@Anonymous` annotation for unauthenticated access

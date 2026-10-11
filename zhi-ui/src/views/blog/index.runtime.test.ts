@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import BlogHome from './index.vue'
 import { useUserStore } from '@/stores/user'
+import { getBlogSettings } from '@/api/blog'
+import { getPublishedPageBySlug } from '@/api/blog/page'
 
 vi.mock('@/api/blog', () => ({
   getArticleList: vi.fn().mockResolvedValue({ rows: [], total: 0 }),
@@ -25,9 +27,17 @@ vi.mock('@/api/blog/friendLink', () => ({
   getFrontFriendLinkList: vi.fn().mockResolvedValue({ rows: [] })
 }))
 
+vi.mock('@/api/blog/page', () => ({
+  getPublishedPageBySlug: vi.fn().mockResolvedValue({ code: 200, data: null }),
+  getPublishedPages: vi.fn().mockResolvedValue({ data: [] })
+}))
+
 const router = createRouter({
   history: createMemoryHistory(),
-  routes: [{ path: '/blog', component: BlogHome }]
+  routes: [
+    { path: '/blog', component: BlogHome, name: 'PublicBlogHome' },
+    { path: '/blog/articles', component: BlogHome, name: 'PublicBlogArticleList' }
+  ]
 })
 
 const stubs = {
@@ -39,19 +49,22 @@ const stubs = {
   'el-icon': { template: '<span><slot /></span>' }
 }
 
+function mountHome() {
+  return mount(BlogHome, {
+    global: {
+      plugins: [createPinia(), router],
+      stubs
+    }
+  })
+}
+
 describe('博客首页运行时渲染', () => {
   it('没有后端数据时也应该渲染首屏结构', async () => {
     router.push('/blog')
     await router.isReady()
 
-    const wrapper = mount(BlogHome, {
-      global: {
-        plugins: [createPinia(), router],
-        stubs
-      }
-    })
-
-    await Promise.resolve()
+    const wrapper = mountHome()
+    await flushPromises()
 
     expect(wrapper.find('.mo-home-page').exists()).toBe(true)
     expect(wrapper.find('.home-hero h1').text()).toBe('记录与分享')
@@ -74,8 +87,7 @@ describe('博客首页运行时渲染', () => {
         stubs
       }
     })
-
-    await Promise.resolve()
+    await flushPromises()
 
     expect(wrapper.find('.mo-home-page').exists()).toBe(true)
     expect(wrapper.find('.home-hero h1').text()).toBe('记录与分享')
@@ -85,5 +97,71 @@ describe('博客首页运行时渲染', () => {
     )
 
     consoleErrorSpy.mockRestore()
+  })
+
+  it('配置了 home_page_slug 时首页渲染该自定义页面，导航补「文章」入口', async () => {
+    vi.mocked(getBlogSettings).mockResolvedValueOnce({
+      data: { home_page_slug: 'company' }
+    } as any)
+    vi.mocked(getPublishedPageBySlug).mockResolvedValueOnce({
+      code: 200,
+      data: {
+        id: 9,
+        title: '星海科技',
+        slug: 'company',
+        content: '## 欢迎来到星海科技',
+        format: 'markdown'
+      }
+    } as any)
+
+    router.push('/blog')
+    await router.isReady()
+
+    const wrapper = mountHome()
+    await flushPromises()
+
+    expect(vi.mocked(getPublishedPageBySlug)).toHaveBeenCalledWith('company')
+    expect(wrapper.text()).toContain('星海科技')
+    expect(wrapper.text()).toContain('欢迎来到星海科技')
+    // 文章列表没有被渲染，且首页模式隐藏了 Page 标签与更新/浏览元信息
+    expect(wrapper.find('.mo-home-page').exists()).toBe(false)
+    expect(wrapper.html()).not.toContain('>Page<')
+    expect(wrapper.find('a[href="/blog/articles"]').exists()).toBe(true)
+  })
+
+  it('home_page_slug 对应页面不存在时降级回文章列表', async () => {
+    vi.mocked(getBlogSettings).mockResolvedValueOnce({
+      data: { home_page_slug: 'missing' }
+    } as any)
+    vi.mocked(getPublishedPageBySlug).mockRejectedValueOnce(new Error('404'))
+
+    router.push('/blog')
+    await router.isReady()
+
+    const wrapper = mountHome()
+    await flushPromises()
+
+    expect(wrapper.find('.mo-home-page').exists()).toBe(true)
+    expect(wrapper.find('.home-hero h1').text()).toBe('记录与分享')
+  })
+
+  it('设置未加载完成时不先渲染文章列表（避免闪动）', async () => {
+    let resolveSettings: (value: any) => void = () => {}
+    vi.mocked(getBlogSettings).mockImplementationOnce(
+      () => new Promise(resolve => (resolveSettings = resolve)) as any
+    )
+
+    router.push('/blog')
+    await router.isReady()
+
+    const wrapper = mountHome()
+    await Promise.resolve()
+
+    expect(wrapper.find('.mo-home-page').exists()).toBe(false)
+
+    resolveSettings({ data: {} })
+    await flushPromises()
+
+    expect(wrapper.find('.mo-home-page').exists()).toBe(true)
   })
 })

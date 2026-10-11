@@ -9,6 +9,13 @@ export const blogRoutes: RouteRecordRaw[] = [
     meta: { title: '博客首页' }
   },
   {
+    // 企业官网模式下首页被自定义页面接管，文章列表固定在本地址（博客模式下与首页内容相同）
+    path: '/blog/articles',
+    component: () => import('@/views/blog/index.vue'),
+    name: 'PublicBlogArticleList',
+    meta: { title: '文章列表' }
+  },
+  {
     path: '/blog/article/:id',
     component: () => import('@/views/blog/article/detail.vue'),
     name: 'PublicBlogArticleDetail',

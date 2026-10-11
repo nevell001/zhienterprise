@@ -93,6 +93,8 @@ public class BlogFrontController extends BaseController
         "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
         "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
         "beian_enabled",
+        // 企业官网模式：首页接管 + 导航裁剪
+        "home_page_slug", "nav_category_enabled", "nav_tag_enabled", "nav_archive_enabled",
         "friend_link_enabled",
         "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website",
         // SEO 相关键（前台动态 title/description/keywords 使用）

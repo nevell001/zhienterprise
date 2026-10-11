@@ -87,6 +87,29 @@ class BlogSeoControllerTest
     }
 
     @Test
+    @DisplayName("首页被自定义页面接管时，站点地图收录文章列表地址")
+    void sitemapIncludesArticleListWhenHomeIsCustomPage() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey("blog_url")).thenReturn("https://blog.example.com");
+        when(blogSettingService.selectSettingValueByKey("home_page_slug")).thenReturn("home");
+
+        String xml = body("/sitemap.xml", "blog.example.com", 443);
+
+        assertTrue(xml.contains("<loc>https://blog.example.com/blog/articles</loc>"), xml);
+    }
+
+    @Test
+    @DisplayName("默认博客首页时，文章列表地址不重复收录")
+    void sitemapOmitsArticleListForDefaultHome() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn(null);
+
+        String xml = body("/sitemap.xml", "blog.example.com", 443);
+
+        assertFalse(xml.contains("/blog/articles"), xml);
+    }
+
+    @Test
     @DisplayName("Robots规则含 noindex 时整站关闭爬虫抓取")
     void robotsHonoursNoindexSetting() throws Exception
     {

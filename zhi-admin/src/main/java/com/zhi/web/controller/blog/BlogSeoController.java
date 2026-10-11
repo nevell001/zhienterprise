@@ -55,6 +55,12 @@ public class BlogSeoController
         {
             writeUrl(out, baseUrl + path, null);
         }
+        // 首页被自定义页面接管时，文章列表迁到 /blog/articles（否则该地址与首页重复，不入站点地图）
+        String homePageSlug = readSetting("home_page_slug");
+        if (homePageSlug != null && !homePageSlug.trim().isEmpty())
+        {
+            writeUrl(out, baseUrl + "/blog/articles", null);
+        }
         // 已发布文章
         try
         {

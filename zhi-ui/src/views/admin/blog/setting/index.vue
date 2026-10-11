@@ -65,6 +65,26 @@
                 show-word-limit
               />
             </el-form-item>
+            <el-form-item label="首页显示" prop="home_page_slug">
+              <el-select
+                v-model="settingsMap.home_page_slug"
+                clearable
+                placeholder="文章列表（默认）"
+                style="width: 260px"
+              >
+                <el-option label="文章列表（默认）" value="" />
+                <el-option
+                  v-for="opt in homePageOptions"
+                  :key="opt.value"
+                  :label="opt.label"
+                  :value="opt.value"
+                />
+              </el-select>
+              <div class="setting-tip">
+                选择自定义页面后首页展示该页面（企业官网模式），文章列表移到 /blog/articles，
+                导航出现「文章」入口；留空则首页为文章列表
+              </div>
+            </el-form-item>
 
             <el-form-item label="站点访问地址" prop="blog_url">
               <el-input
@@ -540,6 +560,7 @@ import {
   testMailConfig
 } from '@/api/admin/blog/setting'
 import { clearBlogCache } from '@/api/blog/setting'
+import { getPublishedPages } from '@/api/blog/page'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 const { proxy } = getCurrentInstance()
@@ -581,6 +602,21 @@ const themeModeOptions: { label: string; value: ThemeMode }[] = [
 const themeColorOptions = ['#4f46e5', '#334155', '#0f766e', '#7c3aed', '#9a3412', '#409EFF']
 
 const robotsOptions = ['index,follow', 'noindex,follow', 'index,nofollow', 'noindex,nofollow']
+
+/** 「首页显示」下拉：已发布的自定义页面（slug 即前台路由参数），留空 = 文章列表 */
+const homePageOptions = ref<{ label: string; value: string }[]>([])
+
+async function fetchHomePageOptions() {
+  try {
+    const res: any = await getPublishedPages()
+    const list = Array.isArray(res?.data) ? res.data : []
+    homePageOptions.value = list
+      .filter((page: any) => page?.slug)
+      .map((page: any) => ({ label: page.title || page.slug, value: page.slug }))
+  } catch {
+    homePageOptions.value = []
+  }
+}
 
 /** 注册开关的参数键：真实值在 sys_config（两个注册入口都读它），blog_setting 只是镜像 */
 const REGISTER_KEY = 'sys.account.registerUser'
@@ -649,6 +685,21 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
         key: 'beian_enabled',
         label: '显示备案',
         desc: '在底部显示 ICP 备案号（站点信息里的备案号非空才显示）'
+      },
+      {
+        key: 'nav_category_enabled',
+        label: '导航显示分类',
+        desc: '关闭后前台导航与页脚隐藏「分类」入口（企业官网模式可裁剪）'
+      },
+      {
+        key: 'nav_tag_enabled',
+        label: '导航显示标签',
+        desc: '关闭后前台导航与页脚隐藏「标签」入口'
+      },
+      {
+        key: 'nav_archive_enabled',
+        label: '导航显示归档',
+        desc: '关闭后前台导航与页脚隐藏「归档」入口'
       }
     ]
   },
@@ -696,6 +747,7 @@ const defaultSettings: Record<string, any> = {
   blog_copyright: '',
   blog_beian: '',
   blog_url: '',
+  home_page_slug: '',
   prometheus_url: '',
   grafana_url: '',
   actuator_url: '',
@@ -722,6 +774,9 @@ const defaultSettings: Record<string, any> = {
   footer_enabled: true,
   copyright_enabled: true,
   beian_enabled: false,
+  nav_category_enabled: true,
+  nav_tag_enabled: true,
+  nav_archive_enabled: true,
   friend_link_enabled: true,
   friend_link_apply_enabled: false,
   email_notify_enabled: true,
@@ -749,6 +804,7 @@ const managedKeys = [
   'blog_copyright',
   'blog_beian',
   'blog_url',
+  'home_page_slug',
   'prometheus_url',
   'grafana_url',
   'actuator_url',
@@ -772,6 +828,9 @@ const managedKeys = [
   'footer_enabled',
   'copyright_enabled',
   'beian_enabled',
+  'nav_category_enabled',
+  'nav_tag_enabled',
+  'nav_archive_enabled',
   'friend_link_enabled',
   'friend_link_apply_enabled',
   'email_notify_enabled',
@@ -1089,6 +1148,8 @@ onMounted(() => {
   settingsStore.setTitle('博客设置')
 
   fetchMailConfig()
+
+  fetchHomePageOptions()
 
   getAllSettings().then(() => {
     if (settingsMap.value.theme_color) {

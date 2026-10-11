@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
@@ -45,7 +45,8 @@ describe('App 博客路由运行时渲染', () => {
       }
     })
 
-    await Promise.resolve()
+    // 首页等设置返回后才决定渲染文章列表还是自定义页面（未返回时是骨架屏）
+    await flushPromises()
 
     expect(wrapper.find('.mo-home-page').exists()).toBe(true)
     expect(wrapper.text()).toContain('记录与分享')

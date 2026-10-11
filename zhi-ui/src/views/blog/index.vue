@@ -1,6 +1,18 @@
 <template>
   <BlogLayout ref="blogLayoutRef">
-    <div class="blog-home-v2 mo-home-page">
+    <!-- 首页可能被自定义页面接管：设置未就绪时先给骨架，避免先闪文章列表再整体切换 -->
+    <CustomPagePanel v-if="homeMode === 'booting'" loading :page="null" :not-found="false" />
+
+    <CustomPagePanel
+      v-else-if="homeMode === 'custom'"
+      minimal
+      :page="homePage"
+      :loading="homePageLoading"
+      :not-found="homePageNotFound"
+      @retry="loadHomePage"
+    />
+
+    <div v-else class="blog-home-v2 mo-home-page">
       <header class="home-hero">
         <h1>记录与分享</h1>
         <p>
@@ -113,7 +125,7 @@
           <div class="sidebar-widget">
             <div class="widget-title">分类导航</div>
             <div class="cat-list">
-              <router-link to="/blog" class="cat-item active">
+              <router-link :to="listHomePath" class="cat-item active">
                 全部文章
                 <span class="count">{{ total }}</span>
               </router-link>
@@ -177,18 +189,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import BlogLayout from '@/components/BlogLayout.vue'
+import CustomPagePanel from './page/CustomPagePanel.vue'
 import { getArticleList, getBlogSettings, getHotArticles } from '@/api/blog'
 import { getCategoryList } from '@/api/blog/category'
 import { getTagCloud } from '@/api/blog/tag'
+import { getPublishedPageBySlug, type BlogPage } from '@/api/blog/page'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { logger } from '@/utils/logger'
 import { parseTime } from '@/utils/zhi'
 import { buildPageItems } from '@/utils/pageItems'
+import { hasCustomHomePage } from '@/utils/blogNav'
+import { applySeo, canonicalUrl } from '@/utils/seo'
 
 const router = useRouter()
+const route = useRoute()
 const blogSettingsStore = useBlogSettingsStore()
 
 const articles = ref([])
@@ -212,6 +229,78 @@ const pageItems = computed<(number | '…')[]>(() =>
 // 前台功能开关统一走 store 判定（search_enabled / sidebar_enabled 默认开启）
 const isSearchEnabled = computed(() => blogSettingsStore.isFeatureEnabled('search_enabled'))
 const isSidebarEnabled = computed(() => blogSettingsStore.isFeatureEnabled('sidebar_enabled'))
+
+// —— 企业官网模式：home_page_slug 非空时本页渲染自定义页面，文章列表挪到 /blog/articles ——
+const settingsReady = ref(blogSettingsStore.lastUpdate > 0)
+const isCustomHomePage = computed(() =>
+  hasCustomHomePage(blogSettingsStore.blogSettings.home_page_slug)
+)
+const isArticleListRoute = computed(() => route.name === 'PublicBlogArticleList')
+const homeSlug = computed(() =>
+  isCustomHomePage.value ? String(blogSettingsStore.blogSettings.home_page_slug).trim() : ''
+)
+
+const homePage = ref<BlogPage | null>(null)
+const homePageLoading = ref(false)
+const homePageNotFound = ref(false)
+const loadedHomeSlug = ref('')
+
+const showCustomHome = computed(() => !isArticleListRoute.value && isCustomHomePage.value)
+
+// booting 只出现在首页路由：/blog/articles 明确是列表页，不等设置
+const homeMode = computed<'booting' | 'custom' | 'list'>(() => {
+  if (isArticleListRoute.value) return 'list'
+  if (!settingsReady.value) return 'booting'
+  if (!showCustomHome.value || homePageNotFound.value) return 'list'
+  return 'custom'
+})
+
+// 侧栏「全部文章」入口：首页被接管后指向列表页，否则就是首页自身
+const listHomePath = computed(() => (isCustomHomePage.value ? '/blog/articles' : '/blog'))
+
+const loadHomePage = async () => {
+  const slug = homeSlug.value
+  if (!slug) return
+  homePageLoading.value = true
+  homePageNotFound.value = false
+  try {
+    const response = await getPublishedPageBySlug(slug)
+    if (!response || response.code !== 200 || !response.data) {
+      homePage.value = null
+      homePageNotFound.value = true
+      return
+    }
+
+    homePage.value = response.data
+    // 首页 SEO 用自定义页面的 TDK 覆盖 BlogLayout 的站点默认值；页面不存在时降级回列表
+    const siteName = blogSettings.value.blog_name || '我的博客'
+    applySeo({
+      title: homePage.value.seoTitle || `${homePage.value.title} - ${siteName}`,
+      description: homePage.value.seoDescription || homePage.value.summary || '',
+      keywords: homePage.value.seoKeywords || '',
+      canonical: canonicalUrl()
+    })
+  } catch (error) {
+    logger.error('加载首页自定义页面失败:', error)
+    homePage.value = null
+    homePageNotFound.value = true
+  } finally {
+    homePageLoading.value = false
+    loadedHomeSlug.value = slug
+  }
+}
+
+// 首次进入或从 /blog/articles 返回首页时按需加载；同一 slug 只加载一次
+watch(
+  [showCustomHome, homeSlug],
+  () => {
+    if (!showCustomHome.value || !homeSlug.value) return
+    if (homePageLoading.value) return
+    if (homePage.value && loadedHomeSlug.value === homeSlug.value) return
+    loadHomePage()
+  },
+  { immediate: true }
+)
 
 const formatDate = (date: string) => {
   return parseTime(date, '{y}-{m}-{d}')
@@ -301,6 +390,9 @@ const loadBlogSettings = async () => {
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
     logger.error('加载设置失败:', error)
+  } finally {
+    // 失败时按 store 默认值（博客模式）渲染，不能让骨架屏卡住
+    settingsReady.value = true
   }
 }
 

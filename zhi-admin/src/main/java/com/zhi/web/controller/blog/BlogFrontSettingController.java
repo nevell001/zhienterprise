@@ -46,6 +46,8 @@ public class BlogFrontSettingController extends BaseController {
         "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
         "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
         "beian_enabled",
+        // 企业官网模式：首页接管 + 导航裁剪
+        "home_page_slug", "nav_category_enabled", "nav_tag_enabled", "nav_archive_enabled",
         "friend_link_enabled", "friend_link_apply_enabled", "guestbook_enabled",
         "user_agreement_content", "privacy_policy_content",
         "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website",
@@ -219,6 +221,18 @@ public class BlogFrontSettingController extends BaseController {
                 break;
             case "beian_enabled":
                 settings.put(configKey, "false");
+                break;
+            case "home_page_slug":
+                settings.put(configKey, "");
+                break;
+            case "nav_category_enabled":
+                settings.put(configKey, "true");
+                break;
+            case "nav_tag_enabled":
+                settings.put(configKey, "true");
+                break;
+            case "nav_archive_enabled":
+                settings.put(configKey, "true");
                 break;
             case "copyright_enabled":
                 settings.put(configKey, "true");

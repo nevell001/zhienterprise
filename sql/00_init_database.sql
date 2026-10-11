@@ -916,6 +916,13 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('search_enabled', 'true', '是否开启搜索功能', NOW(), NOW()),
 ('sidebar_enabled', 'true', '是否显示侧边栏', NOW(), NOW()),
 
+-- 企业官网模式：首页显示指定自定义页面（填 slug），留空则首页显示文章列表
+('home_page_slug', '', '首页显示的自定义页面 slug（留空则首页显示文章列表）', NOW(), NOW()),
+-- 顶部导航裁剪（面向企业官网时不展示分类/标签/归档）
+('nav_category_enabled', 'true', '导航是否显示分类入口', NOW(), NOW()),
+('nav_tag_enabled', 'true', '导航是否显示标签入口', NOW(), NOW()),
+('nav_archive_enabled', 'true', '导航是否显示归档入口', NOW(), NOW()),
+
 -- 界面样式设置
 ('theme_color', '#4f46e5', '主题颜色', NOW(), NOW()),
 ('header_background', '#ffffff', '头部背景色', NOW(), NOW()),

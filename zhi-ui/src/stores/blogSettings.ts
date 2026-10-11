@@ -22,6 +22,10 @@ interface BlogSettingsState {
   beian_enabled: boolean
   friend_link_apply_enabled: boolean
   guestbook_enabled: boolean
+  home_page_slug: string
+  nav_category_enabled: boolean
+  nav_tag_enabled: boolean
+  nav_archive_enabled: boolean
   user_agreement_content: string
   privacy_policy_content: string
   author_title: string
@@ -64,6 +68,12 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
       beian_enabled: false,
       friend_link_apply_enabled: false,
       guestbook_enabled: false,
+
+      // 企业官网模式：首页接管 + 导航裁剪
+      home_page_slug: '',
+      nav_category_enabled: true,
+      nav_tag_enabled: true,
+      nav_archive_enabled: true,
 
       // 其他设置
       user_agreement_content: '',

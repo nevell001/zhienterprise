@@ -177,9 +177,10 @@
           <div class="footer-col">
             <h4>快速导航</h4>
             <router-link to="/blog">首页</router-link>
-            <router-link to="/blog/category">分类</router-link>
-            <router-link to="/blog/tag">标签</router-link>
-            <router-link to="/blog/archive">归档</router-link>
+            <router-link v-if="isCustomHomePage" to="/blog/articles">文章</router-link>
+            <router-link v-if="isCategoryNavEnabled" to="/blog/category">分类</router-link>
+            <router-link v-if="isTagNavEnabled" to="/blog/tag">标签</router-link>
+            <router-link v-if="isArchiveNavEnabled" to="/blog/archive">归档</router-link>
             <router-link to="/blog/about">关于</router-link>
             <router-link v-if="isFriendLinkApplyEnabled" to="/blog/friend-links/apply">
               友链申请
@@ -266,6 +267,7 @@ import {
 } from '@/api/blog/notification'
 import { getApiBaseUrl } from '@/utils/index'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { buildNavMenus, hasCustomHomePage } from '@/utils/blogNav'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -412,36 +414,34 @@ const isCopyrightEnabled = computed(() => blogSettingsStore.isFeatureEnabled('co
 const isBeianEnabled = computed(() => blogSettingsStore.isFeatureEnabled('beian_enabled'))
 const isGuestbookEnabled = computed(() => blogSettingsStore.isFeatureEnabled('guestbook_enabled'))
 
-// 导航菜单：固定入口 + showInNav === '1' 的自定义页面
-interface NavMenuItem {
-  name: string
-  path: string
-}
+// 企业官网模式：home_page_slug 非空时首页被自定义页面接管，文章列表迁到 /blog/articles，
+// 导航补「文章」入口；分类/标签/归档三个博客向入口由下方开关控制（裁剪导航用）
+const isCustomHomePage = computed(() =>
+  hasCustomHomePage(blogSettingsStore.blogSettings.home_page_slug)
+)
+const isCategoryNavEnabled = computed(() =>
+  blogSettingsStore.isFeatureEnabled('nav_category_enabled')
+)
+const isTagNavEnabled = computed(() => blogSettingsStore.isFeatureEnabled('nav_tag_enabled'))
+const isArchiveNavEnabled = computed(() =>
+  blogSettingsStore.isFeatureEnabled('nav_archive_enabled')
+)
 
 const customPages = ref<BlogPage[]>([])
 
-const menus = computed<NavMenuItem[]>(() => {
-  // 「关于」不设固定入口：它就是页面管理里 slug=about 的那一行（是否出现在导航由该行的
-  // 「导航显示」控制）。行被删/下架时导航与 /blog/about 一并空态，不存在第二数据源
-  const items: NavMenuItem[] = [
-    { name: '首页', path: '/blog' },
-    { name: '分类', path: '/blog/category' },
-    { name: '标签', path: '/blog/tag' },
-    { name: '归档', path: '/blog/archive' }
-  ]
-  // 留言板是固定入口里唯一受开关控制的一项，关闭后同时隐藏导航与页面内容
-  if (isGuestbookEnabled.value) {
-    items.push({ name: '留言板', path: '/blog/guestbook' })
-  }
-
-  customPages.value.forEach(page => {
-    if (page?.showInNav === '1' && page.slug) {
-      items.push({ name: page.title, path: `/blog/page/${page.slug}` })
-    }
+// 菜单组装规则在 utils/blogNav.ts（纯函数、与博客前台尺度解耦，便于单测）。
+// 「关于」不设固定入口：它就是页面管理里 slug=about 的那一行（是否出现在导航由该行的
+// 「导航显示」控制）。行被删/下架时导航与 /blog/about 一并空态，不存在第二数据源。
+const menus = computed(() =>
+  buildNavMenus({
+    customHomePage: isCustomHomePage.value,
+    guestbookEnabled: isGuestbookEnabled.value,
+    categoryEnabled: isCategoryNavEnabled.value,
+    tagEnabled: isTagNavEnabled.value,
+    archiveEnabled: isArchiveNavEnabled.value,
+    pages: customPages.value
   })
-
-  return items
-})
+)
 
 const currentYear = computed(() => new Date().getFullYear())
 

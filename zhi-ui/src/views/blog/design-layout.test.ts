@@ -35,7 +35,8 @@ describe('blog design layout guards', () => {
 
   it('首页分类导航和热门标签应能跳转到对应列表页', () => {
     expect(homeView).toContain('class="cat-item active"')
-    expect(homeView).toContain('to="/blog"')
+    // 「全部文章」的目标取决于首页是否被自定义页面接管（/blog 或 /blog/articles）
+    expect(homeView).toContain(':to="listHomePath"')
     expect(homeView).toContain(':to="`/blog/category/${category.id}`"')
     expect(homeView).toContain(':to="`/blog/tag/${tag.id}`"')
   })
