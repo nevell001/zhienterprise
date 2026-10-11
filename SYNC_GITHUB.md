@@ -75,10 +75,10 @@ git push origin main --follow-tags && git push github main --follow-tags
 
 ```bash
 # 1) 打注释标签（消息用 docs/releases/<版本>.md 的发行说明）
-git tag -a v1.4.0 -F docs/releases/v1.4.0.md
+git tag -a v1.0.0 -F docs/releases/v1.0.0.md
 
 # 2) 推送到两个远端
-git push origin v1.4.0 && git push github v1.4.0
+git push origin v1.0.0 && git push github v1.0.0
 
 # 3) 校验
 git ls-remote --tags origin && git ls-remote --tags github

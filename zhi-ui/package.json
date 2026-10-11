@@ -1,7 +1,7 @@
 {
   "name": "zhiblog",
-  "version": "1.4.5",
-  "description": "ZhiBlog 博客管理系统",
+  "version": "1.0.0",
+  "description": "知企建站系统（ZhiEnterprise）——面向企业官网的建站系统",
   "author": "nevell",
   "license": "MIT",
   "type": "module",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitee.com/nevell/zhiblog.git"
+    "url": "https://gitee.com/nevell/zhienterprise.git"
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",
