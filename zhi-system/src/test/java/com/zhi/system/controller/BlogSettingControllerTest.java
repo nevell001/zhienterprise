@@ -441,6 +441,64 @@ class BlogSettingControllerTest {
     }
 
     /**
+     * 清空设置必须把 sys_config 镜像同步置空：updateConfig 的 mapper 对空值直接跳过，
+     * 旧值会残留在 sys_config 被前台回退读取“复活”；而镜像行 configType='Y'
+     * 受内置参数删除守卫保护删不掉，所以必须走专用的无条件写值语句。
+     */
+    @Test
+    void testUpdateSettingByKey_ClearingValueClearsSysConfigMirror() throws Exception {
+        when(blogSettingService.updateSettingValueByKey("home_page_slug", "")).thenReturn(1);
+
+        List<com.zhi.system.domain.SysConfig> configList = new ArrayList<>();
+        com.zhi.system.domain.SysConfig config = new com.zhi.system.domain.SysConfig();
+        config.setConfigId(108L);
+        config.setConfigKey("home_page_slug");
+        config.setConfigValue("about");
+        configList.add(config);
+
+        when(configService.selectConfigList(any(com.zhi.system.domain.SysConfig.class)))
+            .thenReturn(configList);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("settingKey", "home_page_slug");
+        params.put("settingValue", "");
+
+        mockMvc.perform(post("/system/setting/updateByKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(configService).updateConfigValueByKey("home_page_slug", "");
+        verify(configService, never()).updateConfig(any(com.zhi.system.domain.SysConfig.class));
+        verify(configService, never()).deleteConfigByIds(any(Long[].class));
+    }
+
+    /**
+     * 清空一个从未镜像过的设置：不需要创建空的 sys_config 行，保持"无行 = 未配置"。
+     */
+    @Test
+    void testUpdateSettingByKey_ClearingValueWithoutMirrorCreatesNoRow() throws Exception {
+        when(blogSettingService.updateSettingValueByKey("home_page_slug", "")).thenReturn(1);
+        when(configService.selectConfigList(any(com.zhi.system.domain.SysConfig.class)))
+            .thenReturn(new ArrayList<>());
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("settingKey", "home_page_slug");
+        params.put("settingValue", "");
+
+        mockMvc.perform(post("/system/setting/updateByKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(configService, never()).insertConfig(any(com.zhi.system.domain.SysConfig.class));
+        verify(configService, never()).updateConfig(any(com.zhi.system.domain.SysConfig.class));
+        verify(configService, never()).updateConfigValueByKey(anyString(), anyString());
+    }
+
+    /**
      * mail_* 键必须走邮件专用接口：通用 updateByKey 会把它镜像进 sys_config（含密码），
      * 因此这里要直接拒绝，且不能落到 blog_setting。
      */

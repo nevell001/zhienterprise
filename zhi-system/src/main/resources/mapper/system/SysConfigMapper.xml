@@ -100,6 +100,10 @@
         </set>
         where config_id = #{configId}
     </update>
+
+    <update id="updateConfigValueByKey">
+        update sys_config set config_value = #{configValue}, update_time = sysdate() where config_key = #{configKey}
+    </update>
 	
     <delete id="deleteConfigById" parameterType="Long">
         delete from sys_config where config_id = #{configId}

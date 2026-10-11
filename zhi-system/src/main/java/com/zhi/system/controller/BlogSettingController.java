@@ -9,6 +9,7 @@ import com.zhi.system.domain.SysConfig;
 import com.zhi.system.service.IBlogEmailService;
 import com.zhi.system.service.ISysConfigService;
 import com.zhi.common.cache.UnifiedCacheManager;
+import com.zhi.common.utils.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -193,7 +194,18 @@ public class BlogSettingController extends BaseController
                 .findFirst()
                 .orElse(null);
 
-            if (existingConfig != null)
+            if (StringUtils.isEmpty(settingValue))
+            {
+                // 清空设置：updateConfig 的 mapper 对空值直接跳过（config_value = '' 写不进去），
+                // 旧值留在 sys_config 会被前台读取的回退逻辑当作新值“复活”；而镜像行 configType='Y'
+                // 又受内置参数删除守卫保护删不掉，因此用无条件写值的专用 statement 把镜像置空
+                if (existingConfig != null)
+                {
+                    configService.updateConfigValueByKey(settingKey, "");
+                    logger.info("已清空 sys_config 表中的设置镜像: {}", settingKey);
+                }
+            }
+            else if (existingConfig != null)
             {
                 existingConfig.setConfigValue(settingValue);
                 configService.updateConfig(existingConfig);

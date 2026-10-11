@@ -58,6 +58,15 @@ public interface ISysConfigService
     public int updateConfig(SysConfig config);
 
     /**
+     * 按参数键名直接写入参数值（允许写入空字符串；updateConfig 的 XML 会跳过空值）
+     * 
+     * @param configKey 参数键名
+     * @param configValue 参数值
+     * @return 结果
+     */
+    public int updateConfigValueByKey(String configKey, String configValue);
+
+    /**
      * 批量删除参数信息
      * 
      * @param configIds 需要删除的参数ID

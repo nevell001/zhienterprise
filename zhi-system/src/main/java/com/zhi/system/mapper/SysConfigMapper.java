@@ -1,6 +1,7 @@
 package com.zhi.system.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import com.zhi.system.domain.SysConfig;
 
 /**
@@ -57,6 +58,15 @@ public interface SysConfigMapper
      * @return 结果
      */
     public int updateConfig(SysConfig config);
+
+    /**
+     * 按参数键名直接写入参数值（允许写入空字符串；updateConfig 的 XML 会跳过空值）
+     * 
+     * @param configKey 参数键名
+     * @param configValue 参数值
+     * @return 结果
+     */
+    public int updateConfigValueByKey(@Param("configKey") String configKey, @Param("configValue") String configValue);
 
     /**
      * 删除参数配置
