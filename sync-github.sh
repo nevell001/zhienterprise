@@ -16,8 +16,8 @@ echo -e "${BLUE}======================================${NC}"
 echo ""
 
 # GitHub 仓库地址（请修改为你的仓库地址）
-GITHUB_REPO="https://github.com/nevell001/zhiblog.git"
-GITHUB_REPO_SSH="git@github.com:nevell001/zhiblog.git"
+GITHUB_REPO="https://github.com/nevell001/qiye-guanwang.git"
+GITHUB_REPO_SSH="git@github.com:nevell001/qiye-guanwang.git"
 
 # 检查是否已添加 github 远端
 if git remote | grep -q "^github$"; then
@@ -68,7 +68,7 @@ if ! git push github main --follow-tags; then
     echo -e "  4) pushurl 指向 SSH 但本机没有可用密钥时，可直接用显式 URL 走 https 直连"
     echo -e "     （注意：-c remote.github.pushurl=... 无法覆盖已存在的 pushurl，必须显式给 URL）："
     echo -e "     GIT_CONFIG_GLOBAL=<(grep -v insteadOf ~/.gitconfig) \\"
-    echo -e "       git -c http.version=HTTP/1.1 push https://github.com/nevell001/zhiblog.git main --follow-tags"
+    echo -e "       git -c http.version=HTTP/1.1 push https://github.com/nevell001/qiye-guanwang.git main --follow-tags"
     exit 1
 fi
 
@@ -86,5 +86,5 @@ echo -e "${GREEN}======================================${NC}"
 echo -e "${GREEN}    ✓ 同步完成！${NC}"
 echo -e "${GREEN}======================================${NC}"
 echo ""
-echo -e "Gitee:  ${BLUE}https://gitee.com/nevell/zhiblog${NC}"
-echo -e "GitHub: ${BLUE}https://github.com/nevell/zhiblog${NC}"
+echo -e "Gitee:  ${BLUE}https://gitee.com/nevell/qiye-guanwang${NC}"
+echo -e "GitHub: ${BLUE}https://github.com/nevell001/qiye-guanwang${NC}"
