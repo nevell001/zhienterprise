@@ -78,7 +78,8 @@ git ls-remote --tags origin | sed 's/^/  origin  /' | grep -v '\^{}' || true
 git ls-remote --tags github | sed 's/^/  github  /' | grep -v '\^{}' || true
 
 echo ""
-echo -e "${YELLOW}提示：标签不会自动变成 Release，需在 GitHub/Gitee 手动创建发行版${NC}"
+echo -e "${YELLOW}提示：推送 tag 后 GitHub/Gitee 的 CI 会自动创建发行版，无需手动新建${NC}"
+echo -e "${YELLOW}      注意：tag 请逐个推送——单次超过 3 个 tag 时 GitHub 不会触发发布流水线${NC}"
 echo -e "${YELLOW}      （说明见 docs/VERSION_MANAGEMENT.md 的「发布流程」）${NC}"
 
 echo ""

@@ -268,6 +268,14 @@ git push origin v1.0.1                            # Gitee
 git push github v1.0.1                            # GitHub
 ```
 
+> **tag 要逐个推送**：GitHub 对单次推送超过 3 个 tag 会抑制 tag 推送事件（官方行为）——发布流水线不触发，Release 也就不会自动创建。
+> `sync-github.sh` 的 `--follow-tags` 一次带出多个标签时同理。若已一起推出去、需要补触发，先删掉远端 tag 再单个重推：
+>
+> ```bash
+> git push origin --delete vX.Y.Z && git push origin vX.Y.Z
+> git push github --delete vX.Y.Z && git push github vX.Y.Z
+> ```
+
 ### 4. Release 由 CI 自动创建（推送 tag 之后只需校验）
 
 **两个平台的 tag 推送都会自动建 Release，不需要手动新建**：
