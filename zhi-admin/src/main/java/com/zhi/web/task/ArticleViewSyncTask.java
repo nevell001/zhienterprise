@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * 博客文章浏览量定时同步任务
+ * 文章浏览量定时同步任务
  */
 @Component("articleViewSyncTask")
 public class ArticleViewSyncTask {
@@ -30,7 +30,7 @@ public class ArticleViewSyncTask {
      */
     @Scheduled(cron = "0 0/10 * * * ?")
     public void syncArticleViewCount() {
-        log.info("开始同步博客文章浏览量...");
+        log.info("开始同步文章浏览量...");
         Collection<String> keys = redisCache.scanKeys("blog:article:view:*");
         
         for (String key : keys) {
@@ -47,6 +47,6 @@ public class ArticleViewSyncTask {
                 log.error("同步文章浏览量失败，key: {}", key, e);
             }
         }
-        log.info("博客文章浏览量同步完成。");
+        log.info("文章浏览量同步完成。");
     }
 }

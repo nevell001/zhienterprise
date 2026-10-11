@@ -20,13 +20,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
- * 博客文章前台访问控制器
- * 提供前台博客文章匿名访问接口
+ * 文章前台访问控制器
+ * 提供前台文章匿名访问接口
  *
  * @author nevell
  * @date 2025-12-18
  */
-@Tag(name = "博客文章管理（前台）")
+@Tag(name = "文章管理（前台）")
 @Anonymous
 @RestController("blogFrontArticleController")
 @RequestMapping("/common/blog/article")

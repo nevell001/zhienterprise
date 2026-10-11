@@ -54,13 +54,13 @@ public class BlogTagController extends BaseController
      * 导出博客标签列表
      */
     @PreAuthorize("@ss.hasPermi('blog:tag:export')")
-    @Log(title = "博客标签", businessType = BusinessType.EXPORT)
+    @Log(title = "标签", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogTag blogTag)
     {
         List<BlogTag> list = blogTagService.selectBlogTagList(blogTag);
         ExcelUtil<BlogTag> util = new ExcelUtil<BlogTag>(BlogTag.class);
-        util.exportExcel(response, list, "博客标签数据");
+        util.exportExcel(response, list, "标签数据");
     }
 
     /**
@@ -82,7 +82,7 @@ public class BlogTagController extends BaseController
      * 新增博客标签
      */
     @PreAuthorize("@ss.hasPermi('blog:tag:add')")
-    @Log(title = "博客标签", businessType = BusinessType.INSERT)
+    @Log(title = "标签", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogTag blogTag)
     {
@@ -97,7 +97,7 @@ public class BlogTagController extends BaseController
      * 修改博客标签
      */
     @PreAuthorize("@ss.hasPermi('blog:tag:edit')")
-    @Log(title = "博客标签", businessType = BusinessType.UPDATE)
+    @Log(title = "标签", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogTag blogTag)
     {
@@ -112,7 +112,7 @@ public class BlogTagController extends BaseController
      * 删除博客标签
      */
     @PreAuthorize("@ss.hasPermi('blog:tag:remove')")
-    @Log(title = "博客标签", businessType = BusinessType.DELETE)
+    @Log(title = "标签", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {

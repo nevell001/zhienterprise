@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * 博客认证控制器
- * 处理博客前台用户注册、登录、发送验证码等
+ * 认证控制器
+ * 处理前台用户注册、登录、发送验证码等
  *
  * @author nevell
  * @date 2025-01-26
@@ -46,7 +46,7 @@ public class BlogAuthController extends BaseController
     private ISysConfigService configService;
 
     /**
-     * 博客用户注册
+     * 用户注册
      */
     @Anonymous
     @PostMapping("/register")
@@ -59,7 +59,7 @@ public class BlogAuthController extends BaseController
         }
 
         String ipAddress = IpUtils.getIpAddr(request);
-        logger.info("博客用户注册请求：username={}, email={}, ip={}",
+        logger.info("用户注册请求：username={}, email={}, ip={}",
                 registerBody.getUsername(), registerBody.getEmail(), ipAddress);
 
         return blogUserService.registerBlogUser(registerBody);

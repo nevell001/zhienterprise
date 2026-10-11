@@ -12,7 +12,7 @@ import com.zhi.system.service.ISysMenuService;
 /**
  * 登录验证
  *
- * 注意：POST /login 与 GET /getInfo 已在 v1.3.6 移除，
+ * 注意：POST /login 与 GET /getInfo 已移除，
  * 统一登录请使用 /auth/login，用户信息请使用 /auth/user/info；
  * 登出走 Spring Security 内置的 POST /logout。
  *

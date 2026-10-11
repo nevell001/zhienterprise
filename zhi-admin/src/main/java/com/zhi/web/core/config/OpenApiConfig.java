@@ -45,8 +45,8 @@ public class OpenApiConfig {
                 .addServersItem(new Server().url("/").description("本地服务器"))
                 // API 信息
                 .info(new Info()
-                        .title("ZhiBlog 接口文档")
-                        .description("ZhiBlog - 知博 博客管理系统，包括文章管理、分类标签、评论互动、友情链接等完整功能模块")
+                        .title("知企建站系统接口文档")
+                        .description("知企建站系统（ZhiEnterprise）——面向企业官网的建站系统，包括文章管理、分类标签、评论互动、友情链接等完整功能模块")
                         .version("版本号:" + ruoyiConfig.getVersion())
                         .contact(new Contact()
                                 .name(ruoyiConfig.getName())

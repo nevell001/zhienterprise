@@ -20,7 +20,7 @@ import com.zhi.system.service.IBlogLikeService;
 import com.zhi.system.service.IBlogSettingService;
 
 /**
- * 博客前台点赞控制器（文章 + 评论，需登录）
+ * 站点前台点赞控制器（文章 + 评论，需登录）
  *
  * @author nevell
  * @date 2026-09-05

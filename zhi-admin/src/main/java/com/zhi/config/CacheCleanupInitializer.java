@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.zhi.common.cache.UnifiedCacheManager;
 
 /**
- * 应用启动时自动清除所有博客相关缓存
+ * 应用启动时自动清除所有站点相关缓存
  * 解决重启后显示缓存数据的问题
  *
  * @author nevell
@@ -35,13 +35,13 @@ public class CacheCleanupInitializer implements ApplicationRunner
 
             int clearedCount = 0;
 
-            // 清除所有博客相关缓存
+            // 清除所有站点相关缓存
             try {
                 unifiedCacheManager.deleteByPattern("blog:*");
                 clearedCount++;
-                log.info("✓ 已清除所有博客缓存 (blog:*)");
+                log.info("✓ 已清除所有站点缓存 (blog:*)");
             } catch (Exception e) {
-                log.warn("清除博客缓存失败: {}", e.getMessage());
+                log.warn("清除站点缓存失败: {}", e.getMessage());
             }
 
             // 清除系统配置缓存

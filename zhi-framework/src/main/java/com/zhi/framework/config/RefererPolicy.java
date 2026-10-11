@@ -14,8 +14,8 @@ import com.zhi.system.service.IBlogSettingService;
 /**
  * 防盗链配置提供者
  *
- * <p>从博客设置（blog_setting 表）运行时读取防盗链开关与允许域名白名单，
- * 使后台“博客设置 - 站点信息”可以直接管理，无需重启应用。
+ * <p>从站点设置（blog_setting 表）运行时读取防盗链开关与允许域名白名单，
+ * 使后台“站点设置 - 站点信息”可以直接管理，无需重启应用。
  * 数据库未配置（留空）时回退到 application.yml 的 referer 配置默认值。</p>
  *
  * <p>设置键：{@code referer_enabled}、{@code referer_allowed_domains}。</p>
@@ -84,7 +84,7 @@ public class RefererPolicy
     }
 
     /**
-     * 从博客设置读取并解析配置，数据库未配置时回退到 yml 默认值
+     * 从站点设置读取并解析配置，数据库未配置时回退到 yml 默认值
      */
     private synchronized void refresh()
     {
@@ -107,7 +107,7 @@ public class RefererPolicy
     }
 
     /**
-     * 读取博客设置值，读取异常时返回 null（按未配置处理）
+     * 读取站点设置值，读取异常时返回 null（按未配置处理）
      */
     private String readSetting(String settingKey)
     {

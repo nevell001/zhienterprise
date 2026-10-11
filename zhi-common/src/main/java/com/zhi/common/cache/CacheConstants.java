@@ -10,7 +10,7 @@ public class CacheConstants
     // 缓存前缀
     public static final String BLOG_PREFIX = "blog:";
     
-    // 博客文章相关缓存
+    // 站点文章相关缓存
     public static final String BLOG_ARTICLE = BLOG_PREFIX + "article:";
     public static final String BLOG_ARTICLE_LIST = BLOG_PREFIX + "article:list:";
     public static final String BLOG_ARTICLE_HOT = BLOG_PREFIX + "article:hot";
@@ -19,27 +19,27 @@ public class CacheConstants
     public static final String BLOG_ARTICLE_BY_TAG = BLOG_PREFIX + "article:tag:";
     public static final String BLOG_ARTICLE_BY_AUTHOR = BLOG_PREFIX + "article:author:";
     
-    // 博客分类相关缓存
+    // 站点分类相关缓存
     public static final String BLOG_CATEGORY = BLOG_PREFIX + "category:";
     public static final String BLOG_CATEGORY_LIST = BLOG_PREFIX + "category:list:";
     public static final String BLOG_CATEGORY_TREE = BLOG_PREFIX + "category:tree";
     
-    // 博客标签相关缓存
+    // 站点标签相关缓存
     public static final String BLOG_TAG = BLOG_PREFIX + "tag:";
     public static final String BLOG_TAG_LIST = BLOG_PREFIX + "tag:list:";
     public static final String BLOG_TAG_POPULAR = BLOG_PREFIX + "tag:popular";
     
-    // 博客评论相关缓存
+    // 站点评论相关缓存
     public static final String BLOG_COMMENT = BLOG_PREFIX + "comment:";
     public static final String BLOG_COMMENT_LIST = BLOG_PREFIX + "comment:list:";
     public static final String BLOG_COMMENT_BY_ARTICLE = BLOG_PREFIX + "comment:article:";
     
-    // 博客设置相关缓存
+    // 站点设置相关缓存
     public static final String BLOG_SETTING = BLOG_PREFIX + "setting:";
     public static final String BLOG_SETTING_LIST = BLOG_PREFIX + "setting:list:";
     public static final String BLOG_SETTING_VALUE = BLOG_PREFIX + "setting:value:";
     
-    // 博客友情链接相关缓存
+    // 站点友情链接相关缓存
     public static final String BLOG_FRIEND_LINK = BLOG_PREFIX + "friend_link:";
     public static final String BLOG_FRIEND_LINK_LIST = BLOG_PREFIX + "friend_link:list:";
     

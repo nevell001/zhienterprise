@@ -150,7 +150,7 @@ public class SysProfileController extends BaseController
             recordBlogUpload(file, avatar);
             if (userService.updateUserAvatar(loginUser.getUserId(), avatar))
             {
-                // 同时更新博客设置中的头像，确保前台首页显示最新头像
+                // 同时更新站点设置中的头像，确保前台首页显示最新头像
                 blogSettingService.updateSettingValueByKey("blog_avatar", avatar);
 
                 // 同时更新 sys_config 表中的 blog_avatar（前台API从这里读取）
@@ -170,7 +170,7 @@ public class SysProfileController extends BaseController
                         logger.info("已更新 sys_config 表中的 blog_avatar: {}", avatar);
                     } else {
                         // 创建新配置
-                        config.setConfigName("博客头像");
+                        config.setConfigName("站点头像");
                         config.setConfigValue(avatar);
                         config.setConfigType("Y");
                         configService.insertConfig(config);
@@ -180,12 +180,12 @@ public class SysProfileController extends BaseController
                     logger.error("更新 sys_config 表中的 blog_avatar 失败", e);
                 }
 
-                // 清除博客设置缓存，确保前台能立即看到新头像
+                // 清除站点设置缓存，确保前台能立即看到新头像
                 try {
                     unifiedCacheManager.delete(CacheConstants.BLOG_SETTINGS_ALL);
-                    logger.info("已清除博客设置缓存");
+                    logger.info("已清除站点设置缓存");
                 } catch (Exception e) {
-                    logger.error("清除博客设置缓存失败", e);
+                    logger.error("清除站点设置缓存失败", e);
                 }
 
                 String oldAvatar = loginUser.getUser().getAvatar();

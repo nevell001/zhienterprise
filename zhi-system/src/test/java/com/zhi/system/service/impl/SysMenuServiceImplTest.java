@@ -749,7 +749,7 @@ class SysMenuServiceImplTest {
 
     @Test
     void topLevelDirectoryWithChildrenUsesChildrenAsRoutes() {
-        SysMenu dir = menu(1L, 0L, "M", "博客管理", "admin/blog", "Layout");
+        SysMenu dir = menu(1L, 0L, "M", "站点管理", "admin/blog", "Layout");
         SysMenu article = menu(2L, 1L, "C", "文章管理", "article", "blog/article/index");
         SysMenu category = menu(3L, 1L, "C", "分类管理", "category", "blog/category/index");
         childOf(dir, article, category);

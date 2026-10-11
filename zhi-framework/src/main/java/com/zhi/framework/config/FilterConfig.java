@@ -67,7 +67,7 @@ public class FilterConfig
     public FilterRegistrationBean refererFilterRegistration(RefererPolicy refererPolicy)
     {
         // 防盗链开关与允许域名由 RefererPolicy 在运行时提供（后台可管理），
-        // 因此过滤器始终注册，是否生效由 referer_enabled 博客设置决定
+        // 因此过滤器始终注册，是否生效由 referer_enabled 站点设置决定
         FilterRegistrationBean registration = new FilterRegistrationBean();
         registration.setDispatcherTypes(EnumSet.of(DispatcherType.REQUEST));
         registration.setFilter(new RefererFilter(refererPolicy::isEnabled, refererPolicy::getAllowedDomains));

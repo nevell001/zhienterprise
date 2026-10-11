@@ -73,7 +73,7 @@ class ArticleNavigationDTO {
 }
 
 /**
- * 博客前台控制器
+ * 站点前台控制器
  * 
  * @author nevell
  * @date 2025-10-11
@@ -85,7 +85,7 @@ public class BlogFrontController extends BaseController
     private static final Logger log = LoggerFactory.getLogger(BlogFrontController.class);
 
     /**
-     * 前台可匿名访问的博客配置键白名单
+     * 前台可匿名访问的站点配置键白名单
      */
     private static final String[] BLOG_CONFIG_KEYS = {
         "blog_name", "blog_desc", "blog_author", "blog_email",
@@ -128,7 +128,7 @@ public class BlogFrontController extends BaseController
     private ISysConfigService sysConfigService;
 
     /**
-     * 获取博客设置（前台用）
+     * 获取站点设置（前台用）
      */
     @Anonymous
     @GetMapping("/setting")
@@ -173,7 +173,7 @@ public class BlogFrontController extends BaseController
             applyDefaultSettings(settingsMap);
 
         } catch (Exception e) {
-            log.error("获取博客设置出错: {}", e.getMessage(), e);
+            log.error("获取站点设置出错: {}", e.getMessage(), e);
 
             // 如果出错，返回默认设置
             applyDefaultSettings(settingsMap);
@@ -185,7 +185,7 @@ public class BlogFrontController extends BaseController
     /**
      * 获取前台公开展示的统计概览（匿名可访问）
      *
-     * <p>只返回博客维度的公开计数（已发布文章/分类/标签/已通过评论/总浏览量），
+     * <p>只返回站点内容维度的公开计数（已发布文章/分类/标签/已通过评论/总浏览量），
      * 不包含注册用户数、系统运行状态等后台敏感信息。
      * 后台完整统计请使用 {@code /system-stats/overview}（需要 statistics:overview:list 权限）。</p>
      */
@@ -269,7 +269,7 @@ public class BlogFrontController extends BaseController
         setDefaultSetting(settingsMap, "wechat_qr", "");
         setDefaultSetting(settingsMap, "blog_author", "nevell");
         setDefaultSetting(settingsMap, "blog_name", "知企建站系统");
-        setDefaultSetting(settingsMap, "blog_desc", "这是一个基于RuoYi-Vue的博客系统");
+        setDefaultSetting(settingsMap, "blog_desc", "欢迎来到我的站点");
         setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
         setDefaultSetting(settingsMap, "blog_email", "");
     }
@@ -784,7 +784,7 @@ public class BlogFrontController extends BaseController
             }
         }
 
-        // 检查评论审核开关，根据博客设置决定是否需要审核
+        // 检查评论审核开关，根据站点设置决定是否需要审核
         String commentReviewSetting = blogSettingService.selectSettingValueByKey("comment_review");
 
         // 如果评论审核开关为 true 或 "true"，则设置为待审核（0）；否则直接发布（1）
@@ -980,20 +980,20 @@ public class BlogFrontController extends BaseController
         response.setContentType("application/xml;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
-        // 从配置中读取博客URL，如果配置不存在则使用默认值
+        // 从配置中读取站点URL，如果配置不存在则使用默认值
         String blogUrl = blogSettingService.selectSettingValueByKey("blog_url");
         if (blogUrl == null || blogUrl.trim().isEmpty()) {
             blogUrl = "http://localhost:3000";
         }
 
-        // 从配置中读取博客标题与描述，避免硬编码
+        // 从配置中读取站点标题与描述，避免硬编码
         String blogName = blogSettingService.selectSettingValueByKey("blog_name");
         if (blogName == null || blogName.trim().isEmpty()) {
             blogName = "知企建站系统";
         }
         String blogDesc = blogSettingService.selectSettingValueByKey("blog_desc");
         if (blogDesc == null || blogDesc.trim().isEmpty()) {
-            blogDesc = "这是一个基于RuoYi-Vue的博客系统";
+            blogDesc = "欢迎来到我的站点";
         }
 
         DateTimeFormatter rfc1123 = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);

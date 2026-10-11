@@ -16,7 +16,7 @@ import com.zhi.system.service.IBlogPageService;
 import com.zhi.system.service.IBlogSettingService;
 
 /**
- * 博客 SEO 控制器：/sitemap.xml 与 /robots.txt
+ * 站点 SEO 控制器：/sitemap.xml 与 /robots.txt
  *
  * @author nevell
  * @date 2026-09-05
@@ -140,7 +140,7 @@ public class BlogSeoController
         out.flush();
     }
 
-    /** 读取博客设置，异常时返回 null（按未配置处理） */
+    /** 读取站点设置，异常时返回 null（按未配置处理） */
     private String readSetting(String key)
     {
         try

@@ -68,7 +68,7 @@ class SysPasswordServiceTest
         ReflectionTestUtils.setField(passwordService, "maxRetryCount", MAX_RETRY);
         ReflectionTestUtils.setField(passwordService, "lockTime", LOCK_MINUTES);
         user.setUserName("zhangsan");
-        user.setPassword(SecurityUtils.encryptPassword("ZhiBlog#2026"));
+        user.setPassword(SecurityUtils.encryptPassword("Zhiqi#2026"));
     }
 
     @AfterEach
@@ -91,7 +91,7 @@ class SysPasswordServiceTest
     @Test
     void correctPasswordClearsThePreviousFailureCounter()
     {
-        attempting("zhangsan", "ZhiBlog#2026");
+        attempting("zhangsan", "Zhiqi#2026");
         when(unifiedCacheManager.get(failKey("zhangsan"), Integer.class)).thenReturn(3);
         when(unifiedCacheManager.exists(failKey("zhangsan"))).thenReturn(true);
 
@@ -103,7 +103,7 @@ class SysPasswordServiceTest
     @Test
     void correctPasswordWithoutCounterDoesNotDeleteAnything()
     {
-        attempting("zhangsan", "ZhiBlog#2026");
+        attempting("zhangsan", "Zhiqi#2026");
 
         assertThatCode(() -> passwordService.validate(user)).doesNotThrowAnyException();
 
@@ -136,7 +136,7 @@ class SysPasswordServiceTest
     @Test
     void exhaustedRetriesRejectEvenTheCorrectPasswordWithoutCheckingIt()
     {
-        attempting("zhangsan", "ZhiBlog#2026");
+        attempting("zhangsan", "Zhiqi#2026");
         when(unifiedCacheManager.get(failKey("zhangsan"), Integer.class)).thenReturn(MAX_RETRY);
 
         assertThatExceptionOfType(UserPasswordRetryLimitExceedException.class)
@@ -149,8 +149,8 @@ class SysPasswordServiceTest
     @Test
     void matchesComparesTheRawPasswordAgainstTheBCryptHash()
     {
-        assertThat(passwordService.matches(user, "ZhiBlog#2026")).isTrue();
-        assertThat(passwordService.matches(user, "ZhiBlog#2027")).isFalse();
+        assertThat(passwordService.matches(user, "Zhiqi#2026")).isTrue();
+        assertThat(passwordService.matches(user, "Zhiqi#2027")).isFalse();
         assertThat(passwordService.matches(user, "")).isFalse();
     }
 }

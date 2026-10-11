@@ -26,19 +26,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
- * 博客前台设置控制器
- * 提供前台博客设置匿名访问接口
+ * 站点前台设置控制器
+ * 提供前台站点设置匿名访问接口
  *
  * @author nevell
  * @date 2025-12-18
  */
-@Tag(name = "博客前台设置管理")
+@Tag(name = "站点前台设置管理")
 @RestController
 @RequestMapping("/common/blog/setting")
 public class BlogFrontSettingController extends BaseController {
 
     /**
-     * 博客配置键常量
+     * 站点配置键常量
      */
     private static final String[] BLOG_CONFIG_KEYS = {
         "blog_name", "blog_desc", "blog_author", "blog_email",
@@ -57,7 +57,7 @@ public class BlogFrontSettingController extends BaseController {
     };
 
     /**
-     * 博客设置缓存键
+     * 站点设置缓存键
      */
     private static final String BLOG_SETTINGS_CACHE_KEY = CacheConstants.BLOG_SETTINGS_ALL;
 
@@ -76,10 +76,10 @@ public class BlogFrontSettingController extends BaseController {
     private UnifiedCacheManager unifiedCacheManager;
 
     /**
-     * 获取博客设置（前台匿名访问）
+     * 获取站点设置（前台匿名访问）
      */
     @Anonymous
-    @Operation(summary = "获取博客设置（前台用）")
+    @Operation(summary = "获取站点设置（前台用）")
     @GetMapping
     @SuppressWarnings("unchecked")
     public AjaxResult getBlogSettings() {
@@ -100,7 +100,7 @@ public class BlogFrontSettingController extends BaseController {
                     .filter(c -> java.util.Arrays.asList(BLOG_CONFIG_KEYS).contains(c.getConfigKey()))
                     .collect(java.util.stream.Collectors.toMap(SysConfig::getConfigKey, SysConfig::getConfigValue));
 
-                // 批量查询博客设置
+                // 批量查询站点设置
                 for (String configKey : BLOG_CONFIG_KEYS) {
                     try {
                         // 优先从 blog_setting 表读取
@@ -118,7 +118,7 @@ public class BlogFrontSettingController extends BaseController {
                             setDefaultValue(blogSettings, configKey);
                         }
                     } catch (Exception e) {
-                        logger.warn("获取博客设置失败: {}, 错误: {}", configKey, e.getMessage());
+                        logger.warn("获取站点设置失败: {}, 错误: {}", configKey, e.getMessage());
                         // 设置默认值
                         setDefaultValue(blogSettings, configKey);
                     }
@@ -138,7 +138,7 @@ public class BlogFrontSettingController extends BaseController {
                             setDefaultValue(blogSettings, configKey);
                         }
                     } catch (Exception ex) {
-                        logger.warn("获取博客设置失败: {}, 错误: {}", configKey, ex.getMessage());
+                        logger.warn("获取站点设置失败: {}, 错误: {}", configKey, ex.getMessage());
                         setDefaultValue(blogSettings, configKey);
                     }
                 }
@@ -149,8 +149,8 @@ public class BlogFrontSettingController extends BaseController {
 
             return AjaxResult.success(blogSettings);
         } catch (Exception e) {
-            logger.error("获取博客设置失败", e);
-            return AjaxResult.error("获取博客设置失败");
+            logger.error("获取站点设置失败", e);
+            return AjaxResult.error("获取站点设置失败");
         }
     }
 
@@ -163,7 +163,7 @@ public class BlogFrontSettingController extends BaseController {
                 settings.put(configKey, "知企建站系统");
                 break;
             case "blog_desc":
-                settings.put(configKey, "基于 Spring Boot 3.3.0 + Vue 3 + Element Plus 构建的现代化博客系统");
+                settings.put(configKey, "欢迎来到我的站点");
                 break;
             case "blog_author":
                 settings.put(configKey, "nevell");
@@ -284,10 +284,10 @@ public class BlogFrontSettingController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @GetMapping("/clear-blog-cache")
-    @Operation(summary = "清除博客设置缓存")
+    @Operation(summary = "清除站点设置缓存")
     public AjaxResult clearBlogCache() {
         try {
-            // 清除博客设置主缓存
+            // 清除站点设置主缓存
             unifiedCacheManager.delete(BLOG_SETTINGS_CACHE_KEY);
             
             // 同时也清除单个配置的缓存（兼容旧逻辑）
@@ -295,11 +295,11 @@ public class BlogFrontSettingController extends BaseController {
                 unifiedCacheManager.delete("sys_config:" + configKey);
             }
 
-            logger.info("所有博客设置缓存已清除，包括主缓存: " + BLOG_SETTINGS_CACHE_KEY);
-            return AjaxResult.success("所有博客设置缓存已清除");
+            logger.info("所有站点设置缓存已清除，包括主缓存: " + BLOG_SETTINGS_CACHE_KEY);
+            return AjaxResult.success("所有站点设置缓存已清除");
         } catch (Exception e) {
-            logger.error("清除博客设置缓存失败", e);
-            return AjaxResult.error("清除博客设置缓存失败: " + e.getMessage());
+            logger.error("清除站点设置缓存失败", e);
+            return AjaxResult.error("清除站点设置缓存失败: " + e.getMessage());
         }
     }
 

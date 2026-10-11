@@ -49,13 +49,13 @@ public class BlogCommentController extends BaseController
      * 导出博客评论列表
      */
     @PreAuthorize("@ss.hasPermi('blog:comment:export')")
-    @Log(title = "博客评论", businessType = BusinessType.EXPORT)
+    @Log(title = "评论", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogComment blogComment)
     {
         List<BlogComment> list = blogCommentService.selectBlogCommentList(blogComment);
         ExcelUtil<BlogComment> util = new ExcelUtil<BlogComment>(BlogComment.class);
-        util.exportExcel(response, list, "博客评论数据");
+        util.exportExcel(response, list, "评论数据");
     }
 
     /**
@@ -72,7 +72,7 @@ public class BlogCommentController extends BaseController
      * 新增博客评论
      */
     @PreAuthorize("@ss.hasPermi('blog:comment:add')")
-    @Log(title = "博客评论", businessType = BusinessType.INSERT)
+    @Log(title = "评论", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogComment blogComment)
     {
@@ -83,7 +83,7 @@ public class BlogCommentController extends BaseController
      * 修改博客评论
      */
     @PreAuthorize("@ss.hasPermi('blog:comment:edit')")
-    @Log(title = "博客评论", businessType = BusinessType.UPDATE)
+    @Log(title = "评论", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogComment blogComment)
     {
@@ -94,7 +94,7 @@ public class BlogCommentController extends BaseController
      * 删除博客评论
      */
     @PreAuthorize("@ss.hasPermi('blog:comment:remove')")
-    @Log(title = "博客评论", businessType = BusinessType.DELETE)
+    @Log(title = "评论", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
@@ -105,7 +105,7 @@ public class BlogCommentController extends BaseController
      * 审核通过博客评论
      */
     @PreAuthorize("@ss.hasPermi('blog:comment:audit')")
-    @Log(title = "博客评论", businessType = BusinessType.UPDATE)
+    @Log(title = "评论", businessType = BusinessType.UPDATE)
     @PutMapping("/audit/{ids}")
     public AjaxResult audit(@PathVariable("ids") Long[] ids)
     {
@@ -116,7 +116,7 @@ public class BlogCommentController extends BaseController
      * 审核拒绝博客评论
      */
     @PreAuthorize("@ss.hasPermi('blog:comment:reject')")
-    @Log(title = "博客评论", businessType = BusinessType.UPDATE)
+    @Log(title = "评论", businessType = BusinessType.UPDATE)
     @PutMapping("/reject/{ids}")
     public AjaxResult reject(@PathVariable("ids") Long[] ids)
     {

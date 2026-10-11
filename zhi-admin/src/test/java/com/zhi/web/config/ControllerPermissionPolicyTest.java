@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>本项目的鉴权模型是：Spring Security 只兜底「登录即可」（anyRequest().authenticated()），
  * 细粒度权限完全依赖方法上的 {@code @PreAuthorize}。因此漏写注解 = 任何已登录账号
- * （包括自助注册的零权限 blog_user）都能调用 —— v1.4.1 后审计发现
+ * （包括自助注册的零权限 blog_user）都能调用 —— 一次审计就发现
  * {@code BlogArticleTagController} 两个查询、{@code BlogTagController#getAllTags}、
  * {@code SysConfigController#getConfigKey} 就是这样漏的。</p>
  *

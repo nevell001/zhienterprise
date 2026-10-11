@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * 邮件服务配置：博客设置里配置的 SMTP 覆盖环境变量，保存后热更新到活的 {@link JavaMailSenderImpl}，无需重启。
+ * 邮件服务配置：站点设置里配置的 SMTP 覆盖环境变量，保存后热更新到活的 {@link JavaMailSenderImpl}，无需重启。
  *
  * <p>配置只落在 {@code blog_setting} 表（{@code mail_*} 键），刻意<b>不</b>进入匿名前台设置白名单，
  * 也<b>不</b>镜像到 {@code sys_config}，因此 SMTP 密码不会被公开设置接口返回。</p>

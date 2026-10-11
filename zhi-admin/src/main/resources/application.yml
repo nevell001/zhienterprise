@@ -1,7 +1,7 @@
 # 项目相关配置
 ruoyi:
   # 名称
-  name: ZhiBlog
+  name: 知企建站系统
   # 版本（从 Maven 属性读取，统一管理）
   version: @app.version@
   # 版权年份
@@ -289,7 +289,7 @@ image:
     # 移动端压缩质量 - 提高到0.85
     mobile-quality: 0.85
 
-# 防盗链配置（仅作为默认值；可在后台“博客设置-站点信息”中覆盖，数据库 blog_setting 优先）
+# 防盗链配置（仅作为默认值；可在后台“站点设置-站点信息”中覆盖，数据库 blog_setting 优先）
 referer:
   # 是否启用防盗链
   enabled: false
@@ -330,7 +330,7 @@ info:
   build:
     artifact: zhi-admin
     name: zhi-admin
-    description: 博客管理系统
+    description: 知企建站系统
   # 端点详情
   endpoint:
     health:

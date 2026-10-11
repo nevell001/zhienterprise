@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * 统一认证控制器
- * 处理管理员和博客用户的统一登录
+ * 处理管理员和注册用户的统一登录
  *
  * @author nevell
  * @date 2025-01-26
@@ -30,7 +30,7 @@ public class UnifiedAuthController extends BaseController
 
     /**
      * 统一登录接口
-     * 支持管理员和博客用户登录
+     * 支持管理员和注册用户登录
      */
     @RateLimiter(key = "auth:login:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/login")
@@ -75,7 +75,7 @@ public class UnifiedAuthController extends BaseController
             com.zhi.common.core.domain.model.LoginUser loginUser = getLoginUser();
             if (loginUser == null || loginUser.getUser() == null)
             {
-                // 返回 401 让前端以匿名身份访问博客前台
+                // 返回 401 让前端以匿名身份访问站点前台
                 return AjaxResult.error(401, "未登录或会话已过期");
             }
             SysUser user = loginUser.getUser();
@@ -109,7 +109,7 @@ public class UnifiedAuthController extends BaseController
         catch (Exception e)
         {
             logger.warn("获取用户信息失败（可能为匿名访问）：error={}", e.getMessage());
-            // 返回 401 而非 500，前端拦截器会对博客页面静默处理
+            // 返回 401 而非 500，前端拦截器会对站点页面静默处理
             return AjaxResult.error(401, "未登录或会话已过期");
         }
     }

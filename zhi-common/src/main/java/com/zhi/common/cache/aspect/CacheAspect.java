@@ -82,7 +82,7 @@ public class CacheAspect
             
             // 然后执行缓存清除
             if (blogCacheEvict.allEntries()) {
-                // 清除所有博客相关缓存
+                // 清除所有站点相关缓存
                 blogCacheManager.clearAllBlogCache();
                 log.debug("Evicted all blog cache entries");
             } else {

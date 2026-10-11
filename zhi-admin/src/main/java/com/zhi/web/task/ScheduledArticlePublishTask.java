@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.zhi.system.service.IBlogArticleService;
 
 /**
- * 博客文章定时发布任务
+ * 文章定时发布任务
  *
  * <p>每分钟扫描一次，将已到发布时间的定时文章（status=2）自动置为已发布（status=1）。</p>
  */

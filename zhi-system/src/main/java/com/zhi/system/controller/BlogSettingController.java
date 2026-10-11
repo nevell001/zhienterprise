@@ -116,7 +116,7 @@ public class BlogSettingController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:add')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
-    @Log(title = "博客设置", businessType = BusinessType.INSERT)
+    @Log(title = "站点设置", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogSetting blogSetting)
     {
@@ -128,7 +128,7 @@ public class BlogSettingController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
-    @Log(title = "博客设置", businessType = BusinessType.UPDATE)
+    @Log(title = "站点设置", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogSetting blogSetting)
     {
@@ -140,7 +140,7 @@ public class BlogSettingController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
-    @Log(title = "博客设置", businessType = BusinessType.UPDATE)
+    @Log(title = "站点设置", businessType = BusinessType.UPDATE)
     @PutMapping("/updateByKey")
     public AjaxResult updateByKey(@RequestBody BlogSetting blogSetting)
     {
@@ -152,7 +152,7 @@ public class BlogSettingController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
-    @Log(title = "博客设置", businessType = BusinessType.UPDATE)
+    @Log(title = "站点设置", businessType = BusinessType.UPDATE)
     @PostMapping("/updateByKey")
     public AjaxResult updateByKeyPost(@RequestBody BlogSetting blogSetting)
     {
@@ -215,7 +215,7 @@ public class BlogSettingController extends BaseController
             {
                 SysConfig config = new SysConfig();
                 config.setConfigKey(settingKey);
-                config.setConfigName("博客设置 - " + settingKey);
+                config.setConfigName("站点设置 - " + settingKey);
                 config.setConfigValue(settingValue);
                 config.setConfigType("Y");
                 configService.insertConfig(config);
@@ -229,7 +229,7 @@ public class BlogSettingController extends BaseController
         catch (Exception e)
         {
             logger.error("同步更新 sys_config 表失败: {}", settingKey, e);
-            return AjaxResult.error("博客设置已保存，但同步到公开配置失败，前台可能不会生效，请重试");
+            return AjaxResult.error("站点设置已保存，但同步到公开配置失败，前台可能不会生效，请重试");
         }
 
         return toAjax(result);
@@ -293,7 +293,7 @@ public class BlogSettingController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:remove')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
-    @Log(title = "博客设置", businessType = BusinessType.DELETE)
+    @Log(title = "站点设置", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {

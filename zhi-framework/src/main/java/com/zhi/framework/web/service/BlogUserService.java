@@ -26,8 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 博客用户服务
- * 用于博客前台用户注册登录
+ * 注册用户服务
+ * 用于前台用户注册登录
  *
  * @author nevell
  * @date 2025-01-26
@@ -37,10 +37,10 @@ public class BlogUserService
 {
     private static final Logger log = LoggerFactory.getLogger(BlogUserService.class);
 
-    /** 博客用户类型标识 */
+    /** 注册用户类型标识 */
     private static final String USER_TYPE_BLOG = "01";
 
-    /** 博客用户角色Key */
+    /** 注册用户角色Key */
     private static final String BLOG_USER_ROLE_KEY = "blog_user";
 
     @Autowired
@@ -59,7 +59,7 @@ public class BlogUserService
     private SysRoleMapper roleMapper;
 
     /**
-     * 注册博客用户
+     * 注册用户
      *
      * @param registerBody 注册信息
      * @return 结果
@@ -104,7 +104,7 @@ public class BlogUserService
             return AjaxResult.error("两次输入的密码不一致");
         }
 
-        // 5. 创建博客用户
+        // 5. 创建注册用户
         SysUser blogUser = new SysUser();
         blogUser.setUserName(username);
         // 昵称优先使用用户输入的 nickname，如果没有则使用 username
@@ -115,7 +115,7 @@ public class BlogUserService
         blogUser.setPassword(SecurityUtils.encryptPassword(password));
         blogUser.setStatus("0"); // 正常状态
         blogUser.setPwdUpdateDate(DateUtils.getNowDate());
-        blogUser.setUserType(USER_TYPE_BLOG); // 设置为博客用户类型
+        blogUser.setUserType(USER_TYPE_BLOG); // 设置为注册用户类型
 
         try
         {
@@ -126,17 +126,17 @@ public class BlogUserService
                 return AjaxResult.error("注册失败，请联系系统管理人员");
             }
 
-            // 7. 分配博客用户角色（关键！）
+            // 7. 分配注册用户角色（关键！）
             SysRole blogRole = roleMapper.checkRoleKeyUnique(BLOG_USER_ROLE_KEY);
             if (blogRole == null)
             {
-                log.error("博客用户角色不存在：role_key={}，请检查数据库初始化", BLOG_USER_ROLE_KEY);
+                log.error("注册用户角色不存在：role_key={}，请检查数据库初始化", BLOG_USER_ROLE_KEY);
                 return AjaxResult.error("系统配置异常，注册暂不可用，请联系管理员");
             }
             else
             {
                 userService.insertUserAuth(blogUser.getUserId(), new Long[]{blogRole.getRoleId()});
-                log.info("博客用户注册成功并分配角色：username={}, roleId={}", username, blogRole.getRoleId());
+                log.info("用户注册成功并分配角色：username={}, roleId={}", username, blogRole.getRoleId());
             }
 
             // 8. 记录注册日志
@@ -147,7 +147,7 @@ public class BlogUserService
         }
         catch (Exception e)
         {
-            log.error("博客用户注册失败：username={}, error={}", username, e.getMessage());
+            log.error("用户注册失败：username={}, error={}", username, e.getMessage());
             return AjaxResult.error("注册失败：" + e.getMessage());
         }
     }

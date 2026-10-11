@@ -40,8 +40,8 @@ public class SysUser extends BaseEntity
     @Excel(name = "用户名称")
     private String nickName;
 
-    /** 用户类型（00系统用户 01博客用户） */
-    @Excel(name = "用户类型", readConverterExp = "00=系统用户,01=博客用户")
+    /** 用户类型（00系统用户 01注册用户） */
+    @Excel(name = "用户类型", readConverterExp = "00=系统用户,01=注册用户")
     private String userType;
 
     /** 用户邮箱 */
