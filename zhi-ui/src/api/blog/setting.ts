@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import type { BlogSetting, PageParams, QueryResult, OperResult, DataResult } from '@/types'
 
 /**
- * 查询博客设置列表
+ * 查询站点设置列表
  */
 export function listSetting(query?: PageParams): Promise<QueryResult<BlogSetting>> {
   return request({
@@ -13,7 +13,7 @@ export function listSetting(query?: PageParams): Promise<QueryResult<BlogSetting
 }
 
 /**
- * 查询博客设置详细
+ * 查询站点设置详细
  */
 export function getSetting(id: number): Promise<BlogSetting> {
   return request({
@@ -23,7 +23,7 @@ export function getSetting(id: number): Promise<BlogSetting> {
 }
 
 /**
- * 新增博客设置
+ * 新增站点设置
  */
 export function addSetting(data: BlogSetting): Promise<OperResult> {
   return request({
@@ -34,7 +34,7 @@ export function addSetting(data: BlogSetting): Promise<OperResult> {
 }
 
 /**
- * 修改博客设置
+ * 修改站点设置
  */
 export function updateSetting(data: BlogSetting): Promise<OperResult> {
   return request({
@@ -45,7 +45,7 @@ export function updateSetting(data: BlogSetting): Promise<OperResult> {
 }
 
 /**
- * 删除博客设置
+ * 删除站点设置
  */
 export function delSetting(id: number | number[]): Promise<OperResult> {
   return request({
@@ -66,7 +66,7 @@ export function updateSettingValueByKey(key: string, value: string): Promise<Ope
 }
 
 /**
- * 获取博客设置（前台用）
+ * 获取站点设置（前台用）
  */
 export function getBlogSettings(): Promise<DataResult<Record<string, unknown>>> {
   return request({
@@ -78,7 +78,7 @@ export function getBlogSettings(): Promise<DataResult<Record<string, unknown>>> 
 }
 
 /**
- * 匿名访问博客设置
+ * 匿名访问站点设置
  */
 export function getBlogSettingsAnonymous(): Promise<DataResult<Record<string, unknown>>> {
   return request({
@@ -90,7 +90,7 @@ export function getBlogSettingsAnonymous(): Promise<DataResult<Record<string, un
 }
 
 /**
- * 清除博客设置缓存
+ * 清除站点设置缓存
  */
 export function clearBlogCache(): Promise<{ code: number; msg: string }> {
   return request({

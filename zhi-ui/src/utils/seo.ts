@@ -1,4 +1,4 @@
-// 博客前台 SEO 工具：动态设置 document.title / description / keywords / canonical / OG
+// 站点前台 SEO 工具：动态设置 document.title / description / keywords / canonical / OG
 
 export interface SeoData {
   title?: string

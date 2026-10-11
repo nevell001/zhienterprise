@@ -237,7 +237,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改博客文章对话框 -->
+    <!-- 添加或修改文章对话框 -->
     <el-dialog
       v-model="open"
       :title="title"
@@ -677,7 +677,7 @@ function insertEditorTable() {
   richEditorRef.value?.insertTable?.()
 }
 
-/** 查询博客文章列表 */
+/** 查询文章列表 */
 async function getList() {
   loading.value = true
   try {
@@ -813,7 +813,7 @@ function openDialog() {
   // reset 函数已经增加了 editorKey，编辑器会重新渲染
   open.value = true
   editorSaveState.value = 'idle'
-  title.value = '添加博客文章'
+  title.value = '添加文章'
 }
 
 /** 修改按钮操作 */
@@ -869,7 +869,7 @@ async function handleUpdate(row) {
     open.value = true
     editorSaveState.value = 'saved'
     editorViewMode.value = 'split'
-    title.value = '修改博客文章'
+    title.value = '修改文章'
   } catch (error: any) {
     console.error('获取文章详情失败:', error)
     ElMessage.error('获取文章详情失败: ' + (error.message || '未知错误'))
@@ -1092,15 +1092,11 @@ async function handleDelete(row) {
   const articleIds = row.id || ids.value
 
   try {
-    await ElMessageBox.confirm(
-      '是否确认删除博客文章编号为"' + articleIds + '"的数据项？',
-      '删除确认',
-      {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('是否确认删除文章编号为"' + articleIds + '"的数据项？', '删除确认', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
 
     loading.value = true
     await delArticle(articleIds)

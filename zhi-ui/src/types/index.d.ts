@@ -1,7 +1,7 @@
 /**
  * 全局类型定义
  *
- * 为 ZhiBlog 项目提供通用类型定义
+ * 为知企建站系统提供通用类型定义
  */
 
 // 导出 API 模块类型
@@ -166,7 +166,7 @@ export interface FriendLink {
 }
 
 /**
- * 博客设置
+ * 站点设置
  */
 export interface BlogSetting {
   id?: number

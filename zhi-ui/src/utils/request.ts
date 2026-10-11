@@ -47,7 +47,7 @@ service.interceptors.request.use(
     const isToken = (config.headers as any)?.isToken === false
     // 是否需要防止数据重复提交
     const isRepeatSubmit = (config.headers as any)?.repeatSubmit === false
-    // 优先使用管理员token，如果没有则尝试博客用户token
+    // 优先使用管理员token，如果没有则尝试注册用户token
     const token = getToken() || getBlogToken()
     if (token && !isToken) {
       ;(config.headers as any).Authorization = 'Bearer ' + token // 让每个请求携带自定义token 请根据实际情况自行修改
@@ -131,7 +131,7 @@ service.interceptors.response.use(
       return res.data
     }
     if (code === 401) {
-      // 检查当前访问的路径是否为博客前台页面
+      // 检查当前访问的路径是否为站点前台页面
       const currentPath = window.location.pathname
       const isBlogPath =
         currentPath.startsWith('/blog') ||
@@ -141,10 +141,10 @@ service.interceptors.response.use(
         currentPath.startsWith('/blog/category/') ||
         currentPath.startsWith('/blog/tag/')
 
-      // 如果是博客前台页面，不显示登录提示，直接返回数据或空结果
+      // 如果是站点前台页面，不显示登录提示，直接返回数据或空结果
       if (isBlogPath) {
-        logger.warn('匿名用户访问博客页面，返回空数据或默认数据')
-        // 对于博客前台页面，返回空数据而不是强制登录
+        logger.warn('匿名用户访问站点页面，返回空数据或默认数据')
+        // 对于站点前台页面，返回空数据而不是强制登录
         return Promise.resolve({ code: 200, data: null, msg: '匿名访问' })
       }
 

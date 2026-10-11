@@ -17,8 +17,8 @@ const samplePage: BlogPage = {
   showInNav: '1',
   sort: 1,
   viewCount: 3,
-  seoTitle: '关于本站 - ZhiBlog',
-  seoKeywords: 'ZhiBlog,关于',
+  seoTitle: '关于本站 - 知企建站系统',
+  seoKeywords: '知企建站系统,关于',
   seoDescription: '站点介绍',
   updateTime: '2026-09-10 12:00:00'
 }

@@ -12,7 +12,7 @@ export function getStatisticsOverview(): Promise<any> {
 }
 
 /**
- * 获取前台公开展示的统计概览（匿名可访问，仅博客维度计数）
+ * 获取前台公开展示的统计概览（匿名可访问，仅站点内容计数）
  */
 export function getPublicStatisticsOverview(): Promise<any> {
   return request({

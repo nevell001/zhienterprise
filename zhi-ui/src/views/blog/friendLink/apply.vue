@@ -128,14 +128,14 @@ const rules = computed<FormRules>(() => ({
     : {})
 }))
 
-// 加载博客设置（判断友链申请开关）
+// 加载站点设置（判断友链申请开关）
 const loadBlogSettings = async () => {
   try {
     const response = await getBlogSettingsAnonymous()
     const settings = response?.data || {}
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    logger.error('加载博客设置失败:', error)
+    logger.error('加载站点设置失败:', error)
   }
 }
 

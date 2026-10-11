@@ -173,7 +173,7 @@ export const loadView = (view: string) => {
     }
   }
 
-  // 如果没有找到 admin/ 前缀的组件，尝试直接匹配（博客前端组件）
+  // 如果没有找到 admin/ 前缀的组件，尝试直接匹配（站点前台组件）
   if (!res) {
     for (const path in modules) {
       const dir = path.split('views/')[1]?.split('.vue')[0]

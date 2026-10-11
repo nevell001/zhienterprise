@@ -213,7 +213,7 @@ const themeModeTooltip = computed(() => {
 })
 
 function goToAdmin() {
-  // 跳转到博客管理页面（正确的路由路径）
+  // 跳转到站点管理页面（正确的路由路径）
   router.push('/admin/blog/article')
 }
 

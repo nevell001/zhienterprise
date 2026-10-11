@@ -4,7 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import BlogSetting from './index.vue'
 
 /**
- * 后台博客设置页行为测试（挂载真实组件）。
+ * 后台站点设置页行为测试（挂载真实组件）。
  *
  * 取代原来的源码字符串断言：改版把「功能设置」做成卡片网格、「界面主题」加了明暗切换，
  * 继续 grep 源码文本没有意义。这里断言可观察行为：分组渲染、开关触发落库接口、

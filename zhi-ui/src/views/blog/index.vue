@@ -391,7 +391,7 @@ const loadBlogSettings = async () => {
   } catch (error) {
     logger.error('加载设置失败:', error)
   } finally {
-    // 失败时按 store 默认值（博客模式）渲染，不能让骨架屏卡住
+    // 失败时按 store 默认值（站点模式）渲染，不能让骨架屏卡住
     settingsReady.value = true
   }
 }
@@ -859,7 +859,7 @@ onMounted(async () => {
 
 /* 深色模式 */
 /* 默认主题深色：将深色覆盖规则引用的 --mo-n* 映射到 --el-* 变量（Tech Blue 深蓝），
-   使博客首页与默认主题深色配色一致。Mo-Blog 主题深色用 :root 棕色原值（不需映射）。 */
+   使站点首页与默认主题深色配色一致。Mo-Blog 主题深色用 :root 棕色原值（不需映射）。 */
 html.dark .mo-home-page {
   --mo-n900: var(--el-bg-color);
   --mo-n800: var(--el-bg-color-overlay);

@@ -12,7 +12,7 @@ export type MessageStatus = '0' | '1' | '2'
 export type MessageAuditStatus = '1' | '2'
 
 /**
- * 博客留言
+ * 留言
  */
 export interface BlogMessage {
   id?: number

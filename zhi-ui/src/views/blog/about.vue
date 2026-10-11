@@ -6,7 +6,7 @@
           <div class="about-avatar-wrap">
             <img
               :src="blogAvatarUrl"
-              :alt="blogSettings.blog_author || '博客作者'"
+              :alt="blogSettings.blog_author || '站长'"
               loading="lazy"
               @error="handleAvatarError"
             />
@@ -25,7 +25,7 @@
             </p>
           </div>
 
-          <div class="about-stat-strip" aria-label="博客统计">
+          <div class="about-stat-strip" aria-label="站点统计">
             <div v-for="item in statItems" :key="item.label" class="stat-item">
               <div class="stat-num">
                 {{ item.value }}
@@ -205,7 +205,7 @@ const loadBlogSettings = async () => {
     const settings = response?.data || {}
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    logger.error('加载博客设置失败:', error)
+    logger.error('加载站点设置失败:', error)
   }
 }
 

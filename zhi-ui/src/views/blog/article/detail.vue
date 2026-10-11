@@ -1,6 +1,6 @@
 <template>
   <div class="article-detail-container">
-    <!-- 博客导航 -->
+    <!-- 站点导航 -->
     <BlogLayout>
       <!-- 加载状态 -->
       <div v-if="loading" class="loading-container">
@@ -293,7 +293,7 @@
         </section>
       </div>
 
-      <!-- 博客底部 -->
+      <!-- 站点底部 -->
     </BlogLayout>
   </div>
 </template>
@@ -863,14 +863,14 @@ const formatDate = dateString => {
   })
 }
 
-// 获取博客设置
+// 获取站点设置
 const loadBlogSettings = async () => {
   try {
     let response
     try {
       response = await getBlogSettings()
     } catch (error: any) {
-      logger.warn('标准博客设置接口访问失败，尝试匿名接口:', error)
+      logger.warn('标准站点设置接口访问失败，尝试匿名接口:', error)
       response = await getBlogSettingsAnonymous()
     }
 
@@ -884,7 +884,7 @@ const loadBlogSettings = async () => {
     // 更新 blogSettingsStore
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error: any) {
-    logger.error('获取博客设置失败:', error)
+    logger.error('获取站点设置失败:', error)
     // 使用默认值
   }
 }

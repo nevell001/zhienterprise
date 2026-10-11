@@ -5,7 +5,7 @@ import { blogRegister, sendRegisterCode } from '@/api/blog/auth'
 const BLOG_TOKEN_KEY = 'Blog-Token'
 
 /**
- * 获取博客用户Token
+ * 获取注册用户Token
  */
 export function getBlogToken(): string {
   return localStorage.getItem(BLOG_TOKEN_KEY) || ''
@@ -48,7 +48,7 @@ export const useBlogUserStore = defineStore('blogUser', {
 
   actions: {
     /**
-     * 博客用户注册
+     * 注册用户注册
      */
     async register(registerInfo: BlogRegisterInfo): Promise<void> {
       try {
@@ -57,7 +57,7 @@ export const useBlogUserStore = defineStore('blogUser', {
         ElMessage.success('注册成功，请登录')
         // 不需要手动跳转，由组件处理跳转
       } catch (error) {
-        console.error('博客用户注册失败:', error)
+        console.error('注册用户注册失败:', error)
         throw error
       }
     },

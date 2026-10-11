@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import type { Comment, PageParams, QueryResult } from '@/types'
 
 /**
- * 查询博客评论列表
+ * 查询评论列表
  */
 export function listComment(query?: PageParams): Promise<QueryResult<Comment>> {
   return request({
@@ -13,7 +13,7 @@ export function listComment(query?: PageParams): Promise<QueryResult<Comment>> {
 }
 
 /**
- * 查询博客评论详细
+ * 查询评论详细
  */
 export function getComment(id: number): Promise<Comment> {
   return request({
@@ -23,7 +23,7 @@ export function getComment(id: number): Promise<Comment> {
 }
 
 /**
- * 新增博客评论
+ * 新增评论
  */
 export function addComment(data: Comment): Promise<any> {
   return request({
@@ -34,7 +34,7 @@ export function addComment(data: Comment): Promise<any> {
 }
 
 /**
- * 修改博客评论
+ * 修改评论
  */
 export function updateComment(data: Comment): Promise<any> {
   return request({
@@ -45,7 +45,7 @@ export function updateComment(data: Comment): Promise<any> {
 }
 
 /**
- * 删除博客评论
+ * 删除评论
  */
 export function delComment(id: number): Promise<any> {
   return request({

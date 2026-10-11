@@ -1,15 +1,15 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-// 博客前台路由配置 - 仅包含前台相关路由
+// 站点前台路由配置 - 仅包含前台相关路由
 export const blogRoutes: RouteRecordRaw[] = [
   {
     path: '/blog',
     component: () => import('@/views/blog/index.vue'),
     name: 'PublicBlogHome',
-    meta: { title: '博客首页' }
+    meta: { title: '站点首页' }
   },
   {
-    // 企业官网模式下首页被自定义页面接管，文章列表固定在本地址（博客模式下与首页内容相同）
+    // 企业官网模式下首页被自定义页面接管，文章列表固定在本地址（默认模式下与首页内容相同）
     path: '/blog/articles',
     component: () => import('@/views/blog/index.vue'),
     name: 'PublicBlogArticleList',
@@ -94,7 +94,7 @@ export const blogRoutes: RouteRecordRaw[] = [
     name: 'PublicBlogPrivacyPolicy',
     meta: { title: '隐私政策' }
   },
-  // 博客用户认证路由
+  // 注册用户认证路由
   {
     path: '/blog/auth/login',
     redirect: '/login',

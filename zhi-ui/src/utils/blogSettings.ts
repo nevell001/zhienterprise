@@ -5,7 +5,7 @@ import { getToken } from '@/utils/auth'
 import type { Config } from '@/api/system/config'
 
 /**
- * 初始化博客个性化设置
+ * 初始化站点个性化设置
  */
 export async function initBlogSettings(): Promise<void> {
   try {
@@ -15,7 +15,7 @@ export async function initBlogSettings(): Promise<void> {
       return
     }
 
-    // 获取博客个性化设置（silent: 无权限时不弹通知，博客前台有自己的公开设置接口）
+    // 获取站点个性化设置（silent: 无权限时不弹通知，站点前台有自己的公开设置接口）
     const silentCfg = { silent: true }
     const [themeColor, logoUrl, sidebarStyle, customCss] = await Promise.all([
       getConfigKey('theme_color', silentCfg).catch((): Config => ({

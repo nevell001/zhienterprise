@@ -135,7 +135,7 @@ const routes: ExtendedRouteRecordRaw[] = [
       }
     ]
   },
-  // 博客前台路由
+  // 站点前台路由
   ...blogRoutes,
   {
     path: '/404',

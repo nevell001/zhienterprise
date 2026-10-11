@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 /**
- * 博客注册参数
+ * 用户注册参数
  */
 export interface BlogRegisterData {
   username: string
@@ -14,7 +14,7 @@ export interface BlogRegisterData {
 }
 
 /**
- * 博客用户注册
+ * 用户注册
  */
 export function blogRegister(data: BlogRegisterData): Promise<any> {
   return request({

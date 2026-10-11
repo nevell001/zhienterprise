@@ -5,7 +5,7 @@ import { resolveMonitorUrl, type MonitorTarget } from './monitorUrl'
 /**
  * 监控入口配置读取。
  *
- * 后台「博客设置 → 站点信息 → 监控入口」保存的是三个 blog_setting：
+ * 后台「站点设置 → 站点信息 → 监控入口」保存的是三个 blog_setting：
  * `prometheus_url` / `grafana_url` / `actuator_url`（留空表示自动推导）。
  * 这里统一读取并交给 `resolveMonitorUrl` 按「设置 → 构建期环境变量 → 站点访问地址推导」解析。
  *
@@ -30,7 +30,7 @@ async function readSetting(key: string): Promise<string> {
     const value = response?.data ?? response?.configValue ?? response?.msg
     return typeof value === 'string' ? value : ''
   } catch (error) {
-    logger.warn(`读取博客设置 ${key} 失败，将改用环境变量或自动推导:`, error)
+    logger.warn(`读取站点设置 ${key} 失败，将改用环境变量或自动推导:`, error)
     return ''
   }
 }

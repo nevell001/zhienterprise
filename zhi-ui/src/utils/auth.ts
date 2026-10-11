@@ -35,14 +35,14 @@ export function removeToken(): void {
 }
 
 /**
- * 获取博客用户 Token
+ * 获取注册用户 Token
  */
 export function getBlogToken(): string | undefined {
   return Cookies.get(BlogTokenKey)
 }
 
 /**
- * 设置博客用户 Token
+ * 设置注册用户 Token
  * @param token - 令牌
  * @param rememberMe - 是否记住我（持久化 Cookie，默认 session 级别）
  */
@@ -54,7 +54,7 @@ export function setBlogToken(token: string, rememberMe?: boolean): string | unde
 }
 
 /**
- * 移除博客用户 Token
+ * 移除注册用户 Token
  */
 export function removeBlogToken(): void {
   Cookies.remove(BlogTokenKey)

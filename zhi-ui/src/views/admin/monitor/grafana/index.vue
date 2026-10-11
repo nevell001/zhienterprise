@@ -31,7 +31,7 @@
                 </el-button>
                 <p class="grafana-url">
                   {{
-                    grafanaUrl || '未配置 Grafana 地址（可在 博客设置 → 站点信息 → 监控入口 填写）'
+                    grafanaUrl || '未配置 Grafana 地址（可在 站点设置 → 站点信息 → 监控入口 填写）'
                   }}
                 </p>
               </div>
@@ -132,7 +132,7 @@ onMounted(async () => {
 // 打开 Grafana 界面
 const openGrafana = () => {
   if (!grafanaUrl.value) {
-    ElMessage.warning('未配置 Grafana 地址，请到 博客设置 → 站点信息 → 监控入口 填写')
+    ElMessage.warning('未配置 Grafana 地址，请到 站点设置 → 站点信息 → 监控入口 填写')
     return
   }
   window.open(grafanaUrl.value, '_blank')

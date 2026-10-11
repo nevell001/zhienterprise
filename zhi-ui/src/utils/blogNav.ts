@@ -1,9 +1,9 @@
 /**
- * 博客前台顶部导航的组装规则。
+ * 站点前台顶部导航的组装规则。
  *
  * 导航由「功能开关 + 首页模式 + 自定义页面」共同决定：home_page_slug 非空时
  * 首页被自定义页面接管，文章列表迁到 /blog/articles，导航补一个「文章」入口；
- * nav_category_enabled / nav_tag_enabled / nav_archive_enabled 控制三个博客向入口
+ * nav_category_enabled / nav_tag_enabled / nav_archive_enabled 控制分类/标签/归档三个入口
  * （企业官网场景在后台关掉即可裁剪导航）。抽成纯函数以便单测直接断言结果。
  */
 

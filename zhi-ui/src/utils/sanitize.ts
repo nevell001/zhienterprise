@@ -22,7 +22,7 @@ interface ConfigResponse {
 }
 
 /**
- * 允许的HTML标签白名单（博客文章内容）
+ * 允许的HTML标签白名单（文章内容）
  */
 const ALLOWED_TAGS: string[] = [
   'p',
@@ -123,7 +123,7 @@ const SAFE_IFRAME_HOSTS = [
 ]
 
 /**
- * 消毒博客文章内容（宽松模式，允许更多标签）
+ * 消毒文章内容（宽松模式，允许更多标签）
  *
  * @param content - 文章内容
  * @returns 消毒后的内容
@@ -133,7 +133,7 @@ export function sanitizeArticleContent(content: string): string {
     return ''
   }
 
-  // 博客文章允许更多标签和属性
+  // 文章允许更多标签和属性
   const articleOptions: SanitizeOptions = {
     ALLOWED_TAGS: [
       ...ALLOWED_TAGS,

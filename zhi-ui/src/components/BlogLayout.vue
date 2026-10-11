@@ -415,7 +415,7 @@ const isBeianEnabled = computed(() => blogSettingsStore.isFeatureEnabled('beian_
 const isGuestbookEnabled = computed(() => blogSettingsStore.isFeatureEnabled('guestbook_enabled'))
 
 // 企业官网模式：home_page_slug 非空时首页被自定义页面接管，文章列表迁到 /blog/articles，
-// 导航补「文章」入口；分类/标签/归档三个博客向入口由下方开关控制（裁剪导航用）
+// 导航补「文章」入口；分类/标签/归档三个入口由下方开关控制（裁剪导航用）
 const isCustomHomePage = computed(() =>
   hasCustomHomePage(blogSettingsStore.blogSettings.home_page_slug)
 )
@@ -429,7 +429,7 @@ const isArchiveNavEnabled = computed(() =>
 
 const customPages = ref<BlogPage[]>([])
 
-// 菜单组装规则在 utils/blogNav.ts（纯函数、与博客前台尺度解耦，便于单测）。
+// 菜单组装规则在 utils/blogNav.ts（纯函数、与站点前台尺度解耦，便于单测）。
 // 「关于」不设固定入口：它就是页面管理里 slug=about 的那一行（是否出现在导航由该行的
 // 「导航显示」控制）。行被删/下架时导航与 /blog/about 一并空态，不存在第二数据源。
 const menus = computed(() =>
@@ -469,7 +469,7 @@ watch(
   }
 )
 
-// 博客设置加载后应用默认 SEO
+// 站点设置加载后应用默认 SEO
 watch(blogSettings, () => {
   applyDefaultSeo()
 })
@@ -514,7 +514,7 @@ const handleUserCommand = async (command: string) => {
 }
 
 onMounted(() => {
-  // 加载博客设置：页脚/版权/友链开关依赖它，而本组件在所有前台页面都会渲染，
+  // 加载站点设置：页脚/版权/友链开关依赖它，而本组件在所有前台页面都会渲染，
   // 必须自行拉取，不能依赖各页面各自加载
   fetchBlogSettings()
 
@@ -549,7 +549,7 @@ function fetchFriendLinks() {
     })
 }
 
-/** 拉取公开博客设置（60 秒内已拉过则复用，避免与页面自身的加载重复请求） */
+/** 拉取公开站点设置（60 秒内已拉过则复用，避免与页面自身的加载重复请求） */
 function fetchBlogSettings() {
   if (Date.now() - (blogSettingsStore.lastUpdate || 0) < 60000) {
     return

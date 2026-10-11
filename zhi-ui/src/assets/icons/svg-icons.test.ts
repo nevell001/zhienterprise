@@ -9,7 +9,7 @@ import { optimize } from 'svgo'
  * 构建期的 `vite-plugin-svg-icons` 会用 svgo 逐个解析 `src/assets/icons/svg/*.svg`：
  * 任何一个图标不是严格合法的 SVG，`vite build` 就会整个失败，而且报错位置会指向
  * **正在加载的 index.html**（插件对每个模块都调用扫描），根本看不出是哪个图标的问题
- * （v1.4.1 之后 svgo 被 overrides 提到 4.x，严格解析放大了这个问题：button.svg 里
+ * （svgo 被 overrides 提到 4.x 后严格解析放大了这个问题：button.svg 里
  * 多写的一个 `</path>` 让 `npm run build:prod` 直接挂掉）。
  *
  * 这里用与构建完全相同的解析方式提前校验，失败时直接给出文件名。

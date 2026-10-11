@@ -1,6 +1,6 @@
 <template>
   <div class="tag-container">
-    <!-- 博客导航 -->
+    <!-- 站点导航 -->
     <BlogLayout>
       <!-- 标签头部 -->
       <div class="tag-header">
@@ -179,7 +179,7 @@
         </div>
       </div>
 
-      <!-- 博客底部 -->
+      <!-- 站点底部 -->
     </BlogLayout>
   </div>
 </template>
@@ -420,7 +420,7 @@ const getTagScale = count => {
   return 0.95
 }
 
-// 加载博客设置
+// 加载站点设置
 const loadBlogSettings = async () => {
   try {
     const response = await getBlogSettingsAnonymous()
@@ -428,7 +428,7 @@ const loadBlogSettings = async () => {
     // 更新 blogSettingsStore
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    logger.error('加载博客设置失败:', error)
+    logger.error('加载站点设置失败:', error)
     // 使用默认值
   }
 }

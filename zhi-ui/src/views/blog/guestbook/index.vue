@@ -9,7 +9,7 @@
             {{
               guestbookEnabled
                 ? '欢迎在这里留下你的想法、建议或问候，看到后我会尽快回复。'
-                : '博主已关闭留言板，欢迎通过邮件或文章评论区与我交流。'
+                : '站长已关闭留言板，欢迎通过邮件或文章评论区与我交流。'
             }}
           </p>
           <p v-if="guestbookEnabled" class="guestbook-count">共 {{ messageCount }} 条留言</p>
@@ -231,7 +231,7 @@ const loadBlogSettings = async () => {
     const settings = response?.data || {}
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    logger.error('加载博客设置失败:', error)
+    logger.error('加载站点设置失败:', error)
   }
 }
 

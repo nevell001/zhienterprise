@@ -1,5 +1,5 @@
 /**
- * ZhiBlog 主题系统 - Mo Blog 主题
+ * 知企建站系统主题系统 - Mo Blog 主题
  *
  * 变量命名规范：
  * - --mo-p*: 主题色（Primary, Purple/Indigo 色系）
@@ -1821,7 +1821,7 @@ html.dark.theme-mo-blog .el-message-box__content {
   background: var(--mo-n800);
 }
 
-/* ========== 博客设置页面暗色覆盖 ========== */
+/* ========== 站点设置页面暗色覆盖 ========== */
 html.dark.theme-mo-blog .el-card,
 html.dark.theme-mo-blog .el-card__body {
   background-color: var(--mo-n800) !important;

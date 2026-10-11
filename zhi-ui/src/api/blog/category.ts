@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import type { Category, DataResult, PageParams, QueryResult } from '@/types'
 
 /**
- * 查询博客分类列表
+ * 查询分类列表
  */
 export function listCategory(query?: PageParams): Promise<QueryResult<Category>> {
   return request({
@@ -13,7 +13,7 @@ export function listCategory(query?: PageParams): Promise<QueryResult<Category>>
 }
 
 /**
- * 查询博客分类详细
+ * 查询分类详细
  */
 export function getCategory(id: number): Promise<DataResult<Category>> {
   return request({
@@ -23,7 +23,7 @@ export function getCategory(id: number): Promise<DataResult<Category>> {
 }
 
 /**
- * 新增博客分类
+ * 新增分类
  */
 export function addCategory(data: Partial<Category> | Record<string, any>): Promise<any> {
   return request({
@@ -34,7 +34,7 @@ export function addCategory(data: Partial<Category> | Record<string, any>): Prom
 }
 
 /**
- * 修改博客分类
+ * 修改分类
  */
 export function updateCategory(data: Partial<Category> | Record<string, any>): Promise<any> {
   return request({
@@ -45,7 +45,7 @@ export function updateCategory(data: Partial<Category> | Record<string, any>): P
 }
 
 /**
- * 删除博客分类
+ * 删除分类
  */
 export function delCategory(id: number): Promise<any> {
   return request({

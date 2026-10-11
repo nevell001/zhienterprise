@@ -50,7 +50,7 @@ const rules = ref({
     { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
   ],
   phonenumber: [
-    // 仅校验格式、不强制填写：博客用户注册只填邮箱，必填会卡死资料保存
+    // 仅校验格式、不强制填写：注册用户只填邮箱，必填会卡死资料保存
     { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: '请输入正确的手机号码', trigger: 'blur' }
   ]
 })

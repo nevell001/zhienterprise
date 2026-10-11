@@ -57,7 +57,7 @@ router.beforeEach(
       if (getToken()) {
         to.meta.title && useSettingsStore().setTitle(to.meta.title as string)
         /* has token*/
-        // 如果访问博客页面，需要获取用户信息
+        // 如果访问站点前台页面，需要获取用户信息
         // 同时预加载后台路由，避免点击"管理后台"时出现404
         if (to.path.startsWith('/blog')) {
           const userStore = useUserStore()
@@ -67,14 +67,14 @@ router.beforeEach(
           if (!userStore.name || userStore.roles.length === 0) {
             await userStore.getInfo().catch(err => {
               console.error('获取用户信息失败:', err)
-              // 获取用户信息失败，清除 token 但继续访问博客页面（作为匿名用户）
+              // 获取用户信息失败，清除 token 但继续访问站点页面（作为匿名用户）
               userStore.token = ''
               userStore.roles = []
               userStore.permissions = []
               removeToken()
             })
           }
-          // 401 拦截器对博客路径返回假 200 占位响应时 getInfo 不会抛错：
+          // 401 拦截器对站点路径返回假 200 占位响应时 getInfo 不会抛错：
           // 有 cookie 却拿不到用户信息 = token 实际无效，同样按匿名清理，
           // 避免留下「登录按钮与残留 token 并存」的半登录态
           if (!userStore.name && getToken()) {
@@ -135,7 +135,7 @@ router.beforeEach(
           } catch (error) {
             console.warn('token 验证失败，允许访问登录页:', error)
           }
-          // 校验 getInfo 的结果而非依赖它抛错：401 拦截器对博客路径会返回
+          // 校验 getInfo 的结果而非依赖它抛错：401 拦截器对站点路径会返回
           // 「匿名访问」假 200 占位响应，getInfo 静默成功但拿不到用户信息。
           // 此时 token 实际无效，必须清掉，否则点击「登录」会被重定向回 /blog，
           // 登录页永远打不开

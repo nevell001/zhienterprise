@@ -27,12 +27,12 @@ describe('About 页面测试', () => {
 
   it('应该有项目信息', () => {
     const projectInfo = {
-      name: 'ZhiBlog',
-      version: '1.4.0',
+      name: '知企建站系统',
+      version: '1.0.0',
       author: 'Nevell'
     }
-    expect(projectInfo.name).toBe('ZhiBlog')
-    expect(projectInfo.version).toBe('1.4.0')
+    expect(projectInfo.name).toBe('知企建站系统')
+    expect(projectInfo.version).toBe('1.0.0')
   })
 
   it('应该有技术栈信息', () => {
@@ -44,7 +44,7 @@ describe('About 页面测试', () => {
   it('应该有联系信息', () => {
     const contactInfo = {
       email: 'test@example.com',
-      github: 'https://github.com/nevell/zhiblog'
+      github: 'https://github.com/nevell001/zhienterprise'
     }
     expect(contactInfo.email).toBe('test@example.com')
     expect(contactInfo.github).toContain('github.com')

@@ -48,7 +48,7 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
     blogSettings: {
       // 基本设置
       blog_name: '知企建站系统',
-      blog_desc: '欢迎来到我的博客',
+      blog_desc: '欢迎来到我的站点',
       blog_author: 'nevell',
       blog_email: '',
       blog_avatar: null,
@@ -79,7 +79,7 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
       user_agreement_content: '',
       privacy_policy_content: '',
 
-      // 博主信息
+      // 站长信息
       author_title: '全栈开发工程师',
       author_bio: '',
       github_url: '',
@@ -156,7 +156,7 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
           return true
         }
       } catch (error) {
-        console.error('从后台刷新博客设置失败:', error)
+        console.error('从后台刷新站点设置失败:', error)
       }
       return false
     }

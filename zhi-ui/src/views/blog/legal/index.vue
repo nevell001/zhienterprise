@@ -63,7 +63,7 @@ const loadBlogSettings = async () => {
     const settings = response?.data || {}
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    logger.error('加载博客设置失败:', error)
+    logger.error('加载站点设置失败:', error)
   }
 }
 

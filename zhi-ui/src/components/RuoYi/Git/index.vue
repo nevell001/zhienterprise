@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-const url = ref('https://gitee.com/nevell/zhiblog.git')
+const url = ref('https://gitee.com/nevell/zhienterprise.git')
 
 function goto() {
   window.open(url.value)

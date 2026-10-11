@@ -365,7 +365,7 @@ html .el-checkbox-button.is-checked .el-checkbox-button__inner {
    Mo-Blog 主题在 mo-blog.scss 中已有的 html.dark.theme-mo-blog 覆盖特异性更高，优先生效。
    选择器均为 html.dark .xxx（特异性高于 scoped .xxx[data-v]），无需 !important 即可覆盖。 */
 
-/* body 兜底暗色背景（修复默认主题深色下博客前台 body 透明显白） */
+/* body 兜底暗色背景（修复默认主题深色下站点前台 body 透明显白） */
 html.dark body {
   background-color: var(--el-bg-color);
   color: var(--el-text-color-primary);

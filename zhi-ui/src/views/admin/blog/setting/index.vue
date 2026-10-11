@@ -18,33 +18,33 @@
         <el-tab-pane label="站点信息" name="basic">
           <el-form ref="basicForm" :model="settingsMap" label-width="120px">
             <el-alert
-              title="站点信息将在博客首页、关于页面等位置显示"
+              title="站点信息将在站点首页、关于页面等位置显示"
               type="info"
               :closable="false"
               class="tab-alert"
             />
-            <el-form-item label="博客名称" prop="blog_name">
+            <el-form-item label="站点名称" prop="blog_name">
               <el-input
                 v-model="settingsMap.blog_name"
-                placeholder="请输入博客名称"
+                placeholder="请输入站点名称"
                 maxlength="50"
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="博客描述" prop="blog_desc">
+            <el-form-item label="站点描述" prop="blog_desc">
               <el-input
                 v-model="settingsMap.blog_desc"
                 type="textarea"
                 :rows="3"
-                placeholder="请输入博客描述"
+                placeholder="请输入站点描述"
                 maxlength="200"
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="博客作者" prop="blog_author">
+            <el-form-item label="站长" prop="blog_author">
               <el-input
                 v-model="settingsMap.blog_author"
-                placeholder="请输入博客作者"
+                placeholder="请输入站长名称"
                 maxlength="50"
                 show-word-limit
               />
@@ -52,7 +52,7 @@
             <el-form-item label="版权信息" prop="blog_copyright">
               <el-input
                 v-model="settingsMap.blog_copyright"
-                placeholder="请输入版权信息，如：© 2025 My Blog"
+                placeholder="请输入版权信息，如：© 2025 My Site"
                 maxlength="200"
                 show-word-limit
               />
@@ -160,7 +160,7 @@
         <el-tab-pane label="SEO优化" name="seo">
           <el-form :model="settingsMap" label-width="120px">
             <el-alert
-              title="用于博客前台页面 title/description/keywords 与搜索引擎收录"
+              title="用于前台页面 title/description/keywords 与搜索引擎收录"
               type="info"
               :closable="false"
               class="tab-alert"
@@ -172,7 +172,7 @@
                 maxlength="100"
                 show-word-limit
               />
-              <div class="setting-tip">留空时前台默认使用“博客名称”作为页面标题</div>
+              <div class="setting-tip">留空时前台默认使用“站点名称”作为页面标题</div>
             </el-form-item>
             <el-form-item label="站点描述" prop="seo_description">
               <el-input
@@ -224,7 +224,7 @@
         <el-tab-pane label="界面主题" name="theme">
           <el-form ref="themeForm" :model="settingsMap" label-width="120px">
             <el-alert
-              title="外观模式与布局主题记忆在当前浏览器；主题色保存后写入博客设置并作用于管理后台。"
+              title="外观模式与布局主题记忆在当前浏览器；主题色保存后写入站点设置并作用于管理后台。"
               type="info"
               :closable="false"
               class="tab-alert"
@@ -343,7 +343,7 @@
         <el-tab-pane label="个人信息" name="author">
           <el-form ref="authorForm" :model="settingsMap" label-width="120px">
             <el-alert
-              title="个人信息将在关于页面和博客侧边栏显示"
+              title="个人信息将在关于页面和站点侧边栏显示"
               type="info"
               :closable="false"
               class="tab-alert"
@@ -590,7 +590,7 @@ const mailTesting = ref(false)
 
 const appThemeOptions: { label: string; value: AppTheme; description: string }[] = [
   { label: '默认主题', value: 'default', description: '保留管理后台的默认布局和交互习惯' },
-  { label: 'Mo-Blog', value: 'mo-blog', description: '与前台博客一致的低饱和靛蓝、石色背景风格' }
+  { label: 'Mo-Blog', value: 'mo-blog', description: '与前台站点一致的低饱和靛蓝、石色背景风格' }
 ]
 
 const themeModeOptions: { label: string; value: ThemeMode }[] = [
@@ -678,8 +678,8 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
     desc: '前台页面的结构展示',
     icon: Grid,
     items: [
-      { key: 'sidebar_enabled', label: '显示侧边栏', desc: '在博客首页显示侧边栏' },
-      { key: 'footer_enabled', label: '显示底部', desc: '在博客页面底部显示页脚信息' },
+      { key: 'sidebar_enabled', label: '显示侧边栏', desc: '在站点首页显示侧边栏' },
+      { key: 'footer_enabled', label: '显示底部', desc: '在站点页面底部显示页脚信息' },
       { key: 'copyright_enabled', label: '显示版权', desc: '在底部显示版权信息' },
       {
         key: 'beian_enabled',
@@ -742,8 +742,8 @@ function isFeatureDisabled(item: FeatureItem): boolean {
 const defaultSettings: Record<string, any> = {
   // 站点信息
   blog_name: '知企建站系统',
-  blog_desc: '欢迎来到我的博客',
-  blog_author: '博主',
+  blog_desc: '欢迎来到我的站点',
+  blog_author: '站长',
   blog_copyright: '',
   blog_beian: '',
   blog_url: '',
@@ -859,7 +859,7 @@ const tabTitle = computed(() => {
     mail: '邮件服务',
     seo: 'SEO优化'
   }
-  return titleMap[activeTab.value] || '博客设置管理'
+  return titleMap[activeTab.value] || '站点设置管理'
 })
 
 watch(tabTitle, newVal => {
@@ -935,7 +935,7 @@ async function fetchSettingRows(): Promise<any[]> {
   return res.rows || res.data || []
 }
 
-/** 获取所有博客设置 */
+/** 获取所有站点设置 */
 async function getAllSettings() {
   loading.value = true
   try {
@@ -960,7 +960,7 @@ async function getAllSettings() {
       }
     })
 
-    // 注册开关以 sys_config 的真实生效值为准：博客设置页其余项读 blog_setting，
+    // 注册开关以 sys_config 的真实生效值为准：站点设置页其余项读 blog_setting，
     // 而 BlogAuthController / SysRegisterController 拦的是 sys.account.registerUser，
     // 只读本地镜像就会出现"卡片显示已开启、注册仍被拒"
     try {
@@ -1145,7 +1145,7 @@ async function handleTestMail() {
 }
 
 onMounted(() => {
-  settingsStore.setTitle('博客设置')
+  settingsStore.setTitle('站点设置')
 
   fetchMailConfig()
 

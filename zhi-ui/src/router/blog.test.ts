@@ -6,7 +6,7 @@ describe('Blog Routes 详细测试', () => {
     const route = blogRoutes.find(r => r.path === '/blog')
     expect(route?.path).toBe('/blog')
     expect(route?.name).toBe('PublicBlogHome')
-    expect(route?.meta?.title).toBe('博客首页')
+    expect(route?.meta?.title).toBe('站点首页')
   })
 
   it('文章详情路由应该有正确的路径、组件和别名', () => {

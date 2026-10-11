@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import type { BlogSetting, DataResult, PageParams, QueryResult } from '@/types'
 
 /**
- * 查询博客设置列表
+ * 查询站点设置列表
  */
 export function listSetting(
   query?: PageParams
@@ -15,7 +15,7 @@ export function listSetting(
 }
 
 /**
- * 查询博客设置详细
+ * 查询站点设置详细
  */
 export function getSetting(id: number): Promise<DataResult<BlogSetting>> {
   return request({
@@ -35,7 +35,7 @@ export function getConfigByKey(configKey: string): Promise<any> {
 }
 
 /**
- * 新增博客设置
+ * 新增站点设置
  */
 export function addSetting(data: Partial<BlogSetting> | Record<string, any>): Promise<any> {
   return request({
@@ -46,7 +46,7 @@ export function addSetting(data: Partial<BlogSetting> | Record<string, any>): Pr
 }
 
 /**
- * 修改博客设置
+ * 修改站点设置
  */
 export function updateSetting(data: Partial<BlogSetting> | Record<string, any>): Promise<any> {
   return request({
@@ -57,7 +57,7 @@ export function updateSetting(data: Partial<BlogSetting> | Record<string, any>):
 }
 
 /**
- * 删除博客设置
+ * 删除站点设置
  */
 export function delSetting(ids: number | number[]): Promise<any> {
   return request({

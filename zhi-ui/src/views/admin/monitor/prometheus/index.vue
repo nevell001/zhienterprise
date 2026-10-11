@@ -49,7 +49,7 @@
                 <p class="metric-url">
                   {{
                     prometheusUrl ||
-                    '未配置 Prometheus 地址（可在 博客设置 → 站点信息 → 监控入口 填写）'
+                    '未配置 Prometheus 地址（可在 站点设置 → 站点信息 → 监控入口 填写）'
                   }}
                 </p>
               </div>
@@ -202,7 +202,7 @@ const copyMetrics = async () => {
 // 打开 Prometheus UI
 const openPrometheus = () => {
   if (!prometheusUrl.value) {
-    ElMessage.warning('未配置 Prometheus 地址，请到 博客设置 → 站点信息 → 监控入口 填写')
+    ElMessage.warning('未配置 Prometheus 地址，请到 站点设置 → 站点信息 → 监控入口 填写')
     return
   }
   window.open(prometheusUrl.value, '_blank')
@@ -211,7 +211,7 @@ const openPrometheus = () => {
 // 在 Prometheus 中运行查询
 const runQuery = query => {
   if (!prometheusUrl.value) {
-    ElMessage.warning('未配置 Prometheus 地址，请到 博客设置 → 站点信息 → 监控入口 填写')
+    ElMessage.warning('未配置 Prometheus 地址，请到 站点设置 → 站点信息 → 监控入口 填写')
     return
   }
   const encodedQuery = encodeURIComponent(query)
