@@ -174,7 +174,7 @@ services:
       LC_ALL: C.UTF-8
       DOCKER: "true"
       VITE_API_BASE_URL: http://zhi-admin:8080
-      # 监控入口地址默认由「博客设置 → 站点信息 → 监控入口」或站点访问地址自动推导，
+      # 监控入口地址默认由「站点设置 → 站点信息 → 监控入口」或站点访问地址自动推导，
       # 如需固定到其它域名可在此设置（构建期变量，生产镜像需用 build args）：
       # VITE_PROMETHEUS_URL: http://localhost:9090
       # VITE_GRAFANA_URL: http://localhost:3001

@@ -1,6 +1,6 @@
 # 基于 Release 产物的部署指南
 
-本文说明如何用 GitHub/Gitee Release 下载的产物部署 ZhiBlog，**无需源码构建**。
+本文说明如何用 GitHub/Gitee Release 下载的产物部署知企建站系统，**无需源码构建**。
 日常源码部署请走 `docker compose -f docker-compose.prod.yml up -d --build`（见 README）。
 
 ## 1. 下载产物
@@ -68,7 +68,7 @@ docker compose -f docker-compose.release.yml up -d
 
 ## 5. 验证
 
-- 博客前台：`http://服务器IP/blog`
+- 站点前台：`http://服务器IP/blog`
 - 管理后台：`http://服务器IP/admin`
 - 后端健康检查：`http://服务器IP/manage/actuator/health`
 - 本机调试可直接访问 `http://127.0.0.1:8080`

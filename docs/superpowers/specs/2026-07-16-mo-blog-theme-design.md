@@ -12,7 +12,7 @@
 - `docs/design/prototypes/auth.html`
 - `docs/design/prototypes/profile.html`
 
-本次需求是把这套设计落成 ZhiBlog 的一个新主题。用户已确认采用“可切换新主题”策略：保留现有默认视觉，新增 `mo-blog` 主题，不直接替换旧主题。
+本次需求是把这套设计落成知企建站系统的一个新主题。用户已确认采用“可切换新主题”策略：保留现有默认视觉，新增 `mo-blog` 主题，不直接替换旧主题。
 
 ## 目标
 

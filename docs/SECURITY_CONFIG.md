@@ -2,7 +2,7 @@
 
 ## 概述
 
-从 v1.2.8 开始，ZhiBlog 引入了自动安全配置验证功能。该功能在应用启动时自动检查关键安全配置，防止使用不安全的默认值。
+知企建站系统内置自动安全配置验证功能，在应用启动时自动检查关键安全配置，防止使用不安全的默认值。
 
 ## 验证项
 
@@ -182,8 +182,8 @@ SECURITY_VALIDATION_ENABLED=false
 
 ## 相关文件
 
-- **配置验证器**：`zhi-framework/src/main/java/com/ruoyi/framework/config/SecurityConfigValidator.java`
-- **异常类**：`zhi-common/src/main/java/com/ruoyi/common/exception/SecurityConfigValidationException.java`
+- **配置验证器**：`zhi-framework/src/main/java/com/zhi/framework/config/SecurityConfigValidator.java`
+- **异常类**：`zhi-common/src/main/java/com/zhi/common/exception/SecurityConfigValidationException.java`
 - **配置文件**：`zhi-admin/src/main/resources/application.yml`
 - **环境变量模板**：`.env.example`
 
@@ -201,16 +201,6 @@ SECURITY_VALIDATION_ENABLED=false
 - 支持 Spring Boot 3.x
 - 使用 Jakarta EE 9+ 命名空间（`jakarta.annotation.PostConstruct`）
 - 兼容所有配置方式（环境变量、.env 文件、Docker secrets）
-
-## 更新日志
-
-### v1.2.8 (2026-01-24)
-- ✨ 新增自动安全配置验证功能
-- ✨ 新增 `SecurityConfigValidator` 配置验证器
-- ✨ 新增 `SecurityConfigValidationException` 异常类
-- 🔒 移除不安全的空密码默认值
-- 📝 更新 `.env.example` 添加详细安全配置说明
-- 📝 新增安全配置文档
 
 ## 反馈与支持
 

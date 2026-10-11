@@ -4,7 +4,7 @@
     "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <!--
-    ZhiBlog 项目代码规范配置
+    知企建站系统项目代码规范配置
     基于 Google Java Style Guide 并针对项目进行调整
 -->
 <module name="Checker">

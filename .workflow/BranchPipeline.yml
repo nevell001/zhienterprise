@@ -1,4 +1,4 @@
-# ZhiBlog 分支流水线：push 到非 main 分支时触发，执行全量测试构建
+# 知企建站系统分支流水线：push 到非 main 分支时触发，执行全量测试构建
 version: '1.0'
 name: branch-pipeline
 displayName: 分支测试与构建

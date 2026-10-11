@@ -1,4 +1,4 @@
-# ZhiBlog 主分支流水线：push 到 main 时触发，执行后端与前端全量测试构建
+# 知企建站系统主分支流水线：push 到 main 时触发，执行后端与前端全量测试构建
 version: '1.0'
 name: master-pipeline
 displayName: Main 分支测试与构建

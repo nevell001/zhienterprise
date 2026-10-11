@@ -1,6 +1,6 @@
 # 服务器与仓库加固清单（Security Hardening）
 
-> 适用范围：ZhiBlog 的两个代码托管（Gitee `nevell/zhiblog`、GitHub `nevell001/zhiblog`）、
+> 适用范围：知企建站系统的两个代码托管（Gitee `nevell/zhienterprise`、GitHub `nevell001/zhienterprise`）、
 > 一台跑 Docker Compose 的生产服务器、以及开发用的 macOS 机器。
 >
 > 写法说明：每条都给出**为什么**、**怎么做（可直接复制的命令）**和**怎么验证**。
@@ -61,7 +61,7 @@ Gitee：仓库 → 管理 → 分支保护；GitHub：Settings → Branches → 
 ```
 
 它的含义是：**任何** https 形式的 GitHub 操作都会被转发到第三方代理，凭据可能随请求一起发给对方。
-推送请统一走 SSH（本仓库 `github` remote 已配置为 `git@github.com:nevell001/zhiblog.git`），
+推送请统一走 SSH（本仓库 `github` remote 已配置为 `git@github.com:nevell001/zhienterprise.git`），
 并删掉代理重写：
 
 ```bash
@@ -70,7 +70,7 @@ git config --global --unset-all url."https://ghfast.top/https://github.com/".ins
 git config --global --get-regexp 'url\.'   # 应当为空
 ```
 
-验证：`git push github main` 走 SSH（输出 `github.com:nevell001/zhiblog.git`）；备份/同步脚本
+验证：`git push github main` 走 SSH（输出 `github.com:nevell001/zhienterprise.git`）；备份/同步脚本
 `sync-github.sh` 也会在检测到代理 URL 时给出告警。
 
 ### 1.5 `[P1]` 一次性的偏门设置检查
@@ -253,9 +253,9 @@ permissions:
 - 首次推送后要确认仓库 **Settings → Code security and analysis** 里 **Dependabot alerts** 与
   **Dependabot security updates** 都已勾选。**这一步不做，上面那行"比对 Advisory Database"是不成立的**：
   只注册 `dependabot.yml` 只会得到"有新版本"的升级 PR，不会有 CVE 告警，也不会有安全类 PR。
-  实测本仓库推送后（2026-10-02）`GET /repos/nevell001/zhiblog/dependabot/alerts` 返回
+  实测本仓库推送后（2026-10-02）`GET /repos/nevell001/zhienterprise/dependabot/alerts` 返回
   `403 Dependabot alerts are disabled for this repository`，`security_and_analysis.dependabot_security_updates`
-  仍是 `disabled`。命令行开：`gh api -X PUT repos/nevell001/zhiblog/vulnerability-alerts`
+  仍是 `disabled`。命令行开：`gh api -X PUT repos/nevell001/zhienterprise/vulnerability-alerts`
   （令牌需要 `admin:repo_hook` scope，没有就走 UI）。
 - 开了 alerts 之后才有意义的那句"安全类 PR 不受 `open-pull-requests-limit` 限制"才有出处可查：
   `gh pr list --author app/dependabot`。

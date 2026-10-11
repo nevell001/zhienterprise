@@ -4,15 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ZhiBlog (知博) is a full-stack blog system built on Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript. The backend is a multi-module Maven project based on RuoYi-Vue 3.9.1, upgraded to Jakarta EE and Java 17.
+ZhiEnterprise (知企建站系统) is a full-stack enterprise website building system built on Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript. The backend is a multi-module Maven project based on RuoYi-Vue 3.9.1, upgraded to Jakarta EE and Java 17.
 
-**Current Version**: v1.4.5 (defined in `pom.xml`)
+**Current Version**: v1.0.0 (defined in `pom.xml`)
 
 **Brand Identity**:
-- Brand name: "ZhiBlog - 知博"
-- Theme name: "默 Blog" (mo-blog) - refers to the visual theme style only
+- Brand name: "知企建站系统（ZhiEnterprise）"
+- Theme name: "Mo-Blog" (mo-blog) - refers to the visual theme style only
 - Internal package structure uses `com.zhi.*` (framework naming convention)
-- Never display "若依" or "墨 Blog" (incorrect character) in user-facing code
+- Never display "若依" or legacy "ZhiBlog/知博" branding in user-facing code
 
 ## Common Commands
 
@@ -66,7 +66,7 @@ CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 mysql -u root -p zhiblog < sql/00_init_database.sql
 ```
 
-**SQL Migration**: 仓库仅保留唯一幂等脚本 `sql/00_init_database.sql`（原 01/02 已合并其中）。
+**SQL Migration**: 仓库仅保留唯一幂等脚本 `sql/00_init_database.sql`（历史迁移脚本已并入）。
 已有数据库升级时直接重跑该脚本即可（补齐表/列/索引/菜单/权限并重算评论数）。
 幂等性已在 MySQL 8.4 实测（全新建库 + 已有库重跑，数据无重复）。注意：种子数据必须显式指定
 主键 `id`（或用带 `COUNT(*)` 判断的存储过程，如 `sp_insert_sample_articles`），否则
@@ -84,11 +84,11 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 - **zhi-quartz**: Scheduled task management
 - **zhi-generator**: Code generation for CRUD modules
 
-**Note**: Modules were renamed from `ruoyi-*` to `zhi-*` in v1.3.5, but the main class is still `com.zhi.RuoYiApplication` (legacy name kept for compatibility). The package structure is `com.zhi.*`.
+**Note**: Modules were renamed from `ruoyi-*` to `zhi-*`, but the main class is still `com.zhi.RuoYiApplication` (legacy name kept for compatibility). The package structure is `com.zhi.*`.
 
 ### Frontend Structure
 
-- `views/blog/`: Public-facing blog pages
+- `views/blog/`: Public-facing site pages
 - `views/admin/`: Admin management (dynamically loaded by permissions)
 - `api/blog/` & `api/system/`: Typed API calls
 - `stores/`: Pinia state management (TypeScript)
@@ -98,13 +98,13 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 **Backend Request Flow**: Controller → Service → Mapper (MyBatis)
 
-**Blog Controllers** (in zhi-system):
+**Content Controllers** (in zhi-system):
 - `BlogArticleController` - Article CRUD, search, status
 - `BlogCategoryController`, `BlogTagController`, `BlogCommentController`
 - `BlogFriendLinkController`, `BlogSettingController`
-- `UnifiedAuthController` - Unified login for admin + blog users (JWT)
+- `UnifiedAuthController` - Unified login for admin + registered users (JWT)
 
-**Blog Feature Toggles** (stored in `blog_setting` table):
+**Site Feature Toggles** (stored in `blog_setting` table):
 - `comment_review`, `view_count_enabled`, `like_enabled`, `share_enabled`
 - `search_enabled`, `sidebar_enabled`, `footer_enabled`, `copyright_enabled`
 - 企业官网模式: `home_page_slug` (首页接管自定义页面), `nav_category_enabled`, `nav_tag_enabled`, `nav_archive_enabled` (导航裁剪)
@@ -140,7 +140,7 @@ The `comment_review` blog setting controls whether new comments default to statu
 Version defined in `pom.xml` (`<version>` and `<app.version>`). When updating:
 1. Update root `pom.xml` `<version>` and `<app.version>`
 2. Update all 6 sub-module parent `<version>` references
-3. Frontend version in `package.json` (and the two `"version"` fields in `package-lock.json`) is aligned with the backend (currently 1.4.5)
+3. Frontend version in `package.json` (and the two `"version"` fields in `package-lock.json`) is aligned with the backend (currently 1.0.0)
 
 See `docs/VERSION_MANAGEMENT.md` for detailed instructions.
 
@@ -156,11 +156,11 @@ See `docs/VERSION_MANAGEMENT.md` for detailed instructions.
 ### Security Configuration
 
 Located in `zhi-framework/config/SecurityConfig.java`:
-- Blog frontend (`/blog/**`, `/common/blog/**`) allows anonymous access
+- Public site frontend (`/blog/**`, `/common/blog/**`) allows anonymous access
 - Admin backend requires JWT authentication
 - Swagger, Druid, Actuator open in non-prod environments
 
-### Security Validation (v1.2.8+)
+### Security Validation
 
 Automatic validation at startup via `SecurityConfigValidator`:
 

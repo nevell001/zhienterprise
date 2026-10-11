@@ -11,7 +11,7 @@
 
 ## 与 Gitee Go 的差异
 
-- 触发方式一样：push 到任意分支、向 `main` 发 PR 跑 CI；打 `v1.3.7` 这样的 tag 跑发布流水线。
+- 触发方式一样：push 到任意分支、向 `main` 发 PR 跑 CI；打 `v1.0.0` 这样的 tag 跑发布流水线。
 - 后端命令相同：`mvn -B clean verify`（编译 + 单测 + checkstyle + JaCoCo 覆盖率门槛），无需 MySQL/Redis。
 - 前端命令相同：`npm ci` + lint + format + test + build。
 - **依赖审计只在 GitHub 侧**：`npm run audit`（= `npm audit --omit=dev --audit-level=high --registry=https://registry.npmjs.org`，
@@ -25,7 +25,7 @@
 
 打 `v*` tag 时，`release.yml` 除了构建测试，还会用 `gh release create` 自动创建 GitHub Release：**发行说明取 `docs/releases/<tag>.md`**（缺失时回落到自动生成的说明文字），附件包括 `zhi-admin.jar`、`frontend-dist.zip` 和 `deploy-assets.zip`（含 sql 初始化脚本、nginx.conf、.env.example、部署指南）。`publish` job 会先删除同 tag 的旧 Release 再创建，支持重复发布覆盖。使用内置 `GITHUB_TOKEN`（`contents: write`）。该自动发布只对后续新打的 tag 生效。
 
-构建前会校验 tag 版本与根 `pom.xml` 版本一致（如 `v1.3.7` 必须对应 `<version>1.3.7</version>`），不一致直接失败。
+构建前会校验 tag 版本与根 `pom.xml` 版本一致（如 `v1.0.0` 必须对应 `<version>1.0.0</version>`），不一致直接失败。
 
 基于 release 产物的部署方式见 [docs/DEPLOYMENT_RELEASE.md](../docs/DEPLOYMENT_RELEASE.md) 和 `docker-compose.release.yml`。
 

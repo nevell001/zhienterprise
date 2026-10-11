@@ -1,13 +1,13 @@
 # Gitee Go 流水线说明
 
-本目录是 ZhiBlog 的 Gitee Go（码云 CI/CD）流水线配置，包含四条流水线：
+本目录是知企建站系统的 Gitee Go（码云 CI/CD）流水线配置，包含四条流水线：
 
 | 文件 | 触发时机 | 作用 |
 | --- | --- | --- |
 | `MasterPipeline.yml` | push 到 `main` | 后端 + 前端全量测试构建 |
 | `BranchPipeline.yml` | push 到非 `main` 分支 | 后端 + 前端全量测试构建 |
 | `PRPipeline.yml` | 向 `main` 发起 Pull Request | 后端 + 前端全量测试构建 |
-| `ReleasePipeline.yml` | 打 `v*` 开头的 tag（如 `v1.3.7`） | 全量测试构建 + 上传制品 + 自动创建 Gitee 发行版（部署骨架） |
+| `ReleasePipeline.yml` | 打 `v*` 开头的 tag（如 `v1.0.0`） | 全量测试构建 + 上传制品 + 自动创建 Gitee 发行版（部署骨架） |
 
 ## 启用步骤
 
@@ -32,7 +32,7 @@
 - 发布：`publish@general_artifacts` 把后端 jar 和前端 dist 上传到制品库；`release@gitee` 插件自动创建仓库「发行版」（复用 `tagName` 指定的 tag，附件为后端 jar + `frontend-dist.zip` + `deploy-assets.zip`（内含 sql / nginx HTTP+HTTPS 配置 / .env 示例 / 部署指南 / prometheus / grafana 配置），与 GitHub Release 保持一致）。
 - 部署：注释掉的骨架，配置方式见下。
 
-发行版 tag：`release@gitee` 的 `tagName` 当前为 `v1.4.4`（复用触发流水线的 tag）。**每次发新版本时，把 `tagName`、`releaseName`、`description` 以及 `triggers.push.tags.exclude` 里的版本号改成对应版本**。`allowUpdate: true` 允许同 tag 重复发布时覆盖。
+发行版 tag：`release@gitee` 的 `tagName` 当前为 `v1.0.0`（复用触发流水线的 tag）。**每次发新版本时，把 `tagName`、`releaseName`、`description` 以及 `triggers.push.tags.exclude` 里的版本号改成对应版本**。`allowUpdate: true` 允许同 tag 重复发布时覆盖。
 
 注意：`allowUpdate: true` 会更新/追加附件，但**不会删除旧附件**；变更附件清单后，需要在发行版编辑页手动删除旧文件，或删除该发行版（保留 tag）后重跑流水线重建。
 
@@ -50,7 +50,7 @@
    - `DB_PASSWORD`、`REDIS_PASSWORD`、`DRUID_PASSWORD`
 4. 服务器端确认 `docker-compose.prod.yml` 可用（MySQL 8.4、Redis 6.2+、`./uploadPath/` 挂载卷存在）。
 
-发布流程建议：本地/仓库打 tag（`git tag v1.3.7 && git push origin v1.3.7`）→ 流水线构建测试 → 上传制品 → 服务器拉取并 `docker compose up -d`。
+发布流程建议：本地/仓库打 tag（`git tag v1.0.0 && git push origin v1.0.0`）→ 流水线构建测试 → 上传制品 → 服务器拉取并 `docker compose up -d`。
 
 ## 注意
 

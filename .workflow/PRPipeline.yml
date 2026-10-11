@@ -1,4 +1,4 @@
-# ZhiBlog Pull Request 流水线：向 main 发起 PR 时触发，执行全量测试构建
+# 知企建站系统 Pull Request 流水线：向 main 发起 PR 时触发，执行全量测试构建
 version: '1.0'
 name: pr-pipeline
 displayName: Pull Request 测试

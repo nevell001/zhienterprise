@@ -1,4 +1,4 @@
-# ZhiBlog CI：push 到任意分支或向 main 发起 PR 时触发，与 Gitee Go 流水线逻辑一致
+# 知企建站系统 CI：push 到任意分支或向 main 发起 PR 时触发，与 Gitee Go 流水线逻辑一致
 name: CI
 
 on:
