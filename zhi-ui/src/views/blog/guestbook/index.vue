@@ -351,7 +351,7 @@ const handleSubmit = async () => {
 }
 
 const applyGuestbookSeo = () => {
-  const siteName = (blogSettings.value as { blog_name?: string }).blog_name || '我的博客'
+  const siteName = (blogSettings.value as { blog_name?: string }).blog_name || '企业官网项目'
   applySeo({
     title: `留言板 - ${siteName}`,
     description: '欢迎在留言板留下你的想法、建议或问候。',

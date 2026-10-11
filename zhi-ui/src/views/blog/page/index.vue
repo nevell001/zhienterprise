@@ -46,7 +46,7 @@ const loadPage = async () => {
     }
 
     page.value = response.data
-    const siteName = (blogSettings.value as { blog_name?: string }).blog_name || '我的博客'
+    const siteName = (blogSettings.value as { blog_name?: string }).blog_name || '企业官网项目'
     applySeo({
       title: page.value.seoTitle || `${page.value.title} - ${siteName}`,
       description: page.value.seoDescription || page.value.summary || '',

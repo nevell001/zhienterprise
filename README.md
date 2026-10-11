@@ -1,6 +1,6 @@
-# ZhiBlog - 知博
+# 企业官网项目
 
-现代化的前后端分离博客系统：Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript。
+企业官网系统（基于 ZhiBlog 博客系统二次开发）：Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript。
 
 ## 🚀 项目特色
 

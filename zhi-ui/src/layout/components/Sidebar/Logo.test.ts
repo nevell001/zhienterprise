@@ -50,7 +50,7 @@ describe('Logo 组件测试', () => {
       }
     })
 
-    expect(wrapper.find('.sidebar-title').text()).toBe('ZhiBlog')
+    expect(wrapper.find('.sidebar-title').text()).toBe('企业官网项目')
   })
 
   it('应该支持自定义Logo', () => {

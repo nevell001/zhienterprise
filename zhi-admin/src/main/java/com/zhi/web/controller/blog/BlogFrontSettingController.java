@@ -160,7 +160,7 @@ public class BlogFrontSettingController extends BaseController {
     private void setDefaultValue(Map<String, Object> settings, String configKey) {
         switch (configKey) {
             case "blog_name":
-                settings.put(configKey, "我的博客");
+                settings.put(configKey, "企业官网项目");
                 break;
             case "blog_desc":
                 settings.put(configKey, "基于 Spring Boot 3.3.0 + Vue 3 + Element Plus 构建的现代化博客系统");

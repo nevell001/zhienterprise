@@ -168,7 +168,7 @@
             <el-form-item label="站点标题" prop="seo_title">
               <el-input
                 v-model="settingsMap.seo_title"
-                placeholder="如：ZhiBlog - 知博"
+                placeholder="如：企业官网项目"
                 maxlength="100"
                 show-word-limit
               />
@@ -741,7 +741,7 @@ function isFeatureDisabled(item: FeatureItem): boolean {
 
 const defaultSettings: Record<string, any> = {
   // 站点信息
-  blog_name: '我的博客',
+  blog_name: '企业官网项目',
   blog_desc: '欢迎来到我的博客',
   blog_author: '博主',
   blog_copyright: '',

@@ -150,7 +150,7 @@ const shareToQQ = () => {
     params.set('pics', shareCover)
   }
   params.set('summary', shareSummary || '')
-  params.set('site', 'ZhiBlog - 知博')
+  params.set('site', '企业官网项目')
   window.open(
     `https://connect.qq.com/widget/shareqq/index.html?${params.toString()}`,
     '_blank',

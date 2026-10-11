@@ -3,8 +3,8 @@
     <div class="mo-auth-page">
       <section class="auth-card">
         <router-link to="/blog" class="auth-brand">
-          <span class="brand-mark">知</span>
-          <span>ZhiBlog - 知博</span>
+          <span class="brand-mark">企</span>
+          <span>企业官网项目</span>
         </router-link>
 
         <div class="auth-head">

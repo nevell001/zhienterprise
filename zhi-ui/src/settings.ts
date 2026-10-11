@@ -4,7 +4,7 @@ const settings: SettingsConfig = {
   /**
    * 网页标题
    */
-  title: import.meta.env?.VITE_APP_TITLE || 'ZhiBlog',
+  title: import.meta.env?.VITE_APP_TITLE || '企业官网项目',
 
   /**
    * 主题
