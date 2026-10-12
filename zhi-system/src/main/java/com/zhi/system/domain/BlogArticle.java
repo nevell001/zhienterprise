@@ -100,7 +100,20 @@ public class BlogArticle extends BaseEntity
     /** 归档日期（非数据库字段，用于查询） */
     private String archiveDate;
 
-    public void setId(Long id) 
+    /** 内容类型：news 资讯（默认）、business 核心业务、case 客户案例 */
+    private String articleType;
+
+    public void setArticleType(String articleType)
+    {
+        this.articleType = articleType;
+    }
+
+    public String getArticleType()
+    {
+        return articleType;
+    }
+
+    public void setId(Long id)
     {
         this.id = id;
     }

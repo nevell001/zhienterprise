@@ -574,6 +574,7 @@ CREATE TABLE IF NOT EXISTS `blog_article` (
   `content` longtext NOT NULL COMMENT '文章内容（HTML，展示用）',
   `content_md` longtext COMMENT 'Markdown 源码（format=markdown 时保存）',
   `format` varchar(10) NOT NULL DEFAULT 'html' COMMENT '内容格式 html|markdown',
+  `article_type` varchar(20) NOT NULL DEFAULT 'news' COMMENT '内容类型：news 资讯 business 核心业务 case 客户案例',
   `cover_url` varchar(255) DEFAULT NULL COMMENT '封面图片URL',
   `category_id` bigint DEFAULT NULL COMMENT '分类ID',
   `author_id` bigint DEFAULT NULL COMMENT '作者ID',
@@ -958,6 +959,13 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('email_notify_enabled', 'true', '邮件通知开关（评论/回复/审核结果）', NOW(), NOW());
 
+-- 企业建站：核心业务栏目、企业首页模板与联系信息（已有库重跑自动补齐）
+INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+('business_label', '核心业务', '核心业务栏目名称（可改为：产品中心/服务项目/解决方案）', NOW(), NOW()),
+('home_layout', '', '首页模板：留空=文章列表（默认）；business=企业官网区块化模板（home_page_slug 已设置时自定义页面优先）', NOW(), NOW()),
+('contact_phone', '', '联系电话（官网联系信息展示）', NOW(), NOW()),
+('contact_address', '', '联系地址（官网联系信息展示）', NOW(), NOW());
+
 -- 用户协议与隐私政策（注册页勾选与前台全文页面展示，后台「协议页面」可编辑；HTML 内不得出现单引号）
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('user_agreement_content', '<p>更新日期：2026-10-04 · 生效日期：2026-10-04</p><h3>一、协议的接受</h3><p>本站是基于知企建站系统搭建的站点，由本站运营者（以下简称「本站」）运营。本《用户协议》（以下简称「本协议」）是您与本站之间关于注册、登录、使用本站账号及使用本站各项服务所订立的契约。</p><p>您在注册页面勾选「我已阅读并同意《用户协议》和《隐私政策》」并完成注册，或以其他方式实际使用本站服务，均表示您已充分阅读、理解并接受本协议的全部内容。若您不同意本协议的任何条款，请勿注册或使用本站服务。</p><h3>二、定义</h3><ul><li>「本站」：指本站点及其配套服务；</li><li>「用户」：指通过邮箱验证方式注册并获得本站账号的自然人；</li><li>「用户内容」：指用户在本站发表的评论、留言等内容。</li></ul><h3>三、账号注册与安全</h3><ul><li>您应当具备中华人民共和国法律规定的完全民事行为能力；若您为未成年人，应在监护人的指导下使用本站服务；</li><li>注册时您须提供真实、有效的邮箱地址，并通过邮箱验证码完成验证；昵称为选填项；</li><li>您应妥善保管账号密码，不得出借、出租、转让或与他人共用账号；通过您的账号进行的操作均视为您本人的行为；</li><li>如发现账号被盗用或存在其他安全问题，应立即通过本页提供的联系方式与本站取得联系。</li></ul><h3>四、用户行为规范</h3><p>您承诺在使用本站过程中，遵守《中华人民共和国宪法》《中华人民共和国网络安全法》《中华人民共和国个人信息保护法》等法律法规及公序良俗，不得利用本站制作、复制、发布、传播含有下列内容的信息：</p><ul><li>反对宪法确定的基本原则，危害国家安全、泄露国家秘密、颠覆国家政权、破坏国家统一的；</li><li>宣扬淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；</li><li>侮辱、诽谤他人，侵害他人名誉权、肖像权、隐私权、著作权等合法权益的；</li><li>散布谣言、虚假信息、垃圾广告，或其他与所在页面无关的骚扰信息的；</li><li>其他法律、行政法规禁止的内容。</li></ul><p>您不得以任何技术手段干扰本站的正常运行，或实施恶意注册、刷量、爬取数据等危害站点安全的行为。对违反本条规范的内容与账号，本站有权不经通知采取删除、屏蔽、限制功能、封禁账号等措施，并保留追究法律责任的权利。</p><h3>五、用户内容与知识产权</h3><ul><li>本站的界面设计、程序代码、Logo 等要素的知识产权归本站运营者所有；</li><li>用户内容的著作权归您或原权利人所有；您同意在免费、非独占的范围内授予本站存储、展示、传播用户内容的许可，以实现发表、展示等本站基本功能；</li><li>您承诺用户内容系您原创或已获得合法授权，因用户内容引发的一切纠纷由您自行承担相应责任；</li><li>未经权利人许可，任何一方不得将用户内容用于商业目的。</li></ul><h3>六、内容审核与通知</h3><p>本站开启评论审核功能时，您提交的评论将先经审核，审核通过后方公开展示，审核结果通过站内消息告知您；未通过审核的评论不会公开展示。</p><p>为及时告知评论回复、审核结果等信息，本站会通过站内消息中心向您推送通知；在邮件通知开启时，亦可能向您注册时填写的邮箱发送通知邮件。</p><h3>七、服务的变更、中断与终止</h3><ul><li>本站有权基于运营需要，变更、中断或终止部分或全部服务，并将尽可能提前公告；</li><li>因系统维护、升级、故障或不可抗力导致服务中断的，本站将尽力减少影响，但不承担由此产生的赔偿责任（法律另有规定除外）；</li><li>您可以随时停止使用本站服务；如需注销账号，可通过本页提供的联系方式向本站提出申请。</li></ul><h3>八、免责声明与责任限制</h3><p>本站仅提供信息存储与展示服务，除开启审核功能的内容外，不对用户内容进行事先审查，亦不对用户内容的真实性、完整性、合法性作出保证。对您因使用本站服务所产生的直接或间接损失，在法律允许的最大范围内，本站不承担责任。本站页面包含的指向第三方网站的外部链接，其内容与本站无关。</p><h3>九、法律适用与争议解决</h3><p>本协议的订立、履行与解释适用中华人民共和国法律。因本协议产生的争议，双方应友好协商解决；协商不成的，任何一方可向本站运营者所在地有管辖权的人民法院提起诉讼。</p><h3>十、协议的修订与联系我们</h3><p>本站可能适时修订本协议，修订后的协议将在本页面发布；若您在协议修订后继续使用本站服务，视为接受修订后的协议。</p><p>如您对本协议有任何疑问、意见或建议，可通过「关于」页面提供的联系方式与本站取得联系。</p>', '用户协议内容', NOW(), NOW()),
@@ -1025,7 +1033,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_insert_sample_articles()
 BEGIN
   IF (SELECT COUNT(*) FROM `blog_article` WHERE `title` = '知企建站系统 v1.0 正式发布：一站式企业官网搭建平台') = 0 THEN
-INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES
+INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`, `article_type`) VALUES
 -- 置顶推荐文章
 ('知企建站系统 v1.0 正式发布：一站式企业官网搭建平台', '知企建站系统 v1.0 正式发布，提供内容管理、产品与服务展示、SEO 优化、功能开关与安全部署等一站式企业官网搭建能力。',
 '<h1>知企建站系统 v1.0 正式发布</h1>
@@ -1041,7 +1049,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 <h2>🚀 快速开始</h2>
 <p>使用 Docker Compose 即可一键部署，配合后台「站点设置」完成站点信息、导航与功能开关的配置，几分钟内即可上线您的企业官网。</p>
 <p>感谢一路支持我们的用户，欢迎通过「关于」页面提出宝贵意见。</p>',
-'', 7, 1, 'admin', 1, 1, 1, 156, 23),
+'', 7, 1, 'admin', 1, 1, 1, 156, 23, 'business'),
 
 ('2026 企业数字化转型趋势观察', '从官网体验、内容运营到数据驱动，梳理 2026 年企业数字化转型中最值得关注的几个趋势。',
 '<h1>2026 企业数字化转型趋势观察</h1>
@@ -1053,7 +1061,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 <p>个人信息保护与数据安全法规日益完善，企业在数字化转型中需要把安全合规作为基础设施来投入。</p>
 <h2>💡 小结</h2>
 <p>数字化转型不是一次性项目，而是持续的运营过程。选择一套可长期演进、自主可控的建站系统，是迈向数字化的第一步。</p>',
-'', 10, 1, 'admin', 0, 1, 1, 89, 15),
+'', 10, 1, 'admin', 0, 1, 1, 89, 15, 'news'),
 
 -- 客户案例
 ('客户案例：某制造企业官网升级实践', '分享某制造企业基于知企建站系统完成官网升级的实践：从内容梳理、页面搭建到上线运营的全过程。',
@@ -1069,7 +1077,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 </ol>
 <h2>✅ 上线效果</h2>
 <p>新官网上线后，页面平均停留时长与访问深度显著提升，市场部可以自主完成内容更新，不再依赖外部开发资源。</p>',
-'', 1, 1, 'admin', 0, 0, 1, 67, 12),
+'', 1, 1, 'admin', 0, 0, 1, 67, 12, 'case'),
 
 ('企业官网 SEO 优化实用指南', '从站点标题、描述关键词到 sitemap 与 robots，介绍企业官网 SEO 优化的实用配置要点。',
 '<h1>企业官网 SEO 优化实用指南</h1>
@@ -1085,7 +1093,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 <p>系统内置 sitemap.xml 与 robots.txt，会随内容发布自动更新；将站点地址提交到搜索引擎站长平台，可以进一步加快收录。</p>
 <h2>📊 效果追踪</h2>
 <p>结合后台的访问统计与文章统计功能，持续观察哪些内容带来更多访问，逐步优化内容策略。</p>',
-'', 4, 1, 'admin', 0, 0, 1, 45, 8),
+'', 4, 1, 'admin', 0, 0, 1, 45, 8, 'news'),
 
 ('站点运维托管服务正式上线', '面向没有专职技术团队的中小企业，提供站点备份、监控告警与版本升级的运维托管服务。',
 '<h1>站点运维托管服务正式上线</h1>
@@ -1099,7 +1107,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 <p>没有专职运维人员的中小企业：把站点交给我们，团队专注于业务内容的运营。</p>
 <h2>📮 申请方式</h2>
 <p>通过官网「关于」页面的联系方式与我们取得联系，我们会安排专人对接评估与实施。</p>',
-'', 7, 1, 'admin', 0, 1, 1, 78, 11),
+'', 7, 1, 'admin', 0, 1, 1, 78, 11, 'business'),
 
 ('加入我们：与知企一起成长', '知企团队诚邀技术、设计与市场伙伴加入，一起把企业建站这件事做到极致。',
 '<h1>加入我们：与知企一起成长</h1>
@@ -1113,7 +1121,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 </ul>
 <h2>🤝 我们期待</h2>
 <p>热爱技术、乐于分享、对产品体验有追求的你。有意向请通过「关于」页面的联系方式与我们取得联系。</p>',
-'', 8, 1, 'admin', 0, 0, 1, 92, 16);
+'', 8, 1, 'admin', 0, 0, 1, 92, 16, 'news');
   END IF;
 END$$
 DELIMITER ;
@@ -1258,6 +1266,12 @@ VALUES (2005, '站点设置', 2000, 7, 'setting', 'blog/setting/index', '', '', 
 -- 为管理员角色分配站点管理菜单权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 2000), (1, 2001), (1, 2002), (1, 2003), (1, 2004), (1, 2006), (1, 2005);
+
+-- 核心业务管理（同一文章实体按 article_type=business 过滤，复用文章管理组件与权限）
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (2010, '核心业务管理', 2000, 2, 'business', 'blog/article/index', '', '', 1, 0, 'C', '0', '0', 'blog:article:list', 'shopping', 'admin', NOW(), '', NULL, '核心业务管理菜单（article_type=business 的文章）');
+
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2010), (2, 2010);
 
 
 -- ========== 配置站点管理按钮权限 ==========
@@ -2305,6 +2319,16 @@ SET @add_article_content_md := IF(@has_article_content_md = 0,
 PREPARE add_article_content_md_stmt FROM @add_article_content_md;
 EXECUTE add_article_content_md_stmt;
 DEALLOCATE PREPARE add_article_content_md_stmt;
+
+-- 老库升级：补齐 blog_article.article_type 列（幂等，核心业务/案例内容类型）
+SET @has_article_type := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'article_type');
+SET @add_article_type := IF(@has_article_type = 0,
+    'ALTER TABLE `blog_article` ADD COLUMN `article_type` varchar(20) NOT NULL DEFAULT ''news'' COMMENT ''内容类型：news 资讯 business 核心业务 case 客户案例''',
+    'SELECT 1');
+PREPARE add_article_type_stmt FROM @add_article_type;
+EXECUTE add_article_type_stmt;
+DEALLOCATE PREPARE add_article_type_stmt;
 
 -- 老库升级：补齐 blog_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS

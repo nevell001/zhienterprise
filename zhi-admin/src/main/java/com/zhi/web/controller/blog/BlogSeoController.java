@@ -61,7 +61,13 @@ public class BlogSeoController
         {
             writeUrl(out, baseUrl + "/blog/articles", null);
         }
-        // 已发布文章
+        // 企业官网模板模式下，核心业务列表页入站点地图
+        String homeLayout = readSetting("home_layout");
+        if ("business".equalsIgnoreCase(homeLayout == null ? "" : homeLayout.trim()))
+        {
+            writeUrl(out, baseUrl + "/blog/business", null);
+        }
+        // 已发布文章（核心业务/客户案例的规范入口是 /blog/business/{id}）
         try
         {
             BlogArticle query = new BlogArticle();
@@ -77,7 +83,10 @@ public class BlogSeoController
                     {
                         lastmod = ModernDateUtils.format(article.getUpdateTime(), ModernDateUtils.YYYY_MM_DD);
                     }
-                    writeUrl(out, baseUrl + "/blog/article/" + article.getId(), lastmod);
+                    String type = article.getArticleType();
+                    String pathPrefix = "business".equals(type) || "case".equals(type)
+                        ? "/blog/business/" : "/blog/article/";
+                    writeUrl(out, baseUrl + pathPrefix + article.getId(), lastmod);
                 }
             }
         }

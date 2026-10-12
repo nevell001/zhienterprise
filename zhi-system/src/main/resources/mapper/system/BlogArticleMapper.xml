@@ -9,6 +9,7 @@
         <result property="content"    column="content"    />
         <result property="contentMd"    column="content_md"    />
         <result property="format"    column="format"    />
+        <result property="articleType"    column="article_type"    />
         <result property="coverUrl"    column="cover_url"    />
         <result property="categoryId"    column="category_id"    />
         <result property="categoryName"    column="category_name"    />
@@ -32,9 +33,9 @@
         <result property="delFlag"    column="del_flag"    />
     </resultMap>
 
-    <!-- 站点地图专用：只取 id/update_time，避免把 longtext 正文拉进内存；sitemap 规范上限 5 万条 -->
+    <!-- 站点地图专用：只取 id/article_type/update_time，避免把 longtext 正文拉进内存；sitemap 规范上限 5 万条 -->
     <select id="selectSitemapArticles" resultMap="BlogArticleResult">
-        select id, update_time
+        select id, article_type, update_time
         from blog_article
         where status = 1 and del_flag = 0
         order by create_time desc, id desc
@@ -42,7 +43,7 @@
     </select>
 
     <select id="selectBlogArticleList" parameterType="BlogArticle" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -53,6 +54,7 @@
             <if test="summary != null  and summary != ''"> and ba.summary = #{summary}</if>
             <if test="content != null  and content != ''"> and ba.content = #{content}</if>
             <if test="coverUrl != null  and coverUrl != ''"> and ba.cover_url = #{coverUrl}</if>
+            <if test="articleType != null and articleType != ''"> and ba.article_type = #{articleType}</if>
             <if test="categoryId != null "> and ba.category_id = #{categoryId}</if>
             <if test="authorId != null "> and ba.author_id = #{authorId}</if>
             <if test="isTop != null "> and ba.is_top = #{isTop}</if>
@@ -68,7 +70,7 @@
 
     <!-- 导出专用：Excel 有"文章内容"列，需要带正文；列表接口走上面的轻量查询 -->
     <select id="selectBlogArticleListForExport" parameterType="BlogArticle" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.article_type, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -77,6 +79,7 @@
         <where>
             <if test="title != null  and title != ''"> and ba.title like concat('%', #{title}, '%')</if>
             <if test="status != null "> and ba.status = #{status}</if>
+            <if test="articleType != null and articleType != ''"> and ba.article_type = #{articleType}</if>
             <if test="categoryId != null "> and ba.category_id = #{categoryId}</if>
             <if test="authorId != null "> and ba.author_id = #{authorId}</if>
             <if test="delFlag != null "> and ba.del_flag = #{delFlag}</if>
@@ -85,7 +88,7 @@
     </select>
 
     <select id="selectBlogArticleById" parameterType="Long" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.content_md, ba.format, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.content, ba.content_md, ba.format, ba.article_type, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -104,9 +107,13 @@
 
     <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
         insert into blog_article
-        (title, summary, content, content_md, format, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, publish_time, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        (title, summary, content, content_md, format, article_type, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, publish_time, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
-        (#{title}, #{summary}, #{content}, #{contentMd}, #{format}, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{publishTime}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
+        (#{title}, #{summary}, #{content}, #{contentMd}, #{format},
+        <choose>
+            <when test="articleType != null and articleType != ''">#{articleType}</when>
+            <otherwise>'news'</otherwise>
+        </choose>, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{publishTime}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
         <choose>
             <when test="delFlag != null">#{delFlag}</when>
             <otherwise>0</otherwise>
@@ -121,6 +128,7 @@
             <if test="content != null and content != ''">content = #{content},</if>
             <if test="contentMd != null">content_md = #{contentMd},</if>
             <if test="format != null and format != ''">format = #{format},</if>
+            <if test="articleType != null and articleType != ''">article_type = #{articleType},</if>
             <if test="coverUrl != null">cover_url = #{coverUrl},</if>
             <if test="categoryId != null">category_id = #{categoryId},</if>
             <if test="authorId != null">author_id = #{authorId},</if>

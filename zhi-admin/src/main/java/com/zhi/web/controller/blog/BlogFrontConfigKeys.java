@@ -19,8 +19,9 @@ public final class BlogFrontConfigKeys
         "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
         "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
         "beian_enabled",
-        // 企业官网模式：首页接管 + 导航裁剪
+        // 企业官网模式：首页接管 + 导航裁剪 + 企业首页模板/核心业务
         "home_page_slug", "nav_category_enabled", "nav_tag_enabled", "nav_archive_enabled",
+        "home_layout", "business_label", "contact_phone", "contact_address",
         "friend_link_enabled", "friend_link_apply_enabled", "guestbook_enabled",
         "user_agreement_content", "privacy_policy_content",
         "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website",
