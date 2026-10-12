@@ -316,32 +316,7 @@ html.theme-mo-blog {
   color: var(--mo-n300);
 }
 
-.theme-mo-blog .hero-section {
-  min-height: 430px;
-  background:
-    radial-gradient(circle at 18% 18%, rgba(236, 72, 153, 0.34), transparent 30%),
-    linear-gradient(135deg, var(--mo-p900), var(--mo-p600) 52%, var(--mo-a500));
-}
-
-.theme-mo-blog .hero-wave-bg {
-  opacity: 0.72;
-}
-
-.theme-mo-blog .hero-title {
-  font-family: var(--mo-font-serif);
-  letter-spacing: 0;
-}
-
-.theme-mo-blog .hero-subtitle {
-  color: rgba(255, 255, 255, 0.86);
-}
-
-.theme-mo-blog .hero-search,
-.theme-mo-blog .article-row,
-.theme-mo-blog .popular-card,
-.theme-mo-blog .popular-featured,
 .theme-mo-blog .contact-card,
-.theme-mo-blog .related-articles,
 .theme-mo-blog .comment-section,
 .theme-mo-blog .article-navigation,
 .theme-mo-blog .article-actions {
@@ -358,36 +333,15 @@ html.dark.theme-mo-blog .article-actions {
   background: var(--mo-n800);
 }
 
-.theme-mo-blog .article-row,
-.theme-mo-blog .popular-card,
-.theme-mo-blog .popular-image,
-.theme-mo-blog .related-item {
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease;
-}
-
-.theme-mo-blog .article-row:hover,
-.theme-mo-blog .popular-card:hover,
-.theme-mo-blog .related-item:hover {
-  border-color: var(--mo-p200);
-  box-shadow: var(--mo-shadow-lg);
-  transform: translateY(-2px);
-}
-
 .theme-mo-blog .section-label,
 .theme-mo-blog .tag,
-.theme-mo-blog .tag-item,
-.theme-mo-blog .category-badge {
+.theme-mo-blog .tag-item {
   border-radius: var(--mo-r-full);
   background: var(--mo-p50);
   color: var(--mo-p700);
   font-weight: 700;
 }
 
-.theme-mo-blog .popular-title,
-.theme-mo-blog .row-title,
 .theme-mo-blog .card-title,
 .theme-mo-blog .article-title {
   color: var(--mo-n900);
@@ -395,27 +349,9 @@ html.dark.theme-mo-blog .article-actions {
   letter-spacing: 0;
 }
 
-.theme-mo-blog .row-desc,
-.theme-mo-blog .card-desc,
-.theme-mo-blog .popular-desc,
 .theme-mo-blog .article-meta,
 .theme-mo-blog .meta-item {
   color: var(--mo-n600);
-}
-
-.theme-mo-blog .cta-section {
-  background: var(--mo-n900);
-}
-
-.theme-mo-blog .cta-inner {
-  background:
-    radial-gradient(circle at 78% 22%, rgba(236, 72, 153, 0.25), transparent 30%),
-    linear-gradient(135deg, var(--mo-p800), var(--mo-p600));
-  border-radius: var(--mo-r-xl);
-}
-
-.theme-mo-blog .cta-wave-bottom {
-  display: none;
 }
 
 .theme-mo-blog .article-detail {
@@ -929,18 +865,8 @@ html.dark.theme-mo-blog .tags-view-container {
     display: none;
   }
 
-  .theme-mo-blog .hero-section {
-    min-height: 360px;
-  }
-
-  .theme-mo-blog .hero-title,
   .theme-mo-blog .article-title {
     font-size: clamp(28px, 8vw, 42px);
-  }
-
-  .theme-mo-blog .article-row,
-  .theme-mo-blog .popular-featured {
-    border-radius: var(--mo-r-lg);
   }
 
   .theme-mo-blog .content-body {
@@ -1082,131 +1008,15 @@ html.dark.theme-mo-blog .blog-layout .footer-logo {
   color: var(--mo-n800);
 }
 
-.theme-mo-blog .blog-home-v2 .hero-section {
-  min-height: 430px;
-  background:
-    radial-gradient(circle at 18% 18%, rgba(236, 72, 153, 0.34), transparent 30%),
-    linear-gradient(135deg, var(--mo-p900), var(--mo-p600) 52%, var(--mo-a500));
-}
-
-.theme-mo-blog .blog-home-v2 .hero-title {
-  color: #fff;
-  font-family: var(--mo-font-serif);
-  letter-spacing: 0;
-}
-
-.theme-mo-blog .blog-home-v2 .hero-search input {
-  border: 1px solid rgba(255, 255, 255, 0.36);
-  border-radius: var(--mo-r-xl);
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: var(--mo-shadow-lg);
-}
-
-html.dark.theme-mo-blog .blog-home-v2 .hero-search input,
 html.dark.theme-mo-blog .mo-home-page .home-hero .search-box input {
   border-color: var(--mo-n700);
   background: var(--mo-n800);
   color: var(--mo-n100);
 }
 
-.theme-mo-blog .blog-home-v2 .popular-section,
-.theme-mo-blog .blog-home-v2 .all-articles-section {
-  background: var(--mo-n50);
-}
-
-.theme-mo-blog .blog-home-v2 .section-label {
-  display: inline-block;
-  width: auto;
-  margin-bottom: var(--mo-sp-6);
-  padding: 6px 12px;
-  border-radius: var(--mo-r-full);
-  background: var(--mo-p50);
-  color: var(--mo-p700);
-  letter-spacing: 0;
-}
-
-.theme-mo-blog .blog-home-v2 .popular-featured,
-.theme-mo-blog .blog-home-v2 .popular-card,
-.theme-mo-blog .blog-home-v2 .article-row {
-  border: 1px solid var(--mo-n200);
-  border-radius: var(--mo-r-xl);
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: var(--mo-shadow-md);
-}
-
-.theme-mo-blog .blog-home-v2 .popular-featured {
-  padding: 28px;
-}
-
-.theme-mo-blog .blog-home-v2 .popular-card {
-  padding: 18px;
-}
-
-.theme-mo-blog .blog-home-v2 .article-row {
-  margin-bottom: 18px;
-  padding: var(--mo-sp-6);
-  border-bottom: 1px solid var(--mo-n200);
-}
-
-.theme-mo-blog .blog-home-v2 .popular-card:hover,
-.theme-mo-blog .blog-home-v2 .article-row:hover {
-  border-color: var(--mo-p200);
-  box-shadow: var(--mo-shadow-lg);
-}
-
-.theme-mo-blog .blog-home-v2 .popular-title,
-.theme-mo-blog .blog-home-v2 .card-title,
-.theme-mo-blog .blog-home-v2 .row-title {
-  color: var(--mo-n900);
-  font-family: var(--mo-font-serif);
-}
-
-.theme-mo-blog .blog-home-v2 .popular-title:hover,
-.theme-mo-blog .blog-home-v2 .popular-card:hover .card-title,
-.theme-mo-blog .blog-home-v2 .article-row:hover .row-title {
-  color: var(--mo-p700);
-}
-
-.theme-mo-blog .blog-home-v2 .popular-desc,
-.theme-mo-blog .blog-home-v2 .card-desc,
-.theme-mo-blog .blog-home-v2 .row-desc,
-.theme-mo-blog .blog-home-v2 .row-meta {
-  color: var(--mo-n600);
-}
-
 .theme-mo-blog .blog-home-v2 .tag {
   border-radius: var(--mo-r-full);
   background: var(--mo-p50);
-  color: var(--mo-p700);
-}
-
-.theme-mo-blog .blog-home-v2 .page-btn {
-  border-color: var(--mo-n200);
-  border-radius: var(--mo-r-md);
-  color: var(--mo-p700);
-  background: #fff;
-}
-
-.theme-mo-blog .blog-home-v2 .page-btn:hover:not(:disabled) {
-  border-color: var(--mo-p600);
-  background: var(--mo-p600);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.22);
-}
-
-.theme-mo-blog .blog-home-v2 .cta-section {
-  background: var(--mo-n900);
-}
-
-.theme-mo-blog .blog-home-v2 .cta-inner {
-  padding: var(--mo-sp-9);
-  border-radius: var(--mo-r-xl);
-  background:
-    radial-gradient(circle at 78% 22%, rgba(236, 72, 153, 0.25), transparent 30%),
-    linear-gradient(135deg, var(--mo-p800), var(--mo-p600));
-}
-
-.theme-mo-blog .blog-home-v2 .cta-btn {
-  background: #fff;
   color: var(--mo-p700);
 }
 

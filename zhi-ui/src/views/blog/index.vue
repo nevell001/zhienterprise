@@ -176,14 +176,6 @@
         </aside>
       </main>
 
-      <!-- 联系弹窗 -->
-      <div v-if="showContact" class="contact-modal" @click.self="showContact = false">
-        <div class="contact-card">
-          <button class="contact-close" @click="showContact = false">&times;</button>
-          <h3>联系我们</h3>
-          <p>邮箱：{{ blogSettings.blog_email || 'hello@example.com' }}</p>
-        </div>
-      </div>
     </div>
   </BlogLayout>
 </template>
@@ -218,7 +210,6 @@ const currentPage = ref(1)
 const pageSize = ref(5)
 const total = ref(0)
 const searchKeyword = ref('')
-const showContact = ref(false)
 const blogLayoutRef = ref<any>(null)
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
@@ -804,59 +795,6 @@ onMounted(async () => {
   }
 }
 
-.contact-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--mo-sp-5);
-  background: rgba(28, 25, 23, 0.42);
-  backdrop-filter: blur(4px);
-}
-
-.contact-card {
-  position: relative;
-  width: min(400px, 100%);
-  padding: var(--mo-sp-7);
-  border: 1px solid var(--mo-n200);
-  border-radius: var(--mo-r-lg);
-  background: #fff;
-  box-shadow: var(--mo-shadow-md);
-}
-
-.contact-card h3 {
-  margin: 0 0 14px;
-  color: var(--mo-n900);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
-.contact-card p {
-  margin: 0;
-  color: var(--mo-n500);
-  font-size: var(--mo-fs-sm);
-  line-height: 1.7;
-}
-
-.contact-close {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  border: none;
-  background: transparent;
-  color: var(--mo-n500);
-  cursor: pointer;
-  font-size: var(--mo-fs-2xl);
-  line-height: 1;
-}
-
-.contact-close:hover {
-  color: var(--mo-p600);
-}
-
 /* 深色模式 */
 /* 默认主题深色：将深色覆盖规则引用的 --mo-n* 映射到 --el-* 变量（Tech Blue 深蓝），
    使站点首页与默认主题深色配色一致。Mo-Blog 主题深色用 :root 棕色原值（不需映射）。 */
@@ -1016,27 +954,6 @@ html.dark .mo-home-page .search-result-note {
 }
 
 html.dark .mo-home-page .search-result-note button {
-  color: var(--mo-p300);
-}
-
-html.dark .contact-card {
-  background: var(--mo-n800);
-  border-color: var(--mo-n700);
-}
-
-html.dark .contact-card h3 {
-  color: var(--mo-n100);
-}
-
-html.dark .contact-card p {
-  color: var(--mo-n400);
-}
-
-html.dark .contact-close {
-  color: var(--mo-n400);
-}
-
-html.dark .contact-close:hover {
   color: var(--mo-p300);
 }
 
