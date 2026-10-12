@@ -321,7 +321,7 @@ function handleGenTable(row) {
         console.error('生成代码失败:', error)
       })
   } else {
-    proxy.$download.zip('/tool/gen/batchGenCode?tables=' + tbNames, 'ruoyi.zip')
+    proxy.$download.zip('/tool/gen/batchGenCode?tables=' + tbNames, 'zhi.zip')
   }
 }
 

@@ -14,7 +14,7 @@ import {
   blobValidate
 } from './zhi'
 
-describe('ruoyi 工具测试', () => {
+describe('zhi 工具测试', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

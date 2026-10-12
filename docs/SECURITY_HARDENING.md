@@ -92,16 +92,16 @@ sudo useradd -m -s /bin/bash deploy
 sudo mkdir -p /home/deploy/.ssh && sudo chmod 700 /home/deploy/.ssh
 # 只放部署用的公钥（与开发机个人密钥分开）
 sudo tee /home/deploy/.ssh/authorized_keys >/dev/null <<'EOF'
-ssh-ed25519 AAAA... zhiblog-deploy
+ssh-ed25519 AAAA... zhienterprise-deploy
 EOF
 sudo chown -R deploy:deploy /home/deploy/.ssh && sudo chmod 600 /home/deploy/.ssh/authorized_keys
 
 # sudo 白名单：只允许固定的 docker compose 命令，且不要 NOPASSWD 到 shell
-sudo tee /etc/sudoers.d/zhiblog-deploy >/dev/null <<'EOF'
-deploy ALL=(root) NOPASSWD: /usr/bin/docker compose -f /opt/zhiblog/docker-compose.prod.yml *
-deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart zhiblog.service
+sudo tee /etc/sudoers.d/zhienterprise-deploy >/dev/null <<'EOF'
+deploy ALL=(root) NOPASSWD: /usr/bin/docker compose -f /opt/zhienterprise/docker-compose.prod.yml *
+deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart zhienterprise.service
 EOF
-sudo chmod 440 /etc/sudoers.d/zhiblog-deploy
+sudo chmod 440 /etc/sudoers.d/zhienterprise-deploy
 sudo visudo -c    # 语法校验
 ```
 
@@ -140,7 +140,7 @@ sudo apt install -y fail2ban && sudo systemctl enable --now fail2ban   # 爆破�
 给部署密钥加上来源与用途限制（`command=` 会强制走固定命令，适合只做部署的钥匙）：
 
 ```
-from="203.0.113.10,198.51.100.0/24",no-agent-forwarding,no-port-forwarding,no-X11-forwarding,no-pty ssh-ed25519 AAAA... zhiblog-deploy
+from="203.0.113.10,198.51.100.0/24",no-agent-forwarding,no-port-forwarding,no-X11-forwarding,no-pty ssh-ed25519 AAAA... zhienterprise-deploy
 ```
 
 如果只是日常 SSH 维护，至少加 `from=` 与 `no-agent-forwarding`。**每把钥匙一个用途，丢了只吊销那一把。**
@@ -149,10 +149,10 @@ from="203.0.113.10,198.51.100.0/24",no-agent-forwarding,no-port-forwarding,no-X1
 
 ```bash
 # .env 只给所有者可读
-sudo chown deploy:deploy /opt/zhiblog/.env && sudo chmod 600 /opt/zhiblog/.env
+sudo chown deploy:deploy /opt/zhienterprise/.env && sudo chmod 600 /opt/zhienterprise/.env
 # 上传目录与数据库卷同样收紧
-sudo chmod 750 /opt/zhiblog/uploadPath
-sudo ls -l /opt/zhiblog/.env    # 应为 -rw------- deploy deploy
+sudo chmod 750 /opt/zhienterprise/uploadPath
+sudo ls -l /opt/zhienterprise/.env    # 应为 -rw------- deploy deploy
 ```
 
 - `.env` **绝不进仓库**（本仓库 `.env.example` 只有占位符；已确认 `.gitignore` 忽略 `.env`）；
@@ -173,8 +173,8 @@ sudo ls -l /opt/zhiblog/.env    # 应为 -rw------- deploy deploy
 
 ```bash
 # 每天 03:30 备份数据库 + 上传目录，保留 14 天
-sudo tee /etc/cron.d/zhiblog-backup >/dev/null <<'EOF'
-30 3 * * * deploy /opt/zhiblog/scripts/backup.sh >> /var/log/zhiblog-backup.log 2>&1
+sudo tee /etc/cron.d/zhienterprise-backup >/dev/null <<'EOF'
+30 3 * * * deploy /opt/zhienterprise/scripts/backup.sh >> /var/log/zhienterprise-backup.log 2>&1
 EOF
 ```
 
@@ -183,10 +183,10 @@ EOF
 ```bash
 set -euo pipefail
 STAMP=$(date +%F)
-OUT=/var/backups/zhiblog
+OUT=/var/backups/zhienterprise
 mkdir -p "$OUT"
-docker exec zhiblog-mysql mysqldump --single-transaction -uroot -p"$DB_ROOT_PASSWORD" zhienterprise | gzip > "$OUT/db-$STAMP.sql.gz"
-tar czf "$OUT/upload-$STAMP.tar.gz" -C /opt/zhiblog uploadPath
+docker exec zhienterprise-mysql mysqldump --single-transaction -uroot -p"$DB_ROOT_PASSWORD" zhienterprise | gzip > "$OUT/db-$STAMP.sql.gz"
+tar czf "$OUT/upload-$STAMP.tar.gz" -C /opt/zhienterprise uploadPath
 find "$OUT" -type f -mtime +14 -delete
 ```
 
@@ -304,7 +304,7 @@ git config --global --unset-all url."https://ghfast.top/https://github.com/".ins
 # —— 服务器 ——
 sudo sshd -t && sudo systemctl reload ssh      # PermitRootLogin no / PasswordAuthentication no / AllowUsers deploy
 sudo visudo -c                                  # sudo 白名单语法
-sudo chmod 600 /opt/zhiblog/.env && sudo chown deploy:deploy /opt/zhiblog/.env
+sudo chmod 600 /opt/zhienterprise/.env && sudo chown deploy:deploy /opt/zhienterprise/.env
 sudo -l -U deploy                               # 只应看到固定的 compose / 重启命令
 docker ps --format '{{.Names}}\t{{.Ports}}'     # 确认 8080/3306/6379 只绑 127.0.0.1
 crontab -l -u deploy                            # 备份任务存在
