@@ -84,24 +84,6 @@ public class BlogFrontController extends BaseController
 {
     private static final Logger log = LoggerFactory.getLogger(BlogFrontController.class);
 
-    /**
-     * 前台可匿名访问的站点配置键白名单
-     */
-    private static final String[] BLOG_CONFIG_KEYS = {
-        "blog_name", "blog_desc", "blog_author", "blog_email",
-        "blog_avatar", "blog_copyright", "blog_beian",
-        "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
-        "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
-        "beian_enabled",
-        // 企业官网模式：首页接管 + 导航裁剪
-        "home_page_slug", "nav_category_enabled", "nav_tag_enabled", "nav_archive_enabled",
-        "friend_link_enabled",
-        "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website",
-        // SEO 相关键（前台动态 title/description/keywords 使用）
-        "seo_title", "seo_description", "seo_canonical_url", "seo_robots", "seo_favicon",
-        "blog_keywords"
-    };
-
     public BlogFrontController() {
         log.debug("BlogFrontController initialized");
     }
@@ -281,7 +263,7 @@ public class BlogFrontController extends BaseController
         if (key == null) {
             return false;
         }
-        for (String configKey : BLOG_CONFIG_KEYS) {
+        for (String configKey : BlogFrontConfigKeys.BLOG_CONFIG_KEYS) {
             if (configKey.equals(key)) {
                 return true;
             }
