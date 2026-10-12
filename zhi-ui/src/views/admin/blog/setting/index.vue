@@ -85,6 +85,47 @@
                 导航出现「文章」入口；留空则首页为文章列表
               </div>
             </el-form-item>
+            <el-form-item label="首页模板" prop="home_layout">
+              <el-select v-model="settingsMap.home_layout" style="width: 260px">
+                <el-option label="文章列表（默认）" value="" />
+                <el-option label="企业官网模板" value="business" />
+              </el-select>
+              <div class="setting-tip">
+                企业官网模板提供 Hero、核心业务、数据、案例、动态与联系区块，导航出现「核心业务」入口；
+                已设置「首页显示」自定义页面时以自定义页面优先
+              </div>
+            </el-form-item>
+            <el-form-item label="栏目名称" prop="business_label">
+              <el-input
+                v-model="settingsMap.business_label"
+                placeholder="核心业务"
+                maxlength="20"
+                show-word-limit
+                style="max-width: 260px"
+              />
+              <div class="setting-tip">
+                企业官网模板下导航与首页区块的栏目名称，可按企业形态改为：产品中心 / 服务项目 / 解决方案
+              </div>
+            </el-form-item>
+
+            <el-divider content-position="left">联系信息（企业官网模板展示）</el-divider>
+            <el-form-item label="联系电话" prop="contact_phone">
+              <el-input
+                v-model="settingsMap.contact_phone"
+                placeholder="如：400-000-0000"
+                maxlength="30"
+                clearable
+                style="max-width: 260px"
+              />
+            </el-form-item>
+            <el-form-item label="联系地址" prop="contact_address">
+              <el-input
+                v-model="settingsMap.contact_address"
+                placeholder="企业办公地址"
+                maxlength="120"
+                clearable
+              />
+            </el-form-item>
 
             <el-form-item label="站点访问地址" prop="blog_url">
               <el-input
@@ -748,6 +789,10 @@ const defaultSettings: Record<string, any> = {
   blog_beian: '',
   blog_url: '',
   home_page_slug: '',
+  home_layout: '',
+  business_label: '核心业务',
+  contact_phone: '',
+  contact_address: '',
   prometheus_url: '',
   grafana_url: '',
   actuator_url: '',
@@ -805,6 +850,10 @@ const managedKeys = [
   'blog_beian',
   'blog_url',
   'home_page_slug',
+  'home_layout',
+  'business_label',
+  'contact_phone',
+  'contact_address',
   'prometheus_url',
   'grafana_url',
   'actuator_url',

@@ -426,6 +426,13 @@ const isTagNavEnabled = computed(() => blogSettingsStore.isFeatureEnabled('nav_t
 const isArchiveNavEnabled = computed(() =>
   blogSettingsStore.isFeatureEnabled('nav_archive_enabled')
 )
+// 企业官网模板模式（home_layout=business）：导航补「核心业务」入口，名称可配
+const isBusinessNavEnabled = computed(
+  () => String(blogSettingsStore.blogSettings.home_layout || '') === 'business'
+)
+const businessNavLabel = computed(
+  () => String(blogSettingsStore.blogSettings.business_label || '').trim() || '核心业务'
+)
 
 const customPages = ref<BlogPage[]>([])
 
@@ -439,6 +446,8 @@ const menus = computed(() =>
     categoryEnabled: isCategoryNavEnabled.value,
     tagEnabled: isTagNavEnabled.value,
     archiveEnabled: isArchiveNavEnabled.value,
+    businessEnabled: isBusinessNavEnabled.value,
+    businessLabel: businessNavLabel.value,
     pages: customPages.value
   })
 )

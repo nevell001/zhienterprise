@@ -24,7 +24,8 @@ describe('buildNavMenus', () => {
     guestbookEnabled: false,
     categoryEnabled: true,
     tagEnabled: true,
-    archiveEnabled: true
+    archiveEnabled: true,
+    businessEnabled: false
   }
 
   it('博客模式（首页未接管）保持 首页/分类/标签/归档，不出现「文章」', () => {
@@ -75,6 +76,24 @@ describe('buildNavMenus', () => {
       '/blog/archive',
       '/blog/guestbook',
       '/blog/page/about'
+    ])
+  })
+
+  it('企业官网模板模式下出现「核心业务」入口，名称取 business_label', () => {
+    const menus = buildNavMenus({ ...blogMode, businessEnabled: true, businessLabel: '产品中心' })
+    expect(menus[0]).toEqual({ name: '首页', path: '/blog' })
+    expect(menus[1]).toEqual({ name: '产品中心', path: '/blog/business' })
+  })
+
+  it('businessLabel 缺省时回退「核心业务」，且排在文章入口之后、分类之前', () => {
+    const menus = buildNavMenus({ ...blogMode, customHomePage: true, businessEnabled: true })
+    expect(paths(menus)).toEqual([
+      '/blog',
+      '/blog/articles',
+      '/blog/business',
+      '/blog/category',
+      '/blog/tag',
+      '/blog/archive'
     ])
   })
 

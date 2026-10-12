@@ -99,11 +99,21 @@ export interface Article {
   content: string
   coverUrl?: string
   categoryId?: number
+  categoryName?: string
+  authorId?: number
+  authorName?: string
+  /** 内容类型：news 资讯（默认）business 核心业务 case 客户案例 */
+  articleType?: string
   status?: number
   isTop?: number
   isRecommend?: number
   tagIds?: number[]
   tags?: Tag[]
+  createTime?: string
+  updateTime?: string
+  viewCount?: number
+  likeCount?: number
+  commentCount?: number
 }
 
 /**

@@ -12,6 +12,9 @@
       @retry="loadHomePage"
     />
 
+    <!-- 企业官网区块化模板：Hero + 核心业务 + 数据 + 案例 + 动态 + CTA -->
+    <EnterpriseHome v-else-if="homeMode === 'business'" />
+
     <div v-else class="blog-home-v2 mo-home-page">
       <header class="home-hero">
         <h1>记录与分享</h1>
@@ -175,8 +178,7 @@
           </div>
         </aside>
       </main>
-
-    </div>
+</div>
   </BlogLayout>
 </template>
 
@@ -185,6 +187,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import BlogLayout from '@/components/BlogLayout.vue'
 import CustomPagePanel from './page/CustomPagePanel.vue'
+import EnterpriseHome from './EnterpriseHome.vue'
 import { getArticleList, getBlogSettings, getHotArticles } from '@/api/blog'
 import { getCategoryList } from '@/api/blog/category'
 import { getTagCloud } from '@/api/blog/tag'
@@ -238,12 +241,20 @@ const loadedHomeSlug = ref('')
 
 const showCustomHome = computed(() => !isArticleListRoute.value && isCustomHomePage.value)
 
+// 企业官网区块化模板：home_layout=business 且未被自定义页面接管时启用
+const isBusinessHomeLayout = computed(
+  () =>
+    !isCustomHomePage.value &&
+    String(blogSettingsStore.blogSettings.home_layout || '') === 'business'
+)
+
 // booting 只出现在首页路由：/blog/articles 明确是列表页，不等设置
-const homeMode = computed<'booting' | 'custom' | 'list'>(() => {
+const homeMode = computed<'booting' | 'custom' | 'business' | 'list'>(() => {
   if (isArticleListRoute.value) return 'list'
   if (!settingsReady.value) return 'booting'
-  if (!showCustomHome.value || homePageNotFound.value) return 'list'
-  return 'custom'
+  if (showCustomHome.value && !homePageNotFound.value) return 'custom'
+  if (isBusinessHomeLayout.value) return 'business'
+  return 'list'
 })
 
 // 侧栏「全部文章」入口：首页被接管后指向列表页，否则就是首页自身

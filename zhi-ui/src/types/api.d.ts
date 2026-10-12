@@ -35,6 +35,7 @@ export interface ArticleParams extends PageParams {
   status?: number
   isTop?: number
   tagId?: number
+  articleType?: string
 }
 
 /**

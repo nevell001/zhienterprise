@@ -42,6 +42,18 @@
           <el-option label="定时发布" value="2" />
         </el-select>
       </el-form-item>
+      <el-form-item v-if="!fixedArticleType" label="类型" prop="articleType">
+        <el-select
+          v-model="queryParams.articleType"
+          placeholder="全部类型"
+          clearable
+          class="status-select"
+        >
+          <el-option label="资讯动态" value="news" />
+          <el-option label="核心业务" value="business" />
+          <el-option label="客户案例" value="case" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="">
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -127,6 +139,13 @@
             {{ scope.row.categoryName }}
           </el-tag>
           <span v-else class="text-muted">未分类</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="类型" align="center" prop="articleType" width="90">
+        <template #default="scope">
+          <el-tag :type="articleTypeTag(scope.row.articleType)" size="small">
+            {{ articleTypeLabel(scope.row.articleType) }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="作者" align="center" prop="authorName" width="80" />
@@ -426,6 +445,20 @@
             </section>
 
             <section class="side-section">
+              <div class="side-title">内容类型</div>
+              <el-form-item prop="articleType" class="compact-form-item">
+                <el-radio-group v-model="form.articleType" class="status-radio">
+                  <el-radio-button v-if="!fixedArticleType" label="news">资讯动态</el-radio-button>
+                  <el-radio-button label="business">核心业务</el-radio-button>
+                  <el-radio-button label="case">客户案例</el-radio-button>
+                </el-radio-group>
+              </el-form-item>
+              <div class="schedule-tip">
+                核心业务与客户案例展示在企业官网首页对应区块；资讯动态展示在文章列表
+              </div>
+            </section>
+
+            <section class="side-section">
               <div class="side-title">分类</div>
               <el-form-item prop="categoryId" class="compact-form-item">
                 <el-select v-model="form.categoryId" placeholder="请选择分类">
@@ -551,8 +584,16 @@ import { parseTime } from '@/utils/zhi'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
+import { useRoute } from 'vue-router'
 
 const { proxy } = getCurrentInstance()
+const route = useRoute()
+// 核心业务管理菜单（/admin/blog/business）复用本组件，按路由固定 articleType=business
+const fixedArticleType = route.path.endsWith('/business') ? 'business' : ''
+const articleTypeLabel = (type?: string) =>
+  ({ news: '资讯动态', business: '核心业务', case: '客户案例' })[type || 'news'] || '资讯动态'
+const articleTypeTag = (type?: string) =>
+  ({ news: 'info', business: '', case: 'warning' })[type || 'news'] ?? 'info'
 const userStore = useUserStore()
 const articleList = ref([])
 const open = ref(false)
@@ -578,7 +619,8 @@ const data = reactive<Record<string, any>>({
     pageSize: 10,
     title: null,
     categoryId: null,
-    status: null
+    status: null,
+    articleType: null
   },
   rules: {
     title: [
@@ -681,7 +723,10 @@ function insertEditorTable() {
 async function getList() {
   loading.value = true
   try {
-    const response = await listArticle(queryParams.value)
+    const response = await listArticle({
+      ...queryParams.value,
+      articleType: fixedArticleType || queryParams.value.articleType
+    })
     articleList.value = response.rows || []
     total.value = response.total || 0
 
@@ -744,6 +789,7 @@ function reset() {
     content: '', // 直接使用空字符串
     contentMd: '', // Markdown 源码（format=markdown 时）
     format: 'html', // 内容格式 html|markdown
+    articleType: fixedArticleType || 'news', // 内容类型：news 资讯 business 核心业务 case 案例
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,
@@ -781,7 +827,8 @@ function resetQuery() {
     pageSize: 10,
     title: null,
     categoryId: null,
-    status: null
+    status: null,
+    articleType: null
   }
   getList()
 }

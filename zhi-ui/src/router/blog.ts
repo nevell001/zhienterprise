@@ -23,6 +23,19 @@ export const blogRoutes: RouteRecordRaw[] = [
     alias: ['/article/:id']
   },
   {
+    // 核心业务（article_type=business 的文章）：企业官网模板的落地页
+    path: '/blog/business',
+    component: () => import('@/views/blog/business/index.vue'),
+    name: 'PublicBusinessList',
+    meta: { title: '核心业务' }
+  },
+  {
+    path: '/blog/business/:id',
+    component: () => import('@/views/blog/business/detail.vue'),
+    name: 'PublicBusinessDetail',
+    meta: { title: '业务详情' }
+  },
+  {
     path: '/blog/category',
     component: () => import('@/views/blog/category/list.vue'),
     name: 'PublicBlogCategoryList',

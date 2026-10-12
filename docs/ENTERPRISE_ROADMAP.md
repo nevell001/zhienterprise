@@ -51,21 +51,25 @@
    > 兼容性说明：分类/标签/文章/友链种子仅对**全新数据库**生效（INSERT IGNORE 幂等）；
    > 已有库保留用户内容不动，仅 RuoYi 关键词通过值匹配的 UPDATE 迁移。
 
-### Phase 1 — 核心批次（v1.1，约 1~2 周）
+### Phase 1 — 核心批次（✅ 已完成，2026-10-12）
 
-> 两项互为依赖，一起交付：有了 `business` 内容类型，首页「核心业务」区块才有数据源。
+1. ✅ **核心业务内容类型**
+   - `blog_article.article_type`（`news`/`business`/`case`）：实体 + Mapper 过滤、
+     幂等 ALTER 迁移已有库，前台 `/blog/article/list` 绑定实体即获得类型筛选；
+   - 管理端「站点管理 → 核心业务管理」菜单（menu 2010，复用文章管理组件，按路由
+     `/admin/blog/business` 固定 `articleType=business`，权限沿用 `blog:article:*`）；
+     文章管理页新增类型筛选/类型列/编辑项；
+   - 前台 `/blog/business` 列表（卡片网格 + 分页）与 `/blog/business/:id` 详情页；
+   - sitemap：business/case 文章写规范入口 `/blog/business/{id}`，
+     `home_layout=business` 时收录列表页；
+   - 设置键 `business_label`、`contact_phone`、`contact_address`（进前台白名单与设置页）。
+2. ✅ **企业首页区块化模板**
+   - 新增 `home_layout=business` 首页模板：Hero → 核心业务卡片 → 数据条 → 客户案例
+     （无内容自动隐藏）→ 新闻动态 → CTA 联系区，优先级低于 `home_page_slug` 自定义页面；
+   - 模板模式下导航注入「核心业务」入口（名称取 `business_label`）；
+   - 组件样式全部走 `--mo-*`/`--el-*` token，通过 design-contract 与 dark-mode 棘轮测试。
 
-1. **核心业务内容类型**
-   - `blog_article` 加 `article_type` 列（默认 `news`，存量数据零迁移）；
-   - 管理端「站点管理」新增「核心业务管理」（按 `article_type=business` 过滤的列表页，复用现有编辑器与权限体系，权限串 `blog:business:*` 或复用 `blog:article:*`）；
-   - 前台 `/business` 列表（卡片网格 + 分类过滤）与业务详情页；
-   - 设置键 `business_label` + `contact_*`（电话/地址/微信二维码，企业联系方式一等公民化）。
-2. **企业首页区块化版式**
-   - Hero（大图 + 主标题 + 副标语 + CTA）→ 核心业务卡片（标题取 `business_label`）→
-     优势/数据条 → 客户案例卡片 → 新闻动态（复用文章流取前 N 条）→ CTA 收尾；
-   - 与 `home_page_slug` 的关系：`home_page_slug` 指定页面时优先渲染自定义页（现行为不变），
-     区块化首页作为官网模式的**默认首页模板**（新增设置键或复用页面类型区分）；
-   - 新增企业向主题变量（更稳重的蓝/青主色系，去粉色强调），可与 Mo-Blog 并存。
+   剩余：独立企业向主题（稳重蓝/青配色，去粉色强调）留待后续批次。
 
 ### Phase 2 — 完善批次（v1.2）
 

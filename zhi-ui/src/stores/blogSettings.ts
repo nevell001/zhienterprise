@@ -26,6 +26,10 @@ interface BlogSettingsState {
   nav_category_enabled: boolean
   nav_tag_enabled: boolean
   nav_archive_enabled: boolean
+  home_layout: string
+  business_label: string
+  contact_phone: string
+  contact_address: string
   user_agreement_content: string
   privacy_policy_content: string
   author_title: string
@@ -69,11 +73,15 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
       friend_link_apply_enabled: false,
       guestbook_enabled: false,
 
-      // 企业官网模式：首页接管 + 导航裁剪
+      // 企业官网模式：首页接管 + 导航裁剪 + 企业首页模板/核心业务
       home_page_slug: '',
       nav_category_enabled: true,
       nav_tag_enabled: true,
       nav_archive_enabled: true,
+      home_layout: '',
+      business_label: '核心业务',
+      contact_phone: '',
+      contact_address: '',
 
       // 其他设置
       user_agreement_content: '',

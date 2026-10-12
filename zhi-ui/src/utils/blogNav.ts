@@ -25,6 +25,10 @@ export interface BuildNavMenusOptions {
   categoryEnabled: boolean
   tagEnabled: boolean
   archiveEnabled: boolean
+  /** 企业官网模板模式（home_layout=business），导航补「核心业务」入口 */
+  businessEnabled?: boolean
+  /** 核心业务栏目名称（business_label，缺省「核心业务」） */
+  businessLabel?: string
   pages?: NavPageItem[]
 }
 
@@ -37,6 +41,9 @@ export function buildNavMenus(options: BuildNavMenusOptions): NavMenuItem[] {
 
   if (options.customHomePage) {
     items.push({ name: '文章', path: '/blog/articles' })
+  }
+  if (options.businessEnabled) {
+    items.push({ name: options.businessLabel || '核心业务', path: '/blog/business' })
   }
   if (options.categoryEnabled) {
     items.push({ name: '分类', path: '/blog/category' })

@@ -17,14 +17,14 @@ const source = readFileSync(SQL, 'utf-8')
 const lines = source.split('\n')
 
 /** 示例文章 INSERT 块：返回每篇的标题与正文字面量（已还原 SQL 转义） */
-function sampleArticles(): { title: string; content: string; categoryId: number }[] {
+function sampleArticles(): { title: string; content: string; categoryId: number; articleType: string }[] {
   const start = lines.findIndex(l =>
     l.startsWith('INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`')
   )
   expect(start, '找不到示例文章 INSERT 块').toBeGreaterThanOrEqual(0)
 
-  const tailRe = /^'', (\d+), 1, 'admin', \d+, \d+, 1, \d+, \d+\)([,;])$/
-  const result: { title: string; content: string; categoryId: number }[] = []
+  const tailRe = /^'', (\d+), 1, 'admin', \d+, \d+, 1, \d+, \d+(?:, '([a-z]+)')?\)([,;])$/
+  const result: { title: string; content: string; categoryId: number; articleType: string }[] = []
   let cursor = start + 1
   for (let i = start; i < lines.length; i++) {
     const m = tailRe.exec(lines[i])
@@ -34,6 +34,7 @@ function sampleArticles(): { title: string; content: string; categoryId: number 
     result.push({
       title: lines[cursor].match(/^\('([^']+)'/)?.[1] ?? '',
       categoryId: Number(m[1]),
+      articleType: m[2] || 'news',
       content: lines
         .slice(cursor + 1, i)
         .join('\n')
@@ -43,7 +44,7 @@ function sampleArticles(): { title: string; content: string; categoryId: number 
         .replace(/''/g, "'")
     })
     cursor = i + 1
-    if (m[2] === ';') break
+    if (m[3] === ';') break
   }
   return result
 }
@@ -107,6 +108,14 @@ describe('示例文章种子', () => {
     expect(byTitle.get('站点运维托管服务正式上线')).toBe(7) // 产品发布
     expect(byTitle.get('2026 企业数字化转型趋势观察')).toBe(10) // 市场洞察
     expect(byTitle.get('加入我们：与知企一起成长')).toBe(8) // 团队风采
+  })
+
+  it('内容类型标注：发布/服务类是核心业务，客户案例是 case，其余是资讯', () => {
+    const byTitle = new Map(articles.map(a => [a.title, a.articleType]))
+    expect(byTitle.get('知企建站系统 v1.0 正式发布：一站式企业官网搭建平台')).toBe('business')
+    expect(byTitle.get('站点运维托管服务正式上线')).toBe('business')
+    expect(byTitle.get('客户案例：某制造企业官网升级实践')).toBe('case')
+    expect(byTitle.get('2026 企业数字化转型趋势观察')).toBe('news')
   })
 
   it('标签关联只能引用真实存在的标签', () => {

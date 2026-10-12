@@ -95,8 +95,17 @@ describe('Blog Routes 详细测试', () => {
     expect(route?.meta?.title).toBe('文章列表')
   })
 
-  it('路由总数应该为 22 个', () => {
-    expect(blogRoutes.length).toBe(22)
+  it('核心业务路由应该有正确的路径、组件与标题（企业官网模板入口）', () => {
+    const list = blogRoutes.find(r => r.path === '/blog/business')
+    expect(list?.name).toBe('PublicBusinessList')
+    expect(list?.meta?.title).toBe('核心业务')
+    const detail = blogRoutes.find(r => r.path === '/blog/business/:id')
+    expect(detail?.name).toBe('PublicBusinessDetail')
+    expect(detail?.meta?.title).toBe('业务详情')
+  })
+
+  it('路由总数应该为 24 个', () => {
+    expect(blogRoutes.length).toBe(24)
   })
 
   it('留言板路由应该有正确的路径、组件与标题', () => {
