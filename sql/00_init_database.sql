@@ -871,10 +871,10 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '知企建站系统', '站点名称', NOW(), NOW()),
-('blog_desc', '欢迎来到我的站点', '站点描述', NOW(), NOW()),
+('blog_desc', '企业官网 · 内容管理与品牌门户', '站点描述', NOW(), NOW()),
 ('blog_author', 'admin', '站长', NOW(), NOW()),
-('blog_keywords', '企业官网,建站系统,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发', '站点关键词', NOW(), NOW()),
-('blog_copyright', 'Copyright © 2025-2026 我的站点. All rights reserved.', '版权信息', NOW(), NOW()),
+('blog_keywords', '企业官网,建站系统,企业网站建设,数字化转型,Vue,Spring Boot', '站点关键词', NOW(), NOW()),
+('blog_copyright', 'Copyright © 2025-2026 知企建站系统. All rights reserved.', '版权信息', NOW(), NOW()),
 ('blog_beian', '陕ICP备12345678号', '备案信息', NOW(), NOW()),
 
 -- 联系方式设置
@@ -885,11 +885,11 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('grafana_url', '', 'Grafana 监控地址', NOW(), NOW()),
 ('actuator_url', '', 'Actuator 监控地址', NOW(), NOW()),
 ('blog_avatar', '', '站点头像', NOW(), NOW()),
-('blog_signature', 'Stay hungry, Stay foolish', '站长签名', NOW(), NOW()),
+('blog_signature', '以数字化，服务企业成长', '站长签名', NOW(), NOW()),
 ('blog_start_time', '2025-01-01', '站点创建时间', NOW(), NOW()),
 
 -- 社交媒体设置
-('author_title', '全栈开发工程师', '站长头衔', NOW(), NOW()),
+('author_title', '网站管理员', '站长头衔', NOW(), NOW()),
 ('author_description', '这个人很懒，什么都没留下', '站长描述', NOW(), NOW()),
 ('github_url', 'https://github.com/nevell', 'GitHub链接', NOW(), NOW()),
 ('weibo_url', '', '微博链接', NOW(), NOW()),
@@ -934,14 +934,20 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('recent_comment_count', '5', '最新评论显示数量', NOW(), NOW()),
 
 -- 内容设置
-('greeting_message', '欢迎来到我的站点！', '欢迎信息', NOW(), NOW()),
+('greeting_message', '欢迎光临，很高兴为您服务！', '欢迎信息', NOW(), NOW()),
 
 -- SEO优化设置
-('seo_title', '我的站点 - 分享技术与生活', 'SEO标题', NOW(), NOW()),
-('seo_description', '专注于前后端技术分享，包含Spring Boot、Vue.js、MySQL等技术内容', 'SEO描述', NOW(), NOW()),
+('seo_title', '知企建站系统 - 企业官网建站平台', 'SEO标题', NOW(), NOW()),
+('seo_description', '知企建站系统是面向企业的一站式官网建站平台，支持内容管理、产品与服务展示、SEO 优化与安全部署。', 'SEO描述', NOW(), NOW()),
 ('seo_canonical_url', '', '规范URL（留空则用当前访问域名）', NOW(), NOW()),
 ('seo_robots', 'index,follow', 'Robots规则', NOW(), NOW()),
 ('seo_favicon', '/favicon.ico', '网站图标', NOW(), NOW());
+
+-- 品牌化迁移：清理历史种子中遗留的旧品牌关键词（仅当值仍为未修改的旧种子时生效，不影响用户自定义值）
+UPDATE `blog_setting`
+SET `config_value` = '企业官网,建站系统,企业网站建设,数字化转型,Vue,Spring Boot'
+WHERE `config_key` = 'blog_keywords'
+  AND `config_value` = '企业官网,建站系统,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发';
 
 -- 防盗链/域名管理设置（默认关闭，开关与白名单可在后台“站点设置-站点信息”管理）
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
@@ -968,53 +974,49 @@ WHERE a.`id` IS NULL;
 -- 这样 INSERT IGNORE 在重跑时会因主键冲突而被忽略，不会重复插入
 INSERT IGNORE INTO `blog_category` (`id`, `name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES
 -- 一级分类
-(1, '技术分享', 'tech', '技术相关文章和教程', 0, 1, 1, 1),
-(2, '生活随笔', 'life', '生活记录和感悟分享', 0, 2, 2, 1),
-(3, '学习笔记', 'study', '学习过程中的知识整理', 0, 4, 4, 1),
-(4, '资源分享', 'resource', '优质工具和资源推荐', 0, 5, 5, 1),
+(1, '公司动态', 'company', '公司新闻、活动与公告', 0, 1, 1, 1),
+(2, '行业资讯', 'industry', '行业动态与趋势洞察', 0, 2, 2, 1),
+(3, '产品知识', 'knowledge', '产品使用技巧与知识分享', 0, 4, 4, 1),
+(4, '技术支持', 'support', '技术文章与常见问题解答', 0, 5, 5, 1),
 
--- 二级分类（技术分享下的子分类）
-(5, '前端开发', 'frontend', '前端技术相关内容', 1, 1, 1, 1),
-(6, '后端开发', 'backend', '后端技术相关内容', 1, 2, 2, 1),
-(7, '数据库', 'database', '数据库相关技术', 1, 3, 3, 1),
-(8, '运维部署', 'devops', '系统运维和部署相关', 1, 4, 4, 1),
+-- 二级分类（公司动态下的子分类）
+(5, '新闻发布', 'press', '公司新闻稿与媒体报道', 1, 1, 1, 1),
+(6, '活动纪要', 'events', '公司活动与展会纪实', 1, 2, 2, 1),
+(7, '产品发布', 'release', '新产品与服务发布信息', 1, 3, 3, 1),
+(8, '团队风采', 'team', '团队建设与企业文化', 1, 4, 4, 1),
 
--- 二级分类（生活随笔下的子分类）
-(9, '日常记录', 'daily', '日常生活记录', 2, 1, 1, 1),
-(10, '读书笔记', 'reading', '读书心得和笔记', 2, 2, 2, 1),
-(11, '旅行见闻', 'travel', '旅行经历和见闻', 2, 3, 3, 1);
+-- 二级分类（行业资讯下的子分类）
+(9, '政策解读', 'policy', '行业政策法规解读', 2, 1, 1, 1),
+(10, '市场洞察', 'market', '市场趋势与分析报告', 2, 2, 2, 1),
+(11, '展会活动', 'expo', '行业展会与交流活动', 2, 3, 3, 1);
 
 -- 插入完整的站点标签数据（18个常用标签）
 INSERT IGNORE INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
--- 核心标签（确保与test_tags.sql一致）
-(1, 'Java', 'Java编程语言相关文章', '#f89820', 'el-icon-cpu', 0),
-(2, 'Vue.js', 'Vue.js前端框架相关文章', '#4fc08d', 'el-icon-monitor', 0),
-(3, 'Spring Boot', 'Spring Boot框架相关文章', '#6db33f', 'el-icon-setting', 0),
-(4, 'MySQL', 'MySQL数据库相关文章', '#00758f', 'el-icon-coin', 0),
-(5, '前端开发', '前端开发技术相关文章', '#e34c26', 'el-icon-brush', 0),
-(6, '后端开发', '后端开发技术相关文章', '#337ecc', 'el-icon-server', 0),
+-- 核心标签
+(1, '公司动态', '公司新闻与活动相关文章', '#4f46e5', 'el-icon-menu', 0),
+(2, '产品发布', '新产品与服务发布相关文章', '#0ea5e9', 'el-icon-box', 0),
+(3, '行业洞察', '行业趋势与市场分析相关文章', '#8b5cf6', 'el-icon-link', 0),
+(4, '客户案例', '客户合作与成功案例相关文章', '#10b981', 'el-icon-folder-opened', 0),
+(5, '数字化转型', '企业数字化转型相关文章', '#f59e0b', 'el-icon-connection', 0),
+(6, '企业官网', '企业官网建设相关文章', '#6366f1', 'el-icon-monitor', 0),
 
--- 编程语言
-(7, 'JavaScript', 'JavaScript编程语言相关', '#F7DF1E', 'el-icon-link', 0),
-(8, 'TypeScript', 'TypeScript编程语言相关', '#3178C6', 'el-icon-document', 0),
+-- 技术领域
+(7, '云计算', '云计算技术与实践相关文章', '#3b82f6', 'el-icon-cloudy', 0),
+(8, '人工智能', '人工智能技术应用相关文章', '#ec4899', 'el-icon-cpu', 0),
+(9, '大数据', '大数据技术与应用相关文章', '#14b8a6', 'el-icon-database', 0),
+(10, '网络安全', '网络与信息安全相关文章', '#ef4444', 'el-icon-document', 0),
 
--- 后端框架
-(9, 'Spring Cloud', 'Spring Cloud微服务框架', '#6DB33F', 'el-icon-cloudy', 0),
-(10, 'MyBatis', 'MyBatis持久层框架', '#000000', 'el-icon-database', 0),
-(11, 'Node.js', 'Node.js运行时环境', '#339933', 'el-icon-node', 0),
+-- 行业领域
+(11, '智能制造', '智能制造与工业互联网相关文章', '#64748b', 'el-icon-setting', 0),
+(12, '物联网', '物联网技术与应用相关文章', '#06b6d4', 'el-icon-connection', 0),
+(13, '绿色低碳', '绿色低碳与可持续发展相关文章', '#22c55e', 'el-icon-coin', 0),
 
--- 前端框架
-(12, 'Element Plus', 'Element Plus组件库', '#409EFF', 'el-icon-menu', 0),
-(13, 'React', 'React前端框架相关', '#61DAFB', 'el-icon-cpu', 0),
-
--- 数据库
-(14, 'Redis', 'Redis缓存数据库', '#DC382D', 'el-icon-connection', 0),
-(15, 'MongoDB', 'MongoDB文档数据库', '#47A248', 'el-icon-folder-opened', 0),
-
--- 工具和其他
-(16, 'Docker', 'Docker容器技术', '#2496ED', 'el-icon-box', 0),
-(17, 'Git', 'Git版本控制工具', '#F05032', 'el-icon-branch', 0),
-(18, 'Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0);
+-- 企业经营
+(14, '企业管理', '企业管理与运营相关文章', '#a855f7', 'el-icon-server', 0),
+(15, '市场营销', '市场营销与品牌推广相关文章', '#f97316', 'el-icon-brush', 0),
+(16, '技术服务', '技术服务与支持相关文章', '#0d9488', 'el-icon-node', 0),
+(17, '团队文化', '团队建设与企业文化相关文章', '#d946ef', 'el-icon-menu', 0),
+(18, '招聘信息', '招聘岗位与人才招募相关文章', '#eab308', 'el-icon-document', 0);
 
 -- 插入完整的站点文章示例数据
 -- 幂等保护：仅在尚无示例文章时插入，避免重跑脚本导致重复
@@ -1022,325 +1024,96 @@ DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 DELIMITER $$
 CREATE PROCEDURE sp_insert_sample_articles()
 BEGIN
-  IF (SELECT COUNT(*) FROM `blog_article` WHERE `title` = 'Spring Boot + Vue.js 全栈开发实战') = 0 THEN
+  IF (SELECT COUNT(*) FROM `blog_article` WHERE `title` = '知企建站系统 v1.0 正式发布：一站式企业官网搭建平台') = 0 THEN
 INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES
 -- 置顶推荐文章
-('Spring Boot + Vue.js 全栈开发实战', '本文详细介绍如何使用Spring Boot和Vue.js构建现代化的全栈Web应用，包含完整的项目搭建和部署流程。',
-'<h1>Spring Boot + Vue.js 全栈开发实战</h1>
-<h2>📋 项目介绍</h2>
-<p>本项目是基于Spring Boot 3.3.0和Vue.js 3.x构建的现代化企业建站系统，采用前后端分离架构，提供完整的内容管理功能。</p>
-<h2>🛠️ 技术栈详解</h2>
-<h3>后端技术栈</h3>
+('知企建站系统 v1.0 正式发布：一站式企业官网搭建平台', '知企建站系统 v1.0 正式发布，提供内容管理、产品与服务展示、SEO 优化、功能开关与安全部署等一站式企业官网搭建能力。',
+'<h1>知企建站系统 v1.0 正式发布</h1>
+<h2>🎉 版本亮点</h2>
 <ul>
-<li><strong>Spring Boot 3.3.0</strong> - 核心框架</li>
-<li><strong>MyBatis</strong> - 持久层框架</li>
-<li><strong>MySQL 8.0</strong> - 关系型数据库</li>
-<li><strong>Redis</strong> - 缓存和会话存储</li>
-<li><strong>Spring Security</strong> - 安全认证框架</li>
+<li><strong>内容管理</strong> - 富文本与 Markdown 双格式编辑，支持定时发布与草稿箱</li>
+<li><strong>企业官网模式</strong> - 首页可由自定义页面接管，导航按需裁剪</li>
+<li><strong>SEO 优化</strong> - 站点级与页面级 TDK、sitemap、robots 一应俱全</li>
+<li><strong>安全可靠</strong> - JWT 认证、接口限流、防盗链与依赖漏洞扫描</li>
 </ul>
-<h3>前端技术栈</h3>
-<ul>
-<li><strong>Vue.js 3.x</strong> - 前端框架</li>
-<li><strong>Element Plus</strong> - UI组件库</li>
-<li><strong>Vite</strong> - 构建工具</li>
-<li><strong>Axios</strong> - HTTP客户端</li>
-<li><strong>Vue Router</strong> - 路由管理</li>
-</ul>
-<h2>🚀 核心功能特性</h2>
+<h2>🧭 适用场景</h2>
+<p>无论是产品型企业展示产品中心，还是服务型企业介绍业务与客户案例，都可以通过自定义页面与内容管理快速搭建出专业的企业官网。</p>
+<h2>🚀 快速开始</h2>
+<p>使用 Docker Compose 即可一键部署，配合后台「站点设置」完成站点信息、导航与功能开关的配置，几分钟内即可上线您的企业官网。</p>
+<p>感谢一路支持我们的用户，欢迎通过「关于」页面提出宝贵意见。</p>',
+'', 7, 1, 'admin', 1, 1, 1, 156, 23),
+
+('2026 企业数字化转型趋势观察', '从官网体验、内容运营到数据驱动，梳理 2026 年企业数字化转型中最值得关注的几个趋势。',
+'<h1>2026 企业数字化转型趋势观察</h1>
+<h2>📈 趋势一：官网重新成为品牌门户</h2>
+<p>随着获客成本上升，越来越多企业重新重视自有官网的建设与运营，把官网作为品牌展示与内容沉淀的主阵地。</p>
+<h2>🤖 趋势二：AI 辅助内容生产进入日常</h2>
+<p>AI 工具正在深入内容创作流程，帮助企业以更低的成本保持官网内容的持续更新。</p>
+<h2>🔐 趋势三：安全与合规成为底线</h2>
+<p>个人信息保护与数据安全法规日益完善，企业在数字化转型中需要把安全合规作为基础设施来投入。</p>
+<h2>💡 小结</h2>
+<p>数字化转型不是一次性项目，而是持续的运营过程。选择一套可长期演进、自主可控的建站系统，是迈向数字化的第一步。</p>',
+'', 10, 1, 'admin', 0, 1, 1, 89, 15),
+
+-- 客户案例
+('客户案例：某制造企业官网升级实践', '分享某制造企业基于知企建站系统完成官网升级的实践：从内容梳理、页面搭建到上线运营的全过程。',
+'<h1>客户案例：某制造企业官网升级实践</h1>
+<h2>🏭 项目背景</h2>
+<p>该企业原有的官网多年未更新，信息架构混乱、移动端体验不佳，难以支撑品牌展示与市场活动的要求。</p>
+<h2>🛠️ 实施过程</h2>
 <ol>
-<li><strong>用户管理</strong> - 注册、登录、权限控制</li>
-<li><strong>文章管理</strong> - 增删改查、富文本编辑</li>
-<li><strong>分类标签</strong> - 分类管理、标签关联</li>
-<li><strong>评论系统</strong> - 评论发布、回复、审核</li>
-<li><strong>搜索功能</strong> - 全文搜索、关键词高亮</li>
-<li><strong>统计分析</strong> - 访问统计、热度排行</li>
+<li><strong>内容梳理</strong> - 梳理产品线与服务体系，建立清晰的栏目结构</li>
+<li><strong>页面搭建</strong> - 使用自定义页面搭建首页与核心栏目，按需裁剪导航</li>
+<li><strong>内容运营</strong> - 通过文章管理定期发布企业动态与行业资讯</li>
+<li><strong>SEO 优化</strong> - 配置站点 TDK 与 sitemap，上线后搜索收录明显改善</li>
 </ol>
-<h2>💡 开发经验总结</h2>
-<p>通过本项目的实践，深入理解了：</p>
+<h2>✅ 上线效果</h2>
+<p>新官网上线后，页面平均停留时长与访问深度显著提升，市场部可以自主完成内容更新，不再依赖外部开发资源。</p>',
+'', 1, 1, 'admin', 0, 0, 1, 67, 12),
+
+('企业官网 SEO 优化实用指南', '从站点标题、描述关键词到 sitemap 与 robots，介绍企业官网 SEO 优化的实用配置要点。',
+'<h1>企业官网 SEO 优化实用指南</h1>
+<h2>🔤 基础配置：TDK</h2>
+<p>在后台「站点设置 - SEO优化」中配置站点标题、描述与关键词，这是搜索引擎理解网站的第一入口。</p>
+<h2>📄 页面级优化</h2>
 <ul>
-<li>前后端分离架构的设计思想</li>
-<li>RESTful API设计规范</li>
-<li>数据库性能优化技巧</li>
-<li>前端组件化开发模式</li>
-<li>安全防护和权限控制</li>
-</ul>',
-'', 1, 1, 'admin', 1, 1, 1, 156, 23),
-
-('MySQL数据库优化实战指南', '分享MySQL数据库在生产环境中的性能优化经验，包含索引设计、查询优化、配置调优等实用技巧。',
-'<h1>MySQL数据库优化实战指南</h1>
-<h2>🔍 索引优化策略</h2>
-<h3>合理创建索引</h3>
-<pre><code class="language-sql">-- 单列索引
-CREATE INDEX idx_user_email ON user(email);
-
--- 复合索引
-CREATE INDEX idx_article_status_create_time ON article(status, create_time);
-
--- 覆盖索引
-CREATE INDEX idx_article_cover ON article(id, title, status);
-</code></pre>
-<h3>避免索引失效</h3>
-<ul>
-<li>避免在索引列上使用函数</li>
-<li>避免隐式类型转换</li>
-<li>避免左模糊查询（LIKE &quot;%value&quot;）</li>
+<li>为每个自定义页面配置独立的 SEO 标题、关键词与描述</li>
+<li>标题体现核心业务，避免全站使用同一套关键词</li>
+<li>定期更新企业动态与行业资讯，保持站点活跃度</li>
 </ul>
-<h2>⚡ 查询优化技巧</h2>
-<h3>SQL语句优化</h3>
+<h2>🗺️ 收录加速</h2>
+<p>系统内置 sitemap.xml 与 robots.txt，会随内容发布自动更新；将站点地址提交到搜索引擎站长平台，可以进一步加快收录。</p>
+<h2>📊 效果追踪</h2>
+<p>结合后台的访问统计与文章统计功能，持续观察哪些内容带来更多访问，逐步优化内容策略。</p>',
+'', 4, 1, 'admin', 0, 0, 1, 45, 8),
+
+('站点运维托管服务正式上线', '面向没有专职技术团队的中小企业，提供站点备份、监控告警与版本升级的运维托管服务。',
+'<h1>站点运维托管服务正式上线</h1>
+<h2>🧰 服务内容</h2>
 <ul>
-<li>使用EXPLAIN分析执行计划</li>
-<li>避免SELECT * 查询</li>
-<li>合理使用JOIN和子查询</li>
+<li><strong>数据备份</strong> - 数据库与上传文件每日自动备份，支持异地容灾</li>
+<li><strong>监控告警</strong> - 服务可用性、磁盘与内存指标异常时及时告警</li>
+<li><strong>版本升级</strong> - 系统版本升级与安全补丁统一安排，免维护上线</li>
 </ul>
-<h3>分页优化</h3>
-<pre><code class="language-sql">-- 传统分页（深度分页性能差）
-SELECT * FROM article ORDER BY id LIMIT 100000, 10;
+<h2>👥 适合谁</h2>
+<p>没有专职运维人员的中小企业：把站点交给我们，团队专注于业务内容的运营。</p>
+<h2>📮 申请方式</h2>
+<p>通过官网「关于」页面的联系方式与我们取得联系，我们会安排专人对接评估与实施。</p>',
+'', 7, 1, 'admin', 0, 1, 1, 78, 11),
 
--- 优化分页（使用书签模式）
-SELECT * FROM article WHERE id &gt; 100000 ORDER BY id LIMIT 10;
-</code></pre>
-<h2>🛠️ 配置参数调优</h2>
-<pre><code class="language-ini"># 内存相关配置
-innodb_buffer_pool_size = 4G
-innodb_log_file_size = 256M
-
-# 连接数配置
-max_connections = 500
-max_connect_errors = 1000
-
-# 查询缓存
-query_cache_type = 1
-query_cache_size = 256M
-</code></pre>
-<p>通过以上优化措施，数据库性能可提升3-5倍。</p>',
-'', 7, 1, 'admin', 1, 1, 1, 89, 15),
-
--- 普通文章
-('Vue.js 3.0 Composition API 深度解析', '深入了解Vue.js 3.0的Composition API，通过实际案例学习如何使用组合式API构建复杂应用。',
-'<h1>Vue.js 3.0 Composition API 深度解析</h1>
-<h2>🎯 Composition API 核心概念</h2>
-<h3>基本语法</h3>
-<pre><code class="language-javascript">import { ref, reactive, computed, watch } from &#39;vue&#39;
-
-export default {
-  setup() {
-    const count = ref(0)
-    const state = reactive({ name: &#39;Vue&#39;, version: 3 })
-
-    const doubled = computed(() =&gt; count.value * 2)
-
-    watch(count, (newVal, oldVal) =&gt; {
-      console.log(`Count changed from ${oldVal} to ${newVal}`)
-    })
-
-    return { count, state, doubled }
-  }
-}
-</code></pre>
-<h3>逻辑复用</h3>
-<p>通过自定义Hook实现逻辑复用：</p>
-<pre><code class="language-javascript">// useCounter.js
-export function useCounter(initialValue = 0) {
-  const count = ref(initialValue)
-  const increment = () =&gt; count.value++
-  const decrement = () =&gt; count.value--
-
-  return { count, increment, decrement }
-}
-</code></pre>
-<h2>🚀 性能提升</h2>
-<p>Vue 3相比Vue 2在以下方面有显著提升：</p>
+('加入我们：与知企一起成长', '知企团队诚邀技术、设计与市场伙伴加入，一起把企业建站这件事做到极致。',
+'<h1>加入我们：与知企一起成长</h1>
+<h2>🌟 我们在做什么</h2>
+<p>知企建站系统致力于让每一家企业都能轻松拥有专业、安全、可持续运营的官网。我们相信，好的工具应该让内容创作者专注内容本身。</p>
+<h2>💼 热招岗位</h2>
 <ul>
-<li><strong>打包体积</strong> 减少41%</li>
-<li><strong>初始渲染</strong> 快55%</li>
-<li><strong>更新渲染</strong> 快133%</li>
-<li><strong>内存占用</strong> 减少54%</li>
+<li><strong>Java 开发工程师</strong> - 负责 Spring Boot 后端服务的设计与开发</li>
+<li><strong>前端开发工程师</strong> - 负责 Vue 3 前端站点与管理后台的开发</li>
+<li><strong>市场运营专员</strong> - 负责官网内容运营与市场活动策划</li>
 </ul>
-<h2>🔧 TypeScript支持</h2>
-<p>Vue 3提供更好的TypeScript集成：</p>
-<pre><code class="language-typescript">interface User {
-  id: number
-  name: string
-  email: string
-}
-
-const user = ref&lt;User&gt;({ id: 1, name: &#39;Admin&#39;, email: &#39;admin@example.com&#39; })
-</code></pre>
-<p>Composition API让代码更加模块化和可维护，特别适合大型项目开发。</p>',
-'', 5, 1, 'admin', 0, 1, 1, 67, 12),
-
-('Docker容器化部署最佳实践', '详细介绍如何使用Docker对Spring Boot应用进行容器化部署，包含Dockerfile编写、镜像优化、多阶段构建等技巧。',
-'<h1>Docker容器化部署最佳实践</h1>
-<h2>🐳 Dockerfile编写技巧</h2>
-<h3>多阶段构建优化</h3>
-<pre><code class="language-dockerfile"># 构建阶段
-FROM maven:3.8.4-openjdk-11 AS builder
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
-
-# 运行阶段
-FROM openjdk:11-jre-slim
-WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
-</code></pre>
-<h3>镜像体积优化</h3>
-<ul>
-<li>使用合适的基础镜像（alpine、slim）</li>
-<li>清理不必要的包和缓存</li>
-<li>合并RUN指令减少层数</li>
-</ul>
-<h2>🚀 部署配置</h2>
-<h3>Docker Compose配置</h3>
-<pre><code class="language-yaml">version: &#39;3.8&#39;
-services:
-  app:
-    build: .
-    ports:
-      - &quot;8080:8080&quot;
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-    depends_on:
-      - mysql
-      - redis
-
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: CHANGE_ME_ROOT_PASSWORD
-      MYSQL_DATABASE: blog
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  redis:
-    image: redis:alpine
-    volumes:
-      - redis_data:/data
-
-volumes:
-  mysql_data:
-  redis_data:
-</code></pre>
-<h2>📊 监控和日志</h2>
-<h3>健康检查</h3>
-<pre><code class="language-dockerfile">HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
-</code></pre>
-<p>通过容器化部署，大大简化了应用的环境管理和部署流程。</p>',
-'', 8, 1, 'admin', 0, 1, 1, 45, 8),
-
-('Redis缓存设计与实战', '深入讲解Redis在Web应用中的缓存设计模式，包含缓存更新策略、数据一致性、分布式锁等高级话题。',
-'<h1>Redis缓存设计与实战</h1>
-<h2>🎯 缓存设计模式</h2>
-<h3>Cache-Aside模式</h3>
-<pre><code class="language-java">public User getUser(Long id) {
-    String key = &quot;user:&quot; + id;
-    User user = redisTemplate.opsForValue().get(key);
-
-    if (user == null) {
-        user = userMapper.selectById(id);
-        if (user != null) {
-            redisTemplate.opsForValue().set(key, user, 1, TimeUnit.HOURS);
-        }
-    }
-    return user;
-}
-</code></pre>
-<h3>Write-Through模式</h3>
-<p>在写入数据库的同时更新缓存，保证数据一致性。</p>
-<h2>🔄 缓存更新策略</h2>
-<h3>延迟双删策略</h3>
-<pre><code class="language-java">public void updateUser(User user) {
-    // 第一次删除
-    redisTemplate.delete(&quot;user:&quot; + user.getId());
-
-    // 更新数据库
-    userMapper.updateById(user);
-
-    // 延迟删除（避免脏数据）
-    Thread.sleep(500);
-    redisTemplate.delete(&quot;user:&quot; + user.getId());
-}
-</code></pre>
-<h2>⚡ 性能优化技巧</h2>
-<h3>Pipeline批量操作</h3>
-<pre><code class="language-java">List&lt;Object&gt; results = redisTemplate.executePipelined((RedisCallback&lt;Object&gt;) connection -&gt; {
-    for (Long id : userIds) {
-        connection.get((&quot;user:&quot; + id).getBytes());
-    }
-    return null;
-});
-</code></pre>
-<h3>合理设置过期时间</h3>
-<ul>
-<li>热点数据：短过期时间</li>
-<li>静态数据：长过期时间</li>
-<li>活动数据：动态过期时间</li>
-</ul>
-<p>通过合理使用Redis缓存，可以将系统性能提升10倍以上。</p>',
-'', 7, 1, 'admin', 0, 0, 1, 78, 11),
-
-('Git工作流程与团队协作规范', '介绍高效的Git工作流程，包括分支策略、提交规范、代码审查等团队协作最佳实践。',
-'<h1>Git工作流程与团队协作规范</h1>
-<h2>🌲 分支管理策略</h2>
-<h3>Git Flow工作流</h3>
-<pre><code>master (生产分支)
-  ↑
-develop (开发分支)
-  ↑
-feature/* (功能分支)
-hotfix/* (热修复分支)
-release/* (发布分支)
-</code></pre>
-<h3>分支命名规范</h3>
-<ul>
-<li><code>feature/用户登录功能</code></li>
-<li><code>bugfix/修复支付接口异常</code></li>
-<li><code>hotfix/紧急修复内存泄漏</code></li>
-<li><code>release/v1.2.0</code></li>
-</ul>
-<h2>📝 提交信息规范</h2>
-<h3>Conventional Commits规范</h3>
-<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;
-
-[optional body]
-
-[optional footer(s)]
-</code></pre>
-<h3>提交类型</h3>
-<ul>
-<li><code>feat</code>: 新功能</li>
-<li><code>fix</code>: 修复bug</li>
-<li><code>docs</code>: 文档更新</li>
-<li><code>style</code>: 代码格式调整</li>
-<li><code>refactor</code>: 重构代码</li>
-<li><code>test</code>: 测试相关</li>
-<li><code>chore</code>: 构建过程或辅助工具的变动</li>
-</ul>
-<h2>🔍 代码审查清单</h2>
-<h3>功能性检查</h3>
-<ul>
-<li><input disabled="" type="checkbox"> 功能是否按需求实现</li>
-<li><input disabled="" type="checkbox"> 边界条件是否处理</li>
-<li><input disabled="" type="checkbox"> 异常情况是否有处理</li>
-</ul>
-<h3>代码质量检查</h3>
-<ul>
-<li><input disabled="" type="checkbox"> 代码是否遵循规范</li>
-<li><input disabled="" type="checkbox"> 是否有重复代码</li>
-<li><input disabled="" type="checkbox"> 注释是否充分</li>
-</ul>
-<h3>安全性检查</h3>
-<ul>
-<li><input disabled="" type="checkbox"> 是否有SQL注入风险</li>
-<li><input disabled="" type="checkbox"> 敏感信息是否脱敏</li>
-<li><input disabled="" type="checkbox"> 权限控制是否合理</li>
-</ul>
-<p>良好的Git工作流程可以显著提升团队的协作效率和代码质量。</p>',
-'', 3, 1, 'admin', 0, 0, 1, 92, 16);
+<h2>🤝 我们期待</h2>
+<p>热爱技术、乐于分享、对产品体验有追求的你。有意向请通过「关于」页面的联系方式与我们取得联系。</p>',
+'', 8, 1, 'admin', 0, 0, 1, 92, 16);
   END IF;
 END$$
 DELIMITER ;
@@ -1349,23 +1122,23 @@ DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 
 -- 插入文章标签关联数据（建立文章与标签的多对多关系）
 INSERT IGNORE INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
--- 文章1：Spring Boot + Vue.js 全栈开发实战（Java / Vue.js / Spring Boot）
-(1, 1), (1, 2), (1, 3),
+-- 文章1：知企建站系统 v1.0 正式发布（公司动态 / 产品发布 / 企业官网）
+(1, 1), (1, 2), (1, 6),
 
--- 文章2：MySQL数据库优化实战指南（Java / MySQL / 后端开发）
-(2, 1), (2, 4), (2, 6),
+-- 文章2：2026 企业数字化转型趋势观察（行业洞察 / 数字化转型 / 人工智能）
+(2, 3), (2, 5), (2, 8),
 
--- 文章3：Vue.js 3.0 Composition API 深度解析（Vue.js / 前端开发 / JavaScript / TypeScript）
-(3, 2), (3, 5), (3, 7), (3, 8),
+-- 文章3：客户案例：某制造企业官网升级实践（客户案例 / 数字化转型 / 智能制造）
+(3, 4), (3, 5), (3, 11),
 
--- 文章4：Docker容器化部署最佳实践（Docker / 后端开发 / Linux）
-(4, 16), (4, 6), (4, 18),
+-- 文章4：企业官网 SEO 优化实用指南（企业官网 / 市场营销）
+(4, 6), (4, 15),
 
--- 文章5：Redis缓存设计与实战（Redis / 后端开发）
-(5, 14), (5, 6),
+-- 文章5：站点运维托管服务正式上线（产品发布 / 技术服务 / 云计算）
+(5, 2), (5, 16), (5, 7),
 
--- 文章6：Git工作流程与团队协作规范（Git）
-(6, 17);
+-- 文章6：加入我们：与知企一起成长（团队文化 / 招聘信息）
+(6, 17), (6, 18);
 
 -- ========== 更新分类文章数量 ==========
 
@@ -1414,16 +1187,12 @@ JOIN `blog_friend_link` f2
   ON f1.`url` = f2.`url` AND f1.`name` = f2.`name` AND f1.`id` > f2.`id`;
 -- 幂等保护 2：种子数据显式指定主键 id，重跑时 INSERT IGNORE 因主键冲突被忽略
 INSERT IGNORE INTO `blog_friend_link` (`id`, `name`, `url`, `logo`, `description`, `status`, `sort`) VALUES
-(1, 'Spring官网', 'https://spring.io/', 'https://spring.io/images/spring-logo.png', 'Spring框架官方网站，提供最新的Spring生态系统资讯和文档', 0, 1),
-(2, 'Vue.js官网', 'https://vuejs.org/', 'https://vuejs.org/logo.svg', 'Vue.js渐进式JavaScript框架官方网站', 1, 2),
-(3, 'Element Plus', 'https://element-plus.org/', 'https://element-plus.org/images/element-plus-logo.svg', 'Vue 3桌面端组件库，提供丰富的UI组件', 1, 3),
-(4, 'GitHub', 'https://github.com/', 'https://github.com/github.png', '全球最大的代码托管平台和开源社区', 0, 4),
-(5, 'MDN Web Docs', 'https://developer.mozilla.org/', 'https://developer.mozilla.org/mdn-social-share.cd6c89a5a1a.png', 'Web开发者资源中心，提供权威的前端技术文档', 0, 5),
-(6, 'Stack Overflow', 'https://stackoverflow.com/', 'https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon.png', '程序员问答社区，解决编程问题的首选平台', 0, 6),
-(7, '掘金', 'https://juejin.cn/', 'https://lf3-cdn-tos.bytegoofy.com/obj/iconpark/icons_19361_1.svg', '技术社区，分享技术文章和经验', 0, 7),
-(8, 'CSDN', 'https://www.csdn.net/', 'https://www.csdn.net/images/logo.png', '中国最大的IT技术社区和开发者服务平台', 0, 8),
-(9, 'Redis官网', 'https://redis.io/', 'https://redis.io/images/redis-white.svg', 'Redis内存数据库官方网站', 0, 9),
-(10, 'MySQL官网', 'https://www.mysql.com/', 'https://www.mysql.com/common/logos/logo-mysql-170x115.png', 'MySQL数据库官方网站，提供数据库软件和文档', 0, 10);
+(1, 'Spring 官网', 'https://spring.io/', 'https://spring.io/images/spring-logo.png', '后端核心框架 Spring 官方网站', 0, 1),
+(2, 'Vue.js 官网', 'https://vuejs.org/', 'https://vuejs.org/logo.svg', '前端框架 Vue.js 官方网站', 1, 2),
+(3, 'Element Plus', 'https://element-plus.org/', 'https://element-plus.org/images/element-plus-logo.svg', 'Vue 3 桌面端 UI 组件库官方网站', 1, 3),
+(4, 'MySQL', 'https://www.mysql.com/', 'https://www.mysql.com/common/logos/logo-mysql-170x115.png', '关系型数据库 MySQL 官方网站', 1, 4),
+(5, 'Redis', 'https://redis.io/', 'https://redis.io/images/redis-white.svg', '内存数据库 Redis 官方网站', 0, 5),
+(6, 'GitHub', 'https://github.com/', 'https://github.com/github.png', '全球最大的代码托管平台', 0, 6);
 
 -- ========== 配置站点管理菜单 ==========
 

@@ -9,7 +9,7 @@ import { resolve } from 'node:path'
  * 1. 示例正文写的是 Markdown，而 `blog_article.content` 的契约是 HTML
  *    （前台详情只做 sanitize + v-html，不做 Markdown 渲染，页面会显示原始 `#`/代码围栏）；
  * 2. `blog_article_tag` 种子里引用了不存在的 tag_id（幽灵关联，表上没有外键，静默失效）；
- * 3. 示例文章的 category_id 挂错分类（《MySQL优化》进「后端开发」、《Git工作流》进「前端开发」）。
+ * 3. 示例文章的 category_id 挂错分类（发布/服务类文章没进「产品发布」、招聘没进「团队风采」）。
  */
 
 const SQL = resolve(process.cwd(), '../sql/00_init_database.sql')
@@ -101,12 +101,12 @@ describe('示例文章种子', () => {
         true
       )
     }
-    // 主题一致性：数据库类文章不该进「后端开发」，前端文章不该进「后端开发」
+    // 主题一致性：发布/服务类进「产品发布」，趋势观察进「市场洞察」，招聘进「团队风采」
     const byTitle = new Map(articles.map(a => [a.title, a.categoryId]))
-    expect(byTitle.get('MySQL数据库优化实战指南')).toBe(7) // 数据库
-    expect(byTitle.get('Redis缓存设计与实战')).toBe(7) // 数据库
-    expect(byTitle.get('Vue.js 3.0 Composition API 深度解析')).toBe(5) // 前端开发
-    expect(byTitle.get('Docker容器化部署最佳实践')).toBe(8) // 运维部署
+    expect(byTitle.get('知企建站系统 v1.0 正式发布：一站式企业官网搭建平台')).toBe(7) // 产品发布
+    expect(byTitle.get('站点运维托管服务正式上线')).toBe(7) // 产品发布
+    expect(byTitle.get('2026 企业数字化转型趋势观察')).toBe(10) // 市场洞察
+    expect(byTitle.get('加入我们：与知企一起成长')).toBe(8) // 团队风采
   })
 
   it('标签关联只能引用真实存在的标签', () => {
@@ -125,8 +125,8 @@ describe('示例文章种子', () => {
       expect(ids.length, `${a.title} 没有标签`).toBeGreaterThan(0)
     }
     const idsOf = (n: number) => links.filter(l => l.articleId === n).map(l => l.tagId)
-    expect(idsOf(6), '《Git工作流》应挂 Git(17)').toContain(17) // Git
-    expect(idsOf(5), '《Redis》应挂 Redis(14) 而不是 MongoDB(15)').toContain(14)
-    expect(idsOf(3), '《Vue.js 3.0》应挂 Vue.js(2)').toContain(2)
+    expect(idsOf(6), '《加入我们》应挂 招聘信息(18)').toContain(18) // 招聘信息
+    expect(idsOf(5), '《运维托管》应挂 技术服务(16)').toContain(16)
+    expect(idsOf(3), '《客户案例》应挂 客户案例(4)').toContain(4)
   })
 })
