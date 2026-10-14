@@ -230,12 +230,12 @@ class BlogArticleMapperTest {
      */
     @Test
     @Sql(scripts = "/schema.sql", statements = {
-        "DELETE FROM blog_article",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('归档-1月A', 1, '0', '2026-01-15 10:00:00')",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('归档-1月B', 1, '0', '2026-01-28 10:00:00')",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('归档-2月A', 1, '0', '2026-02-03 10:00:00')",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('草稿', 0, '0', '2026-02-04 10:00:00')",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('已删除', 1, '1', '2026-02-05 10:00:00')"
+        "DELETE FROM zhi_article",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('归档-1月A', 1, '0', '2026-01-15 10:00:00')",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('归档-1月B', 1, '0', '2026-01-28 10:00:00')",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('归档-2月A', 1, '0', '2026-02-03 10:00:00')",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('草稿', 0, '0', '2026-02-04 10:00:00')",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('已删除', 1, '1', '2026-02-05 10:00:00')"
     })
     void getArticleArchive按创建月份分组并排除草稿与已删除() {
         List<Map<String, Object>> archiveList = blogArticleMapper.getArticleArchive();
@@ -266,10 +266,10 @@ class BlogArticleMapperTest {
      */
     @Test
     @Sql(scripts = "/schema.sql", statements = {
-        "DELETE FROM blog_article",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('并列-A', 1, '0', '2026-10-04 12:38:14')",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('并列-B', 1, '0', '2026-10-04 12:38:14')",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('并列-C', 1, '0', '2026-10-04 12:38:14')"
+        "DELETE FROM zhi_article",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('并列-A', 1, '0', '2026-10-04 12:38:14')",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('并列-B', 1, '0', '2026-10-04 12:38:14')",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('并列-C', 1, '0', '2026-10-04 12:38:14')"
     })
     void selectBlogArticleListSameCreateTimeMustSortByIdDesc() {
         BlogArticle queryParam = new BlogArticle();
@@ -288,9 +288,9 @@ class BlogArticleMapperTest {
      */
     @Test
     @Sql(scripts = "/schema.sql", statements = {
-        "DELETE FROM blog_article",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('已删除的标题', 1, '1', '2026-10-04 12:00:00')",
-        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('在用标题', 1, '0', '2026-10-04 12:01:00')"
+        "DELETE FROM zhi_article",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('已删除的标题', 1, '1', '2026-10-04 12:00:00')",
+        "INSERT INTO zhi_article (title, status, del_flag, create_time) VALUES ('在用标题', 1, '0', '2026-10-04 12:01:00')"
     })
     void selectBlogArticleByTitleMustIgnoreDeletedRows() {
         assertNull(blogArticleMapper.selectBlogArticleByTitle("已删除的标题"),
@@ -306,10 +306,10 @@ class BlogArticleMapperTest {
      */
     @Test
     @Sql(scripts = "/schema.sql", statements = {
-        "DELETE FROM blog_article",
-        "INSERT INTO blog_article (title, status, del_flag, is_top, create_time) VALUES ('普通-新', 1, '0', 0, '2026-10-04 13:00:00')",
-        "INSERT INTO blog_article (title, status, del_flag, is_top, create_time) VALUES ('置顶-旧', 1, '0', 1, '2026-10-01 10:00:00')",
-        "INSERT INTO blog_article (title, status, del_flag, is_top, create_time) VALUES ('普通-中', 1, '0', 0, '2026-10-03 10:00:00')"
+        "DELETE FROM zhi_article",
+        "INSERT INTO zhi_article (title, status, del_flag, is_top, create_time) VALUES ('普通-新', 1, '0', 0, '2026-10-04 13:00:00')",
+        "INSERT INTO zhi_article (title, status, del_flag, is_top, create_time) VALUES ('置顶-旧', 1, '0', 1, '2026-10-01 10:00:00')",
+        "INSERT INTO zhi_article (title, status, del_flag, is_top, create_time) VALUES ('普通-中', 1, '0', 0, '2026-10-03 10:00:00')"
     })
     void selectBlogArticleListPinnedArticleMustFloatToTop() {
         BlogArticle queryParam = new BlogArticle();

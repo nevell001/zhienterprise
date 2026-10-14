@@ -18,7 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectBlogEmailCodeVo">
         select id, email, code, code_type, expire_time, used, ip_address, create_time, use_time
-        from blog_email_code
+        from zhi_email_code
     </sql>
 
     <select id="selectBlogEmailCodeList" parameterType="BlogEmailCode" resultMap="BlogEmailCodeResult">
@@ -46,7 +46,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertBlogEmailCode" parameterType="BlogEmailCode" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_email_code
+        insert into zhi_email_code
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="email != null and email != ''">email,</if>
             <if test="code != null and code != ''">code,</if>
@@ -70,7 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="updateBlogEmailCode" parameterType="BlogEmailCode">
-        update blog_email_code
+        update zhi_email_code
         <trim prefix="SET" suffixOverrides=",">
             <if test="email != null and email != ''">email = #{email},</if>
             <if test="code != null and code != ''">code = #{code},</if>
@@ -84,31 +84,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <update id="markCodeAsUsed">
-        update blog_email_code set used = 1, use_time = #{useTime} where id = #{id}
+        update zhi_email_code set used = 1, use_time = #{useTime} where id = #{id}
     </update>
 
     <delete id="deleteBlogEmailCodeById" parameterType="Long">
-        delete from blog_email_code where id = #{id}
+        delete from zhi_email_code where id = #{id}
     </delete>
 
     <delete id="deleteBlogEmailCodeByIds" parameterType="String">
-        delete from blog_email_code where id in
+        delete from zhi_email_code where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
 
     <delete id="deleteExpiredCodes">
-        delete from blog_email_code where expire_time &lt; NOW()
+        delete from zhi_email_code where expire_time &lt; NOW()
     </delete>
 
     <select id="countCodesByEmailAndTime" resultType="int">
-        select count(1) from blog_email_code
+        select count(1) from zhi_email_code
         where email = #{email} and create_time &gt;= #{startTime}
     </select>
 
     <select id="countCodesByIpAndTime" resultType="int">
-        select count(1) from blog_email_code
+        select count(1) from zhi_email_code
         where ip_address = #{ipAddress} and create_time &gt;= #{startTime}
     </select>
 </mapper>

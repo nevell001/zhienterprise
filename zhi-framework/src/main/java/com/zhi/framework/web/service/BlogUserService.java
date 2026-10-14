@@ -41,7 +41,7 @@ public class BlogUserService
     private static final String USER_TYPE_BLOG = "01";
 
     /** 注册用户角色Key */
-    private static final String BLOG_USER_ROLE_KEY = "blog_user";
+    private static final String SITE_USER_ROLE_KEY = "site_user";
 
     @Autowired
     private ISysUserService userService;
@@ -127,10 +127,10 @@ public class BlogUserService
             }
 
             // 7. 分配注册用户角色（关键！）
-            SysRole blogRole = roleMapper.checkRoleKeyUnique(BLOG_USER_ROLE_KEY);
+            SysRole blogRole = roleMapper.checkRoleKeyUnique(SITE_USER_ROLE_KEY);
             if (blogRole == null)
             {
-                log.error("注册用户角色不存在：role_key={}，请检查数据库初始化", BLOG_USER_ROLE_KEY);
+                log.error("注册用户角色不存在：role_key={}，请检查数据库初始化", SITE_USER_ROLE_KEY);
                 return AjaxResult.error("系统配置异常，注册暂不可用，请联系管理员");
             }
             else

@@ -28,13 +28,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, title, slug, summary, content, status, show_in_nav, sort, view_count,
                seo_title, seo_keywords, seo_description,
                create_by, create_time, update_by, update_time, del_flag
-        from blog_page
+        from zhi_page
     </sql>
 
     <sql id="selectBlogPageBriefVo">
         select id, title, slug, summary, status, show_in_nav, sort, view_count,
                create_by, create_time, update_by, update_time, del_flag
-        from blog_page
+        from zhi_page
     </sql>
 
     <select id="selectBlogPageList" parameterType="BlogPage" resultMap="BlogPageResult">
@@ -72,7 +72,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertBlogPage" parameterType="BlogPage" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_page
+        insert into zhi_page
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="title != null and title != ''">title,</if>
             <if test="slug != null and slug != ''">slug,</if>
@@ -112,7 +112,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="updateBlogPage" parameterType="BlogPage">
-        update blog_page
+        update zhi_page
         <trim prefix="SET" suffixOverrides=",">
             <if test="title != null and title != ''">title = #{title},</if>
             <if test="slug != null and slug != ''">slug = #{slug},</if>
@@ -131,15 +131,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <update id="increaseViewCount" parameterType="Long">
-        update blog_page set view_count = view_count + 1 where id = #{id} and del_flag = '0'
+        update zhi_page set view_count = view_count + 1 where id = #{id} and del_flag = '0'
     </update>
 
     <delete id="deleteBlogPageById" parameterType="Long">
-        update blog_page set del_flag = '1' where id = #{id}
+        update zhi_page set del_flag = '1' where id = #{id}
     </delete>
 
     <delete id="deleteBlogPageByIds" parameterType="String">
-        update blog_page set del_flag = '1' where id in
+        update zhi_page set del_flag = '1' where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

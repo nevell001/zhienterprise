@@ -26,13 +26,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectPublishedMessageVo">
         select id, user_id, nickname, website, content, reply_content, reply_time, status, create_time
-        from blog_message
+        from zhi_message
     </sql>
 
     <sql id="selectBlogMessageVo">
         select id, user_id, nickname, email, website, content, reply_content, reply_time, reply_by,
                status, ip, user_agent, create_by, create_time, update_by, update_time, del_flag
-        from blog_message
+        from zhi_message
     </sql>
 
     <select id="selectBlogMessageList" parameterType="BlogMessage" resultMap="BlogMessageResult">
@@ -58,11 +58,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectPublishedMessageCount" resultType="Long">
-        select count(1) from blog_message where status = '1' and del_flag = '0'
+        select count(1) from zhi_message where status = '1' and del_flag = '0'
     </select>
 
     <insert id="insertBlogMessage" parameterType="BlogMessage" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_message
+        insert into zhi_message
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
             <if test="nickname != null and nickname != ''">nickname,</if>
@@ -102,7 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="updateBlogMessage" parameterType="BlogMessage">
-        update blog_message
+        update zhi_message
         <trim prefix="SET" suffixOverrides=",">
             <if test="nickname != null and nickname != ''">nickname = #{nickname},</if>
             <if test="email != null">email = #{email},</if>
@@ -119,11 +119,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteBlogMessageById" parameterType="Long">
-        update blog_message set del_flag = '1' where id = #{id}
+        update zhi_message set del_flag = '1' where id = #{id}
     </delete>
 
     <delete id="deleteBlogMessageByIds" parameterType="String">
-        update blog_message set del_flag = '1' where id in
+        update zhi_message set del_flag = '1' where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

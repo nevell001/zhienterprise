@@ -36,7 +36,7 @@ class SysUserMapperTest {
     @Test
     void insertUserShouldPersistBlogUserType() {
         SysUser blogUser = new SysUser();
-        blogUser.setUserName("mapper_blog_user");
+        blogUser.setUserName("mapper_site_user");
         blogUser.setNickName("注册用户");
         blogUser.setPassword("$2a$10$abcdefghijklmnopqrstuv");
         blogUser.setStatus("0");
@@ -45,7 +45,7 @@ class SysUserMapperTest {
         assertEquals(1, sysUserMapper.insertUser(blogUser));
         assertNotNull(blogUser.getUserId(), "插入后应回填自增主键");
 
-        SysUser loaded = sysUserMapper.selectUserByUserName("mapper_blog_user");
+        SysUser loaded = sysUserMapper.selectUserByUserName("mapper_site_user");
         assertNotNull(loaded, "登录链路应能按用户名读回用户");
         assertEquals("01", loaded.getUserType(), "注册用户的 user_type 必须原样持久化");
     }

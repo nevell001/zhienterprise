@@ -128,7 +128,7 @@ class MailConfigServiceTest {
         assertFalse(view.containsValue("auth-code"));
     }
 
-    /** 让 blog_setting 按键返回指定值；未列出的键返回 null，等价于「库里从未写入」。 */
+    /** 让 zhi_setting 按键返回指定值；未列出的键返回 null，等价于「库里从未写入」。 */
     private void db(String... keyValuePairs) {
         Map<String, String> values = new HashMap<>();
         for (int i = 0; i < keyValuePairs.length; i += 2) {

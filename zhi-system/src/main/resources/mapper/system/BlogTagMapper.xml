@@ -25,9 +25,9 @@
             bt.update_time, 
             bt.del_flag,
             COUNT(DISTINCT bat.article_id) as article_count
-        from blog_tag bt
-        left join blog_article_tag bat on bt.id = bat.tag_id
-        left join blog_article ba on bat.article_id = ba.id and ba.status = 1 and ba.del_flag = 0
+        from zhi_tag bt
+        left join zhi_article_tag bat on bt.id = bat.tag_id
+        left join zhi_article ba on bat.article_id = ba.id and ba.status = 1 and ba.del_flag = 0
     </sql>
 
     <select id="selectBlogTagList" parameterType="BlogTag" resultMap="BlogTagResult">
@@ -61,7 +61,7 @@
     </select>
     
     <select id="checkTagExistArticle" parameterType="Long" resultType="Integer">
-        select count(1) from blog_article_tag where tag_id = #{id}
+        select count(1) from zhi_article_tag where tag_id = #{id}
     </select>
 
     <select id="getTagCloud" resultType="map">
@@ -70,9 +70,9 @@
             bt.name,
             bt.color,
             COUNT(DISTINCT CASE WHEN ba.status = 1 AND ba.del_flag = 0 THEN bat.article_id END) as article_count
-        FROM blog_tag bt
-        LEFT JOIN blog_article_tag bat ON bt.id = bat.tag_id
-        LEFT JOIN blog_article ba ON bat.article_id = ba.id
+        FROM zhi_tag bt
+        LEFT JOIN zhi_article_tag bat ON bt.id = bat.tag_id
+        LEFT JOIN zhi_article ba ON bat.article_id = ba.id
         WHERE bt.del_flag = 0
         GROUP BY bt.id, bt.name, bt.color
         ORDER BY article_count DESC, bt.create_time DESC
@@ -89,10 +89,10 @@
             bt.update_time,
             bt.del_flag,
             COUNT(DISTINCT bat2.article_id) as article_count
-        from blog_tag bt
-        inner join blog_article_tag bat on bt.id = bat.tag_id
-        left join blog_article_tag bat2 on bt.id = bat2.tag_id
-        left join blog_article ba on bat2.article_id = ba.id and ba.status = 1 and ba.del_flag = 0
+        from zhi_tag bt
+        inner join zhi_article_tag bat on bt.id = bat.tag_id
+        left join zhi_article_tag bat2 on bt.id = bat2.tag_id
+        left join zhi_article ba on bat2.article_id = ba.id and ba.status = 1 and ba.del_flag = 0
         where bat.article_id = #{articleId} and bt.del_flag = 0
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
     </select>
@@ -109,8 +109,8 @@
             bt.create_time as createTime,
             bt.update_time as updateTime,
             bt.del_flag as delFlag
-        from blog_article_tag bat
-        inner join blog_tag bt on bat.tag_id = bt.id
+        from zhi_article_tag bat
+        inner join zhi_tag bt on bat.tag_id = bt.id
         where bat.article_id in
         <foreach item="articleId" collection="list" open="(" separator="," close=")">
             #{articleId}
@@ -120,7 +120,7 @@
     </select>
 
     <insert id="insertBlogTag" parameterType="BlogTag" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_tag
+        insert into zhi_tag
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test='name != null and name != ""'>name,</if>
             <if test="description != null">description,</if>
@@ -138,7 +138,7 @@
     </insert>
 
     <update id="updateBlogTag" parameterType="BlogTag">
-        update blog_tag
+        update zhi_tag
         <trim prefix="SET" suffixOverrides=",">
             <if test='name != null and name != ""'>name = #{name},</if>
             <if test="description != null">description = #{description},</if>
@@ -150,18 +150,18 @@
     </update>
 
     <delete id="deleteBlogTagById" parameterType="Long">
-        update blog_tag set del_flag = 1 where id = #{id}
+        update zhi_tag set del_flag = 1 where id = #{id}
     </delete>
 
     <delete id="deleteBlogTagByIds" parameterType="String">
-        update blog_tag set del_flag = 1 where id in
+        update zhi_tag set del_flag = 1 where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
 
     <select id="selectBlogTagCount" parameterType="BlogTag" resultType="long">
-        select count(*) from blog_tag bt
+        select count(*) from zhi_tag bt
         <where>
             <if test='name != null and name != ""'> and bt.name like concat('%', #{name}, '%')</if>
             and bt.del_flag = 0

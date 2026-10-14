@@ -14,7 +14,7 @@ import com.zhi.system.service.IBlogSettingService;
 /**
  * 防盗链配置提供者
  *
- * <p>从站点设置（blog_setting 表）运行时读取防盗链开关与允许域名白名单，
+ * <p>从站点设置（zhi_setting 表）运行时读取防盗链开关与允许域名白名单，
  * 使后台“站点设置 - 站点信息”可以直接管理，无需重启应用。
  * 数据库未配置（留空）时回退到 application.yml 的 referer 配置默认值。</p>
  *

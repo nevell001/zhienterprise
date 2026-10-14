@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zhi.common.core.domain.BaseEntity;
 
 /**
- * 友情链接对象 blog_friend_link
+ * 友情链接对象 zhi_friend_link
  * 
  * @author nevell
  * @date 2025-09-08

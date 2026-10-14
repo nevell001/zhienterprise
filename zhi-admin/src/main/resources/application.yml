@@ -289,7 +289,7 @@ image:
     # 移动端压缩质量 - 提高到0.85
     mobile-quality: 0.85
 
-# 防盗链配置（仅作为默认值；可在后台“站点设置-站点信息”中覆盖，数据库 blog_setting 优先）
+# 防盗链配置（仅作为默认值；可在后台“站点设置-站点信息”中覆盖，数据库 zhi_setting 优先）
 referer:
   # 是否启用防盗链
   enabled: false

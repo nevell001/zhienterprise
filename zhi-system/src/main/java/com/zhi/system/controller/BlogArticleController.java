@@ -53,7 +53,7 @@ public class BlogArticleController extends BaseController
     private static final String PARAM_IS_TOP = "isTop";
     private static final String PARAM_IS_RECOMMEND = "isRecommend";
 
-    /** 内容类型白名单（blog_article.article_type）：资讯动态 / 核心业务 / 客户案例 */
+    /** 内容类型白名单（zhi_article.article_type）：资讯动态 / 核心业务 / 客户案例 */
     private static final Set<String> ARTICLE_TYPES = Set.of("news", "business", "case");
 
     @Autowired

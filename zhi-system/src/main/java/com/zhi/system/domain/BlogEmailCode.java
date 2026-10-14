@@ -8,7 +8,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.Date;
 
 /**
- * 博客邮箱验证码对象 blog_email_code
+ * 博客邮箱验证码对象 zhi_email_code
  *
  * @author nevell
  * @date 2025-01-26

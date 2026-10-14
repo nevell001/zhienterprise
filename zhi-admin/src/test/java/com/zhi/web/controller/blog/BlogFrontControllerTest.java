@@ -302,7 +302,7 @@ class BlogFrontControllerTest
     {
         when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of());
 
-        mockMvc.perform(get("/blog/comment/article/1").param("sort", "id desc; drop table blog_comment"))
+        mockMvc.perform(get("/blog/comment/article/1").param("sort", "id desc; drop table zhi_comment"))
             .andExpect(status().isOk());
 
         ArgumentCaptor<BlogComment> captor = ArgumentCaptor.forClass(BlogComment.class);

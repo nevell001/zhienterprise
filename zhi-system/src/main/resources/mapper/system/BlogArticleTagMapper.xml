@@ -11,7 +11,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectBlogArticleTagVo">
-        select id, article_id, tag_id from blog_article_tag
+        select id, article_id, tag_id from zhi_article_tag
     </sql>
 
     <select id="selectBlogArticleTagList" parameterType="BlogArticleTag" resultMap="BlogArticleTagResult">
@@ -28,15 +28,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectTagIdsByArticleId" parameterType="Long" resultType="Long">
-        select tag_id from blog_article_tag where article_id = #{articleId}
+        select tag_id from zhi_article_tag where article_id = #{articleId}
     </select>
     
     <select id="selectArticleIdsByTagId" parameterType="Long" resultType="Long">
-        select article_id from blog_article_tag where tag_id = #{tagId}
+        select article_id from zhi_article_tag where tag_id = #{tagId}
     </select>
 
     <insert id="insertBlogArticleTag" parameterType="BlogArticleTag" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_article_tag
+        insert into zhi_article_tag
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="articleId != null">article_id,</if>
             <if test="tagId != null">tag_id,</if>
@@ -48,14 +48,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
     
     <insert id="batchInsertArticleTag">
-        insert into blog_article_tag(article_id, tag_id) values
+        insert into zhi_article_tag(article_id, tag_id) values
         <foreach item="item" index="index" collection="list" separator=",">
             (#{item.articleId}, #{item.tagId})
         </foreach>
     </insert>
 
     <update id="updateBlogArticleTag" parameterType="BlogArticleTag">
-        update blog_article_tag
+        update zhi_article_tag
         <trim prefix="SET" suffixOverrides=",">
             <if test="articleId != null">article_id = #{articleId},</if>
             <if test="tagId != null">tag_id = #{tagId},</if>
@@ -64,17 +64,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteBlogArticleTagById" parameterType="Long">
-        delete from blog_article_tag where id = #{id}
+        delete from zhi_article_tag where id = #{id}
     </delete>
 
     <delete id="deleteBlogArticleTagByIds" parameterType="String">
-        delete from blog_article_tag where id in 
+        delete from zhi_article_tag where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
     
     <delete id="deleteByArticleId" parameterType="Long">
-        delete from blog_article_tag where article_id = #{articleId}
+        delete from zhi_article_tag where article_id = #{articleId}
     </delete>
 </mapper>

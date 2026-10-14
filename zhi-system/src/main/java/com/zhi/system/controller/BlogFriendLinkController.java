@@ -136,7 +136,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 审核友情链接申请。
      *
-     * <p>status 与 blog_friend_link 全栈语义一致：<b>0=通过/正常（前台展示）</b>，
+     * <p>status 与 zhi_friend_link 全栈语义一致：<b>0=通过/正常（前台展示）</b>，
      * 1=拒绝/停用，2=待审核（提交申请时写入）。前台列表查询的是 status='0'，
      * 所以"通过"必须传 0、"拒绝"必须传 1。</p>
      */

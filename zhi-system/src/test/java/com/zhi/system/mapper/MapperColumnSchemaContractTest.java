@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Mapper 引用的列必须真实存在于初始化脚本建的表结构里（跨产物一致性检查，不是行为断言 ——
  * 只有把 SQL 脚本和 mapper 放在一起比对才可能发现这类缺陷，运行时反而不会提前报）。
  *
- * <p>起因：{@code blog_message} 建表时漏了 {@code create_by} / {@code update_by}，而
+ * <p>起因：{@code zhi_message} 建表时漏了 {@code create_by} / {@code update_by}，而
  * {@code BlogMessageMapper} 从生成那天起就 select 这两列。列表、审核、回复三条路径都会抛
  * {@code Unknown column 'create_by' in 'field list'}，而前台留言提交（不写这两列）一切正常，
  * 所以缺陷只在后台「留言管理」第一次打开时暴露。</p>
@@ -72,11 +72,11 @@ class MapperColumnSchemaContractTest
     void schemaParsesAndMessageTableIsComplete() throws IOException
     {
         Map<String, Set<String>> schema = schema();
-        assertTrue(schema.containsKey("blog_message"), "初始化脚本没解析出 blog_message");
-        Set<String> columns = schema.get("blog_message");
+        assertTrue(schema.containsKey("zhi_message"), "初始化脚本没解析出 zhi_message");
+        Set<String> columns = schema.get("zhi_message");
         // mapper 的 select 列表与审核/回复更新都引用这两列，缺一个后台就是 500
-        assertTrue(columns.contains("create_by"), "blog_message 缺少 create_by 列");
-        assertTrue(columns.contains("update_by"), "blog_message 缺少 update_by 列");
+        assertTrue(columns.contains("create_by"), "zhi_message 缺少 create_by 列");
+        assertTrue(columns.contains("update_by"), "zhi_message 缺少 update_by 列");
     }
 
     @Test

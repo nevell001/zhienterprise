@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
     "spring.sql.init.mode=always"
 })
 // 方法级 @Sql 会取代类级 @Sql（未声明 @SqlMergeMode(MERGE)），带 statements 的方法级注解必须自带建表脚本
-@Sql(scripts = "/schema-blog-comment.sql")
+@Sql(scripts = "/schema-zhi-comment.sql")
 class BlogCommentMapperFrontQueryTest {
 
     @Autowired
@@ -41,11 +41,11 @@ class BlogCommentMapperFrontQueryTest {
      * 同时验证头像 left join / COALESCE 的行为。
      */
     @Test
-    @Sql(scripts = "/schema-blog-comment.sql", statements = {
-        "DELETE FROM blog_comment",
+    @Sql(scripts = "/schema-zhi-comment.sql", statements = {
+        "DELETE FROM zhi_comment",
         "DELETE FROM sys_user",
         "INSERT INTO sys_user (user_id, avatar) VALUES (1, '/profile/avatar/1.png')",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (1, '匿名人', '顶级-匿名', 1, '2026-10-01 09:00:00')"
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (1, '匿名人', '顶级-匿名', 1, '2026-10-01 09:00:00')"
     })
     void topLevelCommentInsertedWithoutParentIdMustBeVisibleToFrontQuery() {
         BlogComment top = new BlogComment();
@@ -80,11 +80,11 @@ class BlogCommentMapperFrontQueryTest {
      * 默认按创建时间倒序；sort=oldest 时按正序（证明 OGNL 参数分支真实生效）。
      */
     @Test
-    @Sql(scripts = "/schema-blog-comment.sql", statements = {
-        "DELETE FROM blog_comment",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (1, '甲', '顶级-早', 1, '2026-10-01 10:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (1, '乙', '顶级-中', 1, '2026-10-02 10:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (1, '丙', '顶级-晚', 1, '2026-10-03 10:00:00')"
+    @Sql(scripts = "/schema-zhi-comment.sql", statements = {
+        "DELETE FROM zhi_comment",
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (1, '甲', '顶级-早', 1, '2026-10-01 10:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (1, '乙', '顶级-中', 1, '2026-10-02 10:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (1, '丙', '顶级-晚', 1, '2026-10-03 10:00:00')"
     })
     void topLevelDefaultSortNewestFirstAndOldestOptionAscending() {
         assertEquals(List.of("顶级-晚", "顶级-中", "顶级-早"),
@@ -99,10 +99,10 @@ class BlogCommentMapperFrontQueryTest {
      * create_time 完全相同时以 id 兜底，保证分页每次执行顺序一致（跨页不重不漏）。
      */
     @Test
-    @Sql(scripts = "/schema-blog-comment.sql", statements = {
-        "DELETE FROM blog_comment",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (1, '甲', '并列-先插入', 1, '2026-10-04 12:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (1, '乙', '并列-后插入', 1, '2026-10-04 12:00:00')"
+    @Sql(scripts = "/schema-zhi-comment.sql", statements = {
+        "DELETE FROM zhi_comment",
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (1, '甲', '并列-先插入', 1, '2026-10-04 12:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (1, '乙', '并列-后插入', 1, '2026-10-04 12:00:00')"
     })
     void sameCreateTimeMustFallBackToIdOrder() {
         assertEquals(List.of("并列-后插入", "并列-先插入"),
@@ -117,12 +117,12 @@ class BlogCommentMapperFrontQueryTest {
      * 回复查询（楼中楼也算回复）固定按时间正序，恢复对话先后；且不含顶级评论。
      */
     @Test
-    @Sql(scripts = "/schema-blog-comment.sql", statements = {
-        "DELETE FROM blog_comment",
-        "INSERT INTO blog_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '楼主', '顶级', 0, 1, '2026-10-01 09:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '回复乙', '第二条回复', 10, 1, '2026-10-01 11:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '回复甲', '第一条回复', 10, 1, '2026-10-01 10:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '楼中楼', '回复的回复', 11, 1, '2026-10-01 12:00:00')"
+    @Sql(scripts = "/schema-zhi-comment.sql", statements = {
+        "DELETE FROM zhi_comment",
+        "INSERT INTO zhi_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '楼主', '顶级', 0, 1, '2026-10-01 09:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '回复乙', '第二条回复', 10, 1, '2026-10-01 11:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '回复甲', '第一条回复', 10, 1, '2026-10-01 10:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '楼中楼', '回复的回复', 11, 1, '2026-10-01 12:00:00')"
     })
     void repliesOnlyMustReturnParentedRepliesAscending() {
         List<BlogComment> rows = blogCommentMapper.selectFrontCommentList(frontQuery("oldest", false));
@@ -135,12 +135,12 @@ class BlogCommentMapperFrontQueryTest {
      * 状态与文章过滤：前台只展示本文章的已发布评论；计数口径为「本文章已发布评论总数（含回复）」。
      */
     @Test
-    @Sql(scripts = "/schema-blog-comment.sql", statements = {
-        "DELETE FROM blog_comment",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (1, '甲', '已发布', 1, '2026-10-01 10:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '乙', '已发布的回复', 1, 1, '2026-10-01 11:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (1, '丙', '待审核', 0, '2026-10-01 12:00:00')",
-        "INSERT INTO blog_comment (article_id, nickname, content, status, create_time) VALUES (2, '丁', '其他文章的评论', 1, '2026-10-01 13:00:00')"
+    @Sql(scripts = "/schema-zhi-comment.sql", statements = {
+        "DELETE FROM zhi_comment",
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (1, '甲', '已发布', 1, '2026-10-01 10:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, parent_id, status, create_time) VALUES (1, '乙', '已发布的回复', 1, 1, '2026-10-01 11:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (1, '丙', '待审核', 0, '2026-10-01 12:00:00')",
+        "INSERT INTO zhi_comment (article_id, nickname, content, status, create_time) VALUES (2, '丁', '其他文章的评论', 1, '2026-10-01 13:00:00')"
     })
     void statusAndArticleFilterMustExcludeOtherStatesAndArticles() {
         List<BlogComment> rows = blogCommentMapper.selectFrontCommentList(frontQuery("newest", true));

@@ -9,7 +9,7 @@
 -- 📋 包含内容：
 -- ✅ 若依系统基础表结构和数据
 -- ✅ Quartz定时任务表结构
--- ✅ 站点系统表结构和数据（含 blog_notification 站内信通知表）
+-- ✅ 站点系统表结构和数据（含 zhi_notification 站内信通知表）
 -- ✅ 注册用户认证系统（注册用户角色、邮箱验证码表）
 -- ✅ 代码生成器表结构
 -- ✅ 性能优化索引（含全文索引 ft_article_title_content）
@@ -183,7 +183,7 @@ INSERT IGNORE INTO sys_config VALUES(5, '账号自助-是否开启用户注册�
 INSERT IGNORE INTO sys_config VALUES(6, '用户登录-黑名单列表',           'sys.login.blackIPList',            '',              'Y', 'admin', NOW(), '', NULL, '设置登录IP黑名单限制，多个匹配项以;分隔，支持匹配（*通配、网段）');
 INSERT IGNORE INTO sys_config VALUES(7, '用户管理-初始密码修改策略',     'sys.account.initPasswordModify',   '1',             'Y', 'admin', NOW(), '', NULL, '0：初始密码修改策略关闭，没有任何提示，1：提醒用户，如果未修改初始密码，则在登录时就会提醒修改密码对话框');
 INSERT IGNORE INTO sys_config VALUES(8, '用户管理-账号密码更新周期',     'sys.account.passwordValidateDays', '0',             'Y', 'admin', NOW(), '', NULL, '密码更新周期（填写数字，数据初始化值为0不限制，若修改必须为大于0小于365的正整数），如果超过这个周期登录系统时，则在登录时就会提醒修改密码对话框');
-INSERT IGNORE INTO sys_config VALUES(9, '站点头像',                       'blog_avatar',                       '',              'Y', 'admin', NOW(), '', NULL, '站点头像URL，用于站点前台页面显示。与blog_setting表中的blog_avatar保持同步');
+INSERT IGNORE INTO sys_config VALUES(9, '站点头像',                       'blog_avatar',                       '',              'Y', 'admin', NOW(), '', NULL, '站点头像URL，用于站点前台页面显示。与zhi_setting表中的blog_avatar保持同步');
 
 -- 5、角色信息表
 CREATE TABLE IF NOT EXISTS sys_role (
@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS sys_role (
 -- 初始化-角色信息表数据
 INSERT IGNORE INTO sys_role VALUES('1', '超级管理员',  'admin',  1, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '超级管理员');
 INSERT IGNORE INTO sys_role VALUES('2', '普通角色',    'common', 2, 2, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '普通角色');
-INSERT IGNORE INTO sys_role VALUES('3', '注册用户',    'blog_user', 3, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '注册用户，用于站点前台注册登录');
+INSERT IGNORE INTO sys_role VALUES('3', '注册用户',    'site_user', 3, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '注册用户，用于站点前台注册登录');
 
 -- 6、菜单权限表
 CREATE TABLE IF NOT EXISTS sys_menu (
@@ -567,7 +567,7 @@ CREATE TABLE IF NOT EXISTS sys_job_log (
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='定时任务执行日志表';
 
 -- 博客文章表
-CREATE TABLE IF NOT EXISTS `blog_article` (
+CREATE TABLE IF NOT EXISTS `zhi_article` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '文章ID',
   `title` varchar(200) NOT NULL COMMENT '文章标题',
   `summary` varchar(500) DEFAULT NULL COMMENT '文章摘要',
@@ -605,7 +605,7 @@ CREATE TABLE IF NOT EXISTS `blog_article` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客文章表';
 
 -- 博客分类表
-CREATE TABLE IF NOT EXISTS `blog_category` (
+CREATE TABLE IF NOT EXISTS `zhi_category` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '分类ID',
   `name` varchar(100) NOT NULL COMMENT '分类名称',
   `alias` varchar(100) DEFAULT NULL COMMENT '分类别名',
@@ -627,7 +627,7 @@ CREATE TABLE IF NOT EXISTS `blog_category` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客分类表';
 
 -- 博客标签表
-CREATE TABLE IF NOT EXISTS `blog_tag` (
+CREATE TABLE IF NOT EXISTS `zhi_tag` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(64) NOT NULL COMMENT '标签名称',
   `description` varchar(255) DEFAULT NULL COMMENT '标签描述',
@@ -641,7 +641,7 @@ CREATE TABLE IF NOT EXISTS `blog_tag` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客标签表';
 
 -- 文章标签关联表
-CREATE TABLE IF NOT EXISTS `blog_article_tag` (
+CREATE TABLE IF NOT EXISTS `zhi_article_tag` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `article_id` bigint NOT NULL COMMENT '文章ID',
   `tag_id` bigint NOT NULL COMMENT '标签ID',
@@ -650,7 +650,7 @@ CREATE TABLE IF NOT EXISTS `blog_article_tag` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章标签关联表';
 
 -- 博客评论表
-CREATE TABLE IF NOT EXISTS `blog_comment` (
+CREATE TABLE IF NOT EXISTS `zhi_comment` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `article_id` bigint NOT NULL COMMENT '文章ID',
   `user_id` bigint DEFAULT NULL COMMENT '用户ID（可为空，匿名评论）',
@@ -665,14 +665,14 @@ CREATE TABLE IF NOT EXISTS `blog_comment` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客评论表';
 
--- 一次性校正历史评论数（按已发布评论重算 blog_article.comment_count，幂等可重复执行）
-UPDATE blog_article ba
-SET ba.comment_count = (SELECT COUNT(*) FROM blog_comment c
+-- 一次性校正历史评论数（按已发布评论重算 zhi_article.comment_count，幂等可重复执行）
+UPDATE zhi_article ba
+SET ba.comment_count = (SELECT COUNT(*) FROM zhi_comment c
                         WHERE c.article_id = ba.id AND c.status = '1')
 WHERE ba.del_flag = '0';
 
 -- 博客友情链接表
-CREATE TABLE IF NOT EXISTS `blog_friend_link` (
+CREATE TABLE IF NOT EXISTS `zhi_friend_link` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(64) NOT NULL COMMENT '友链名称',
   `url` varchar(255) NOT NULL COMMENT '友链地址',
@@ -691,7 +691,7 @@ CREATE TABLE IF NOT EXISTS `blog_friend_link` (
 
 -- 博客上传记录表（附件/媒体库）
 -- 博客留言板表（独立于文章的留言，支持匿名提交与后台审核/回复）
-CREATE TABLE IF NOT EXISTS `blog_message` (
+CREATE TABLE IF NOT EXISTS `zhi_message` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `user_id` bigint DEFAULT NULL COMMENT '用户ID（匿名为空）',
   `nickname` varchar(64) NOT NULL COMMENT '昵称',
@@ -715,7 +715,7 @@ CREATE TABLE IF NOT EXISTS `blog_message` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客留言板表';
 
 -- 博客自定义页面表（单页文档，支持 Markdown 内容与 SEO）
-CREATE TABLE IF NOT EXISTS `blog_page` (
+CREATE TABLE IF NOT EXISTS `zhi_page` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `title` varchar(100) NOT NULL COMMENT '页面标题',
   `slug` varchar(100) NOT NULL COMMENT '页面别名（用于前台 URL）',
@@ -738,7 +738,7 @@ CREATE TABLE IF NOT EXISTS `blog_page` (
   KEY `idx_page_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客自定义页面表';
 
-CREATE TABLE IF NOT EXISTS `blog_upload` (
+CREATE TABLE IF NOT EXISTS `zhi_upload` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `file_name` varchar(255) NOT NULL COMMENT '存储文件名',
   `original_name` varchar(255) DEFAULT NULL COMMENT '原始文件名',
@@ -754,7 +754,7 @@ CREATE TABLE IF NOT EXISTS `blog_upload` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客上传记录表';
 
 -- 文章按日 PV/UV 统计表
-CREATE TABLE IF NOT EXISTS `blog_article_daily_stats` (
+CREATE TABLE IF NOT EXISTS `zhi_article_daily_stats` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `article_id` bigint NOT NULL COMMENT '文章ID',
   `stat_date` date NOT NULL COMMENT '统计日期',
@@ -768,7 +768,7 @@ CREATE TABLE IF NOT EXISTS `blog_article_daily_stats` (
 
 -- 博客系统设置表
 -- 访问明细表（PV/UV 明细：每次内容访问一行，is_unique 表示当日该访客首次）
-CREATE TABLE IF NOT EXISTS `blog_visit_log` (
+CREATE TABLE IF NOT EXISTS `zhi_visit_log` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `target_type` varchar(20) NOT NULL DEFAULT 'article' COMMENT '目标类型（article文章 page自定义页面）',
   `target_id` bigint DEFAULT NULL COMMENT '目标ID（文章为文章ID，页面为页面ID）',
@@ -788,7 +788,7 @@ CREATE TABLE IF NOT EXISTS `blog_visit_log` (
   KEY `idx_visit_ip` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='访问明细表（PV/UV 明细）';
 
-CREATE TABLE IF NOT EXISTS `blog_setting` (
+CREATE TABLE IF NOT EXISTS `zhi_setting` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `config_key` varchar(64) NOT NULL COMMENT '配置项Key',
   `config_value` longtext COMMENT '配置项Value',
@@ -800,7 +800,7 @@ CREATE TABLE IF NOT EXISTS `blog_setting` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客系统设置表';
 
 -- 博客邮箱验证码表
-CREATE TABLE IF NOT EXISTS `blog_email_code` (
+CREATE TABLE IF NOT EXISTS `zhi_email_code` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `email` varchar(50) NOT NULL COMMENT '邮箱地址',
   `code` varchar(6) NOT NULL COMMENT '验证码',
@@ -874,7 +874,7 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 -- ========== 初始化站点系统数据 ==========
 
 -- 初始化完整的站点设置数据（38项配置）
-INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '知企建站系统', '站点名称', NOW(), NOW()),
 ('blog_desc', '企业官网 · 内容管理与品牌门户', '站点描述', NOW(), NOW()),
@@ -950,22 +950,22 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('seo_favicon', '/favicon.ico', '网站图标', NOW(), NOW());
 
 -- 品牌化迁移：清理历史种子中遗留的旧品牌关键词（仅当值仍为未修改的旧种子时生效，不影响用户自定义值）
-UPDATE `blog_setting`
+UPDATE `zhi_setting`
 SET `config_value` = '企业官网,建站系统,企业网站建设,数字化转型,Vue,Spring Boot'
 WHERE `config_key` = 'blog_keywords'
   AND `config_value` = '企业官网,建站系统,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发';
 
 -- 防盗链/域名管理设置（默认关闭，开关与白名单可在后台“站点设置-站点信息”管理）
-INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('referer_enabled', 'false', '防盗链开关（true/false）', NOW(), NOW()),
 ('referer_allowed_domains', 'localhost,127.0.0.1', '防盗链允许域名（逗号、分号或换行分隔）', NOW(), NOW());
 
 -- 邮件通知开关（评论/回复/审核结果，需已配置邮件服务）
-INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('email_notify_enabled', 'true', '邮件通知开关（评论/回复/审核结果）', NOW(), NOW());
 
 -- 企业建站：核心业务栏目、企业首页模板与联系信息（已有库重跑自动补齐）
-INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('business_label', '核心业务', '核心业务栏目名称（可改为：产品中心/服务项目/解决方案）', NOW(), NOW()),
 ('home_layout', '', '首页模板：留空=文章列表（默认）；business=企业官网区块化模板（home_page_slug 已设置时自定义页面优先）', NOW(), NOW()),
 ('site_template', 'consult', '企业官网行业模板：consult 管理咨询 / tech 信息技术 / mfg 制造业 / trade 商贸 / digital 数码产品', NOW(), NOW()),
@@ -973,20 +973,20 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('contact_address', '', '联系地址（官网联系信息展示）', NOW(), NOW());
 
 -- 用户协议与隐私政策（注册页勾选与前台全文页面展示，后台「协议页面」可编辑；HTML 内不得出现单引号）
-INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('user_agreement_content', '<p>更新日期：2026-10-04 · 生效日期：2026-10-04</p><h3>一、协议的接受</h3><p>本站是基于知企建站系统搭建的站点，由本站运营者（以下简称「本站」）运营。本《用户协议》（以下简称「本协议」）是您与本站之间关于注册、登录、使用本站账号及使用本站各项服务所订立的契约。</p><p>您在注册页面勾选「我已阅读并同意《用户协议》和《隐私政策》」并完成注册，或以其他方式实际使用本站服务，均表示您已充分阅读、理解并接受本协议的全部内容。若您不同意本协议的任何条款，请勿注册或使用本站服务。</p><h3>二、定义</h3><ul><li>「本站」：指本站点及其配套服务；</li><li>「用户」：指通过邮箱验证方式注册并获得本站账号的自然人；</li><li>「用户内容」：指用户在本站发表的评论、留言等内容。</li></ul><h3>三、账号注册与安全</h3><ul><li>您应当具备中华人民共和国法律规定的完全民事行为能力；若您为未成年人，应在监护人的指导下使用本站服务；</li><li>注册时您须提供真实、有效的邮箱地址，并通过邮箱验证码完成验证；昵称为选填项；</li><li>您应妥善保管账号密码，不得出借、出租、转让或与他人共用账号；通过您的账号进行的操作均视为您本人的行为；</li><li>如发现账号被盗用或存在其他安全问题，应立即通过本页提供的联系方式与本站取得联系。</li></ul><h3>四、用户行为规范</h3><p>您承诺在使用本站过程中，遵守《中华人民共和国宪法》《中华人民共和国网络安全法》《中华人民共和国个人信息保护法》等法律法规及公序良俗，不得利用本站制作、复制、发布、传播含有下列内容的信息：</p><ul><li>反对宪法确定的基本原则，危害国家安全、泄露国家秘密、颠覆国家政权、破坏国家统一的；</li><li>宣扬淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；</li><li>侮辱、诽谤他人，侵害他人名誉权、肖像权、隐私权、著作权等合法权益的；</li><li>散布谣言、虚假信息、垃圾广告，或其他与所在页面无关的骚扰信息的；</li><li>其他法律、行政法规禁止的内容。</li></ul><p>您不得以任何技术手段干扰本站的正常运行，或实施恶意注册、刷量、爬取数据等危害站点安全的行为。对违反本条规范的内容与账号，本站有权不经通知采取删除、屏蔽、限制功能、封禁账号等措施，并保留追究法律责任的权利。</p><h3>五、用户内容与知识产权</h3><ul><li>本站的界面设计、程序代码、Logo 等要素的知识产权归本站运营者所有；</li><li>用户内容的著作权归您或原权利人所有；您同意在免费、非独占的范围内授予本站存储、展示、传播用户内容的许可，以实现发表、展示等本站基本功能；</li><li>您承诺用户内容系您原创或已获得合法授权，因用户内容引发的一切纠纷由您自行承担相应责任；</li><li>未经权利人许可，任何一方不得将用户内容用于商业目的。</li></ul><h3>六、内容审核与通知</h3><p>本站开启评论审核功能时，您提交的评论将先经审核，审核通过后方公开展示，审核结果通过站内消息告知您；未通过审核的评论不会公开展示。</p><p>为及时告知评论回复、审核结果等信息，本站会通过站内消息中心向您推送通知；在邮件通知开启时，亦可能向您注册时填写的邮箱发送通知邮件。</p><h3>七、服务的变更、中断与终止</h3><ul><li>本站有权基于运营需要，变更、中断或终止部分或全部服务，并将尽可能提前公告；</li><li>因系统维护、升级、故障或不可抗力导致服务中断的，本站将尽力减少影响，但不承担由此产生的赔偿责任（法律另有规定除外）；</li><li>您可以随时停止使用本站服务；如需注销账号，可通过本页提供的联系方式向本站提出申请。</li></ul><h3>八、免责声明与责任限制</h3><p>本站仅提供信息存储与展示服务，除开启审核功能的内容外，不对用户内容进行事先审查，亦不对用户内容的真实性、完整性、合法性作出保证。对您因使用本站服务所产生的直接或间接损失，在法律允许的最大范围内，本站不承担责任。本站页面包含的指向第三方网站的外部链接，其内容与本站无关。</p><h3>九、法律适用与争议解决</h3><p>本协议的订立、履行与解释适用中华人民共和国法律。因本协议产生的争议，双方应友好协商解决；协商不成的，任何一方可向本站运营者所在地有管辖权的人民法院提起诉讼。</p><h3>十、协议的修订与联系我们</h3><p>本站可能适时修订本协议，修订后的协议将在本页面发布；若您在协议修订后继续使用本站服务，视为接受修订后的协议。</p><p>如您对本协议有任何疑问、意见或建议，可通过「关于」页面提供的联系方式与本站取得联系。</p>', '用户协议内容', NOW(), NOW()),
 ('privacy_policy_content', '<p>更新日期：2026-10-04 · 生效日期：2026-10-04</p><h3>一、引言</h3><p>本站（基于知企建站系统搭建的站点，以下简称「本站」）深知个人信息对您的重要性。我们将按照《中华人民共和国网络安全法》《中华人民共和国个人信息保护法》等法律法规的要求，以最小必要为原则处理您的个人信息，并采取相应的安全保护措施。本《隐私政策》帮助您了解本站收集哪些信息、如何使用与保护这些信息，以及您享有哪些权利。</p><p>本政策与《用户协议》共同构成您与本站之间的约定。您注册或使用本站服务，即表示您已阅读并同意本政策。</p><h3>二、我们收集的信息</h3><p>本站遵循合法、正当、必要的原则，收集以下信息：</p><ul><li>注册信息：您注册时提供的用户名、昵称（选填）与邮箱地址；密码经单向加密（BCrypt）后存储，本站任何人员均无法获知其明文；</li><li>验证信息：注册、找回密码过程中用于校验身份的邮箱验证码发送记录与图形验证码会话；</li><li>互动信息：您发表的评论、留言，以及点赞、收藏等互动行为数据；</li><li>使用信息：文章浏览量等统计数据，以及为保障站点安全与排查故障而记录的请求日志（如 IP 地址、浏览器类型 User-Agent、访问时间）。</li></ul><h3>三、信息的使用</h3><p>我们将上述信息用于以下目的：</p><ul><li>创建与管理您的账号，完成登录与身份验证；</li><li>展示您发表的评论及昵称、头像等公开互动信息；</li><li>向您推送评论回复、审核结果等站内通知或邮件通知；</li><li>统计文章浏览量等站点运营数据，用于改进内容与服务；</li><li>识别并防范恶意注册、垃圾评论、恶意攻击等危害站点安全的行为。</li></ul><p>本站不会将您的个人信息用于上述目的之外的用途；如确需超出上述范围使用，将再次征得您的同意。</p><h3>四、Cookie 与本地存储</h3><p>您登录后，本站会将登录凭证（Token）保存在您浏览器的本地存储（LocalStorage）中，用于维持登录状态；图形验证码的会话信息将临时保存在服务端。本站不接入任何第三方广告、统计或追踪服务，不会将上述技术用于广告追踪。</p><h3>五、信息的共享与披露</h3><p>本站不会向任何第三方出售您的个人信息，仅在以下情形下发生必要的信息流动：</p><ul><li>邮件服务：验证码与通知邮件需借助第三方邮件服务商发送，该过程仅涉及您的邮箱地址；</li><li>法律要求：根据法律法规规定，或司法机关、行政机关的强制性要求，在必要范围内提供；</li><li>您的同意：经您明确授权的其他情形。</li></ul><h3>六、信息的存储与保护</h3><p>您的信息存储于本站数据库中，存储期限为实现本政策所述目的所必需的最短时间，超出期限后我们将予以删除或匿名化处理。本站采取密码单向加密存储、后台接口登录鉴权、最小权限访问控制等安全措施；建议您通过 HTTPS 访问本站以加密传输过程。</p><p>如不幸发生个人信息安全事件，本站将按照法律法规的要求及时告知您，并采取合理的补救措施。</p><h3>七、您的权利</h3><ul><li>访问与更正：您可随时在「个人中心」查看、修改昵称、头像、邮箱等个人信息；</li><li>删除：您可自行删除自己发表的评论、收藏等内容；</li><li>账号注销：如需注销账号或清空全部个人信息，可通过「关于」页面提供的联系方式联系站长处理；</li><li>撤回同意：您可以选择不再使用本站服务，并要求本站删除相关个人信息。</li></ul><h3>八、未成年人保护</h3><p>本站面向一般用户提供服务。若您是未满 14 周岁的未成年人，请在监护人的陪同与同意下使用本站服务，并由监护人帮助您完成必要的个人信息提供与授权。</p><h3>九、政策的修订</h3><p>本站可能适时修订本政策，修订后的政策将在本页面发布并更新顶部「更新日期」。若变更会实质影响您的权益，本站将以显著方式提示您；若您在政策修订后继续使用本站服务，视为接受修订后的政策。</p><h3>十、联系我们</h3><p>如您对本政策有任何疑问、意见或建议，可通过「关于」页面提供的联系方式与本站取得联系，我们将在收到反馈后尽快答复。</p>', '隐私政策内容', NOW(), NOW());
 
 -- 插入完整的站点分类数据（包含层级结构）
 -- 幂等保护 1：清理历史重跑产生的重复分类（同 alias+name 保留最小 id，且只删没有被文章引用的重复行）
-DELETE c1 FROM `blog_category` c1
-JOIN `blog_category` c2
+DELETE c1 FROM `zhi_category` c1
+JOIN `zhi_category` c2
   ON c1.`alias` = c2.`alias` AND c1.`name` = c2.`name` AND c1.`id` > c2.`id`
-LEFT JOIN `blog_article` a ON a.`category_id` = c1.`id`
+LEFT JOIN `zhi_article` a ON a.`category_id` = c1.`id`
 WHERE a.`id` IS NULL;
--- 幂等保护 2：种子数据显式指定主键 id（与 blog_tag 一致），
+-- 幂等保护 2：种子数据显式指定主键 id（与 zhi_tag 一致），
 -- 这样 INSERT IGNORE 在重跑时会因主键冲突而被忽略，不会重复插入
-INSERT IGNORE INTO `blog_category` (`id`, `name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES
+INSERT IGNORE INTO `zhi_category` (`id`, `name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES
 -- 一级分类
 (1, '公司动态', 'company', '公司新闻、活动与公告', 0, 1, 1, 1),
 (2, '行业资讯', 'industry', '行业动态与趋势洞察', 0, 2, 2, 1),
@@ -1005,7 +1005,7 @@ INSERT IGNORE INTO `blog_category` (`id`, `name`, `alias`, `description`, `paren
 (11, '展会活动', 'expo', '行业展会与交流活动', 2, 3, 3, 1);
 
 -- 插入完整的站点标签数据（18个常用标签）
-INSERT IGNORE INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
+INSERT IGNORE INTO `zhi_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
 -- 核心标签
 (1, '公司动态', '公司新闻与活动相关文章', '#4f46e5', 'el-icon-menu', 0),
 (2, '产品发布', '新产品与服务发布相关文章', '#0ea5e9', 'el-icon-box', 0),
@@ -1038,8 +1038,8 @@ DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 DELIMITER $$
 CREATE PROCEDURE sp_insert_sample_articles()
 BEGIN
-  IF (SELECT COUNT(*) FROM `blog_article` WHERE `title` = '知企建站系统 v1.0 正式发布：一站式企业官网搭建平台') = 0 THEN
-INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`, `article_type`, `slug`) VALUES
+  IF (SELECT COUNT(*) FROM `zhi_article` WHERE `title` = '知企建站系统 v1.0 正式发布：一站式企业官网搭建平台') = 0 THEN
+INSERT IGNORE INTO `zhi_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`, `article_type`, `slug`) VALUES
 -- 置顶推荐文章
 ('知企建站系统 v1.0 正式发布：一站式企业官网搭建平台', '知企建站系统 v1.0 正式发布，提供内容管理、产品与服务展示、SEO 优化、功能开关与安全部署等一站式企业官网搭建能力。',
 '<h1>知企建站系统 v1.0 正式发布</h1>
@@ -1135,7 +1135,7 @@ CALL sp_insert_sample_articles();
 DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 
 -- 插入文章标签关联数据（建立文章与标签的多对多关系）
-INSERT IGNORE INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
+INSERT IGNORE INTO `zhi_article_tag` (`article_id`, `tag_id`) VALUES
 -- 文章1：知企建站系统 v1.0 正式发布（公司动态 / 产品发布 / 企业官网）
 (1, 1), (1, 2), (1, 6),
 
@@ -1160,10 +1160,10 @@ INSERT IGNORE INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
 SET @DISABLE_TRIGGERS = TRUE;
 
 -- 批量更新所有分类的文章数量
-UPDATE blog_category c
+UPDATE zhi_category c
 SET c.article_count = (
     SELECT COUNT(*)
-    FROM blog_article a
+    FROM zhi_article a
     WHERE a.category_id = c.id
     AND a.del_flag = '0'
     AND a.status = 1
@@ -1188,19 +1188,19 @@ SELECT
         WHEN IFNULL(COUNT(a.id), 0) != c.article_count THEN '❌ 不匹配'
         ELSE '✅ 匹配'
     END as status
-FROM blog_category c
-LEFT JOIN blog_article a ON c.id = a.category_id AND a.del_flag = '0' AND a.status = 1
+FROM zhi_category c
+LEFT JOIN zhi_article a ON c.id = a.category_id AND a.del_flag = '0' AND a.status = 1
 WHERE c.del_flag = '0'
 GROUP BY c.id, c.name, c.status, c.del_flag, c.article_count
 ORDER BY c.sort_order ASC;
 
 -- 插入完整的友情链接数据
 -- 幂等保护 1：清理历史重跑产生的重复友链（同 url+name 保留最小 id）
-DELETE f1 FROM `blog_friend_link` f1
-JOIN `blog_friend_link` f2
+DELETE f1 FROM `zhi_friend_link` f1
+JOIN `zhi_friend_link` f2
   ON f1.`url` = f2.`url` AND f1.`name` = f2.`name` AND f1.`id` > f2.`id`;
 -- 幂等保护 2：种子数据显式指定主键 id，重跑时 INSERT IGNORE 因主键冲突被忽略
-INSERT IGNORE INTO `blog_friend_link` (`id`, `name`, `url`, `logo`, `description`, `status`, `sort`) VALUES
+INSERT IGNORE INTO `zhi_friend_link` (`id`, `name`, `url`, `logo`, `description`, `status`, `sort`) VALUES
 (1, 'Spring 官网', 'https://spring.io/', 'https://spring.io/images/spring-logo.png', '后端核心框架 Spring 官方网站', 0, 1),
 (2, 'Vue.js 官网', 'https://vuejs.org/', 'https://vuejs.org/logo.svg', '前端框架 Vue.js 官方网站', 1, 2),
 (3, 'Element Plus', 'https://element-plus.org/', 'https://element-plus.org/images/element-plus-logo.svg', 'Vue 3 桌面端 UI 组件库官方网站', 1, 3),
@@ -1726,31 +1726,31 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 -- ========== 创建性能优化索引（幂等，调用前面的存储过程） ==========
 
 -- 博客评论表索引优化
-CALL sp_create_index_if_not_exists('blog_comment', 'idx_article_id', 'CREATE INDEX idx_article_id ON blog_comment(article_id)');
-CALL sp_create_index_if_not_exists('blog_comment', 'idx_parent_id', 'CREATE INDEX idx_parent_id ON blog_comment(parent_id)');
-CALL sp_create_index_if_not_exists('blog_comment', 'idx_status', 'CREATE INDEX idx_status ON blog_comment(status)');
-CALL sp_create_index_if_not_exists('blog_comment', 'idx_create_time', 'CREATE INDEX idx_create_time ON blog_comment(create_time)');
-CALL sp_create_index_if_not_exists('blog_comment', 'idx_article_status', 'CREATE INDEX idx_article_status ON blog_comment(article_id, status)');
+CALL sp_create_index_if_not_exists('zhi_comment', 'idx_article_id', 'CREATE INDEX idx_article_id ON zhi_comment(article_id)');
+CALL sp_create_index_if_not_exists('zhi_comment', 'idx_parent_id', 'CREATE INDEX idx_parent_id ON zhi_comment(parent_id)');
+CALL sp_create_index_if_not_exists('zhi_comment', 'idx_status', 'CREATE INDEX idx_status ON zhi_comment(status)');
+CALL sp_create_index_if_not_exists('zhi_comment', 'idx_create_time', 'CREATE INDEX idx_create_time ON zhi_comment(create_time)');
+CALL sp_create_index_if_not_exists('zhi_comment', 'idx_article_status', 'CREATE INDEX idx_article_status ON zhi_comment(article_id, status)');
 
 -- 博客标签表索引优化
-CALL sp_create_index_if_not_exists('blog_tag', 'idx_del_flag', 'CREATE INDEX idx_del_flag ON blog_tag(del_flag)');
-CALL sp_create_index_if_not_exists('blog_tag', 'idx_name', 'CREATE INDEX idx_name ON blog_tag(name)');
-CALL sp_create_index_if_not_exists('blog_tag', 'idx_article_count', 'CREATE INDEX idx_article_count ON blog_tag(article_count)');
+CALL sp_create_index_if_not_exists('zhi_tag', 'idx_del_flag', 'CREATE INDEX idx_del_flag ON zhi_tag(del_flag)');
+CALL sp_create_index_if_not_exists('zhi_tag', 'idx_name', 'CREATE INDEX idx_name ON zhi_tag(name)');
+CALL sp_create_index_if_not_exists('zhi_tag', 'idx_article_count', 'CREATE INDEX idx_article_count ON zhi_tag(article_count)');
 
 -- 博客文章表复合索引优化
-CALL sp_create_index_if_not_exists('blog_article', 'idx_status_del_time', 'CREATE INDEX idx_status_del_time ON blog_article(status, del_flag, create_time)');
-CALL sp_create_index_if_not_exists('blog_article', 'idx_category_status', 'CREATE INDEX idx_category_status ON blog_article(category_id, status)');
-CALL sp_create_index_if_not_exists('blog_article', 'idx_author_status', 'CREATE INDEX idx_author_status ON blog_article(author_id, status)');
-CALL sp_create_index_if_not_exists('blog_article', 'idx_top_status_time', 'CREATE INDEX idx_top_status_time ON blog_article(is_top, status, create_time)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_status_del_time', 'CREATE INDEX idx_status_del_time ON zhi_article(status, del_flag, create_time)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_category_status', 'CREATE INDEX idx_category_status ON zhi_article(category_id, status)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_author_status', 'CREATE INDEX idx_author_status ON zhi_article(author_id, status)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_top_status_time', 'CREATE INDEX idx_top_status_time ON zhi_article(is_top, status, create_time)');
 -- 标题唯一（仅约束未删除行）：应用层查重之外兜底并发写入；函数索引使已删除行不占用标题。
 -- MySQL 8.0.13+ 函数索引；建前需保证存量未删除行无重复标题
-CALL sp_create_index_if_not_exists('blog_article', 'uk_article_title_alive', 'CREATE UNIQUE INDEX uk_article_title_alive ON blog_article ((CASE WHEN del_flag = 0 THEN title END))');
+CALL sp_create_index_if_not_exists('zhi_article', 'uk_article_title_alive', 'CREATE UNIQUE INDEX uk_article_title_alive ON zhi_article ((CASE WHEN del_flag = 0 THEN title END))');
 
 -- 博客设置表索引优化
-CALL sp_create_index_if_not_exists('blog_setting', 'idx_config_key', 'CREATE INDEX idx_config_key ON blog_setting(config_key)');
+CALL sp_create_index_if_not_exists('zhi_setting', 'idx_config_key', 'CREATE INDEX idx_config_key ON zhi_setting(config_key)');
 
 -- 文章标签关联表索引优化
-CALL sp_create_index_if_not_exists('blog_article_tag', 'idx_tag_id', 'CREATE INDEX idx_tag_id ON blog_article_tag(tag_id)');
+CALL sp_create_index_if_not_exists('zhi_article_tag', 'idx_tag_id', 'CREATE INDEX idx_tag_id ON zhi_article_tag(tag_id)');
 
 -- =====================================================
 -- ========== 性能优化索引（幂等创建，可重复执行）==========
@@ -1758,42 +1758,42 @@ CALL sp_create_index_if_not_exists('blog_article_tag', 'idx_tag_id', 'CREATE IND
 -- =====================================================
 
 -- 文章状态和删除标志复合索引（用于列表查询）
-CALL sp_create_index_if_not_exists('blog_article', 'idx_article_status_del_flag', 'CREATE INDEX idx_article_status_del_flag ON blog_article(status, del_flag)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_article_status_del_flag', 'CREATE INDEX idx_article_status_del_flag ON zhi_article(status, del_flag)');
 
 -- 文章创建时间索引（用于排序和归档）
-CALL sp_create_index_if_not_exists('blog_article', 'idx_article_create_time', 'CREATE INDEX idx_article_create_time ON blog_article(create_time)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_article_create_time', 'CREATE INDEX idx_article_create_time ON zhi_article(create_time)');
 
 -- 文章浏览量索引（用于热门文章排序）
-CALL sp_create_index_if_not_exists('blog_article', 'idx_article_view_count', 'CREATE INDEX idx_article_view_count ON blog_article(view_count DESC)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_article_view_count', 'CREATE INDEX idx_article_view_count ON zhi_article(view_count DESC)');
 
 -- 文章置顶和推荐状态复合索引（用于首页展示）
-CALL sp_create_index_if_not_exists('blog_article', 'idx_article_is_top_recommend', 'CREATE INDEX idx_article_is_top_recommend ON blog_article(is_top DESC, is_recommend DESC, status DESC, del_flag)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_article_is_top_recommend', 'CREATE INDEX idx_article_is_top_recommend ON zhi_article(is_top DESC, is_recommend DESC, status DESC, del_flag)');
 
 -- 文章标题全文索引（用于搜索功能）
-CALL sp_create_index_if_not_exists('blog_article', 'ft_article_title', 'CREATE FULLTEXT INDEX ft_article_title ON blog_article(title)');
-CALL sp_create_index_if_not_exists('blog_article', 'ft_article_content', 'CREATE FULLTEXT INDEX ft_article_content ON blog_article(content)');
-CALL sp_create_index_if_not_exists('blog_article', 'ft_article_title_content', 'CREATE FULLTEXT INDEX ft_article_title_content ON blog_article(title, content)');
+CALL sp_create_index_if_not_exists('zhi_article', 'ft_article_title', 'CREATE FULLTEXT INDEX ft_article_title ON zhi_article(title)');
+CALL sp_create_index_if_not_exists('zhi_article', 'ft_article_content', 'CREATE FULLTEXT INDEX ft_article_content ON zhi_article(content)');
+CALL sp_create_index_if_not_exists('zhi_article', 'ft_article_title_content', 'CREATE FULLTEXT INDEX ft_article_title_content ON zhi_article(title, content)');
 
 -- 评论复合索引（用于前台展示评论）
-CALL sp_create_index_if_not_exists('blog_comment', 'idx_comment_article_status_time', 'CREATE INDEX idx_comment_article_status_time ON blog_comment(article_id, status, create_time DESC)');
+CALL sp_create_index_if_not_exists('zhi_comment', 'idx_comment_article_status_time', 'CREATE INDEX idx_comment_article_status_time ON zhi_comment(article_id, status, create_time DESC)');
 
 -- 分类排序索引
-CALL sp_create_index_if_not_exists('blog_category', 'idx_category_sort_order', 'CREATE INDEX idx_category_sort_order ON blog_category(sort_order)');
+CALL sp_create_index_if_not_exists('zhi_category', 'idx_category_sort_order', 'CREATE INDEX idx_category_sort_order ON zhi_category(sort_order)');
 
 -- 标签使用次数索引（用于热门标签）
-CALL sp_create_index_if_not_exists('blog_tag', 'idx_tag_article_count', 'CREATE INDEX idx_tag_article_count ON blog_tag(article_count DESC)');
+CALL sp_create_index_if_not_exists('zhi_tag', 'idx_tag_article_count', 'CREATE INDEX idx_tag_article_count ON zhi_tag(article_count DESC)');
 
 -- 文章标签关联复合唯一索引（防止重复关联）
-CALL sp_create_index_if_not_exists('blog_article_tag', 'uk_article_tag_unique', 'CREATE UNIQUE INDEX uk_article_tag_unique ON blog_article_tag(article_id, tag_id)');
+CALL sp_create_index_if_not_exists('zhi_article_tag', 'uk_article_tag_unique', 'CREATE UNIQUE INDEX uk_article_tag_unique ON zhi_article_tag(article_id, tag_id)');
 
 -- 链接排序索引
-CALL sp_create_index_if_not_exists('blog_friend_link', 'idx_friend_link_sort', 'CREATE INDEX idx_friend_link_sort ON blog_friend_link(sort DESC)');
+CALL sp_create_index_if_not_exists('zhi_friend_link', 'idx_friend_link_sort', 'CREATE INDEX idx_friend_link_sort ON zhi_friend_link(sort DESC)');
 
 -- 链接状态索引（用于查询有效链接）
-CALL sp_create_index_if_not_exists('blog_friend_link', 'idx_friend_link_status', 'CREATE INDEX idx_friend_link_status ON blog_friend_link(status)');
+CALL sp_create_index_if_not_exists('zhi_friend_link', 'idx_friend_link_status', 'CREATE INDEX idx_friend_link_status ON zhi_friend_link(status)');
 
 -- 设置更新时间索引（用于缓存失效判断）
-CALL sp_create_index_if_not_exists('blog_setting', 'idx_setting_update_time', 'CREATE INDEX idx_setting_update_time ON blog_setting(update_time)');
+CALL sp_create_index_if_not_exists('zhi_setting', 'idx_setting_update_time', 'CREATE INDEX idx_setting_update_time ON zhi_setting(update_time)');
 
 -- 性能监控视图
 CREATE OR REPLACE VIEW v_slow_queries AS
@@ -1822,13 +1822,13 @@ WHERE TABLE_SCHEMA = DATABASE()
 ORDER BY TABLE_NAME, INDEX_NAME;
 
 -- 执行统计信息更新
-ANALYZE TABLE blog_article;
-ANALYZE TABLE blog_category;
-ANALYZE TABLE blog_tag;
-ANALYZE TABLE blog_article_tag;
-ANALYZE TABLE blog_comment;
-ANALYZE TABLE blog_setting;
-ANALYZE TABLE blog_friend_link;
+ANALYZE TABLE zhi_article;
+ANALYZE TABLE zhi_category;
+ANALYZE TABLE zhi_tag;
+ANALYZE TABLE zhi_article_tag;
+ANALYZE TABLE zhi_comment;
+ANALYZE TABLE zhi_setting;
+ANALYZE TABLE zhi_friend_link;
 
 -- ========== 添加数据完整性约束 ==========
 
@@ -1847,12 +1847,12 @@ BEGIN
 
     -- 检查分类是否存在且未删除
     SELECT COUNT(*) > 0 INTO category_exists
-    FROM blog_category
+    FROM zhi_category
     WHERE id = category_id AND del_flag = '0';
 
     -- 如果分类存在，更新文章数量
     IF category_exists THEN
-        UPDATE blog_category
+        UPDATE zhi_category
         SET article_count = GREATEST(0, article_count + count_change),
             update_time = NOW()
         WHERE id = category_id;
@@ -1865,7 +1865,7 @@ END$$
 -- 文章更新前触发器
 DROP TRIGGER IF EXISTS `tr_article_update_time`$$
 CREATE TRIGGER `tr_article_update_time`
-BEFORE UPDATE ON `blog_article`
+BEFORE UPDATE ON `zhi_article`
 FOR EACH ROW
 BEGIN
     DECLARE old_valid_articles INT DEFAULT 0;
@@ -1912,7 +1912,7 @@ END$$
 -- 文章插入前触发器
 DROP TRIGGER IF EXISTS `tr_article_insert`$$
 CREATE TRIGGER `tr_article_insert`
-BEFORE INSERT ON `blog_article`
+BEFORE INSERT ON `zhi_article`
 FOR EACH ROW
 BEGIN
     DECLARE category_count_updated BOOLEAN DEFAULT FALSE;
@@ -1935,7 +1935,7 @@ END$$
 -- 文章删除后触发器（物理删除）
 DROP TRIGGER IF EXISTS `tr_article_delete_physical`$$
 CREATE TRIGGER `tr_article_delete_physical`
-AFTER DELETE ON `blog_article`
+AFTER DELETE ON `zhi_article`
 FOR EACH ROW
 BEGIN
     DECLARE category_count_updated BOOLEAN DEFAULT FALSE;
@@ -1970,10 +1970,10 @@ BEGIN
 
     -- 如果指定了分类ID，只修复该分类
     IF category_id_param IS NOT NULL THEN
-        UPDATE blog_category c
+        UPDATE zhi_category c
         SET c.article_count = (
             SELECT COUNT(*)
-            FROM blog_article a
+            FROM zhi_article a
             WHERE a.category_id = c.id
             AND a.del_flag = '0'
             AND a.status = 1
@@ -1984,10 +1984,10 @@ BEGIN
         SET fix_count = ROW_COUNT();
     ELSE
         -- 修复所有分类
-        UPDATE blog_category c
+        UPDATE zhi_category c
         SET c.article_count = (
             SELECT COUNT(*)
-            FROM blog_article a
+            FROM zhi_article a
             WHERE a.category_id = c.id
             AND a.del_flag = '0'
             AND a.status = 1
@@ -2003,14 +2003,14 @@ BEGIN
 
     -- 统计信息
     SELECT COUNT(*) INTO total_categories
-    FROM blog_category
+    FROM zhi_category
     WHERE del_flag = '0';
 
     SELECT COUNT(*) INTO mismatch_count
-    FROM blog_category c
+    FROM zhi_category c
     LEFT JOIN (
         SELECT category_id, COUNT(*) as real_count
-        FROM blog_article
+        FROM zhi_article
         WHERE del_flag = '0' AND status = 1
         GROUP BY category_id
     ) a ON c.id = a.category_id
@@ -2055,8 +2055,8 @@ BEGIN
             WHEN c.status = 1 AND c.del_flag = '0' THEN '✅ 启用'
             ELSE '❌ 禁用/删除'
         END as visibility
-    FROM blog_category c
-    LEFT JOIN blog_article a ON c.id = a.category_id AND a.del_flag = '0' AND a.status = 1
+    FROM zhi_category c
+    LEFT JOIN zhi_article a ON c.id = a.category_id AND a.del_flag = '0' AND a.status = 1
     WHERE c.del_flag = '0'
     GROUP BY c.id, c.name, c.status, c.del_flag, c.article_count
     ORDER BY c.sort_order ASC;
@@ -2066,17 +2066,17 @@ BEGIN
         '🔍 前台可见分类统计（启用且未删除）：' AS type,
         COUNT(*) as total_categories,
         SUM(article_count) as total_articles
-    FROM blog_category
+    FROM zhi_category
     WHERE del_flag = '0' AND status = 1;
 
     -- 查找不匹配的分类
     SELECT
         '⚠️ 不匹配的分类：' AS type,
         COUNT(*) as mismatch_count
-    FROM blog_category c
+    FROM zhi_category c
     LEFT JOIN (
         SELECT category_id, COUNT(*) as real_count
-        FROM blog_article
+        FROM zhi_article
         WHERE del_flag = '0' AND status = 1
         GROUP BY category_id
     ) a ON c.id = a.category_id
@@ -2089,37 +2089,37 @@ DELIMITER ;
 -- ========== 数据完整性验证 ==========
 
 -- 修复可能的NULL值（确保view_count、like_count、comment_count字段不为NULL）
-UPDATE blog_article SET view_count = 0 WHERE view_count IS NULL;
-UPDATE blog_article SET like_count = 0 WHERE like_count IS NULL;
-UPDATE blog_article SET comment_count = 0 WHERE comment_count IS NULL;
+UPDATE zhi_article SET view_count = 0 WHERE view_count IS NULL;
+UPDATE zhi_article SET like_count = 0 WHERE like_count IS NULL;
+UPDATE zhi_article SET comment_count = 0 WHERE comment_count IS NULL;
 
 -- 验证关键字段完整性
 SELECT '验证站点文章数据完整性...' AS status;
-SELECT COUNT(*) AS empty_title_articles FROM blog_article WHERE title = '' OR title IS NULL;
-SELECT COUNT(*) AS empty_content_articles FROM blog_article WHERE content = '' OR content IS NULL;
-SELECT COUNT(*) AS invalid_status_articles FROM blog_article WHERE status NOT IN (0, 1);
-SELECT COUNT(*) AS invalid_del_flag_articles FROM blog_article WHERE del_flag NOT IN ('0', '1');
+SELECT COUNT(*) AS empty_title_articles FROM zhi_article WHERE title = '' OR title IS NULL;
+SELECT COUNT(*) AS empty_content_articles FROM zhi_article WHERE content = '' OR content IS NULL;
+SELECT COUNT(*) AS invalid_status_articles FROM zhi_article WHERE status NOT IN (0, 1);
+SELECT COUNT(*) AS invalid_del_flag_articles FROM zhi_article WHERE del_flag NOT IN ('0', '1');
 
 SELECT '验证站点分类数据完整性...' AS status;
-SELECT COUNT(*) AS empty_name_categories FROM blog_category WHERE name = '' OR name IS NULL;
-SELECT COUNT(*) AS invalid_parent_categories FROM blog_category WHERE parent_id NOT IN (SELECT id FROM blog_category) AND parent_id != 0;
+SELECT COUNT(*) AS empty_name_categories FROM zhi_category WHERE name = '' OR name IS NULL;
+SELECT COUNT(*) AS invalid_parent_categories FROM zhi_category WHERE parent_id NOT IN (SELECT id FROM zhi_category) AND parent_id != 0;
 
 SELECT '验证站点标签数据完整性...' AS status;
-SELECT COUNT(*) AS empty_name_tags FROM blog_tag WHERE name = '' OR name IS NULL;
+SELECT COUNT(*) AS empty_name_tags FROM zhi_tag WHERE name = '' OR name IS NULL;
 SELECT COUNT(*) AS duplicate_tags
 FROM (
     SELECT name
-    FROM blog_tag
+    FROM zhi_tag
     GROUP BY name
     HAVING COUNT(*) > 1
 ) duplicate_tag_names;
 
 SELECT '验证站点设置数据完整性...' AS status;
-SELECT COUNT(*) AS total_settings FROM blog_setting;
+SELECT COUNT(*) AS total_settings FROM zhi_setting;
 SELECT COUNT(*) AS duplicate_settings
 FROM (
     SELECT config_key
-    FROM blog_setting
+    FROM zhi_setting
     GROUP BY config_key
     HAVING COUNT(*) > 1
 ) duplicate_setting_keys;
@@ -2127,19 +2127,19 @@ FROM (
 -- ========== 性能统计 ==========
 
 -- 统计各表数据量
-SELECT 'blog_article' AS table_name, COUNT(*) AS record_count FROM blog_article
+SELECT 'zhi_article' AS table_name, COUNT(*) AS record_count FROM zhi_article
 UNION ALL
-SELECT 'blog_category' AS table_name, COUNT(*) AS record_count FROM blog_category
+SELECT 'zhi_category' AS table_name, COUNT(*) AS record_count FROM zhi_category
 UNION ALL
-SELECT 'blog_tag' AS table_name, COUNT(*) AS record_count FROM blog_tag
+SELECT 'zhi_tag' AS table_name, COUNT(*) AS record_count FROM zhi_tag
 UNION ALL
-SELECT 'blog_article_tag' AS table_name, COUNT(*) AS record_count FROM blog_article_tag
+SELECT 'zhi_article_tag' AS table_name, COUNT(*) AS record_count FROM zhi_article_tag
 UNION ALL
-SELECT 'blog_comment' AS table_name, COUNT(*) AS record_count FROM blog_comment
+SELECT 'zhi_comment' AS table_name, COUNT(*) AS record_count FROM zhi_comment
 UNION ALL
-SELECT 'blog_friend_link' AS table_name, COUNT(*) AS record_count FROM blog_friend_link
+SELECT 'zhi_friend_link' AS table_name, COUNT(*) AS record_count FROM zhi_friend_link
 UNION ALL
-SELECT 'blog_setting' AS table_name, COUNT(*) AS record_count FROM blog_setting;
+SELECT 'zhi_setting' AS table_name, COUNT(*) AS record_count FROM zhi_setting;
 
 -- ========== 数据库初始化完成 ==========
 
@@ -2166,27 +2166,27 @@ CALL sp_verify_category_article_count();
 
 -- 显示初始化的数据统计
 SELECT '📊 数据初始化统计：' AS status;
-SELECT CONCAT('📝 文章数量: ', COUNT(*)) AS info FROM blog_article WHERE del_flag = '0'
+SELECT CONCAT('📝 文章数量: ', COUNT(*)) AS info FROM zhi_article WHERE del_flag = '0'
 UNION ALL
-SELECT CONCAT('📁 分类数量: ', COUNT(*)) AS info FROM blog_category WHERE del_flag = '0'
+SELECT CONCAT('📁 分类数量: ', COUNT(*)) AS info FROM zhi_category WHERE del_flag = '0'
 UNION ALL
-SELECT CONCAT('🏷️  标签数量: ', COUNT(*)) AS info FROM blog_tag WHERE del_flag = '0'
+SELECT CONCAT('🏷️  标签数量: ', COUNT(*)) AS info FROM zhi_tag WHERE del_flag = '0'
 UNION ALL
-SELECT CONCAT('💬 评论数量: ', COUNT(*)) AS info FROM blog_comment
+SELECT CONCAT('💬 评论数量: ', COUNT(*)) AS info FROM zhi_comment
 UNION ALL
-SELECT CONCAT('🔗 友链数量: ', COUNT(*)) AS info FROM blog_friend_link WHERE del_flag = '0'
+SELECT CONCAT('🔗 友链数量: ', COUNT(*)) AS info FROM zhi_friend_link WHERE del_flag = '0'
 UNION ALL
-SELECT CONCAT('📮 留言数量: ', COUNT(*)) AS info FROM blog_message WHERE del_flag = '0'
+SELECT CONCAT('📮 留言数量: ', COUNT(*)) AS info FROM zhi_message WHERE del_flag = '0'
 UNION ALL
-SELECT CONCAT('📄 自定义页面数量: ', COUNT(*)) AS info FROM blog_page WHERE del_flag = '0'
+SELECT CONCAT('📄 自定义页面数量: ', COUNT(*)) AS info FROM zhi_page WHERE del_flag = '0'
 UNION ALL
-SELECT CONCAT('👣 访问明细数量: ', COUNT(*)) AS info FROM blog_visit_log
+SELECT CONCAT('👣 访问明细数量: ', COUNT(*)) AS info FROM zhi_visit_log
 UNION ALL
-SELECT CONCAT('⚙️  设置数量: ', COUNT(*)) AS info FROM blog_setting;
+SELECT CONCAT('⚙️  设置数量: ', COUNT(*)) AS info FROM zhi_setting;
 
 -- 验证标签和文章关联数据
 SELECT '📋 标签列表验证' as type, t.id, t.name, t.color, t.description
-FROM blog_tag t WHERE t.del_flag = 0
+FROM zhi_tag t WHERE t.del_flag = 0
 ORDER BY t.id;
 
 -- 验证文章-标签关联
@@ -2197,9 +2197,9 @@ SELECT
     t.id as tag_id,
     t.name as tag_name,
     t.color as tag_color
-FROM blog_article a
-LEFT JOIN blog_article_tag bat ON a.id = bat.article_id
-LEFT JOIN blog_tag t ON bat.tag_id = t.id AND t.del_flag = 0
+FROM zhi_article a
+LEFT JOIN zhi_article_tag bat ON a.id = bat.article_id
+LEFT JOIN zhi_tag t ON bat.tag_id = t.id AND t.del_flag = 0
 WHERE a.id IN (1, 2, 4) AND a.del_flag = 0
 ORDER BY a.id, t.name;
 
@@ -2209,9 +2209,9 @@ SELECT
     a.id as article_id,
     a.title as article_title,
     COUNT(bat.tag_id) as tag_count
-FROM blog_article a
-LEFT JOIN blog_article_tag bat ON a.id = bat.article_id
-LEFT JOIN blog_tag t ON bat.tag_id = t.id AND t.del_flag = 0
+FROM zhi_article a
+LEFT JOIN zhi_article_tag bat ON a.id = bat.article_id
+LEFT JOIN zhi_tag t ON bat.tag_id = t.id AND t.del_flag = 0
 WHERE a.id IN (1, 2, 4) AND a.del_flag = 0
 GROUP BY a.id, a.title
 ORDER BY a.id;
@@ -2232,7 +2232,7 @@ SELECT '5. 访问前台首页：http://localhost:3000' AS step5;
 -- 验证关键配置
 SELECT '🔍 关键配置验证：' AS verify_title;
 SELECT config_key, config_value, description
-FROM blog_setting
+FROM zhi_setting
 WHERE config_key IN ('blog_name', 'footer_enabled', 'copyright_enabled', 'comment_enabled')
 ORDER BY config_key;
 
@@ -2250,11 +2250,11 @@ SELECT '📊 分类数量管理指南：' AS category_guide;
 SELECT '1. 查看验证结果：CALL sp_verify_category_article_count();' AS guide1;
 SELECT '2. 修复单个分类：CALL sp_fix_category_article_count_by_id(分类ID);' AS guide2;
 SELECT '3. 修复所有分类：CALL sp_fix_category_article_count();' AS guide3;
-SELECT '4. 手动修复语句：UPDATE blog_category SET article_count = (SELECT COUNT(*) FROM blog_article WHERE category_id = 目标ID AND del_flag = ''0'' AND status = 1);' AS guide4;
+SELECT '4. 手动修复语句：UPDATE zhi_category SET article_count = (SELECT COUNT(*) FROM zhi_article WHERE category_id = 目标ID AND del_flag = ''0'' AND status = 1);' AS guide4;
 
 -- 性能优化建议
 SELECT '⚡ 性能优化建议：' AS performance_title;
-SELECT '1. 定期清理软删除的数据：DELETE FROM blog_article WHERE del_flag = 1 AND update_time < DATE_SUB(NOW(), INTERVAL 30 DAY)' AS tip1;
+SELECT '1. 定期清理软删除的数据：DELETE FROM zhi_article WHERE del_flag = 1 AND update_time < DATE_SUB(NOW(), INTERVAL 30 DAY)' AS tip1;
 SELECT '2. 优化大表查询：使用分页和索引' AS tip2;
 SELECT '3. 启用Redis缓存：减轻数据库压力' AS tip3;
 SELECT '4. 定期备份数据：mysqldump -u root -p zhienterprise > backup.sql' AS tip4;
@@ -2262,7 +2262,7 @@ SELECT '4. 定期备份数据：mysqldump -u root -p zhienterprise > backup.sql'
 -- ===============================================================
 -- 📌 文章收藏表
 -- ===============================================================
-CREATE TABLE IF NOT EXISTS blog_bookmark (
+CREATE TABLE IF NOT EXISTS zhi_bookmark (
     id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
     user_id     BIGINT(20)      NOT NULL                    COMMENT '用户ID',
     article_id  BIGINT(20)      NOT NULL                    COMMENT '文章ID',
@@ -2278,7 +2278,7 @@ CREATE TABLE IF NOT EXISTS blog_bookmark (
 -- ===============================================================
 -- 📌 文章点赞记录表 / 评论点赞记录表（点赞体系）
 -- ===============================================================
-CREATE TABLE IF NOT EXISTS blog_article_like (
+CREATE TABLE IF NOT EXISTS zhi_article_like (
     id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
     article_id  BIGINT(20)      NOT NULL                    COMMENT '文章ID',
     user_id     BIGINT(20)      NOT NULL                    COMMENT '用户ID',
@@ -2288,7 +2288,7 @@ CREATE TABLE IF NOT EXISTS blog_article_like (
     KEY idx_article_like_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章点赞记录表';
 
-CREATE TABLE IF NOT EXISTS blog_comment_like (
+CREATE TABLE IF NOT EXISTS zhi_comment_like (
     id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
     comment_id  BIGINT(20)      NOT NULL                    COMMENT '评论ID',
     user_id     BIGINT(20)      NOT NULL                    COMMENT '用户ID',
@@ -2298,123 +2298,123 @@ CREATE TABLE IF NOT EXISTS blog_comment_like (
     KEY idx_comment_like_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评论点赞记录表';
 
--- 老库升级：补齐 blog_comment.like_count 列（幂等）
+-- 老库升级：补齐 zhi_comment.like_count 列（幂等）
 SET @has_comment_like_count := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_comment' AND COLUMN_NAME = 'like_count');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_comment' AND COLUMN_NAME = 'like_count');
 SET @add_comment_like_count := IF(@has_comment_like_count = 0,
-    'ALTER TABLE `blog_comment` ADD COLUMN `like_count` int NOT NULL DEFAULT 0 COMMENT ''点赞数''',
+    'ALTER TABLE `zhi_comment` ADD COLUMN `like_count` int NOT NULL DEFAULT 0 COMMENT ''点赞数''',
     'SELECT 1');
 PREPARE add_comment_like_count_stmt FROM @add_comment_like_count;
 EXECUTE add_comment_like_count_stmt;
 DEALLOCATE PREPARE add_comment_like_count_stmt;
 
--- 老库升级：补齐 blog_article.publish_time 列（幂等，定时发布功能）
+-- 老库升级：补齐 zhi_article.publish_time 列（幂等，定时发布功能）
 SET @has_article_publish_time := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'publish_time');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'publish_time');
 SET @add_article_publish_time := IF(@has_article_publish_time = 0,
-    'ALTER TABLE `blog_article` ADD COLUMN `publish_time` datetime DEFAULT NULL COMMENT ''定时发布时间''',
+    'ALTER TABLE `zhi_article` ADD COLUMN `publish_time` datetime DEFAULT NULL COMMENT ''定时发布时间''',
     'SELECT 1');
 PREPARE add_article_publish_time_stmt FROM @add_article_publish_time;
 EXECUTE add_article_publish_time_stmt;
 DEALLOCATE PREPARE add_article_publish_time_stmt;
 
--- 老库升级：补齐 blog_article.format / content_md 列（幂等，Markdown 文章）
+-- 老库升级：补齐 zhi_article.format / content_md 列（幂等，Markdown 文章）
 SET @has_article_format := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'format');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'format');
 SET @add_article_format := IF(@has_article_format = 0,
-    'ALTER TABLE `blog_article` ADD COLUMN `format` varchar(10) NOT NULL DEFAULT ''html'' COMMENT ''内容格式 html|markdown''',
+    'ALTER TABLE `zhi_article` ADD COLUMN `format` varchar(10) NOT NULL DEFAULT ''html'' COMMENT ''内容格式 html|markdown''',
     'SELECT 1');
 PREPARE add_article_format_stmt FROM @add_article_format;
 EXECUTE add_article_format_stmt;
 DEALLOCATE PREPARE add_article_format_stmt;
 
 SET @has_article_content_md := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'content_md');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'content_md');
 SET @add_article_content_md := IF(@has_article_content_md = 0,
-    'ALTER TABLE `blog_article` ADD COLUMN `content_md` longtext COMMENT ''Markdown 源码（format=markdown 时保存）''',
+    'ALTER TABLE `zhi_article` ADD COLUMN `content_md` longtext COMMENT ''Markdown 源码（format=markdown 时保存）''',
     'SELECT 1');
 PREPARE add_article_content_md_stmt FROM @add_article_content_md;
 EXECUTE add_article_content_md_stmt;
 DEALLOCATE PREPARE add_article_content_md_stmt;
 
--- 老库升级：补齐 blog_article.article_type 列（幂等，核心业务/案例内容类型）
+-- 老库升级：补齐 zhi_article.article_type 列（幂等，核心业务/案例内容类型）
 SET @has_article_type := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'article_type');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'article_type');
 SET @add_article_type := IF(@has_article_type = 0,
-    'ALTER TABLE `blog_article` ADD COLUMN `article_type` varchar(20) NOT NULL DEFAULT ''news'' COMMENT ''内容类型：news 资讯 business 核心业务 case 客户案例''',
+    'ALTER TABLE `zhi_article` ADD COLUMN `article_type` varchar(20) NOT NULL DEFAULT ''news'' COMMENT ''内容类型：news 资讯 business 核心业务 case 客户案例''',
     'SELECT 1');
 PREPARE add_article_type_stmt FROM @add_article_type;
 EXECUTE add_article_type_stmt;
 DEALLOCATE PREPARE add_article_type_stmt;
 
--- 老库升级：补齐 blog_article 文章级 TDK 列（幂等，SEO 优化）
+-- 老库升级：补齐 zhi_article 文章级 TDK 列（幂等，SEO 优化）
 SET @has_article_seo_title := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'seo_title');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'seo_title');
 SET @add_article_seo_title := IF(@has_article_seo_title = 0,
-    'ALTER TABLE `blog_article` ADD COLUMN `seo_title` varchar(200) DEFAULT NULL COMMENT ''SEO 标题（留空回退文章标题）''',
+    'ALTER TABLE `zhi_article` ADD COLUMN `seo_title` varchar(200) DEFAULT NULL COMMENT ''SEO 标题（留空回退文章标题）''',
     'SELECT 1');
 PREPARE add_article_seo_title_stmt FROM @add_article_seo_title;
 EXECUTE add_article_seo_title_stmt;
 DEALLOCATE PREPARE add_article_seo_title_stmt;
 
 SET @has_article_seo_keywords := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'seo_keywords');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'seo_keywords');
 SET @add_article_seo_keywords := IF(@has_article_seo_keywords = 0,
-    'ALTER TABLE `blog_article` ADD COLUMN `seo_keywords` varchar(255) DEFAULT NULL COMMENT ''SEO 关键词（英文逗号分隔）''',
+    'ALTER TABLE `zhi_article` ADD COLUMN `seo_keywords` varchar(255) DEFAULT NULL COMMENT ''SEO 关键词（英文逗号分隔）''',
     'SELECT 1');
 PREPARE add_article_seo_keywords_stmt FROM @add_article_seo_keywords;
 EXECUTE add_article_seo_keywords_stmt;
 DEALLOCATE PREPARE add_article_seo_keywords_stmt;
 
 SET @has_article_seo_description := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'seo_description');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'seo_description');
 SET @add_article_seo_description := IF(@has_article_seo_description = 0,
-    'ALTER TABLE `blog_article` ADD COLUMN `seo_description` varchar(500) DEFAULT NULL COMMENT ''SEO 描述（留空回退文章摘要）''',
+    'ALTER TABLE `zhi_article` ADD COLUMN `seo_description` varchar(500) DEFAULT NULL COMMENT ''SEO 描述（留空回退文章摘要）''',
     'SELECT 1');
 PREPARE add_article_seo_description_stmt FROM @add_article_seo_description;
 EXECUTE add_article_seo_description_stmt;
 DEALLOCATE PREPARE add_article_seo_description_stmt;
 
--- 老库升级：补齐 blog_article.slug 列（幂等，伪静态别名）
+-- 老库升级：补齐 zhi_article.slug 列（幂等，伪静态别名）
 SET @has_article_slug := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'slug');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'slug');
 SET @add_article_slug := IF(@has_article_slug = 0,
-    'ALTER TABLE `blog_article` ADD COLUMN `slug` varchar(100) DEFAULT NULL COMMENT ''URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID）''',
+    'ALTER TABLE `zhi_article` ADD COLUMN `slug` varchar(100) DEFAULT NULL COMMENT ''URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID）''',
     'SELECT 1');
 PREPARE add_article_slug_stmt FROM @add_article_slug;
 EXECUTE add_article_slug_stmt;
 DEALLOCATE PREPARE add_article_slug_stmt;
 
 -- 幂等索引：伪静态查询列（slug/alias 的解析查询走点查，早期库重跑补齐索引）
-CALL sp_create_index_if_not_exists('blog_article', 'idx_slug', 'CREATE INDEX idx_slug ON blog_article(slug)');
-CALL sp_create_index_if_not_exists('blog_category', 'idx_alias', 'CREATE INDEX idx_alias ON blog_category(alias)');
+CALL sp_create_index_if_not_exists('zhi_article', 'idx_slug', 'CREATE INDEX idx_slug ON zhi_article(slug)');
+CALL sp_create_index_if_not_exists('zhi_category', 'idx_alias', 'CREATE INDEX idx_alias ON zhi_category(alias)');
 
--- 老库升级：补齐 blog_friend_link.email 列（幂等，友链申请功能）
+-- 老库升级：补齐 zhi_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_friend_link' AND COLUMN_NAME = 'email');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_friend_link' AND COLUMN_NAME = 'email');
 SET @add_friend_link_email := IF(@has_friend_link_email = 0,
-    'ALTER TABLE `blog_friend_link` ADD COLUMN `email` varchar(100) DEFAULT NULL COMMENT ''申请人邮箱（友链申请）''',
+    'ALTER TABLE `zhi_friend_link` ADD COLUMN `email` varchar(100) DEFAULT NULL COMMENT ''申请人邮箱（友链申请）''',
     'SELECT 1');
 PREPARE add_friend_link_email_stmt FROM @add_friend_link_email;
 EXECUTE add_friend_link_email_stmt;
 DEALLOCATE PREPARE add_friend_link_email_stmt;
 
--- 老库升级：补齐 blog_message 的 create_by / update_by 列（幂等）
+-- 老库升级：补齐 zhi_message 的 create_by / update_by 列（幂等）
 -- 表初建时漏了这两列，而 BlogMessageMapper 的列表查询与审核/回复更新一直按 RuoYi 约定引用它们，
 -- 于是「留言管理」列表、审核、回复三处都会抛 Unknown column 'create_by'/'update_by' in 'field list'。
 SET @has_message_create_by := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_message' AND COLUMN_NAME = 'create_by');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_message' AND COLUMN_NAME = 'create_by');
 SET @add_message_create_by := IF(@has_message_create_by = 0,
-    'ALTER TABLE `blog_message` ADD COLUMN `create_by` varchar(64) DEFAULT '''' COMMENT ''创建者'' AFTER `user_agent`',
+    'ALTER TABLE `zhi_message` ADD COLUMN `create_by` varchar(64) DEFAULT '''' COMMENT ''创建者'' AFTER `user_agent`',
     'SELECT 1');
 PREPARE add_message_create_by_stmt FROM @add_message_create_by;
 EXECUTE add_message_create_by_stmt;
 DEALLOCATE PREPARE add_message_create_by_stmt;
 
 SET @has_message_update_by := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_message' AND COLUMN_NAME = 'update_by');
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_message' AND COLUMN_NAME = 'update_by');
 SET @add_message_update_by := IF(@has_message_update_by = 0,
-    'ALTER TABLE `blog_message` ADD COLUMN `update_by` varchar(64) DEFAULT '''' COMMENT ''更新者'' AFTER `create_time`',
+    'ALTER TABLE `zhi_message` ADD COLUMN `update_by` varchar(64) DEFAULT '''' COMMENT ''更新者'' AFTER `create_time`',
     'SELECT 1');
 PREPARE add_message_update_by_stmt FROM @add_message_update_by;
 EXECUTE add_message_update_by_stmt;
@@ -2423,7 +2423,7 @@ DEALLOCATE PREPARE add_message_update_by_stmt;
 -- ===============================================================
 -- 📌 站内信通知表
 -- ===============================================================
-CREATE TABLE IF NOT EXISTS blog_notification (
+CREATE TABLE IF NOT EXISTS zhi_notification (
     id            BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
     recipient_id  BIGINT(20)      NOT NULL                    COMMENT '接收用户ID',
     sender_name   VARCHAR(64)     NOT NULL                    COMMENT '发送者昵称',
@@ -2442,7 +2442,7 @@ CREATE TABLE IF NOT EXISTS blog_notification (
 
 -- 「关于」内置页面（slug=about）：页面管理列表中直接管理，前台 /blog/about 仅渲染此页（无其他兜底来源）；
 -- 幂等：INSERT IGNORE 依赖 slug 唯一键，重跑不覆盖站长在页面管理里的修改；被逻辑删除的行也会阻止重新插入（删除即删除）
-INSERT IGNORE INTO `blog_page` (`title`, `slug`, `summary`, `content`, `status`, `show_in_nav`, `sort`, `create_by`, `create_time`, `update_time`)
+INSERT IGNORE INTO `zhi_page` (`title`, `slug`, `summary`, `content`, `status`, `show_in_nav`, `sort`, `create_by`, `create_time`, `update_time`)
 VALUES ('关于', 'about', '', '<p>这是一个基于Spring Boot + Vue.js构建的现代化企业建站系统。</p><p>主要功能包括：</p><ul><li>文章管理</li><li>分类标签</li><li>评论系统</li><li>搜索功能</li></ul>', '1', '0', 0, 'admin', NOW(), NOW());
 
 -- 联系信息

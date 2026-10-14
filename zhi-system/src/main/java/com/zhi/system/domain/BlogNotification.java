@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhi.common.core.domain.BaseEntity;
 
 /**
- * 站内信通知对象 blog_notification
+ * 站内信通知对象 zhi_notification
  *
  * @author nevell
  * @date 2026-07-26

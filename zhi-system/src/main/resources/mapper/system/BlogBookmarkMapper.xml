@@ -13,7 +13,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectBlogBookmarkVo">
-        SELECT id, user_id, article_id, create_time, tenant_id FROM blog_bookmark
+        SELECT id, user_id, article_id, create_time, tenant_id FROM zhi_bookmark
     </sql>
 
     <select id="selectBlogBookmarkList" parameterType="BlogBookmark" resultMap="BlogBookmarkResult">
@@ -34,7 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertBlogBookmark" parameterType="BlogBookmark" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO blog_bookmark
+        INSERT INTO zhi_bookmark
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
             <if test="articleId != null">article_id,</if>
@@ -50,15 +50,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <delete id="deleteBlogBookmarkById" parameterType="Long">
-        DELETE FROM blog_bookmark WHERE id = #{id}
+        DELETE FROM zhi_bookmark WHERE id = #{id}
     </delete>
 
     <delete id="deleteBlogBookmarkByUserIdAndArticleId">
-        DELETE FROM blog_bookmark WHERE user_id = #{userId} AND article_id = #{articleId}
+        DELETE FROM zhi_bookmark WHERE user_id = #{userId} AND article_id = #{articleId}
     </delete>
 
     <select id="existsBookmark" resultType="int">
-        SELECT COUNT(*) FROM blog_bookmark WHERE user_id = #{userId} AND article_id = #{articleId}
+        SELECT COUNT(*) FROM zhi_bookmark WHERE user_id = #{userId} AND article_id = #{articleId}
     </select>
 
     <select id="selectBookmarksByUserId" parameterType="Long" resultMap="BlogBookmarkResult">
@@ -78,8 +78,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                a.view_count AS viewCount,
                a.like_count AS likeCount,
                a.comment_count AS commentCount
-        FROM blog_bookmark b
-        INNER JOIN blog_article a ON a.id = b.article_id
+        FROM zhi_bookmark b
+        INNER JOIN zhi_article a ON a.id = b.article_id
         WHERE b.user_id = #{userId}
           AND a.status = 1
           AND a.del_flag = '0'

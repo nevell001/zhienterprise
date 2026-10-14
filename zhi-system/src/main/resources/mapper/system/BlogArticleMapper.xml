@@ -40,7 +40,7 @@
     <!-- 站点地图专用：只取 id/article_type/update_time，避免把 longtext 正文拉进内存；sitemap 规范上限 5 万条 -->
     <select id="selectSitemapArticles" resultMap="BlogArticleResult">
         select id, article_type, slug, update_time
-        from blog_article
+        from zhi_article
         where status = 1 and del_flag = 0
         order by create_time desc, id desc
         limit 50000
@@ -51,8 +51,8 @@
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
-        from blog_article ba
-        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        from zhi_article ba
+        left join zhi_category bc on ba.category_id = bc.id and bc.del_flag = 0
         <where>
             <if test="title != null  and title != ''"> and ba.title like concat('%', #{title}, '%')</if>
             <if test="summary != null  and summary != ''"> and ba.summary = #{summary}</if>
@@ -78,8 +78,8 @@
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
-        from blog_article ba
-        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        from zhi_article ba
+        left join zhi_category bc on ba.category_id = bc.id and bc.del_flag = 0
         <where>
             <if test="title != null  and title != ''"> and ba.title like concat('%', #{title}, '%')</if>
             <if test="status != null "> and ba.status = #{status}</if>
@@ -98,8 +98,8 @@
                ba.author_id, ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time,
                ba.view_count, ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
-        from blog_article ba
-        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        from zhi_article ba
+        left join zhi_category bc on ba.category_id = bc.id and bc.del_flag = 0
         where ba.slug = #{slug} and ba.del_flag = 0 and ba.status = 1
         limit 1
     </select>
@@ -110,8 +110,8 @@
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
-        from blog_article ba
-        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        from zhi_article ba
+        left join zhi_category bc on ba.category_id = bc.id and bc.del_flag = 0
         where ba.id = #{id}
     </select>
 
@@ -119,12 +119,12 @@
         select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag
-        from blog_article ba
+        from zhi_article ba
         where ba.title = #{title} and ba.del_flag = 0 limit 1
     </select>
 
     <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_article
+        insert into zhi_article
         (title, summary, content, content_md, format, article_type, seo_title, seo_keywords, seo_description, slug, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, publish_time, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
         (#{title}, #{summary}, #{content}, #{contentMd}, #{format},
@@ -139,7 +139,7 @@
     </insert>
 
     <update id="updateBlogArticle" parameterType="BlogArticle">
-        update blog_article
+        update zhi_article
         <trim prefix="SET" suffixOverrides=",">
             <if test="title != null and title != ''">title = #{title},</if>
             <if test="summary != null">summary = #{summary},</if>
@@ -170,11 +170,11 @@
     </update>
 
     <update id="addViewCount" parameterType="Long">
-        update blog_article set view_count = IFNULL(view_count, 0) + 1 where id = #{id}
+        update zhi_article set view_count = IFNULL(view_count, 0) + 1 where id = #{id}
     </update>
 
     <update id="addIncrementViewCount">
-        update blog_article set view_count = IFNULL(view_count, 0) + #{increment} where id = #{id}
+        update zhi_article set view_count = IFNULL(view_count, 0) + #{increment} where id = #{id}
     </update>
 
     <select id="selectArticlesByTagId" parameterType="Long" resultMap="BlogArticleResult">
@@ -182,9 +182,9 @@
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
-        from blog_article ba
-        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
-        inner join blog_article_tag bat on ba.id = bat.article_id
+        from zhi_article ba
+        left join zhi_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        inner join zhi_article_tag bat on ba.id = bat.article_id
         where bat.tag_id = #{tagId} and ba.status = 1 and ba.del_flag = 0
         order by ba.create_time desc, ba.id desc
     </select>
@@ -194,8 +194,8 @@
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
-        from blog_article ba
-        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        from zhi_article ba
+        left join zhi_category bc on ba.category_id = bc.id and bc.del_flag = 0
         <where>
             ba.status = 1 and ba.del_flag = 0
             <if test="keyword != null and keyword != ''">
@@ -220,8 +220,8 @@
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name,
                MATCH(ba.title, ba.content) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE) as search_score
-        from blog_article ba
-        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        from zhi_article ba
+        left join zhi_category bc on ba.category_id = bc.id and bc.del_flag = 0
         <where>
             ba.status = 1 and ba.del_flag = 0
             <if test="keyword != null and keyword != ''">
@@ -244,37 +244,37 @@
         SELECT 
             DATE_FORMAT(create_time, '%Y-%m') as archive_date,
             COUNT(*) as article_count
-        FROM blog_article 
+        FROM zhi_article 
         WHERE status = 1 AND del_flag = 0
         GROUP BY DATE_FORMAT(create_time, '%Y-%m')
         ORDER BY archive_date DESC
     </select>
 
     <select id="getPrevArticle" resultMap="SimpleBlogArticleResult" parameterType="Long">
-        SELECT id, title, del_flag FROM blog_article 
+        SELECT id, title, del_flag FROM zhi_article 
         WHERE id &lt; #{id} AND status = 1 AND del_flag = 0 
         ORDER BY id DESC LIMIT 1
     </select>
 
     <select id="getNextArticle" resultMap="SimpleBlogArticleResult" parameterType="Long">
-        SELECT id, title, del_flag FROM blog_article 
+        SELECT id, title, del_flag FROM zhi_article 
         WHERE id &gt; #{id} AND status = 1 AND del_flag = 0 
         ORDER BY id ASC LIMIT 1
     </select>
 
     <delete id="deleteBlogArticleById" parameterType="Long">
-        delete from blog_article where id = #{id}
+        delete from zhi_article where id = #{id}
     </delete>
 
     <delete id="deleteBlogArticleByIds" parameterType="String">
-        delete from blog_article where id in 
+        delete from zhi_article where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
 
     <select id="countByCategoryIds" resultType="int">
-        select count(1) from blog_article where del_flag = 0 and category_id in
+        select count(1) from zhi_article where del_flag = 0 and category_id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -282,7 +282,7 @@
 
     <!-- 统计相关SQL -->
     <select id="selectBlogArticleCount" parameterType="BlogArticle" resultType="Long">
-        select count(1) from blog_article
+        select count(1) from zhi_article
         where del_flag = 0
         <if test="status != null">
             and status = #{status}
@@ -290,11 +290,11 @@
     </select>
 
     <select id="selectTotalViewCount" resultType="Long">
-        select sum(view_count) from blog_article where del_flag = 0 and status = 1
+        select sum(view_count) from zhi_article where del_flag = 0 and status = 1
     </select>
 
     <select id="selectAverageViewCount" resultType="Double">
-        select avg(view_count) from blog_article where del_flag = 0 and status = 1
+        select avg(view_count) from zhi_article where del_flag = 0 and status = 1
     </select>
 
     <!-- 获取文章发布趋势（按月统计） -->
@@ -302,7 +302,7 @@
         SELECT
             DATE_FORMAT(create_time, '%Y-%m') as month,
             COUNT(*) as count
-        FROM blog_article
+        FROM zhi_article
         WHERE del_flag = 0
         GROUP BY DATE_FORMAT(create_time, '%Y-%m')
         ORDER BY month DESC
@@ -317,8 +317,8 @@
             ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
             ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
             bc.name as category_name
-        FROM blog_article ba
-        LEFT JOIN blog_category bc ON ba.category_id = bc.id AND bc.del_flag = 0
+        FROM zhi_article ba
+        LEFT JOIN zhi_category bc ON ba.category_id = bc.id AND bc.del_flag = 0
         WHERE ba.del_flag = 0
         <if test="status != null">
             AND ba.status = #{status}
@@ -333,8 +333,8 @@
             ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
             ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
             bc.name as category_name
-        FROM blog_article ba
-        LEFT JOIN blog_category bc ON ba.category_id = bc.id AND bc.del_flag = 0
+        FROM zhi_article ba
+        LEFT JOIN zhi_category bc ON ba.category_id = bc.id AND bc.del_flag = 0
         WHERE ba.del_flag = 0
         <if test="status != null">
             AND ba.status = #{status}
@@ -347,7 +347,7 @@
 
     <!-- 批量更新文章置顶状态 -->
     <update id="updateArticleTopStatus">
-        UPDATE blog_article
+        UPDATE zhi_article
         SET is_top = #{isTop}
         WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -358,7 +358,7 @@
 
     <!-- 批量更新文章推荐状态 -->
     <update id="updateArticleRecommendStatus">
-        UPDATE blog_article
+        UPDATE zhi_article
         SET is_recommend = #{isRecommend}
         WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -369,7 +369,7 @@
 
     <!-- 点赞文章 -->
     <update id="likeArticle">
-        UPDATE blog_article
+        UPDATE zhi_article
         SET like_count = IFNULL(like_count, 0) + 1
         WHERE id = #{id}
         AND del_flag = 0
@@ -382,16 +382,16 @@
             ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
             ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
             bc.name as category_name
-        FROM blog_article ba
-        LEFT JOIN blog_category bc ON ba.category_id = bc.id AND bc.del_flag = 0
+        FROM zhi_article ba
+        LEFT JOIN zhi_category bc ON ba.category_id = bc.id AND bc.del_flag = 0
         WHERE ba.status = 1 AND ba.del_flag = 0 AND ba.id != #{id}
-        AND ba.category_id = (SELECT category_id FROM blog_article WHERE id = #{id} AND del_flag = 0)
+        AND ba.category_id = (SELECT category_id FROM zhi_article WHERE id = #{id} AND del_flag = 0)
         ORDER BY ba.view_count DESC, ba.create_time DESC, ba.id DESC
         LIMIT #{limit}
     </select>
     <!-- 定时发布：到期将 status=2 的文章置为已发布 -->
     <update id="publishScheduledArticles">
-        UPDATE blog_article
+        UPDATE zhi_article
         SET status = 1, update_time = NOW()
         WHERE status = 2
           AND publish_time IS NOT NULL
@@ -401,7 +401,7 @@
 
     <!-- 增减文章评论数 -->
     <update id="changeCommentCount">
-        UPDATE blog_article
+        UPDATE zhi_article
         SET comment_count = GREATEST(IFNULL(comment_count, 0) + #{delta}, 0)
         WHERE id = #{articleId}
     </update>

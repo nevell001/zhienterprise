@@ -39,7 +39,7 @@ public class GenUtilsTest {
         assertEquals("user", GenUtils.getBusinessName("sys_user"));
         assertEquals("role", GenUtils.getBusinessName("sys_role"));
         assertEquals("menu", GenUtils.getBusinessName("sys_menu"));
-        assertEquals("article", GenUtils.getBusinessName("blog_article"));
+        assertEquals("article", GenUtils.getBusinessName("zhi_article"));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class GenUtilsTest {
         // 测试表名转换成Java类名
         assertEquals("SysUser", GenUtils.convertClassName("sys_user"));
         assertEquals("SysRole", GenUtils.convertClassName("sys_role"));
-        assertEquals("BlogArticle", GenUtils.convertClassName("blog_article"));
+        assertEquals("BlogArticle", GenUtils.convertClassName("zhi_article"));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class GenUtilsTest {
         // 测试批量替换前缀
         String[] searchList = {"sys_", "blog_"};
         assertEquals("user", GenUtils.replaceFirst("sys_user", searchList));
-        assertEquals("article", GenUtils.replaceFirst("blog_article", searchList));
+        assertEquals("article", GenUtils.replaceFirst("zhi_article", searchList));
         assertEquals("test", GenUtils.replaceFirst("test", searchList));
     }
 

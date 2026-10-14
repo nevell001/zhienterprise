@@ -21,7 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectBlogFriendLinkVo">
-        select id, name, url, logo, description, email, sort, status, create_by, create_time, update_by, update_time, del_flag from blog_friend_link
+        select id, name, url, logo, description, email, sort, status, create_by, create_time, update_by, update_time, del_flag from zhi_friend_link
     </sql>
 
     <select id="selectBlogFriendLinkList" parameterType="BlogFriendLink" resultMap="BlogFriendLinkResult">
@@ -38,7 +38,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 前台公开接口：显式列出展示所需字段，禁止带出申请者 email（PII） -->
     <select id="selectFrontFriendLinkList" resultMap="BlogFriendLinkResult">
         select id, name, url, logo, description, sort, status, create_time
-        from blog_friend_link
+        from zhi_friend_link
         where status = '0' and del_flag = '0'
         order by sort asc
     </select>
@@ -49,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertBlogFriendLink" parameterType="BlogFriendLink" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_friend_link
+        insert into zhi_friend_link
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">name,</if>
             <if test="url != null and url != ''">url,</if>
@@ -81,7 +81,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="updateBlogFriendLink" parameterType="BlogFriendLink">
-        update blog_friend_link
+        update zhi_friend_link
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="url != null and url != ''">url = #{url},</if>
@@ -97,11 +97,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteBlogFriendLinkById" parameterType="Long">
-        update blog_friend_link set del_flag = '1' where id = #{id}
+        update zhi_friend_link set del_flag = '1' where id = #{id}
     </delete>
 
     <delete id="deleteBlogFriendLinkByIds" parameterType="String">
-        update blog_friend_link set del_flag = '1' where id in 
+        update zhi_friend_link set del_flag = '1' where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

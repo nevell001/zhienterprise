@@ -89,10 +89,10 @@ public class BlogFrontSettingController extends BaseController {
                 // 批量查询站点设置
                 for (String configKey : BLOG_CONFIG_KEYS) {
                     try {
-                        // 优先从 blog_setting 表读取
+                        // 优先从 zhi_setting 表读取
                         String configValue = blogSettingService.selectSettingValueByKey(configKey);
 
-                        // 如果 blog_setting 表中没有，尝试从 sys_config 表读取
+                        // 如果 zhi_setting 表中没有，尝试从 sys_config 表读取
                         if (StringUtils.isEmpty(configValue)) {
                             configValue = configMap.get(configKey);
                         }
@@ -249,7 +249,7 @@ public class BlogFrontSettingController extends BaseController {
             return AjaxResult.error("不支持的配置键");
         }
         try {
-            // 与 getBlogSettings() 同口径：优先读 blog_setting，回退 sys_config，最后取默认值
+            // 与 getBlogSettings() 同口径：优先读 zhi_setting，回退 sys_config，最后取默认值
             String configValue = blogSettingService.selectSettingValueByKey(configKey);
             if (StringUtils.isEmpty(configValue)) {
                 configValue = configService.selectConfigByKey(configKey);

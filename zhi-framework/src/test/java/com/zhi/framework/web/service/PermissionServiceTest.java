@@ -138,13 +138,13 @@ class PermissionServiceTest
     @Test
     void ordinaryRoleMustMatchExactlyAndNeverGrantsOtherRoles()
     {
-        login(Collections.emptySet(), role("blog_writer"));
+        login(Collections.emptySet(), role("site_writer"));
 
-        assertThat(permissionService.hasRole("blog_writer")).isTrue();
-        assertThat(permissionService.hasRole("blog_writer ")).isTrue();
-        assertThat(permissionService.hasRole("blog_editor")).isFalse();
-        assertThat(permissionService.hasAnyRoles("blog_editor,blog_writer")).isTrue();
-        assertThat(permissionService.hasAnyRoles("blog_editor,reviewer")).isFalse();
+        assertThat(permissionService.hasRole("site_writer")).isTrue();
+        assertThat(permissionService.hasRole("site_writer ")).isTrue();
+        assertThat(permissionService.hasRole("site_editor")).isFalse();
+        assertThat(permissionService.hasAnyRoles("site_editor,site_writer")).isTrue();
+        assertThat(permissionService.hasAnyRoles("site_editor,reviewer")).isFalse();
     }
 
     @Test

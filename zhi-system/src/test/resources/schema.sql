@@ -2,7 +2,7 @@
 CREATE ALIAS IF NOT EXISTS DATE_FORMAT FOR "com.zhi.system.testsupport.H2MysqlCompat.dateFormat";
 
 -- 博客文章表
-CREATE TABLE IF NOT EXISTS blog_article (
+CREATE TABLE IF NOT EXISTS zhi_article (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
     summary VARCHAR(500),
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS blog_article (
 );
 
 -- 博客分类表
-CREATE TABLE IF NOT EXISTS blog_category (
+CREATE TABLE IF NOT EXISTS zhi_category (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(500),
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS blog_category (
 );
 
 -- 博客标签表
-CREATE TABLE IF NOT EXISTS blog_tag (
+CREATE TABLE IF NOT EXISTS zhi_tag (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(500),
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS blog_tag (
 );
 
 -- 文章标签关联表
-CREATE TABLE IF NOT EXISTS blog_article_tag (
+CREATE TABLE IF NOT EXISTS zhi_article_tag (
     article_id BIGINT NOT NULL,
     tag_id BIGINT NOT NULL,
     PRIMARY KEY (article_id, tag_id)

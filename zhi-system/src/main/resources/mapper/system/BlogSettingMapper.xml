@@ -24,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectBlogSettingVo">
-        select id, config_key, config_value, description, create_time, update_time from blog_setting
+        select id, config_key, config_value, description, create_time, update_time from zhi_setting
     </sql>
 
     <select id="selectBlogSettingList" parameterType="BlogSetting" resultMap="BlogSettingResult">
@@ -36,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectSettingValueByKey" parameterType="String" resultType="String">
-        select config_value from blog_setting where config_key = #{settingKey}
+        select config_value from zhi_setting where config_key = #{settingKey}
     </select>
     
     <select id="selectBlogSettingById" parameterType="Long" resultMap="BlogSettingResult">
@@ -45,7 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertBlogSetting" parameterType="BlogSetting" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_setting
+        insert into zhi_setting
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="settingKey != null and settingKey != ''">config_key,</if>
             <if test="settingValue != null and settingValue != ''">config_value,</if>
@@ -63,7 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="updateBlogSetting" parameterType="BlogSetting">
-        update blog_setting
+        update zhi_setting
         <trim prefix="SET" suffixOverrides=",">
             <if test="settingKey != null and settingKey != ''">config_key = #{settingKey},</if>
             <if test="settingValue != null and settingValue != ''">config_value = #{settingValue},</if>
@@ -74,13 +74,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
     
     <update id="updateSettingValueByKey">
-        update blog_setting set config_value = #{settingValue}, update_time = now()
+        update zhi_setting set config_value = #{settingValue}, update_time = now()
         where config_key = #{settingKey}
     </update>
     
     <!-- 插入或更新设置值（如果不存在则创建） -->
     <insert id="insertOrUpdateSetting" parameterType="map">
-        INSERT INTO blog_setting (config_key, config_value, description, create_time, update_time)
+        INSERT INTO zhi_setting (config_key, config_value, description, create_time, update_time)
         VALUES (#{settingKey}, #{settingValue}, #{description}, NOW(), NOW())
         ON DUPLICATE KEY UPDATE 
         config_value = #{settingValue}, 
@@ -88,11 +88,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <delete id="deleteBlogSettingById" parameterType="Long">
-        delete from blog_setting where id = #{id}
+        delete from zhi_setting where id = #{id}
     </delete>
 
     <delete id="deleteBlogSettingByIds" parameterType="String">
-        delete from blog_setting where id in 
+        delete from zhi_setting where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

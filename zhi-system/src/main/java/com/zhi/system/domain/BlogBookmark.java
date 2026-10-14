@@ -7,7 +7,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * 文章收藏对象 blog_bookmark
+ * 文章收藏对象 zhi_bookmark
  *
  * @author nevell
  * @date 2026-01-18

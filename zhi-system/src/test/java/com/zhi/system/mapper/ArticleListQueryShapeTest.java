@@ -60,13 +60,13 @@ class ArticleListQueryShapeTest
         for (String id : List.of("selectBlogArticleList", "searchArticles", "searchArticlesFullText",
             "selectHotArticles", "selectArticlesByArchive"))
         {
-            assertFalse(selectBlock(xml, id).contains("blog_article_tag"),
+            assertFalse(selectBlock(xml, id).contains("zhi_article_tag"),
                 id + " 不使用标签表，JOIN 纯属浪费（标签由 loadTagsForArticles 单独批量查）");
             assertFalse(selectBlock(xml, id).toLowerCase().contains("group by"),
                 id + " 去掉标签 JOIN 后 GROUP BY 也必须一并去掉");
         }
-        assertTrue(selectBlock(xml, "selectArticlesByTagId").contains("inner join blog_article_tag"),
-            "按标签过滤的查询需要 blog_article_tag");
+        assertTrue(selectBlock(xml, "selectArticlesByTagId").contains("inner join zhi_article_tag"),
+            "按标签过滤的查询需要 zhi_article_tag");
     }
 
     @Test
@@ -89,7 +89,7 @@ class ArticleListQueryShapeTest
 
         // 曾经只删掉 GROUP BY 却留着两个标签 JOIN：多标签文章返回 N 行，
         // 前台 /blog/article/{id} 与后台详情一律 500
-        assertFalse(block.contains("blog_article_tag"),
+        assertFalse(block.contains("zhi_article_tag"),
             "selectBlogArticleById 不投影标签列，JOIN 会让一行变多行");
         assertFalse(block.toLowerCase().contains("group by"),
             "去掉标签 JOIN 后 GROUP BY 也应一并去掉");
@@ -105,7 +105,7 @@ class ArticleListQueryShapeTest
         assertFalse(block.toLowerCase().contains("group by"), "导出不需要 GROUP BY");
         // 只读校验：只查 SQL 语句本身，避免 `ba.update_time` 这类列名被误判
         String lower = block.toLowerCase();
-        assertFalse(lower.contains("delete from") || lower.contains("drop table") || lower.contains("update blog_article"),
+        assertFalse(lower.contains("delete from") || lower.contains("drop table") || lower.contains("update zhi_article"),
             "导出查询只能是只读 SELECT");
         assertTrue(lower.contains("select ba.id"), "导出查询应当是 SELECT");
     }

@@ -21,7 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectBlogNotificationVo">
         select id, recipient_id, sender_name, type, title, content,
                article_id, article_title, comment_id, is_read, create_time
-        from blog_notification
+        from zhi_notification
     </sql>
 
     <select id="selectBlogNotificationList" parameterType="BlogNotification" resultMap="BlogNotificationResult">
@@ -41,7 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertBlogNotification" parameterType="BlogNotification" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_notification (
+        insert into zhi_notification (
             <if test="recipientId != null">recipient_id,</if>
             <if test="senderName != null and senderName != ''">sender_name,</if>
             <if test="type != null and type != ''">type,</if>
@@ -67,7 +67,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="markAsRead">
-        update blog_notification
+        update zhi_notification
         set is_read = 1
         where is_read = 0
           and recipient_id = #{recipientId}
@@ -78,14 +78,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <update id="markAllAsRead">
-        update blog_notification
+        update zhi_notification
         set is_read = 1
         where is_read = 0
           and recipient_id = #{recipientId}
     </update>
 
     <select id="selectUnreadCount" parameterType="Long" resultType="int">
-        select count(1) from blog_notification
+        select count(1) from zhi_notification
         where is_read = 0 and recipient_id = #{recipientId}
     </select>
 

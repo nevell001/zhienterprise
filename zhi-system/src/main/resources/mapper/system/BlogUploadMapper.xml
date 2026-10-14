@@ -18,7 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectBlogUploadVo">
         select id, file_name, original_name, url, mime_type, file_size, upload_type, create_by, create_time
-        from blog_upload
+        from zhi_upload
     </sql>
 
     <select id="selectBlogUploadList" parameterType="BlogUpload" resultMap="BlogUploadResult">
@@ -37,12 +37,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertBlogUpload" parameterType="BlogUpload" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_upload
+        insert into zhi_upload
         (file_name, original_name, url, mime_type, file_size, upload_type, create_by)
         values (#{fileName}, #{originalName}, #{url}, #{mimeType}, #{fileSize}, #{uploadType}, #{createBy})
     </insert>
 
     <delete id="deleteBlogUploadById" parameterType="Long">
-        delete from blog_upload where id = #{id}
+        delete from zhi_upload where id = #{id}
     </delete>
 </mapper>

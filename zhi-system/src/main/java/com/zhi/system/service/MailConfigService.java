@@ -18,7 +18,7 @@ import java.util.Properties;
 /**
  * 邮件服务配置：站点设置里配置的 SMTP 覆盖环境变量，保存后热更新到活的 {@link JavaMailSenderImpl}，无需重启。
  *
- * <p>配置只落在 {@code blog_setting} 表（{@code mail_*} 键），刻意<b>不</b>进入匿名前台设置白名单，
+ * <p>配置只落在 {@code zhi_setting} 表（{@code mail_*} 键），刻意<b>不</b>进入匿名前台设置白名单，
  * 也<b>不</b>镜像到 {@code sys_config}，因此 SMTP 密码不会被公开设置接口返回。</p>
  *
  * <p>生效值口径：某键在库里为空则回退到启动时 {@code spring.mail.*} 的基线值，从而"未配置时跟随环境变量，
@@ -106,7 +106,7 @@ public class MailConfigService
     }
 
     /**
-     * 依据 blog_setting 与基线值计算生效配置，并热更新到活的 sender。
+     * 依据 zhi_setting 与基线值计算生效配置，并热更新到活的 sender。
      * 保存后调用即可即时生效，无需重启。
      */
     public synchronized void reconfigure()
@@ -142,7 +142,7 @@ public class MailConfigService
     }
 
     /**
-     * 保存后台提交的邮件配置（仅写 blog_setting，不落 sys_config）。
+     * 保存后台提交的邮件配置（仅写 zhi_setting，不落 sys_config）。
      *
      * @param form 表单值；{@code password} 为空表示保留原密码
      * @return 脱敏后的当前配置

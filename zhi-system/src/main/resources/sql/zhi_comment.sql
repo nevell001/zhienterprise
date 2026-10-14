@@ -1,5 +1,5 @@
 -- 创建博客评论表
-CREATE TABLE `blog_comment` (
+CREATE TABLE `zhi_comment` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '评论ID',
   `article_id` bigint(20) NOT NULL COMMENT '文章ID',
   `user_id` bigint(20) NOT NULL COMMENT '用户ID',

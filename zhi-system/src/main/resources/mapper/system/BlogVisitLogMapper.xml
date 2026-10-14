@@ -25,9 +25,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select v.id, v.target_type, v.target_id, v.path, v.user_id, v.visitor_key, v.ip,
                v.user_agent, v.referer, v.is_unique, v.visit_date, v.create_time,
                coalesce(a.title, p.title) as target_title
-        from blog_visit_log v
-        left join blog_article a on v.target_type = 'article' and a.id = v.target_id
-        left join blog_page p on v.target_type = 'page' and p.id = v.target_id
+        from zhi_visit_log v
+        left join zhi_article a on v.target_type = 'article' and a.id = v.target_id
+        left join zhi_page p on v.target_type = 'page' and p.id = v.target_id
     </sql>
 
     <select id="selectBlogVisitLogList" parameterType="BlogVisitLog" resultMap="BlogVisitLogResult">
@@ -58,7 +58,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             count(1) as pv,
             coalesce(sum(case when v.is_unique = 1 then 1 else 0 end), 0) as uv,
             count(distinct v.visit_date) as days
-        from blog_visit_log v
+        from zhi_visit_log v
         <where>
             <if test="beginDate != null and beginDate != ''"> and v.visit_date &gt;= #{beginDate}</if>
             <if test="endDate != null and endDate != ''"> and v.visit_date &lt;= #{endDate}</if>
@@ -71,9 +71,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                coalesce(a.title, p.title) as title,
                count(1) as pv,
                coalesce(sum(case when v.is_unique = 1 then 1 else 0 end), 0) as uv
-        from blog_visit_log v
-        left join blog_article a on v.target_type = 'article' and a.id = v.target_id
-        left join blog_page p on v.target_type = 'page' and p.id = v.target_id
+        from zhi_visit_log v
+        left join zhi_article a on v.target_type = 'article' and a.id = v.target_id
+        left join zhi_page p on v.target_type = 'page' and p.id = v.target_id
         <where>
             <if test="beginDate != null and beginDate != ''"> and v.visit_date &gt;= #{beginDate}</if>
             <if test="endDate != null and endDate != ''"> and v.visit_date &lt;= #{endDate}</if>
@@ -84,7 +84,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertBlogVisitLog" parameterType="BlogVisitLog" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_visit_log
+        insert into zhi_visit_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="targetType != null and targetType != ''">target_type,</if>
             <if test="targetId != null">target_id,</if>
@@ -112,17 +112,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <delete id="deleteBlogVisitLogByIds" parameterType="String">
-        delete from blog_visit_log where id in
+        delete from zhi_visit_log where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
 
     <delete id="deleteBlogVisitLogBefore" parameterType="String">
-        delete from blog_visit_log where visit_date &lt; #{date}
+        delete from zhi_visit_log where visit_date &lt; #{date}
     </delete>
 
     <delete id="truncateBlogVisitLog">
-        delete from blog_visit_log
+        delete from zhi_visit_log
     </delete>
 </mapper>

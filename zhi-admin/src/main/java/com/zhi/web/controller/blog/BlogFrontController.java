@@ -128,9 +128,9 @@ public class BlogFrontController extends BaseController
                 log.debug("sys_config表查询失败: {}", e.getMessage());
             }
 
-            // 如果sys_config表为空，则回退到blog_setting表
+            // 如果sys_config表为空，则回退到zhi_setting表
             if (configList == null || configList.isEmpty()) {
-                log.debug("sys_config表为空，回退到blog_setting表");
+                log.debug("sys_config表为空，回退到zhi_setting表");
                 BlogSetting blogSetting = new BlogSetting();
                 blogSetting.setDelFlag("0"); // 只查询未删除的设置
                 List<BlogSetting> blogSettingList = blogSettingService.selectBlogSettingList(blogSetting);
@@ -324,7 +324,7 @@ public class BlogFrontController extends BaseController
             if (shouldCount) {
                 String viewerKey = buildViewerKey(request);
                 blogArticleService.addViewCount(id, viewerKey);
-                // 文章访问同样写入 blog_visit_log 明细，否则管理端文章 PV/UV 明细永远为空
+                // 文章访问同样写入 zhi_visit_log 明细，否则管理端文章 PV/UV 明细永远为空
                 blogVisitLogService.recordVisit("article", id, "/article/" + id, viewerKey, request);
                 logger.info("文章浏览量已增加，ID: {}", id);
             } else {

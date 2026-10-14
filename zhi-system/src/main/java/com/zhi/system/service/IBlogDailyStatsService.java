@@ -12,7 +12,7 @@ import java.util.Map;
 public interface IBlogDailyStatsService
 {
     /**
-     * 将某日 Redis 计数（yyyyMMdd）汇总写入 blog_article_daily_stats
+     * 将某日 Redis 计数（yyyyMMdd）汇总写入 zhi_article_daily_stats
      *
      * @param dateKey 日期键，如 20260905
      * @return 处理的文章数

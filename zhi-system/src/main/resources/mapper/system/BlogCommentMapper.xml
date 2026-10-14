@@ -23,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select c.id, c.article_id, c.user_id, c.nickname, c.email,
                COALESCE(u.avatar, '') as avatar,
                c.content, c.parent_id, c.status, c.like_count, c.create_time
-        from blog_comment c
+        from zhi_comment c
         left join sys_user u on c.user_id = u.user_id
     </sql>
 
@@ -47,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectFrontCommentList" parameterType="BlogComment" resultMap="BlogCommentResult">
         select c.id, c.article_id, c.user_id, c.nickname, c.content, c.parent_id, c.status, c.like_count, c.create_time,
                COALESCE(u.avatar, '') as avatar
-        from blog_comment c
+        from zhi_comment c
         left join sys_user u on c.user_id = u.user_id
         <where>
             <if test="articleId != null "> and c.article_id = #{articleId}</if>
@@ -68,7 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
         
     <insert id="insertBlogComment" parameterType="BlogComment" useGeneratedKeys="true" keyProperty="id">
-        insert into blog_comment
+        insert into zhi_comment
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="articleId != null">article_id,</if>
             <if test="userId != null">user_id,</if>
@@ -94,7 +94,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="updateBlogComment" parameterType="BlogComment">
-        update blog_comment
+        update zhi_comment
         <trim prefix="SET" suffixOverrides=",">
             <if test="articleId != null">article_id = #{articleId},</if>
             <if test="userId != null">user_id = #{userId},</if>
@@ -109,11 +109,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteBlogCommentById" parameterType="Long">
-        delete from blog_comment where id = #{id}
+        delete from zhi_comment where id = #{id}
     </delete>
 
     <delete id="deleteBlogCommentByIds" parameterType="String">
-        delete from blog_comment where id in
+        delete from zhi_comment where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -121,7 +121,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 统计评论数量 -->
     <select id="selectBlogCommentCount" parameterType="BlogComment" resultType="Long">
-        select count(1) from blog_comment
+        select count(1) from zhi_comment
         <where>
             <if test="articleId != null"> and article_id = #{articleId}</if>
             <if test="userId != null"> and user_id = #{userId}</if>

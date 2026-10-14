@@ -6,7 +6,7 @@ import com.zhi.common.annotation.Excel;
 import com.zhi.common.core.domain.BaseEntity;
 
 /**
- * 留言板对象 blog_message
+ * 留言板对象 zhi_message
  * 
  * @author nevell
  * @date 2026-09-10

@@ -6,7 +6,7 @@ import com.zhi.common.annotation.Excel;
 import com.zhi.common.core.domain.BaseEntity;
 
 /**
- * 博客设置对象 blog_setting
+ * 博客设置对象 zhi_setting
  * 
  * @author nevell
  * @date 2025-09-08

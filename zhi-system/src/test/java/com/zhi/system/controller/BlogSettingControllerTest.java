@@ -417,7 +417,7 @@ class BlogSettingControllerTest {
     }
 
     /**
-     * 回归护栏：blog_setting 写入成功但 sys_config 同步抛异常时，
+     * 回归护栏：zhi_setting 写入成功但 sys_config 同步抛异常时，
      * 必须如实返回错误（前台公开设置以 sys_config 为主数据源，同步失败=前台不生效），
      * 不能像以前那样吞掉异常仍返回 200 伪装成功。
      */
@@ -500,7 +500,7 @@ class BlogSettingControllerTest {
 
     /**
      * mail_* 键必须走邮件专用接口：通用 updateByKey 会把它镜像进 sys_config（含密码），
-     * 因此这里要直接拒绝，且不能落到 blog_setting。
+     * 因此这里要直接拒绝，且不能落到 zhi_setting。
      */
     @Test
     void testUpdateSettingByKey_RejectsMailKey() throws Exception {
@@ -571,7 +571,7 @@ class BlogSettingControllerTest {
     }
 
     /**
-     * 注册开关读的是 sys_config（两个注册入口的读取源），而不是 blog_setting，
+     * 注册开关读的是 sys_config（两个注册入口的读取源），而不是 zhi_setting，
      * 且判定口径与注册入口一致：只有字面 "true" 算开启。
      */
     @Test

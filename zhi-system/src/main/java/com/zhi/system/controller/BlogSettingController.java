@@ -163,7 +163,7 @@ public class BlogSettingController extends BaseController
      * 修改单个设置值，并同步到 sys_config 表。
      *
      * <p>前台公开设置 {@code GET /blog/setting}（BlogFrontController）以 sys_config 为**主数据源**，
-     * 仅在 sys_config 为空时才回退 blog_setting。因此这里的镜像同步失败会让改动"看似成功、前台却不生效"。
+     * 仅在 sys_config 为空时才回退 zhi_setting。因此这里的镜像同步失败会让改动"看似成功、前台却不生效"。
      * 之前把同步异常吞掉后仍返回 success，正是这个假成功；现在如实返回错误，让管理端提示用户重试。</p>
      */
     private AjaxResult applySettingUpdateByKey(BlogSetting blogSetting)
@@ -239,7 +239,7 @@ public class BlogSettingController extends BaseController
      * 用户注册开关的生效值。
      *
      * <p>该开关只存在于 sys_config（前台注册 BlogAuthController 与后台自助注册 SysRegisterController
-     * 都读它），而本页其余设置读的是 blog_setting，所以这里直接返回注册入口实际读到的值，
+     * 都读它），而本页其余设置读的是 zhi_setting，所以这里直接返回注册入口实际读到的值，
      * 避免卡片显示与真实拦截行为不一致。判定口径与两个注册入口相同：仅字面 "true" 为开启。</p>
      */
     @PreAuthorize("@ss.hasPermi('zhi:setting:query')")
@@ -265,7 +265,7 @@ public class BlogSettingController extends BaseController
     }
 
     /**
-     * 保存邮件（SMTP）配置：写 blog_setting 并热更新到活的邮件发送器（不重启、不进 sys_config）。
+     * 保存邮件（SMTP）配置：写 zhi_setting 并热更新到活的邮件发送器（不重启、不进 sys_config）。
      * 提交空密码表示保留原密码。
      */
     @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")

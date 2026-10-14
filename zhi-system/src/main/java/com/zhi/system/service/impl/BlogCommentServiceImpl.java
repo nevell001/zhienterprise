@@ -429,7 +429,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     }
 
     /**
-     * 增减文章评论数（blog_article.comment_count）
+     * 增减文章评论数（zhi_article.comment_count）
      */
     private void adjustArticleCommentCount(Long articleId, int delta)
     {
@@ -438,7 +438,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
             return;
         }
         // 不再吞异常：计数同步失败必须让外层事务回滚，否则会出现"评论已发布、comment_count 永久偏移"
-        // 的历史脏数据（blog_article.comment_count 是列表页展示列，与真实 count 会长期不一致）
+        // 的历史脏数据（zhi_article.comment_count 是列表页展示列，与真实 count 会长期不一致）
         blogArticleMapper.changeCommentCount(articleId, delta);
     }
 

@@ -417,7 +417,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     /**
-     * 维护当日 PV/UV 的 Redis 计数（由定时任务按日汇总入 blog_article_daily_stats）
+     * 维护当日 PV/UV 的 Redis 计数（由定时任务按日汇总入 zhi_article_daily_stats）
      */
     private void recordDailyPvUv(Long articleId, String viewerKey) {
         try {

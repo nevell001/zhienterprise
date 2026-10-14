@@ -13,7 +13,7 @@ import com.zhi.system.service.IBlogVisitLogService;
 /**
  * 每日 PV/UV 统计任务
  *
- * <p>每小时把当日 Redis 计数汇总入 blog_article_daily_stats（保证近实时）；
+ * <p>每小时把当日 Redis 计数汇总入 zhi_article_daily_stats（保证近实时）；
  * 每天 00:35 汇总前一日最终值并清理前一日 Redis 计数键。</p>
  */
 @Component("dailyStatsSyncTask")

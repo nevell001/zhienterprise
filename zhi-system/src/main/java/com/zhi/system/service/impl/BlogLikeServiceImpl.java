@@ -12,8 +12,8 @@ import com.zhi.system.service.IBlogLikeService;
 /**
  * 点赞Service实现（文章点赞 + 评论点赞）
  *
- * <p>以 blog_article_like / blog_comment_like 记录表为准做幂等去重与取消，
- * blog_article.like_count / blog_comment.like_count 作为展示计数同步增减。</p>
+ * <p>以 zhi_article_like / zhi_comment_like 记录表为准做幂等去重与取消，
+ * zhi_article.like_count / zhi_comment.like_count 作为展示计数同步增减。</p>
  *
  * @author nevell
  * @date 2026-09-05
