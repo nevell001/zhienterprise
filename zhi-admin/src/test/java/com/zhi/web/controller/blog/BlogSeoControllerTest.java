@@ -69,8 +69,9 @@ class BlogSeoControllerTest
         String xml = body("/sitemap.xml", "blog.example.com", 443);
 
         assertFalse(xml.contains("localhost"), "站点地图绝不能出现 localhost：\n" + xml);
+        assertFalse(xml.contains("/blog/"), "站点地图不应出现 /blog 页面路径：\n" + xml);
         assertTrue(xml.contains("<loc>https://blog.example.com/</loc>"), xml);
-        assertTrue(xml.contains("https://blog.example.com/blog/about"), xml);
+        assertTrue(xml.contains("https://blog.example.com/about"), xml);
         verify(blogArticleService).selectSitemapArticles();
     }
 
@@ -87,7 +88,7 @@ class BlogSeoControllerTest
     }
 
     @Test
-    @DisplayName("首页被自定义页面接管时，站点地图收录文章列表地址")
+    @DisplayName("首页被自定义页面接管时，站点地图收录文章列表地址 /news")
     void sitemapIncludesArticleListWhenHomeIsCustomPage() throws Exception
     {
         when(blogSettingService.selectSettingValueByKey("blog_url")).thenReturn("https://blog.example.com");
@@ -95,18 +96,30 @@ class BlogSeoControllerTest
 
         String xml = body("/sitemap.xml", "blog.example.com", 443);
 
-        assertTrue(xml.contains("<loc>https://blog.example.com/blog/articles</loc>"), xml);
+        assertTrue(xml.contains("<loc>https://blog.example.com/news</loc>"), xml);
     }
 
     @Test
-    @DisplayName("默认博客首页时，文章列表地址不重复收录")
+    @DisplayName("默认博客首页时，文章列表地址 /news 不重复收录")
     void sitemapOmitsArticleListForDefaultHome() throws Exception
     {
         when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn(null);
 
         String xml = body("/sitemap.xml", "blog.example.com", 443);
 
-        assertFalse(xml.contains("/blog/articles"), xml);
+        assertFalse(xml.contains("/news"), xml);
+    }
+
+    @Test
+    @DisplayName("核心业务/联系我们为独立页面，任何形态下都收录")
+    void sitemapAlwaysIncludesBusinessAndContact() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn(null);
+
+        String xml = body("/sitemap.xml", "blog.example.com", 443);
+
+        assertTrue(xml.contains("<loc>https://blog.example.com/business</loc>"), xml);
+        assertTrue(xml.contains("<loc>https://blog.example.com/contact</loc>"), xml);
     }
 
     @Test

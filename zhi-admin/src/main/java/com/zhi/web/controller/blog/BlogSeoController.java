@@ -26,8 +26,8 @@ import com.zhi.system.service.IBlogSettingService;
 @RestController
 public class BlogSeoController
 {
-    /** 页面地址集合 */
-    private static final String[] STATIC_PATHS = { "/blog", "/blog/about", "/blog/category", "/blog/tag", "/blog/archive", "/blog/guestbook" };
+    /** 页面地址集合（站点前台为短路径，与 zhi-ui/src/router/blog.ts 一致） */
+    private static final String[] STATIC_PATHS = { "/about", "/honors", "/history", "/category", "/tag", "/archive", "/guestbook" };
 
     @Autowired
     private IBlogSettingService blogSettingService;
@@ -60,29 +60,19 @@ public class BlogSeoController
         {
             writeUrl(out, baseUrl + path, null);
         }
-        // 首页被自定义页面接管时，文章列表迁到 /blog/articles（否则该地址与首页重复，不入站点地图）
+        // 首页被自定义页面接管、或官网模板首页形态时，文章列表页 /news 与首页内容不同，收录；
+        // 默认形态下 /news 与首页同为文章列表，不重复收录
         String homePageSlug = readSetting("home_page_slug");
-        if (homePageSlug != null && !homePageSlug.trim().isEmpty())
-        {
-            writeUrl(out, baseUrl + "/blog/articles", null);
-        }
-        // 企业官网模板模式：短路径导航页入站点地图（导航地址无 /blog 前缀）；博客形态保持 /blog 前缀
+        boolean customHome = homePageSlug != null && !homePageSlug.trim().isEmpty();
         String homeLayout = readSetting("home_layout");
         boolean tplMode = "business".equalsIgnoreCase(homeLayout == null ? "" : homeLayout.trim());
-        if (tplMode)
+        if (customHome || tplMode)
         {
-            writeUrl(out, baseUrl + "/business", null);
             writeUrl(out, baseUrl + "/news", null);
-            writeUrl(out, baseUrl + "/about", null);
-            writeUrl(out, baseUrl + "/honors", null);
-            writeUrl(out, baseUrl + "/history", null);
-            writeUrl(out, baseUrl + "/contact", null);
         }
-        else
-        {
-            writeUrl(out, baseUrl + "/blog/business", null);
-            writeUrl(out, baseUrl + "/blog/contact", null);
-        }
+        // 核心业务与联系我们：两种站点形态下都是独立页面
+        writeUrl(out, baseUrl + "/business", null);
+        writeUrl(out, baseUrl + "/contact", null);
         // 启用中的分类（alias 伪静态优先）
         try
         {
@@ -96,7 +86,7 @@ public class BlogSeoController
                 {
                     String seg = category.getAlias() != null && !category.getAlias().trim().isEmpty()
                         ? category.getAlias().trim() : String.valueOf(category.getId());
-                    writeUrl(out, baseUrl + "/blog/category/" + seg, null);
+                    writeUrl(out, baseUrl + "/category/" + seg, null);
                 }
             }
         }
@@ -104,7 +94,7 @@ public class BlogSeoController
         {
             // 分类收录失败不影响站点地图其余部分
         }
-        // 已发布文章（核心业务/客户案例的规范入口是 /blog/business/{id}）
+        // 已发布文章（核心业务/客户案例的规范入口是 /business/{id}）
         try
         {
             BlogArticle query = new BlogArticle();
@@ -122,15 +112,7 @@ public class BlogSeoController
                     }
                     String type = article.getArticleType();
                     boolean isBiz = "business".equals(type) || "case".equals(type);
-                    String pathPrefix;
-                    if (tplMode)
-                    {
-                        pathPrefix = isBiz ? "/business/" : "/article/";
-                    }
-                    else
-                    {
-                        pathPrefix = isBiz ? "/blog/business/" : "/blog/article/";
-                    }
+                    String pathPrefix = isBiz ? "/business/" : "/article/";
                     // 伪静态优先：有 slug 用 slug，否则回退数字 ID
                     String seg = article.getSlug() != null && !article.getSlug().trim().isEmpty()
                         ? article.getSlug().trim() : String.valueOf(article.getId());
@@ -159,7 +141,7 @@ public class BlogSeoController
                     {
                         lastmod = ModernDateUtils.format(page.getUpdateTime(), ModernDateUtils.YYYY_MM_DD);
                     }
-                    writeUrl(out, baseUrl + "/blog/page/" + page.getSlug(), lastmod);
+                    writeUrl(out, baseUrl + "/page/" + page.getSlug(), lastmod);
                 }
             }
         }
