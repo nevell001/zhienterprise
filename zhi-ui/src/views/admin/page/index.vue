@@ -48,7 +48,7 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:page:add']"
+          v-hasPermi="['zhi:page:add']"
           type="primary"
           plain
           icon="Plus"
@@ -59,7 +59,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:page:edit']"
+          v-hasPermi="['zhi:page:edit']"
           type="success"
           plain
           icon="Edit"
@@ -71,7 +71,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:page:remove']"
+          v-hasPermi="['zhi:page:remove']"
           type="danger"
           plain
           icon="Delete"
@@ -83,7 +83,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:page:export']"
+          v-hasPermi="['zhi:page:export']"
           type="warning"
           plain
           icon="Download"
@@ -163,7 +163,7 @@
         <template #default="scope">
           <el-tooltip content="修改" placement="top">
             <el-button
-              v-hasPermi="['blog:page:edit']"
+              v-hasPermi="['zhi:page:edit']"
               link
               type="primary"
               icon="Edit"
@@ -173,7 +173,7 @@
           </el-tooltip>
           <el-tooltip :content="String(scope.row.status) === '1' ? '下架' : '发布'" placement="top">
             <el-button
-              v-hasPermi="['blog:page:edit']"
+              v-hasPermi="['zhi:page:edit']"
               link
               :type="String(scope.row.status) === '1' ? 'warning' : 'success'"
               :icon="String(scope.row.status) === '1' ? 'Bottom' : 'Top'"
@@ -183,7 +183,7 @@
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
             <el-button
-              v-hasPermi="['blog:page:remove']"
+              v-hasPermi="['zhi:page:remove']"
               link
               type="danger"
               icon="Delete"

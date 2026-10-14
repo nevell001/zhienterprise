@@ -49,7 +49,7 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:message:remove']"
+          v-hasPermi="['zhi:message:remove']"
           type="danger"
           plain
           icon="Delete"
@@ -61,7 +61,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:message:export']"
+          v-hasPermi="['zhi:message:export']"
           type="warning"
           plain
           icon="Download"
@@ -161,7 +161,7 @@
         <template #default="scope">
           <el-tooltip v-if="String(scope.row.status) !== '1'" content="审核通过" placement="top">
             <el-button
-              v-hasPermi="['blog:message:edit']"
+              v-hasPermi="['zhi:message:edit']"
               link
               type="success"
               icon="Check"
@@ -171,7 +171,7 @@
           </el-tooltip>
           <el-tooltip v-if="String(scope.row.status) !== '2'" content="审核拒绝" placement="top">
             <el-button
-              v-hasPermi="['blog:message:edit']"
+              v-hasPermi="['zhi:message:edit']"
               link
               type="warning"
               icon="Close"
@@ -181,7 +181,7 @@
           </el-tooltip>
           <el-tooltip content="回复" placement="top">
             <el-button
-              v-hasPermi="['blog:message:reply']"
+              v-hasPermi="['zhi:message:reply']"
               link
               type="primary"
               icon="ChatDotRound"
@@ -191,7 +191,7 @@
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
             <el-button
-              v-hasPermi="['blog:message:remove']"
+              v-hasPermi="['zhi:message:remove']"
               link
               type="danger"
               icon="Delete"

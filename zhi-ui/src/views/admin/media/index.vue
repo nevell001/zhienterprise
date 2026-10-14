@@ -70,7 +70,7 @@
       <el-table-column label="操作" align="center" width="100" fixed="right">
         <template #default="scope">
           <el-button
-            v-hasPermi="['blog:media:remove']"
+            v-hasPermi="['zhi:media:remove']"
             link
             type="danger"
             icon="Delete"

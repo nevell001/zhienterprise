@@ -8,7 +8,7 @@ package com.zhi.common.cache;
 public class CacheConstants
 {
     // 缓存前缀
-    public static final String BLOG_PREFIX = "blog:";
+    public static final String BLOG_PREFIX = "zhi:";
     
     // 站点文章相关缓存
     public static final String BLOG_ARTICLE = BLOG_PREFIX + "article:";

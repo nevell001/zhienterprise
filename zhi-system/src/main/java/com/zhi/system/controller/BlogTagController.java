@@ -41,7 +41,7 @@ public class BlogTagController extends BaseController
     /**
      * 查询博客标签列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:tag:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:tag:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogTag blogTag)
     {
@@ -53,7 +53,7 @@ public class BlogTagController extends BaseController
     /**
      * 导出博客标签列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:tag:export')")
+    @PreAuthorize("@ss.hasPermi('zhi:tag:export')")
     @Log(title = "标签", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogTag blogTag)
@@ -66,7 +66,7 @@ public class BlogTagController extends BaseController
     /**
      * 获取博客标签详细信息
      */
-    @PreAuthorize("@ss.hasPermi('blog:tag:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:tag:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -81,7 +81,7 @@ public class BlogTagController extends BaseController
     /**
      * 新增博客标签
      */
-    @PreAuthorize("@ss.hasPermi('blog:tag:add')")
+    @PreAuthorize("@ss.hasPermi('zhi:tag:add')")
     @Log(title = "标签", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogTag blogTag)
@@ -96,7 +96,7 @@ public class BlogTagController extends BaseController
     /**
      * 修改博客标签
      */
-    @PreAuthorize("@ss.hasPermi('blog:tag:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:tag:edit')")
     @Log(title = "标签", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogTag blogTag)
@@ -111,7 +111,7 @@ public class BlogTagController extends BaseController
     /**
      * 删除博客标签
      */
-    @PreAuthorize("@ss.hasPermi('blog:tag:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:tag:remove')")
     @Log(title = "标签", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
@@ -129,7 +129,7 @@ public class BlogTagController extends BaseController
     /**
      * 获取所有标签（供前端选择）
      */
-    @PreAuthorize("@ss.hasPermi('blog:tag:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:tag:list')")
     @GetMapping("/all")
     public AjaxResult getAllTags()
     {

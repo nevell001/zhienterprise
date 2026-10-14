@@ -201,7 +201,7 @@ public class BlogPageServiceImpl implements IBlogPageService
             // 无法判定访客身份时不去重，保持与旧行为一致
             return blogPageMapper.increaseViewCount(id);
         }
-        String dedupeKey = "blog:page:viewed:" + id + ":" + viewerKey;
+        String dedupeKey = "zhi:page:viewed:" + id + ":" + viewerKey;
         if (Boolean.TRUE.equals(redisCache.hasKey(dedupeKey)))
         {
             // 24 小时内已计过，跳过累加

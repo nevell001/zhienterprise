@@ -451,7 +451,7 @@ class BlogArticleServiceImplTest {
         blogArticleService.addViewCount(1L);
 
         // 验证结果
-        verify(redisCache).incrementCacheObject("blog:article:view:1", 1);
+        verify(redisCache).incrementCacheObject("zhi:article:view:1", 1);
         // 浏览量仅缓冲在 Redis，由 ArticleViewSyncTask 定时批量同步数据库，避免双重计数
         verify(blogArticleMapper, never()).addViewCount(1L);
     }

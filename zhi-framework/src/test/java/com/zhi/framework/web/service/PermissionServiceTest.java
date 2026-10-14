@@ -82,7 +82,7 @@ class PermissionServiceTest
         // 没有 authentication 时 SecurityUtils.getLoginUser() 不会返回 null，而是抛 401 业务异常，
         // 由全局异常处理器转成响应；这里锁住这条真实拒绝路径，避免日后被"改成返回 false"弱化。
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        assertThatThrownBy(() -> permissionService.hasPermi("blog:article:edit"))
+        assertThatThrownBy(() -> permissionService.hasPermi("zhi:article:edit"))
                 .isInstanceOf(ServiceException.class)
                 .hasFieldOrPropertyWithValue("code", HttpStatus.UNAUTHORIZED);
         assertThatThrownBy(() -> permissionService.hasRole("admin"))
@@ -94,18 +94,18 @@ class PermissionServiceTest
     {
         login(Collections.emptySet());
 
-        assertThat(permissionService.hasPermi("blog:article:edit")).isFalse();
-        assertThat(permissionService.lacksPermi("blog:article:edit")).isTrue();
+        assertThat(permissionService.hasPermi("zhi:article:edit")).isFalse();
+        assertThat(permissionService.lacksPermi("zhi:article:edit")).isTrue();
     }
 
     @Test
     void exactPermissionGrantsAndTrimsTheComparedValue()
     {
-        login(new HashSet<>(Collections.singletonList("blog:article:edit")));
+        login(new HashSet<>(Collections.singletonList("zhi:article:edit")));
 
-        assertThat(permissionService.hasPermi("blog:article:edit")).isTrue();
-        assertThat(permissionService.hasPermi("  blog:article:edit  ")).isTrue();
-        assertThat(permissionService.hasPermi("blog:article:remove")).isFalse();
+        assertThat(permissionService.hasPermi("zhi:article:edit")).isTrue();
+        assertThat(permissionService.hasPermi("  zhi:article:edit  ")).isTrue();
+        assertThat(permissionService.hasPermi("zhi:article:remove")).isFalse();
     }
 
     @Test
@@ -114,16 +114,16 @@ class PermissionServiceTest
         login(new HashSet<>(Collections.singletonList("*:*:*")));
 
         assertThat(permissionService.hasPermi("system:user:remove")).isTrue();
-        assertThat(permissionService.hasAnyPermi("system:user:remove,blog:comment:audit")).isTrue();
+        assertThat(permissionService.hasAnyPermi("system:user:remove,zhi:comment:audit")).isTrue();
     }
 
     @Test
     void anyPermiMatchesTheSecondEntryAndDeniesWhenNoneMatch()
     {
-        login(new HashSet<>(Collections.singletonList("blog:comment:audit")));
+        login(new HashSet<>(Collections.singletonList("zhi:comment:audit")));
 
-        assertThat(permissionService.hasAnyPermi("system:user:remove,blog:comment:audit")).isTrue();
-        assertThat(permissionService.hasAnyPermi("system:user:remove,blog:comment:delete")).isFalse();
+        assertThat(permissionService.hasAnyPermi("system:user:remove,zhi:comment:audit")).isTrue();
+        assertThat(permissionService.hasAnyPermi("system:user:remove,zhi:comment:delete")).isFalse();
     }
 
     @Test
@@ -131,8 +131,8 @@ class PermissionServiceTest
     {
         login(Collections.emptySet(), role("admin"));
 
-        assertThat(permissionService.hasRole("blog:editor")).isTrue();
-        assertThat(permissionService.lacksRole("blog:editor")).isFalse();
+        assertThat(permissionService.hasRole("zhi:editor")).isTrue();
+        assertThat(permissionService.lacksRole("zhi:editor")).isFalse();
     }
 
     @Test

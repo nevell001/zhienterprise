@@ -40,10 +40,10 @@ class BlogDailyStatsServiceImplTest
     @Test
     void testUpsertMergesPvAndUvForSameArticle()
     {
-        String pvKey = "blog:article:pv:20260905:10";
-        String uvKey = "blog:article:uv:20260905:10";
-        when(redisCache.scanKeys("blog:article:pv:20260905:*")).thenReturn(Collections.singletonList(pvKey));
-        when(redisCache.scanKeys("blog:article:uv:20260905:*")).thenReturn(Collections.singletonList(uvKey));
+        String pvKey = "zhi:article:pv:20260905:10";
+        String uvKey = "zhi:article:uv:20260905:10";
+        when(redisCache.scanKeys("zhi:article:pv:20260905:*")).thenReturn(Collections.singletonList(pvKey));
+        when(redisCache.scanKeys("zhi:article:uv:20260905:*")).thenReturn(Collections.singletonList(uvKey));
         when(redisCache.getCacheObject(pvKey)).thenReturn(5L);
         when(redisCache.getCacheObject(uvKey)).thenReturn(2L);
         when(blogDailyStatsMapper.upsertDailyStat(10L, "2026-09-05", 5L, 2L)).thenReturn(1);
@@ -66,12 +66,12 @@ class BlogDailyStatsServiceImplTest
     @Test
     void testCleanupDeletesAllDailyKeys()
     {
-        String pvKey = "blog:article:pv:20260904:10";
-        String uvKey = "blog:article:uv:20260904:10";
-        String uviewKey = "blog:article:uview:20260904:10:ip:1.2.3.4";
-        when(redisCache.scanKeys("blog:article:pv:20260904:*")).thenReturn(Collections.singletonList(pvKey));
-        when(redisCache.scanKeys("blog:article:uv:20260904:*")).thenReturn(Collections.singletonList(uvKey));
-        when(redisCache.scanKeys("blog:article:uview:20260904:*")).thenReturn(Collections.singletonList(uviewKey));
+        String pvKey = "zhi:article:pv:20260904:10";
+        String uvKey = "zhi:article:uv:20260904:10";
+        String uviewKey = "zhi:article:uview:20260904:10:ip:1.2.3.4";
+        when(redisCache.scanKeys("zhi:article:pv:20260904:*")).thenReturn(Collections.singletonList(pvKey));
+        when(redisCache.scanKeys("zhi:article:uv:20260904:*")).thenReturn(Collections.singletonList(uvKey));
+        when(redisCache.scanKeys("zhi:article:uview:20260904:*")).thenReturn(Collections.singletonList(uviewKey));
         when(redisCache.deleteObject(pvKey)).thenReturn(true);
         when(redisCache.deleteObject(uvKey)).thenReturn(true);
         when(redisCache.deleteObject(uviewKey)).thenReturn(true);

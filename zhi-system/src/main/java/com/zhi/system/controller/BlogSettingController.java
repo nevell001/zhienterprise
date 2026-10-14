@@ -63,7 +63,7 @@ public class BlogSettingController extends BaseController
     /**
      * 查询博客设置列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogSetting blogSetting)
     {
@@ -76,7 +76,7 @@ public class BlogSettingController extends BaseController
     /**
      * 通过设置键查询设置值
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:query')")
     @GetMapping("/value/{settingKey}")
     public AjaxResult getSettingValueByKey(@PathVariable("settingKey") String settingKey)
     {
@@ -92,7 +92,7 @@ public class BlogSettingController extends BaseController
     /**
      * 获取博客设置详细信息
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -114,7 +114,7 @@ public class BlogSettingController extends BaseController
     /**
      * 新增博客设置
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:add')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:add')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "站点设置", businessType = BusinessType.INSERT)
     @PostMapping
@@ -126,7 +126,7 @@ public class BlogSettingController extends BaseController
     /**
      * 修改博客设置
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "站点设置", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -138,7 +138,7 @@ public class BlogSettingController extends BaseController
     /**
      * 通过设置键修改设置值
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "站点设置", businessType = BusinessType.UPDATE)
     @PutMapping("/updateByKey")
@@ -150,7 +150,7 @@ public class BlogSettingController extends BaseController
     /**
      * 通过设置键修改设置值 (POST方法支持)
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "站点设置", businessType = BusinessType.UPDATE)
     @PostMapping("/updateByKey")
@@ -242,7 +242,7 @@ public class BlogSettingController extends BaseController
      * 都读它），而本页其余设置读的是 blog_setting，所以这里直接返回注册入口实际读到的值，
      * 避免卡片显示与真实拦截行为不一致。判定口径与两个注册入口相同：仅字面 "true" 为开启。</p>
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:query')")
     @GetMapping("/registration")
     public AjaxResult getRegistrationSwitch()
     {
@@ -255,7 +255,7 @@ public class BlogSettingController extends BaseController
      * <p>额外带上 dev-print-code 状态：该开关为真时验证码只打印到日志、不会真实发信，
      * 否则"测试连接成功却收不到信"在管理端无从判断。</p>
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:query')")
     @GetMapping("/mail")
     public AjaxResult getMailConfig()
     {
@@ -268,7 +268,7 @@ public class BlogSettingController extends BaseController
      * 保存邮件（SMTP）配置：写 blog_setting 并热更新到活的邮件发送器（不重启、不进 sys_config）。
      * 提交空密码表示保留原密码。
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
     @Log(title = "邮件服务配置", businessType = BusinessType.UPDATE)
     @PostMapping("/mail")
     public AjaxResult saveMailConfig(@RequestBody MailConfigForm form)
@@ -280,7 +280,7 @@ public class BlogSettingController extends BaseController
      * 测试邮件配置能否连接 SMTP 服务器。传入当前表单则测表单值（密码留空沿用已存密码），
      * 不传则测已保存的配置。
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
     @PostMapping("/mail/test")
     public AjaxResult testMailConfig(@RequestBody(required = false) MailConfigForm form)
     {
@@ -291,7 +291,7 @@ public class BlogSettingController extends BaseController
     /**
      * 删除博客设置
      */
-    @PreAuthorize("@ss.hasPermi('blog:setting:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:remove')")
     @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "站点设置", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")

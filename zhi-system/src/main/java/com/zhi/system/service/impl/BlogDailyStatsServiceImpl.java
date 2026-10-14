@@ -24,11 +24,11 @@ public class BlogDailyStatsServiceImpl implements IBlogDailyStatsService
 {
     private static final Logger log = LoggerFactory.getLogger(BlogDailyStatsServiceImpl.class);
 
-    private static final String PV_PREFIX = "blog:article:pv:";
+    private static final String PV_PREFIX = "zhi:article:pv:";
 
-    private static final String UV_PREFIX = "blog:article:uv:";
+    private static final String UV_PREFIX = "zhi:article:uv:";
 
-    private static final String UVIEW_PREFIX = "blog:article:uview:";
+    private static final String UVIEW_PREFIX = "zhi:article:uview:";
 
     @Autowired
     private BlogDailyStatsMapper blogDailyStatsMapper;

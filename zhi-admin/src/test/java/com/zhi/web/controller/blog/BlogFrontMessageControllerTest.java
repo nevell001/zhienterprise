@@ -388,7 +388,7 @@ class BlogFrontMessageControllerTest
         perform(validMessage()).andExpect(jsonPath("$.code").value(200));
 
         verify(unifiedCacheManager).set(
-            argThat(key -> key != null && key.startsWith("blog:message:cooldown:")),
+            argThat(key -> key != null && key.startsWith("zhi:message:cooldown:")),
             any(),
             eq(60L),
             eq(TimeUnit.SECONDS));

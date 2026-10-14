@@ -28,7 +28,7 @@ public class BlogBookmarkController extends BaseController {
     /**
      * 切换收藏状态
      */
-    @RateLimiter(key = "blog:bookmark:", time = 60, count = 30, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:bookmark:", time = 60, count = 30, limitType = LimitType.IP)
     @PostMapping("/toggle/{articleId}")
     public AjaxResult toggleBookmark(@PathVariable("articleId") Long articleId) {
         Long userId = SecurityUtils.getUserId();

@@ -9,7 +9,7 @@ import { resolveMonitorUrl, type MonitorTarget } from './monitorUrl'
  * `prometheus_url` / `grafana_url` / `actuator_url`（留空表示自动推导）。
  * 这里统一读取并交给 `resolveMonitorUrl` 按「设置 → 构建期环境变量 → 站点访问地址推导」解析。
  *
- * 读取失败（例如当前账号没有 blog:setting:query 权限）不会报错打断页面，
+ * 读取失败（例如当前账号没有 zhi:setting:query 权限）不会报错打断页面，
  * 只记一条日志并继续走环境变量/自动推导。
  */
 

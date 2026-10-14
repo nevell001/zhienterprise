@@ -30,7 +30,7 @@ public class BlogMediaController extends BaseController
     /**
      * 查询上传记录列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:media:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:media:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogUpload blogUpload)
     {
@@ -42,7 +42,7 @@ public class BlogMediaController extends BaseController
     /**
      * 删除上传记录（同时尝试删除物理文件）
      */
-    @PreAuthorize("@ss.hasPermi('blog:media:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:media:remove')")
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {

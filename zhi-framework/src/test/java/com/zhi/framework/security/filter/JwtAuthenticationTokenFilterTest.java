@@ -69,7 +69,7 @@ class JwtAuthenticationTokenFilterTest
     {
         SysUser user = new SysUser();
         user.setUserName(username);
-        LoginUser loginUser = new LoginUser(7L, 3L, user, Collections.singleton("blog:article:edit"));
+        LoginUser loginUser = new LoginUser(7L, 3L, user, Collections.singleton("zhi:article:edit"));
         loginUser.setToken("uuid-1");
         return loginUser;
     }

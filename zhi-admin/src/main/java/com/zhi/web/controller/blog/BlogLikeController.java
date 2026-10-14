@@ -38,7 +38,7 @@ public class BlogLikeController extends BaseController
     /**
      * 切换文章点赞
      */
-    @RateLimiter(key = "blog:like:", time = 60, count = 30, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:like:", time = 60, count = 30, limitType = LimitType.IP)
     @PostMapping("/article/{articleId}")
     public AjaxResult toggleArticleLike(@PathVariable("articleId") Long articleId)
     {
@@ -67,7 +67,7 @@ public class BlogLikeController extends BaseController
     /**
      * 切换评论点赞
      */
-    @RateLimiter(key = "blog:like:", time = 60, count = 30, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:like:", time = 60, count = 30, limitType = LimitType.IP)
     @PostMapping("/comment/{commentId}")
     public AjaxResult toggleCommentLike(@PathVariable("commentId") Long commentId)
     {

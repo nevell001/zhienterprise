@@ -42,9 +42,9 @@ public class CacheConfig
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultCacheConfig)
-                .withCacheConfiguration("blog:article", blogCacheConfig)
-                .withCacheConfiguration("blog:hot", hotCacheConfig)
-                .withCacheConfiguration("blog:setting", settingCacheConfig)
+                .withCacheConfiguration("zhi:article", blogCacheConfig)
+                .withCacheConfiguration("zhi:hot", hotCacheConfig)
+                .withCacheConfiguration("zhi:setting", settingCacheConfig)
                 .build();
     }
 }

@@ -268,7 +268,7 @@ public class BlogFrontSettingController extends BaseController {
         }
     }
 
-    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
     @GetMapping("/clear-blog-cache")
     @Operation(summary = "清除站点设置缓存")
     public AjaxResult clearBlogCache() {

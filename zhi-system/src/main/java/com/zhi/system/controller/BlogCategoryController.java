@@ -37,7 +37,7 @@ public class BlogCategoryController extends BaseController
     /**
      * 查询文章分类列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:category:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:category:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogCategory blogCategory)
     {
@@ -53,7 +53,7 @@ public class BlogCategoryController extends BaseController
     /**
      * 导出文章分类列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:category:export')")
+    @PreAuthorize("@ss.hasPermi('zhi:category:export')")
     @Log(title = "文章分类", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogCategory blogCategory)
@@ -70,7 +70,7 @@ public class BlogCategoryController extends BaseController
     /**
      * 获取文章分类详细信息
      */
-    @PreAuthorize("@ss.hasPermi('blog:category:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:category:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -80,7 +80,7 @@ public class BlogCategoryController extends BaseController
     /**
      * 新增文章分类
      */
-    @PreAuthorize("@ss.hasPermi('blog:category:add')")
+    @PreAuthorize("@ss.hasPermi('zhi:category:add')")
     @Log(title = "文章分类", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogCategory blogCategory)
@@ -91,7 +91,7 @@ public class BlogCategoryController extends BaseController
     /**
      * 修改文章分类
      */
-    @PreAuthorize("@ss.hasPermi('blog:category:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:category:edit')")
     @Log(title = "文章分类", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogCategory blogCategory)
@@ -102,7 +102,7 @@ public class BlogCategoryController extends BaseController
     /**
      * 删除文章分类
      */
-    @PreAuthorize("@ss.hasPermi('blog:category:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:category:remove')")
     @Log(title = "文章分类", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)

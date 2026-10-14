@@ -35,7 +35,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 查询文章标签关联列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogArticleTag blogArticleTag)
     {
@@ -47,7 +47,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 通过文章ID查询标签ID列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:list')")
     @GetMapping("/tags/{articleId}")
     public AjaxResult getTagIdsByArticleId(@PathVariable("articleId") Long articleId)
     {
@@ -57,7 +57,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 通过标签ID查询文章ID列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:list')")
     @GetMapping("/articles/{tagId}")
     public AjaxResult getArticleIdsByTagId(@PathVariable("tagId") Long tagId)
     {
@@ -67,7 +67,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 获取文章标签关联详细信息
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -77,7 +77,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 新增文章标签关联
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:add')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:add')")
     @Log(title = "文章标签关联", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogArticleTag blogArticleTag)
@@ -88,7 +88,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 批量新增文章标签关联
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:add')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:add')")
     @Log(title = "文章标签关联", businessType = BusinessType.INSERT)
     @PostMapping("/batch")
     public AjaxResult batchAdd(@RequestBody List<BlogArticleTag> articleTagList)
@@ -99,7 +99,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 修改文章标签关联
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:edit')")
     @Log(title = "文章标签关联", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogArticleTag blogArticleTag)
@@ -110,7 +110,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 删除文章标签关联
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:remove')")
     @Log(title = "文章标签关联", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
@@ -121,7 +121,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 通过文章ID删除文章和标签关联
      */
-    @PreAuthorize("@ss.hasPermi('blog:articleTag:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:articleTag:remove')")
     @Log(title = "文章标签关联", businessType = BusinessType.DELETE)
     @DeleteMapping("/article/{articleId}")
     public AjaxResult removeByArticleId(@PathVariable("articleId") Long articleId)

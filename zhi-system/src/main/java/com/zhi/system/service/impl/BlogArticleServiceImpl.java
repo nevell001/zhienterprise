@@ -322,7 +322,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
+    @BlogCacheEvict(value = {"zhi:article:*", "zhi:article:list:*", "zhi:hot:*"}, keyPattern = "zhi:*")
     public int updateBlogArticle(BlogArticle blogArticle)
     {
         if (blogArticle.getId() == null) {
@@ -366,7 +366,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
+    @BlogCacheEvict(value = {"zhi:article:*", "zhi:article:list:*", "zhi:hot:*"}, keyPattern = "zhi:*")
     public int deleteBlogArticleByIds(Long[] ids)
     {
         // 先删除标签关联
@@ -399,11 +399,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Override
     public void addViewCount(Long id, String viewerKey) {
         // 使用 Redis 缓冲浏览量增量，由 ArticleViewSyncTask 定时批量同步到数据库
-        String key = "blog:article:view:" + id;
+        String key = "zhi:article:view:" + id;
 
         // 按访问者去重：同一访问者 24 小时内对同一文章只计一次文章总浏览量
         if (viewerKey != null && !viewerKey.isEmpty()) {
-            String dedupeKey = "blog:article:viewed:" + id + ":" + viewerKey;
+            String dedupeKey = "zhi:article:viewed:" + id + ":" + viewerKey;
             if (Boolean.FALSE.equals(redisCache.hasKey(dedupeKey))) {
                 redisCache.incrementCacheObject(key, 1);
                 redisCache.setCacheObject(dedupeKey, "1", 24, TimeUnit.HOURS);
@@ -422,13 +422,13 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     private void recordDailyPvUv(Long articleId, String viewerKey) {
         try {
             String date = DateUtils.parseDateToStr("yyyyMMdd", DateUtils.getNowDate());
-            String pvKey = "blog:article:pv:" + date + ":" + articleId;
+            String pvKey = "zhi:article:pv:" + date + ":" + articleId;
             redisCache.incrementCacheObject(pvKey, 1);
 
             // UV：以“日+文章+访客”去重键判断是否新的独立访客
-            String uvDedupeKey = "blog:article:uview:" + date + ":" + articleId + ":" + viewerKey;
+            String uvDedupeKey = "zhi:article:uview:" + date + ":" + articleId + ":" + viewerKey;
             if (Boolean.FALSE.equals(redisCache.hasKey(uvDedupeKey))) {
-                redisCache.incrementCacheObject("blog:article:uv:" + date + ":" + articleId, 1);
+                redisCache.incrementCacheObject("zhi:article:uv:" + date + ":" + articleId, 1);
                 // 覆盖跨日边界，避免深夜访问被连续两天重复计数
                 redisCache.setCacheObject(uvDedupeKey, "1", 48, TimeUnit.HOURS);
             }
@@ -462,7 +462,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Override
     // 键写作"#keyword:#blogArticle"即可：CacheAspect 会代入实参（长对象只入哈希），
     // 并把 PageHelper 的当前页码并进键 —— 否则第 2 页会命中第 1 页的缓存
-    @BlogCacheable(key = "blog:search:#keyword:#blogArticle", ttl = 10, timeUnit = TimeUnit.MINUTES)
+    @BlogCacheable(key = "zhi:search:#keyword:#blogArticle", ttl = 10, timeUnit = TimeUnit.MINUTES)
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
         List<BlogArticle> articleList;
         boolean useFullText = keyword != null && !keyword.trim().isEmpty() && isMysqlDatabase() && !fullTextDisabled;
@@ -660,7 +660,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 博客文章集合
      */
     @Override
-    @BlogCacheable(key = "blog:hot:#blogArticle.hashCode()", ttl = 60, timeUnit = TimeUnit.MINUTES)
+    @BlogCacheable(key = "zhi:hot:#blogArticle.hashCode()", ttl = 60, timeUnit = TimeUnit.MINUTES)
     public List<BlogArticle> selectBlogArticleListWithCache(BlogArticle blogArticle)
     {
         return selectBlogArticleList(blogArticle);
@@ -698,7 +698,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(keyPattern = "blog:*")
+    @BlogCacheEvict(keyPattern = "zhi:*")
     public int updateArticleTopStatus(List<Long> ids, Integer isTop)
     {
         if (ids == null || ids.isEmpty())
@@ -716,7 +716,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(keyPattern = "blog:*")
+    @BlogCacheEvict(keyPattern = "zhi:*")
     public int updateArticleRecommendStatus(List<Long> ids, Integer isRecommend)
     {
         if (ids == null || ids.isEmpty())
@@ -733,7 +733,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(keyPattern = "blog:*")
+    @BlogCacheEvict(keyPattern = "zhi:*")
     public int likeArticle(Long id)
     {
         if (id == null)

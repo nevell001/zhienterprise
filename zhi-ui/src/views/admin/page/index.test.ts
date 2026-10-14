@@ -20,10 +20,10 @@ describe('PageManage 视图组件测试', () => {
   it('应该包含页面管理所需的权限标识', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
-    expect(source).toContain('blog:page:add')
-    expect(source).toContain('blog:page:edit')
-    expect(source).toContain('blog:page:remove')
-    expect(source).toContain('blog:page:export')
+    expect(source).toContain('zhi:page:add')
+    expect(source).toContain('zhi:page:edit')
+    expect(source).toContain('zhi:page:remove')
+    expect(source).toContain('zhi:page:export')
   })
 
   it('应该提供标题、别名、状态筛选条件', () => {

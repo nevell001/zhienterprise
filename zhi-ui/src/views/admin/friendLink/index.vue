@@ -37,7 +37,7 @@
     <el-row :gutter="10" class="mb8">
       <el-col :xs="6" :sm="6" :md="4" :lg="3" :xl="1.5">
         <el-button
-          v-hasPermi="['blog:friendLink:add']"
+          v-hasPermi="['zhi:friendLink:add']"
           type="primary"
           plain
           icon="Plus"
@@ -49,7 +49,7 @@
       </el-col>
       <el-col :xs="6" :sm="6" :md="4" :lg="3" :xl="1.5">
         <el-button
-          v-hasPermi="['blog:friendLink:edit']"
+          v-hasPermi="['zhi:friendLink:edit']"
           type="success"
           plain
           icon="Edit"
@@ -62,7 +62,7 @@
       </el-col>
       <el-col :xs="6" :sm="6" :md="4" :lg="3" :xl="1.5">
         <el-button
-          v-hasPermi="['blog:friendLink:remove']"
+          v-hasPermi="['zhi:friendLink:remove']"
           type="danger"
           plain
           icon="Delete"
@@ -75,7 +75,7 @@
       </el-col>
       <el-col :xs="6" :sm="6" :md="4" :lg="3" :xl="1.5">
         <el-button
-          v-hasPermi="['blog:friendLink:export']"
+          v-hasPermi="['zhi:friendLink:export']"
           type="warning"
           plain
           icon="Download"
@@ -160,7 +160,7 @@
           <template v-if="String(scope.row.status) === '2'">
             <el-tag type="warning" size="small" style="margin-right: 4px">待审核</el-tag>
             <el-button
-              v-hasPermi="['blog:friendLink:edit']"
+              v-hasPermi="['zhi:friendLink:edit']"
               link
               type="success"
               size="small"
@@ -169,7 +169,7 @@
               通过
             </el-button>
             <el-button
-              v-hasPermi="['blog:friendLink:edit']"
+              v-hasPermi="['zhi:friendLink:edit']"
               link
               type="danger"
               size="small"
@@ -181,7 +181,7 @@
           <el-switch
             v-else
             v-model="scope.row.status"
-            v-hasPermi="['blog:friendLink:edit']"
+            v-hasPermi="['zhi:friendLink:edit']"
             :active-value="FRIEND_LINK_STATUS.NORMAL"
             :inactive-value="FRIEND_LINK_STATUS.DISABLED"
             active-text="正常"
@@ -213,7 +213,7 @@
         <template #default="scope">
           <el-tooltip content="修改" placement="top">
             <el-button
-              v-hasPermi="['blog:friendLink:edit']"
+              v-hasPermi="['zhi:friendLink:edit']"
               link
               type="primary"
               icon="Edit"
@@ -223,7 +223,7 @@
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
             <el-button
-              v-hasPermi="['blog:friendLink:remove']"
+              v-hasPermi="['zhi:friendLink:remove']"
               link
               type="primary"
               icon="Delete"

@@ -63,9 +63,9 @@ class CacheAspectTest {
     @Test
     void testEvictDeletesPatternWhenProvided() throws Throwable {
         cacheAspect.handleCacheEvict(joinPoint,
-            evictAnnotation(new String[] {}, "blog:tag:*", false));
+            evictAnnotation(new String[] {}, "zhi:tag:*", false));
 
-        verify(blogCacheManager).deleteByPattern("blog:tag:*");
+        verify(blogCacheManager).deleteByPattern("zhi:tag:*");
     }
 
     @Test
@@ -94,7 +94,7 @@ class CacheAspectTest {
         try {
             // 分页信息在 PageHelper 线程变量里，直接验证键拼接工具
             String key = (String) invokePrivate("appendPageInfo", new Class<?>[] { String.class },
-                new Object[] { "blog:search:redis:null" });
+                new Object[] { "zhi:search:redis:null" });
             assertTrue(key.endsWith(":p2:s5"), "分页参数在 PageHelper 线程变量里，必须并进缓存键，否则第 2 页命中第 1 页：" + key);
         } finally {
             com.github.pagehelper.PageHelper.clearPage();
@@ -134,7 +134,7 @@ class CacheAspectTest {
         try {
             page3 = (String) invokePrivate("buildCacheKey",
                 new Class<?>[] { ProceedingJoinPoint.class, String.class },
-                new Object[] { joinPoint, "blog:search:#keyword:#blogArticle" });
+                new Object[] { joinPoint, "zhi:search:#keyword:#blogArticle" });
         } finally {
             com.github.pagehelper.PageHelper.clearPage();
         }
@@ -145,7 +145,7 @@ class CacheAspectTest {
 
         String noPage = (String) invokePrivate("buildCacheKey",
             new Class<?>[] { ProceedingJoinPoint.class, String.class },
-            new Object[] { joinPoint, "blog:search:#keyword:#blogArticle" });
+            new Object[] { joinPoint, "zhi:search:#keyword:#blogArticle" });
         assertFalse(noPage.contains(":p3:s20"), "无分页时不应带页码：" + noPage);
     }
 }

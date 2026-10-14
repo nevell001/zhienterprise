@@ -117,7 +117,7 @@ class UserDetailsServiceImplTest
     void activeAccountIsVerifiedAndReturnedAsLoginUser() throws UsernameNotFoundException
     {
         SysUser user = activeUser();
-        Set<String> perms = new HashSet<>(Set.of("blog:article:list"));
+        Set<String> perms = new HashSet<>(Set.of("zhi:article:list"));
         when(userService.selectUserByUserName("zhangsan")).thenReturn(user);
         when(permissionService.getMenuPermission(user)).thenReturn(perms);
 
@@ -129,6 +129,6 @@ class UserDetailsServiceImplTest
         assertThat(loginUser.getUserId()).isEqualTo(2L);
         assertThat(loginUser.getDeptId()).isEqualTo(103L);
         assertThat(loginUser.getUsername()).isEqualTo("zhangsan");
-        assertThat(loginUser.getPermissions()).containsExactly("blog:article:list");
+        assertThat(loginUser.getPermissions()).containsExactly("zhi:article:list");
     }
 }

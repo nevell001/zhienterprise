@@ -32,7 +32,7 @@ public class BlogVisitLogServiceImpl implements IBlogVisitLogService
     private static final Logger log = LoggerFactory.getLogger(BlogVisitLogServiceImpl.class);
 
     /** 每日独立访客去重键前缀（与详情一致，48h 覆盖跨日边界） */
-    private static final String DAY_UNIQUE_KEY_PREFIX = "blog:visit:day:";
+    private static final String DAY_UNIQUE_KEY_PREFIX = "zhi:visit:day:";
 
     /** UA 最大存储长度 */
     private static final int MAX_USER_AGENT_LENGTH = 255;

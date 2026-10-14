@@ -44,7 +44,7 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:comment:remove']"
+          v-hasPermi="['zhi:comment:remove']"
           type="danger"
           plain
           icon="Delete"
@@ -56,7 +56,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:comment:audit']"
+          v-hasPermi="['zhi:comment:audit']"
           type="success"
           plain
           icon="Check"
@@ -68,7 +68,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:comment:reject']"
+          v-hasPermi="['zhi:comment:reject']"
           type="warning"
           plain
           icon="Close"
@@ -80,7 +80,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:comment:export']"
+          v-hasPermi="['zhi:comment:export']"
           type="warning"
           plain
           icon="Download"
@@ -133,7 +133,7 @@
         <template #default="scope">
           <el-tooltip content="详情" placement="top">
             <el-button
-              v-hasPermi="['blog:comment:query']"
+              v-hasPermi="['zhi:comment:query']"
               link
               type="primary"
               icon="View"
@@ -142,7 +142,7 @@
           </el-tooltip>
           <el-tooltip v-if="scope.row.status === '0'" content="审核通过" placement="top">
             <el-button
-              v-hasPermi="['blog:comment:audit']"
+              v-hasPermi="['zhi:comment:audit']"
               link
               type="success"
               icon="Check"
@@ -151,7 +151,7 @@
           </el-tooltip>
           <el-tooltip v-if="scope.row.status === '0'" content="审核拒绝" placement="top">
             <el-button
-              v-hasPermi="['blog:comment:reject']"
+              v-hasPermi="['zhi:comment:reject']"
               link
               type="warning"
               icon="Close"
@@ -160,7 +160,7 @@
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
             <el-button
-              v-hasPermi="['blog:comment:remove']"
+              v-hasPermi="['zhi:comment:remove']"
               link
               type="danger"
               icon="Delete"

@@ -76,7 +76,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:article:edit']"
+          v-hasPermi="['zhi:article:edit']"
           type="warning"
           plain
           icon="Top"
@@ -88,7 +88,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-hasPermi="['blog:article:edit']"
+          v-hasPermi="['zhi:article:edit']"
           type="warning"
           plain
           icon="Star"
@@ -200,7 +200,7 @@
       >
         <template #default="scope">
           <el-button
-            v-hasPermi="['blog:article:edit']"
+            v-hasPermi="['zhi:article:edit']"
             link
             type="primary"
             icon="Edit"
@@ -209,7 +209,7 @@
             修改
           </el-button>
           <el-button
-            v-hasPermi="['blog:article:edit']"
+            v-hasPermi="['zhi:article:edit']"
             link
             type="danger"
             icon="Top"
@@ -218,7 +218,7 @@
             {{ scope.row.isTop === 1 || scope.row.isTop === '1' ? '取消置顶' : '置顶' }}
           </el-button>
           <el-button
-            v-hasPermi="['blog:article:edit']"
+            v-hasPermi="['zhi:article:edit']"
             link
             type="warning"
             icon="Star"
@@ -227,7 +227,7 @@
             {{ scope.row.isRecommend === 1 || scope.row.isRecommend === '1' ? '取消推荐' : '推荐' }}
           </el-button>
           <el-button
-            v-hasPermi="['blog:article:edit']"
+            v-hasPermi="['zhi:article:edit']"
             link
             type="info"
             icon="Refresh"
@@ -236,7 +236,7 @@
             {{ scope.row.status === 1 || scope.row.status === '1' ? '转为草稿' : '发布' }}
           </el-button>
           <el-button
-            v-hasPermi="['blog:article:remove']"
+            v-hasPermi="['zhi:article:remove']"
             link
             type="danger"
             icon="Delete"

@@ -580,7 +580,7 @@ public class BlogFrontController extends BaseController
      * 更新文章浏览量（前台用）
      */
     @Anonymous
-    @RateLimiter(key = "blog:view:", time = 60, count = 10, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:view:", time = 60, count = 10, limitType = LimitType.IP)
     @PostMapping("/article/view/{id}")
     public AjaxResult addArticleView(@PathVariable("id") Long id, HttpServletRequest request)
     {
@@ -730,7 +730,7 @@ public class BlogFrontController extends BaseController
      * 添加评论（前台用）
      */
     @Anonymous
-    @RateLimiter(key = "blog:comment:", time = 60, count = 10, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:comment:", time = 60, count = 10, limitType = LimitType.IP)
     @PostMapping("/comment")
     public AjaxResult addComment(@RequestBody BlogComment blogComment)
     {
@@ -820,7 +820,7 @@ public class BlogFrontController extends BaseController
     /**
      * 修改本人评论（需登录 + 归属校验）
      */
-    @RateLimiter(key = "blog:comment:update:", time = 60, count = 10, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:comment:update:", time = 60, count = 10, limitType = LimitType.IP)
     @PutMapping("/comment/{id}")
     public AjaxResult updateMyComment(@PathVariable("id") Long id, @RequestBody BlogComment payload)
     {
@@ -866,7 +866,7 @@ public class BlogFrontController extends BaseController
     /**
      * 删除本人评论（需登录 + 归属校验）
      */
-    @RateLimiter(key = "blog:comment:delete:", time = 60, count = 10, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:comment:delete:", time = 60, count = 10, limitType = LimitType.IP)
     @DeleteMapping("/comment/{id}")
     public AjaxResult deleteMyComment(@PathVariable("id") Long id)
     {

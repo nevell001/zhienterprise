@@ -37,7 +37,7 @@ public class BlogPageController extends BaseController
     /**
      * 查询页面列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:page:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:page:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogPage blogPage)
     {
@@ -49,7 +49,7 @@ public class BlogPageController extends BaseController
     /**
      * 导出页面列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:page:export')")
+    @PreAuthorize("@ss.hasPermi('zhi:page:export')")
     @Log(title = "页面管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogPage blogPage)
@@ -62,7 +62,7 @@ public class BlogPageController extends BaseController
     /**
      * 获取页面详细信息
      */
-    @PreAuthorize("@ss.hasPermi('blog:page:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:page:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -72,7 +72,7 @@ public class BlogPageController extends BaseController
     /**
      * 新增页面
      */
-    @PreAuthorize("@ss.hasPermi('blog:page:add')")
+    @PreAuthorize("@ss.hasPermi('zhi:page:add')")
     @Log(title = "页面管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogPage blogPage)
@@ -83,7 +83,7 @@ public class BlogPageController extends BaseController
     /**
      * 修改页面
      */
-    @PreAuthorize("@ss.hasPermi('blog:page:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:page:edit')")
     @Log(title = "页面管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogPage blogPage)
@@ -94,7 +94,7 @@ public class BlogPageController extends BaseController
     /**
      * 发布/下架页面（status：0草稿 1已发布）
      */
-    @PreAuthorize("@ss.hasPermi('blog:page:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:page:edit')")
     @Log(title = "页面管理", businessType = BusinessType.UPDATE)
     @PutMapping("/changeStatus/{id}/{status}")
     public AjaxResult changeStatus(@PathVariable("id") Long id, @PathVariable("status") String status)
@@ -105,7 +105,7 @@ public class BlogPageController extends BaseController
     /**
      * 删除页面
      */
-    @PreAuthorize("@ss.hasPermi('blog:page:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:page:remove')")
     @Log(title = "页面管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)

@@ -60,7 +60,7 @@ public class BlogFrontMessageController extends BaseController
     private static final long SUBMIT_INTERVAL_SECONDS = 60;
 
     /** 提交冷却缓存键前缀 */
-    private static final String COOLDOWN_KEY_PREFIX = "blog:message:cooldown:";
+    private static final String COOLDOWN_KEY_PREFIX = "zhi:message:cooldown:";
 
     /** 留言板功能开关键 */
     private static final String GUESTBOOK_ENABLED_KEY = "guestbook_enabled";
@@ -120,7 +120,7 @@ public class BlogFrontMessageController extends BaseController
      * 提交留言（匿名可提交，提交后按评论审核开关决定是否需要审核）
      */
     @Anonymous
-    @RateLimiter(key = "blog:message:", time = 60, count = 5, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:message:", time = 60, count = 5, limitType = LimitType.IP)
     @PostMapping
     public AjaxResult add(@RequestBody BlogMessage blogMessage, HttpServletRequest request)
     {

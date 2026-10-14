@@ -31,7 +31,7 @@ public class ArticleViewSyncTask {
     @Scheduled(cron = "0 0/10 * * * ?")
     public void syncArticleViewCount() {
         log.info("开始同步文章浏览量...");
-        Collection<String> keys = redisCache.scanKeys("blog:article:view:*");
+        Collection<String> keys = redisCache.scanKeys("zhi:article:view:*");
         
         for (String key : keys) {
             try {

@@ -37,7 +37,7 @@ public class BlogMessageController extends BaseController
     /**
      * 查询留言列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:message:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:message:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogMessage blogMessage)
     {
@@ -49,7 +49,7 @@ public class BlogMessageController extends BaseController
     /**
      * 导出留言列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:message:export')")
+    @PreAuthorize("@ss.hasPermi('zhi:message:export')")
     @Log(title = "留言管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogMessage blogMessage)
@@ -62,7 +62,7 @@ public class BlogMessageController extends BaseController
     /**
      * 获取留言详细信息
      */
-    @PreAuthorize("@ss.hasPermi('blog:message:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:message:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -72,7 +72,7 @@ public class BlogMessageController extends BaseController
     /**
      * 修改留言（仅内容与状态，后台一般不修改游客留言正文）
      */
-    @PreAuthorize("@ss.hasPermi('blog:message:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:message:edit')")
     @Log(title = "留言管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogMessage blogMessage)
@@ -83,7 +83,7 @@ public class BlogMessageController extends BaseController
     /**
      * 审核留言（status：0待审核 1已发布 2已拒绝）
      */
-    @PreAuthorize("@ss.hasPermi('blog:message:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:message:edit')")
     @Log(title = "留言管理", businessType = BusinessType.UPDATE)
     @PutMapping("/audit/{id}/{status}")
     public AjaxResult audit(@PathVariable("id") Long id, @PathVariable("status") String status)
@@ -94,7 +94,7 @@ public class BlogMessageController extends BaseController
     /**
      * 回复留言
      */
-    @PreAuthorize("@ss.hasPermi('blog:message:reply')")
+    @PreAuthorize("@ss.hasPermi('zhi:message:reply')")
     @Log(title = "留言管理", businessType = BusinessType.UPDATE)
     @PutMapping("/reply/{id}")
     public AjaxResult reply(@PathVariable("id") Long id, @RequestBody BlogMessage blogMessage)
@@ -106,7 +106,7 @@ public class BlogMessageController extends BaseController
     /**
      * 删除留言
      */
-    @PreAuthorize("@ss.hasPermi('blog:message:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:message:remove')")
     @Log(title = "留言管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)

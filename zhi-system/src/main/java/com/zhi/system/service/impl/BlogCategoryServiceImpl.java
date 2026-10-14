@@ -36,7 +36,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      */
     @Override
     // 暂时禁用缓存，待 SpEL 解析修复后重新启用
-    // @BlogCacheable(key = "blog:category:#p0", ttl = 60, timeUnit = TimeUnit.MINUTES)
+    // @BlogCacheable(key = "zhi:category:#p0", ttl = 60, timeUnit = TimeUnit.MINUTES)
     public BlogCategory selectBlogCategoryById(Long id)
     {
         return blogCategoryMapper.selectBlogCategoryById(id);
@@ -57,7 +57,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 文章分类
      */
     @Override
-    @BlogCacheable(key = "blog:category:list:#blogCategory.hashCode()", ttl = 30, timeUnit = TimeUnit.MINUTES)
+    @BlogCacheable(key = "zhi:category:list:#blogCategory.hashCode()", ttl = 30, timeUnit = TimeUnit.MINUTES)
     public List<BlogCategory> selectBlogCategoryList(BlogCategory blogCategory)
     {
         if (blogCategory.getDelFlag() == null) {
@@ -73,7 +73,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(value = {"blog:category:*", "blog:category:list:*"}, keyPattern = "blog:category:*")
+    @BlogCacheEvict(value = {"zhi:category:*", "zhi:category:list:*"}, keyPattern = "zhi:category:*")
     public int insertBlogCategory(BlogCategory blogCategory)
     {
         // 重名校验（仅未删除）
@@ -91,7 +91,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(value = {"blog:category:*", "blog:category:list:*"}, keyPattern = "blog:category:*")
+    @BlogCacheEvict(value = {"zhi:category:*", "zhi:category:list:*"}, keyPattern = "zhi:category:*")
     public int updateBlogCategory(BlogCategory blogCategory)
     {
         // 重名校验（更新需要排除自身）
@@ -109,7 +109,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(value = {"blog:category:*", "blog:category:list:*"}, keyPattern = "blog:category:*")
+    @BlogCacheEvict(value = {"zhi:category:*", "zhi:category:list:*"}, keyPattern = "zhi:category:*")
     public int deleteBlogCategoryByIds(Long[] ids)
     {
         // 被引用校验
@@ -127,7 +127,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(value = {"blog:category:*", "blog:category:list:*"}, keyPattern = "blog:category:*")
+    @BlogCacheEvict(value = {"zhi:category:*", "zhi:category:list:*"}, keyPattern = "zhi:category:*")
     public int deleteBlogCategoryById(Long id)
     {
         int refCount = blogArticleMapper.countByCategoryIds(new Long[]{ id });

@@ -68,7 +68,7 @@ public class BlogArticleController extends BaseController
     /**
      * 查询文章列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogArticle blogArticle)
     {
@@ -80,7 +80,7 @@ public class BlogArticleController extends BaseController
     /**
      * 导出文章列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:export')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:export')")
     @Log(title = "文章管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogArticle blogArticle)
@@ -109,7 +109,7 @@ public class BlogArticleController extends BaseController
     /**
      * 获取文章详细信息
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -124,7 +124,7 @@ public class BlogArticleController extends BaseController
     /**
      * 新增文章
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:add')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:add')")
     @Log(title = "文章管理", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody Map<String, Object> params)
@@ -151,7 +151,7 @@ public class BlogArticleController extends BaseController
     /**
      * 修改文章
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:edit')")
     @Log(title = "文章管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody Map<String, Object> params)
@@ -178,7 +178,7 @@ public class BlogArticleController extends BaseController
     /**
      * 删除文章
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:remove')")
     @Log(title = "文章管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
@@ -189,7 +189,7 @@ public class BlogArticleController extends BaseController
     /**
      * 获取分类和标签选项
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:query')")
     @GetMapping("/options")
     public AjaxResult getOptions()
     {
@@ -214,7 +214,7 @@ public class BlogArticleController extends BaseController
     /**
      * 批量更新文章状态
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:edit')")
     @Log(title = "文章管理", businessType = BusinessType.UPDATE)
     @PutMapping("/status")
     public AjaxResult updateStatus(@RequestBody Map<String, Object> params)
@@ -234,7 +234,7 @@ public class BlogArticleController extends BaseController
     /**
      * 批量更新文章置顶状态
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:edit')")
     @Log(title = "文章管理", businessType = BusinessType.UPDATE)
     @PutMapping("/top")
     public AjaxResult updateTopStatus(@RequestBody Map<String, Object> params)
@@ -254,7 +254,7 @@ public class BlogArticleController extends BaseController
     /**
      * 批量更新文章推荐状态
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:edit')")
     @Log(title = "文章管理", businessType = BusinessType.UPDATE)
     @PutMapping("/recommend")
     public AjaxResult updateRecommendStatus(@RequestBody Map<String, Object> params)
@@ -274,7 +274,7 @@ public class BlogArticleController extends BaseController
     /**
      * 点赞文章
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:edit')")
     @Log(title = "文章管理", businessType = BusinessType.UPDATE)
     @PutMapping("/like/{id}")
     public AjaxResult likeArticle(@PathVariable("id") Long id)
@@ -289,7 +289,7 @@ public class BlogArticleController extends BaseController
     /**
      * 搜索文章
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:list')")
     @GetMapping("/search")
     public TableDataInfo search(@RequestParam("keyword") String keyword, BlogArticle blogArticle)
     {
@@ -301,7 +301,7 @@ public class BlogArticleController extends BaseController
     /**
      * 根据分类获取文章
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:list')")
     @GetMapping("/category/{categoryId}")
     public TableDataInfo getByCategory(@PathVariable("categoryId") Long categoryId, BlogArticle blogArticle)
     {
@@ -314,7 +314,7 @@ public class BlogArticleController extends BaseController
     /**
      * 根据标签获取文章
      */
-    @PreAuthorize("@ss.hasPermi('blog:article:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:article:list')")
     @GetMapping("/tag/{tagId}")
     public TableDataInfo getByTag(@PathVariable("tagId") Long tagId)
     {

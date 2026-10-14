@@ -58,7 +58,7 @@ class BlogArticleTagControllerTest {
      * 测试查询文章标签关联列表
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:list"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:list"})
     void testList() throws Exception {
         // 准备数据
         List<BlogArticleTag> articleTagList = Arrays.asList(testArticleTag);
@@ -81,7 +81,7 @@ class BlogArticleTagControllerTest {
      * 测试查询文章标签关联列表 - 空结果
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:list"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:list"})
     void testList_Empty() throws Exception {
         // 模拟空结果
         when(blogArticleTagService.selectBlogArticleTagList(any(BlogArticleTag.class)))
@@ -99,7 +99,7 @@ class BlogArticleTagControllerTest {
      * 测试通过文章ID查询标签ID列表
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:list"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:list"})
     void testGetTagIdsByArticleId() throws Exception {
         // 准备数据
         List<Long> tagIds = Arrays.asList(1L, 2L, 3L);
@@ -119,7 +119,7 @@ class BlogArticleTagControllerTest {
      * 测试通过文章ID查询标签ID列表 - 空结果
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:list"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:list"})
     void testGetTagIdsByArticleId_Empty() throws Exception {
         // 模拟空结果
         when(blogArticleTagService.selectTagIdsByArticleId(1L)).thenReturn(Collections.emptyList());
@@ -136,7 +136,7 @@ class BlogArticleTagControllerTest {
      * 测试通过标签ID查询文章ID列表
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:list"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:list"})
     void testGetArticleIdsByTagId() throws Exception {
         // 准备数据
         List<Long> articleIds = Arrays.asList(1L, 2L, 3L);
@@ -156,7 +156,7 @@ class BlogArticleTagControllerTest {
      * 测试通过标签ID查询文章ID列表 - 空结果
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:list"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:list"})
     void testGetArticleIdsByTagId_Empty() throws Exception {
         // 模拟空结果
         when(blogArticleTagService.selectArticleIdsByTagId(1L)).thenReturn(Collections.emptyList());
@@ -173,7 +173,7 @@ class BlogArticleTagControllerTest {
      * 测试获取文章标签关联详细信息
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:query"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:query"})
     void testGetInfo() throws Exception {
         // 准备数据
         when(blogArticleTagService.selectBlogArticleTagById(1L)).thenReturn(testArticleTag);
@@ -190,7 +190,7 @@ class BlogArticleTagControllerTest {
      * 测试获取文章标签关联详细信息 - 不存在
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:query"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:query"})
     void testGetInfo_NotFound() throws Exception {
         // 模拟数据不存在
         when(blogArticleTagService.selectBlogArticleTagById(999L)).thenReturn(null);
@@ -206,7 +206,7 @@ class BlogArticleTagControllerTest {
      * 测试新增文章标签关联
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:add"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:add"})
     void testAdd() throws Exception {
         // 准备数据
         when(blogArticleTagService.insertBlogArticleTag(any(BlogArticleTag.class))).thenReturn(1);
@@ -224,7 +224,7 @@ class BlogArticleTagControllerTest {
      * 测试新增文章标签关联 - 失败
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:add"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:add"})
     void testAdd_Failure() throws Exception {
         // 准备数据
         when(blogArticleTagService.insertBlogArticleTag(any(BlogArticleTag.class))).thenReturn(0);
@@ -242,7 +242,7 @@ class BlogArticleTagControllerTest {
      * 测试批量新增文章标签关联
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:add"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:add"})
     void testBatchAdd() throws Exception {
         // 准备数据
         BlogArticleTag articleTag1 = new BlogArticleTag();
@@ -269,7 +269,7 @@ class BlogArticleTagControllerTest {
      * 测试批量新增文章标签关联 - 空列表
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:add"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:add"})
     void testBatchAdd_Empty() throws Exception {
         // 准备数据
         when(blogArticleTagService.batchInsertArticleTag(anyList())).thenReturn(0);
@@ -287,7 +287,7 @@ class BlogArticleTagControllerTest {
      * 测试修改文章标签关联
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:edit"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:edit"})
     void testEdit() throws Exception {
         // 准备数据
         when(blogArticleTagService.updateBlogArticleTag(any(BlogArticleTag.class))).thenReturn(1);
@@ -305,7 +305,7 @@ class BlogArticleTagControllerTest {
      * 测试修改文章标签关联 - 失败
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:edit"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:edit"})
     void testEdit_Failure() throws Exception {
         // 准备数据
         when(blogArticleTagService.updateBlogArticleTag(any(BlogArticleTag.class))).thenReturn(0);
@@ -323,7 +323,7 @@ class BlogArticleTagControllerTest {
      * 测试删除文章标签关联
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:remove"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:remove"})
     void testRemove() throws Exception {
         // 准备数据
         when(blogArticleTagService.deleteBlogArticleTagByIds(any(Long[].class))).thenReturn(2);
@@ -340,7 +340,7 @@ class BlogArticleTagControllerTest {
      * 测试通过文章ID删除文章和标签关联
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:remove"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:remove"})
     void testRemoveByArticleId() throws Exception {
         // 准备数据
         when(blogArticleTagService.deleteByArticleId(1L)).thenReturn(2);
@@ -357,7 +357,7 @@ class BlogArticleTagControllerTest {
      * 测试通过文章ID删除文章和标签关联 - 不存在
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:remove"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:remove"})
     void testRemoveByArticleId_NotFound() throws Exception {
         // 准备数据
         when(blogArticleTagService.deleteByArticleId(999L)).thenReturn(0);
@@ -374,7 +374,7 @@ class BlogArticleTagControllerTest {
      * 测试查询文章标签关联列表 - 带分页
      */
     @Test
-    @WithMockUser(username = "admin", authorities = {"blog:articleTag:list"})
+    @WithMockUser(username = "admin", authorities = {"zhi:articleTag:list"})
     void testList_WithPagination() throws Exception {
         // 准备数据
         List<BlogArticleTag> articleTagList = Arrays.asList(testArticleTag);

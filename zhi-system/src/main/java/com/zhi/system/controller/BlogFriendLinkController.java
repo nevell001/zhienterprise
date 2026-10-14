@@ -51,7 +51,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 查询友情链接列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:friendLink:list')")
+    @PreAuthorize("@ss.hasPermi('zhi:friendLink:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogFriendLink blogFriendLink)
     {
@@ -75,7 +75,7 @@ public class BlogFriendLinkController extends BaseController
      * 前台申请友情链接（提交后进入待审核状态 status=2）
      */
     @Anonymous
-    @RateLimiter(key = "blog:friendLink:apply:", time = 60, count = 5, limitType = LimitType.IP)
+    @RateLimiter(key = "zhi:friendLink:apply:", time = 60, count = 5, limitType = LimitType.IP)
     @PostMapping("/apply")
     public AjaxResult apply(@RequestBody BlogFriendLink blogFriendLink)
     {
@@ -140,7 +140,7 @@ public class BlogFriendLinkController extends BaseController
      * 1=拒绝/停用，2=待审核（提交申请时写入）。前台列表查询的是 status='0'，
      * 所以"通过"必须传 0、"拒绝"必须传 1。</p>
      */
-    @PreAuthorize("@ss.hasPermi('blog:friendLink:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:friendLink:edit')")
     @Log(title = "友情链接", businessType = BusinessType.UPDATE)
     @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @PutMapping("/audit/{id}/{status}")
@@ -159,7 +159,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 导出友情链接列表
      */
-    @PreAuthorize("@ss.hasPermi('blog:friendLink:export')")
+    @PreAuthorize("@ss.hasPermi('zhi:friendLink:export')")
     @Log(title = "友情链接", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogFriendLink blogFriendLink)
@@ -172,7 +172,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 获取友情链接详细信息
      */
-    @PreAuthorize("@ss.hasPermi('blog:friendLink:query')")
+    @PreAuthorize("@ss.hasPermi('zhi:friendLink:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -182,7 +182,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 新增友情链接
      */
-    @PreAuthorize("@ss.hasPermi('blog:friendLink:add')")
+    @PreAuthorize("@ss.hasPermi('zhi:friendLink:add')")
     @Log(title = "友情链接", businessType = BusinessType.INSERT)
     @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @PostMapping
@@ -194,7 +194,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 修改友情链接
      */
-    @PreAuthorize("@ss.hasPermi('blog:friendLink:edit')")
+    @PreAuthorize("@ss.hasPermi('zhi:friendLink:edit')")
     @Log(title = "友情链接", businessType = BusinessType.UPDATE)
     @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @PutMapping
@@ -206,7 +206,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 删除友情链接
      */
-    @PreAuthorize("@ss.hasPermi('blog:friendLink:remove')")
+    @PreAuthorize("@ss.hasPermi('zhi:friendLink:remove')")
     @Log(title = "友情链接", businessType = BusinessType.DELETE)
     @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @DeleteMapping("/{ids}")

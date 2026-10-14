@@ -20,10 +20,10 @@ describe('MessageManage 视图组件测试', () => {
   it('应该包含留言管理所需的权限标识', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
-    expect(source).toContain('blog:message:edit')
-    expect(source).toContain('blog:message:reply')
-    expect(source).toContain('blog:message:remove')
-    expect(source).toContain('blog:message:export')
+    expect(source).toContain('zhi:message:edit')
+    expect(source).toContain('zhi:message:reply')
+    expect(source).toContain('zhi:message:remove')
+    expect(source).toContain('zhi:message:export')
   })
 
   it('应该提供昵称、内容、状态筛选条件', () => {

@@ -88,15 +88,15 @@ class SysPermissionServiceTest
         SysRole other = role(101L, "viewer", "0");
         SysUser user = user(2L);
         user.setRoles(new ArrayList<>(List.of(normal, other)));
-        when(menuService.selectMenuPermsByRoleId(100L)).thenReturn(new HashSet<>(List.of("blog:article:add")));
-        when(menuService.selectMenuPermsByRoleId(101L)).thenReturn(new HashSet<>(List.of("blog:article:list")));
+        when(menuService.selectMenuPermsByRoleId(100L)).thenReturn(new HashSet<>(List.of("zhi:article:add")));
+        when(menuService.selectMenuPermsByRoleId(101L)).thenReturn(new HashSet<>(List.of("zhi:article:list")));
 
         Set<String> perms = permissionService.getMenuPermission(user);
 
-        assertThat(perms).containsExactlyInAnyOrder("blog:article:add", "blog:article:list");
+        assertThat(perms).containsExactlyInAnyOrder("zhi:article:add", "zhi:article:list");
         // 回填是为了让数据权限切面能按"角色里有这条权限字符"来筛角色
-        assertThat(normal.getPermissions()).containsExactly("blog:article:add");
-        assertThat(other.getPermissions()).containsExactly("blog:article:list");
+        assertThat(normal.getPermissions()).containsExactly("zhi:article:add");
+        assertThat(other.getPermissions()).containsExactly("zhi:article:list");
         verify(menuService, never()).selectMenuPermsByUserId(Mockito.anyLong());
     }
 
@@ -117,9 +117,9 @@ class SysPermissionServiceTest
     {
         SysUser user = user(2L);
         user.setRoles(new ArrayList<>());
-        when(menuService.selectMenuPermsByUserId(2L)).thenReturn(new HashSet<>(List.of("blog:article:query")));
+        when(menuService.selectMenuPermsByUserId(2L)).thenReturn(new HashSet<>(List.of("zhi:article:query")));
 
-        assertThat(permissionService.getMenuPermission(user)).containsExactly("blog:article:query");
+        assertThat(permissionService.getMenuPermission(user)).containsExactly("zhi:article:query");
     }
 
     @Test

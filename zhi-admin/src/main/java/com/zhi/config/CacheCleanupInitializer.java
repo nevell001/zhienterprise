@@ -37,9 +37,9 @@ public class CacheCleanupInitializer implements ApplicationRunner
 
             // 清除所有站点相关缓存
             try {
-                unifiedCacheManager.deleteByPattern("blog:*");
+                unifiedCacheManager.deleteByPattern("zhi:*");
                 clearedCount++;
-                log.info("✓ 已清除所有站点缓存 (blog:*)");
+                log.info("✓ 已清除所有站点缓存 (zhi:*)");
             } catch (Exception e) {
                 log.warn("清除站点缓存失败: {}", e.getMessage());
             }

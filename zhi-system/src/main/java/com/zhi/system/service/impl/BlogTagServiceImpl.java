@@ -35,7 +35,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 博客标签
      */
     @Override
-    @BlogCacheable(key = "blog:tag:list:#blogTag.hashCode()", ttl = 30, timeUnit = TimeUnit.MINUTES)
+    @BlogCacheable(key = "zhi:tag:list:#blogTag.hashCode()", ttl = 30, timeUnit = TimeUnit.MINUTES)
     public List<BlogTag> selectBlogTagList(BlogTag blogTag)
     {
         return blogTagMapper.selectBlogTagList(blogTag);
@@ -47,7 +47,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 标签列表
      */
     @Override
-    @BlogCacheable(key = "blog:tag:all", ttl = 60, timeUnit = TimeUnit.MINUTES)
+    @BlogCacheable(key = "zhi:tag:all", ttl = 60, timeUnit = TimeUnit.MINUTES)
     public List<BlogTag> selectAllTagList()
     {
         return blogTagMapper.selectAllTagList();
@@ -60,7 +60,7 @@ public class BlogTagServiceImpl implements IBlogTagService
          * @return 实例对象
          */
         @Override
-        @BlogCacheable(key = "blog:tag:#id", ttl = 60, timeUnit = TimeUnit.MINUTES)
+        @BlogCacheable(key = "zhi:tag:#id", ttl = 60, timeUnit = TimeUnit.MINUTES)
         public BlogTag selectBlogTagById(Long id)
         {
             log.info("📝 Service: 查询标签，参数 id = {}", id);
@@ -77,7 +77,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
+    @BlogCacheEvict(value = {"zhi:tag:*"}, keyPattern = "zhi:tag:*")
     public int insertBlogTag(BlogTag blogTag)
     {
         blogTag.setCreateBy(SecurityUtils.getUsername());
@@ -91,7 +91,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 结果
      */
     @Override
-    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
+    @BlogCacheEvict(value = {"zhi:tag:*"}, keyPattern = "zhi:tag:*")
     public int updateBlogTag(BlogTag blogTag)
     {
         blogTag.setUpdateBy(SecurityUtils.getUsername());
@@ -105,7 +105,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 影响行数
      */
     @Override
-    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
+    @BlogCacheEvict(value = {"zhi:tag:*"}, keyPattern = "zhi:tag:*")
     public int deleteBlogTagById(Long id)
     {
         return blogTagMapper.deleteBlogTagById(id);
@@ -118,14 +118,14 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 影响行数
      */
     @Override
-    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
+    @BlogCacheEvict(value = {"zhi:tag:*"}, keyPattern = "zhi:tag:*")
     public int deleteBlogTagByIds(Long[] tagIds)
     {
         return blogTagMapper.deleteBlogTagByIds(tagIds);
     }
 
     @Override
-    @BlogCacheable(key = "blog:tag:cloud", ttl = 30, timeUnit = TimeUnit.MINUTES)
+    @BlogCacheable(key = "zhi:tag:cloud", ttl = 30, timeUnit = TimeUnit.MINUTES)
     public List<Map<String, Object>> getTagCloud() {
         return blogTagMapper.getTagCloud();
     }
