@@ -19,11 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class ArticleListQueryShapeTest
 {
-    private static final Path XML = Path.of("src/main/resources/mapper/system/BlogArticleMapper.xml");
+    private static final Path XML = Path.of("src/main/resources/mapper/system/ArticleMapper.xml");
 
     /** 列表类查询：不许投影正文、不许 GROUP BY */
     private static final List<String> LIST_QUERIES = List.of(
-        "selectBlogArticleList", "selectArticlesByTagId", "searchArticles", "searchArticlesFullText");
+        "selectArticleList", "selectArticlesByTagId", "searchArticles", "searchArticlesFullText");
 
     private String readXml() throws Exception
     {
@@ -57,7 +57,7 @@ class ArticleListQueryShapeTest
     void tagJoinOnlyWhereUsedForFiltering() throws Exception
     {
         String xml = readXml();
-        for (String id : List.of("selectBlogArticleList", "searchArticles", "searchArticlesFullText",
+        for (String id : List.of("selectArticleList", "searchArticles", "searchArticlesFullText",
             "selectHotArticles", "selectArticlesByArchive"))
         {
             assertFalse(selectBlock(xml, id).contains("zhi_article_tag"),
@@ -85,12 +85,12 @@ class ArticleListQueryShapeTest
     @DisplayName("单条查询不许为标签 JOIN 扇出（否则 selectOne 直接抛 TooManyResults）")
     void singleRowQueryMustNotFanOutOnTags() throws Exception
     {
-        String block = selectBlock(readXml(), "selectBlogArticleById");
+        String block = selectBlock(readXml(), "selectArticleById");
 
         // 曾经只删掉 GROUP BY 却留着两个标签 JOIN：多标签文章返回 N 行，
         // 前台 /api/article/{id} 与后台详情一律 500
         assertFalse(block.contains("zhi_article_tag"),
-            "selectBlogArticleById 不投影标签列，JOIN 会让一行变多行");
+            "selectArticleById 不投影标签列，JOIN 会让一行变多行");
         assertFalse(block.toLowerCase().contains("group by"),
             "去掉标签 JOIN 后 GROUP BY 也应一并去掉");
     }
@@ -99,7 +99,7 @@ class ArticleListQueryShapeTest
     @DisplayName("导出查询必须保留正文（Excel 有\"文章内容\"列）")
     void exportQueryKeepsContent() throws Exception
     {
-        String block = selectBlock(readXml(), "selectBlogArticleListForExport");
+        String block = selectBlock(readXml(), "selectArticleListForExport");
 
         assertTrue(block.contains("ba.content"), "导出需要正文列");
         assertFalse(block.toLowerCase().contains("group by"), "导出不需要 GROUP BY");

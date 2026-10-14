@@ -27,9 +27,9 @@ import com.zhi.common.utils.file.MimeTypeUtils;
 import com.zhi.framework.web.service.TokenService;
 import com.zhi.system.service.ISysUserService;
 import com.zhi.system.service.ISysConfigService;
-import com.zhi.system.service.IBlogSettingService;
-import com.zhi.system.domain.BlogUpload;
-import com.zhi.system.service.IBlogUploadService;
+import com.zhi.system.service.ISettingService;
+import com.zhi.system.domain.Upload;
+import com.zhi.system.service.IUploadService;
 import com.zhi.common.cache.UnifiedCacheManager;
 import com.zhi.common.constant.CacheConstants;
 
@@ -49,10 +49,10 @@ public class SysProfileController extends BaseController
     private TokenService tokenService;
 
     @Autowired
-    private IBlogSettingService blogSettingService;
+    private ISettingService settingService;
 
     @Autowired
-    private IBlogUploadService blogUploadService;
+    private IUploadService uploadService;
 
     @Autowired
     private UnifiedCacheManager unifiedCacheManager;
@@ -147,11 +147,11 @@ public class SysProfileController extends BaseController
         {
             LoginUser loginUser = getLoginUser();
             String avatar = FileUploadUtils.uploadAvatar(RuoYiConfig.getAvatarPath(), file, true);
-            recordBlogUpload(file, avatar);
+            recordUpload(file, avatar);
             if (userService.updateUserAvatar(loginUser.getUserId(), avatar))
             {
                 // 同时更新站点设置中的头像，确保前台首页显示最新头像
-                blogSettingService.updateSettingValueByKey("blog_avatar", avatar);
+                settingService.updateSettingValueByKey("blog_avatar", avatar);
 
                 // 同时更新 sys_config 表中的 blog_avatar（前台API从这里读取）
                 try {
@@ -182,7 +182,7 @@ public class SysProfileController extends BaseController
 
                 // 清除站点设置缓存，确保前台能立即看到新头像
                 try {
-                    unifiedCacheManager.delete(CacheConstants.BLOG_SETTINGS_ALL);
+                    unifiedCacheManager.delete(CacheConstants.SETTINGS_ALL);
                     logger.info("已清除站点设置缓存");
                 } catch (Exception e) {
                     logger.error("清除站点设置缓存失败", e);
@@ -207,18 +207,18 @@ public class SysProfileController extends BaseController
     /**
      * 记录用户头像上传到媒体库
      */
-    private void recordBlogUpload(MultipartFile file, String avatarPath)
+    private void recordUpload(MultipartFile file, String avatarPath)
     {
         try
         {
-            BlogUpload record = new BlogUpload();
+            Upload record = new Upload();
             record.setFileName(FileUtils.getName(avatarPath));
             record.setOriginalName(file.getOriginalFilename());
             record.setUrl(avatarPath);
             record.setMimeType(file.getContentType());
             record.setFileSize(file.getSize());
             record.setUploadType("avatar");
-            blogUploadService.recordUpload(record);
+            uploadService.recordUpload(record);
         }
         catch (Exception e)
         {

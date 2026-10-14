@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.ArticleTagMapper">
+    
+    <resultMap type="ArticleTag" id="ArticleTagResult">
+        <result property="id"    column="id"    />
+        <result property="articleId"    column="article_id"    />
+        <result property="tagId"    column="tag_id"    />
+    </resultMap>
+
+    <sql id="selectArticleTagVo">
+        select id, article_id, tag_id from zhi_article_tag
+    </sql>
+
+    <select id="selectArticleTagList" parameterType="ArticleTag" resultMap="ArticleTagResult">
+        <include refid="selectArticleTagVo"/>
+        <where>  
+            <if test="articleId != null "> and article_id = #{articleId}</if>
+            <if test="tagId != null "> and tag_id = #{tagId}</if>
+        </where>
+    </select>
+    
+    <select id="selectArticleTagById" parameterType="Long" resultMap="ArticleTagResult">
+        <include refid="selectArticleTagVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectTagIdsByArticleId" parameterType="Long" resultType="Long">
+        select tag_id from zhi_article_tag where article_id = #{articleId}
+    </select>
+    
+    <select id="selectArticleIdsByTagId" parameterType="Long" resultType="Long">
+        select article_id from zhi_article_tag where tag_id = #{tagId}
+    </select>
+
+    <insert id="insertArticleTag" parameterType="ArticleTag" useGeneratedKeys="true" keyProperty="id">
+        insert into zhi_article_tag
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleId != null">article_id,</if>
+            <if test="tagId != null">tag_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="articleId != null">#{articleId},</if>
+            <if test="tagId != null">#{tagId},</if>
+         </trim>
+    </insert>
+    
+    <insert id="batchInsertArticleTag">
+        insert into zhi_article_tag(article_id, tag_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.articleId}, #{item.tagId})
+        </foreach>
+    </insert>
+
+    <update id="updateArticleTag" parameterType="ArticleTag">
+        update zhi_article_tag
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="articleId != null">article_id = #{articleId},</if>
+            <if test="tagId != null">tag_id = #{tagId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteArticleTagById" parameterType="Long">
+        delete from zhi_article_tag where id = #{id}
+    </delete>
+
+    <delete id="deleteArticleTagByIds" parameterType="String">
+        delete from zhi_article_tag where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByArticleId" parameterType="Long">
+        delete from zhi_article_tag where article_id = #{articleId}
+    </delete>
+</mapper>

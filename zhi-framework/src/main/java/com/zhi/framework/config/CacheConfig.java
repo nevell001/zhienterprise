@@ -36,13 +36,13 @@ public class CacheConfig
                 .disableCachingNullValues(); // 不缓存空值
 
         // 不同业务的缓存配置
-        RedisCacheConfiguration blogCacheConfig = defaultCacheConfig.entryTtl(Duration.ofMinutes(60)); // 文章缓存1小时
+        RedisCacheConfiguration siteCacheConfig = defaultCacheConfig.entryTtl(Duration.ofMinutes(60)); // 文章缓存1小时
         RedisCacheConfiguration hotCacheConfig = defaultCacheConfig.entryTtl(Duration.ofMinutes(120)); // 热门内容缓存2小时
         RedisCacheConfiguration settingCacheConfig = defaultCacheConfig.entryTtl(Duration.ofMinutes(1440)); // 设置缓存24小时
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultCacheConfig)
-                .withCacheConfiguration("zhi:article", blogCacheConfig)
+                .withCacheConfiguration("zhi:article", siteCacheConfig)
                 .withCacheConfiguration("zhi:hot", hotCacheConfig)
                 .withCacheConfiguration("zhi:setting", settingCacheConfig)
                 .build();

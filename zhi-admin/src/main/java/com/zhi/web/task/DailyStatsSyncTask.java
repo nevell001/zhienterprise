@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import com.zhi.common.utils.ModernDateUtils;
-import com.zhi.system.service.IBlogDailyStatsService;
-import com.zhi.system.service.IBlogVisitLogService;
+import com.zhi.system.service.IDailyStatsService;
+import com.zhi.system.service.IVisitLogService;
 
 /**
  * 每日 PV/UV 统计任务
@@ -22,10 +22,10 @@ public class DailyStatsSyncTask
     private static final Logger log = LoggerFactory.getLogger(DailyStatsSyncTask.class);
 
     @Autowired
-    private IBlogDailyStatsService blogDailyStatsService;
+    private IDailyStatsService dailyStatsService;
 
     @Autowired
-    private IBlogVisitLogService blogVisitLogService;
+    private IVisitLogService visitLogService;
 
     /**
      * 每小时整点后 20 分：汇总当日
@@ -36,7 +36,7 @@ public class DailyStatsSyncTask
         String today = ModernDateUtils.formatNow("yyyyMMdd");
         try
         {
-            int handled = blogDailyStatsService.upsertDailyFromRedis(today);
+            int handled = dailyStatsService.upsertDailyFromRedis(today);
             if (handled > 0)
             {
                 log.info("每日 PV/UV 汇总完成（当日）：date={}, articles={}", today, handled);
@@ -58,8 +58,8 @@ public class DailyStatsSyncTask
         String yesterday = ModernDateUtils.format(yesterdayDate, "yyyyMMdd");
         try
         {
-            int handled = blogDailyStatsService.upsertDailyFromRedis(yesterday);
-            int cleaned = blogDailyStatsService.cleanupDailyRedisKeys(yesterday);
+            int handled = dailyStatsService.upsertDailyFromRedis(yesterday);
+            int cleaned = dailyStatsService.cleanupDailyRedisKeys(yesterday);
             if (handled > 0 || cleaned > 0)
             {
                 log.info("前一日 PV/UV 定稿完成：date={}, articles={}, cleanedKeys={}", yesterday, handled, cleaned);
@@ -79,7 +79,7 @@ public class DailyStatsSyncTask
     {
         try
         {
-            int cleaned = blogVisitLogService.cleanVisitLogs(null);
+            int cleaned = visitLogService.cleanVisitLogs(null);
             if (cleaned > 0)
             {
                 log.info("访问明细清理完成：cleaned={}", cleaned);

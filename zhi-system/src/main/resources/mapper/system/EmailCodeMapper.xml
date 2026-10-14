@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.EmailCodeMapper">
+
+    <resultMap type="EmailCode" id="EmailCodeResult">
+        <result property="id"    column="id"    />
+        <result property="email"    column="email"    />
+        <result property="code"    column="code"    />
+        <result property="codeType"    column="code_type"    />
+        <result property="expireTime"    column="expire_time"    />
+        <result property="used"    column="used"    />
+        <result property="ipAddress"    column="ip_address"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="useTime"    column="use_time"    />
+    </resultMap>
+
+    <sql id="selectEmailCodeVo">
+        select id, email, code, code_type, expire_time, used, ip_address, create_time, use_time
+        from zhi_email_code
+    </sql>
+
+    <select id="selectEmailCodeList" parameterType="EmailCode" resultMap="EmailCodeResult">
+        <include refid="selectEmailCodeVo"/>
+        <where>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="codeType != null  and codeType != ''"> and code_type = #{codeType}</if>
+            <if test="used != null"> and used = #{used}</if>
+            <if test="ipAddress != null  and ipAddress != ''"> and ip_address = #{ipAddress}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectEmailCodeById" parameterType="Long" resultMap="EmailCodeResult">
+        <include refid="selectEmailCodeVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectLatestUnusedCode" resultMap="EmailCodeResult">
+        <include refid="selectEmailCodeVo"/>
+        where email = #{email} and code_type = #{codeType} and used = 0
+        order by create_time desc
+        limit 1
+    </select>
+
+    <insert id="insertEmailCode" parameterType="EmailCode" useGeneratedKeys="true" keyProperty="id">
+        insert into zhi_email_code
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="email != null and email != ''">email,</if>
+            <if test="code != null and code != ''">code,</if>
+            <if test="codeType != null and codeType != ''">code_type,</if>
+            <if test="expireTime != null">expire_time,</if>
+            <if test="used != null">used,</if>
+            <if test="ipAddress != null and ipAddress != ''">ip_address,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="useTime != null">use_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="email != null and email != ''">#{email},</if>
+            <if test="code != null and code != ''">#{code},</if>
+            <if test="codeType != null and codeType != ''">#{codeType},</if>
+            <if test="expireTime != null">#{expireTime},</if>
+            <if test="used != null">#{used},</if>
+            <if test="ipAddress != null and ipAddress != ''">#{ipAddress},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="useTime != null">#{useTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEmailCode" parameterType="EmailCode">
+        update zhi_email_code
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="email != null and email != ''">email = #{email},</if>
+            <if test="code != null and code != ''">code = #{code},</if>
+            <if test="codeType != null and codeType != ''">code_type = #{codeType},</if>
+            <if test="expireTime != null">expire_time = #{expireTime},</if>
+            <if test="used != null">used = #{used},</if>
+            <if test="ipAddress != null and ipAddress != ''">ip_address = #{ipAddress},</if>
+            <if test="useTime != null">use_time = #{useTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="markCodeAsUsed">
+        update zhi_email_code set used = 1, use_time = #{useTime} where id = #{id}
+    </update>
+
+    <delete id="deleteEmailCodeById" parameterType="Long">
+        delete from zhi_email_code where id = #{id}
+    </delete>
+
+    <delete id="deleteEmailCodeByIds" parameterType="String">
+        delete from zhi_email_code where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExpiredCodes">
+        delete from zhi_email_code where expire_time &lt; NOW()
+    </delete>
+
+    <select id="countCodesByEmailAndTime" resultType="int">
+        select count(1) from zhi_email_code
+        where email = #{email} and create_time &gt;= #{startTime}
+    </select>
+
+    <select id="countCodesByIpAndTime" resultType="int">
+        select count(1) from zhi_email_code
+        where ip_address = #{ipAddress} and create_time &gt;= #{startTime}
+    </select>
+</mapper>

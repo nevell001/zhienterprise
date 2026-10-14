@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 只有把 SQL 脚本和 mapper 放在一起比对才可能发现这类缺陷，运行时反而不会提前报）。
  *
  * <p>起因：{@code zhi_message} 建表时漏了 {@code create_by} / {@code update_by}，而
- * {@code BlogMessageMapper} 从生成那天起就 select 这两列。列表、审核、回复三条路径都会抛
+ * {@code MessageMapper} 从生成那天起就 select 这两列。列表、审核、回复三条路径都会抛
  * {@code Unknown column 'create_by' in 'field list'}，而前台留言提交（不写这两列）一切正常，
  * 所以缺陷只在后台「留言管理」第一次打开时暴露。</p>
  */

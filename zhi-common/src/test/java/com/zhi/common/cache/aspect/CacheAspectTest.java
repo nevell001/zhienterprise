@@ -1,7 +1,7 @@
 package com.zhi.common.cache.aspect;
 
-import com.zhi.common.cache.BlogCacheManager;
-import com.zhi.common.cache.annotation.BlogCacheEvict;
+import com.zhi.common.cache.SiteCacheManager;
+import com.zhi.common.cache.annotation.SiteCacheEvict;
 import com.zhi.common.constant.CacheConstants;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 /**
  * 缓存切面单元测试
  * 
- * <p>重点覆盖 @BlogCacheEvict：博客设置写入后必须清除公开设置聚合缓存，
+ * <p>重点覆盖 @SiteCacheEvict：博客设置写入后必须清除公开设置聚合缓存，
  * 否则前台最多 1 小时拿不到新值（曾导致后台开关“不生效”）。</p>
  *
  * @author test
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 class CacheAspectTest {
 
     @Mock
-    private BlogCacheManager blogCacheManager;
+    private SiteCacheManager siteCacheManager;
 
     @Mock
     private ProceedingJoinPoint joinPoint;
@@ -43,8 +43,8 @@ class CacheAspectTest {
         lenient().when(joinPoint.proceed()).thenReturn("ok");
     }
 
-    private BlogCacheEvict evictAnnotation(String[] value, String keyPattern, boolean allEntries) {
-        BlogCacheEvict annotation = mock(BlogCacheEvict.class);
+    private SiteCacheEvict evictAnnotation(String[] value, String keyPattern, boolean allEntries) {
+        SiteCacheEvict annotation = mock(SiteCacheEvict.class);
         lenient().when(annotation.value()).thenReturn(value);
         lenient().when(annotation.keyPattern()).thenReturn(keyPattern);
         lenient().when(annotation.allEntries()).thenReturn(allEntries);
@@ -54,10 +54,10 @@ class CacheAspectTest {
     @Test
     void testEvictDeletesConfiguredKey() throws Throwable {
         Object result = cacheAspect.handleCacheEvict(joinPoint,
-            evictAnnotation(new String[] { CacheConstants.BLOG_SETTINGS_ALL }, "", false));
+            evictAnnotation(new String[] { CacheConstants.SETTINGS_ALL }, "", false));
 
         assertEquals("ok", result);
-        verify(blogCacheManager).delete(CacheConstants.BLOG_SETTINGS_ALL);
+        verify(siteCacheManager).delete(CacheConstants.SETTINGS_ALL);
     }
 
     @Test
@@ -65,25 +65,25 @@ class CacheAspectTest {
         cacheAspect.handleCacheEvict(joinPoint,
             evictAnnotation(new String[] {}, "zhi:tag:*", false));
 
-        verify(blogCacheManager).deleteByPattern("zhi:tag:*");
+        verify(siteCacheManager).deleteByPattern("zhi:tag:*");
     }
 
     @Test
     void testEvictAllEntries() throws Throwable {
         cacheAspect.handleCacheEvict(joinPoint, evictAnnotation(new String[] {}, "", true));
 
-        verify(blogCacheManager).clearAllBlogCache();
+        verify(siteCacheManager).clearAllCache();
     }
 
     @Test
     void testEvictStillReturnsResultWhenCacheFails() throws Throwable {
-        doThrow(new RuntimeException("redis down")).when(blogCacheManager)
-            .delete(CacheConstants.BLOG_SETTINGS_ALL);
+        doThrow(new RuntimeException("redis down")).when(siteCacheManager)
+            .delete(CacheConstants.SETTINGS_ALL);
         when(joinPoint.proceed()).thenReturn("ok");
 
         // 缓存清除失败不应影响业务结果（异常分支会再次执行目标方法）
         Object result = cacheAspect.handleCacheEvict(joinPoint,
-            evictAnnotation(new String[] { CacheConstants.BLOG_SETTINGS_ALL }, "", false));
+            evictAnnotation(new String[] { CacheConstants.SETTINGS_ALL }, "", false));
 
         assertEquals("ok", result);
     }
@@ -106,7 +106,7 @@ class CacheAspectTest {
         String huge = "x".repeat(50_000);
         String fragment = (String) invokePrivate("keyFragment", new Class<?>[] { Object.class }, new Object[] { huge });
 
-        assertTrue(fragment.length() <= 80, "长对象（如含正文的 BlogArticle.toString()）只应入哈希：" + fragment.length());
+        assertTrue(fragment.length() <= 80, "长对象（如含正文的 Article.toString()）只应入哈希：" + fragment.length());
         assertTrue(fragment.startsWith("h"), fragment);
 
         String other = (String) invokePrivate("keyFragment", new Class<?>[] { Object.class }, new Object[] { huge + "y" });
@@ -124,7 +124,7 @@ class CacheAspectTest {
     @Test
     void buildCacheKeyMustWirePageInfoAndHashLongArgs() throws Exception {
         org.aspectj.lang.reflect.MethodSignature signature = mock(org.aspectj.lang.reflect.MethodSignature.class);
-        when(signature.getParameterNames()).thenReturn(new String[] { "keyword", "blogArticle" });
+        when(signature.getParameterNames()).thenReturn(new String[] { "keyword", "article" });
         when(joinPoint.getSignature()).thenReturn(signature);
         String hugeFilter = "filter-" + "x".repeat(5_000);
         when(joinPoint.getArgs()).thenReturn(new Object[] { "redis", hugeFilter });
@@ -134,7 +134,7 @@ class CacheAspectTest {
         try {
             page3 = (String) invokePrivate("buildCacheKey",
                 new Class<?>[] { ProceedingJoinPoint.class, String.class },
-                new Object[] { joinPoint, "zhi:search:#keyword:#blogArticle" });
+                new Object[] { joinPoint, "zhi:search:#keyword:#article" });
         } finally {
             com.github.pagehelper.PageHelper.clearPage();
         }
@@ -145,7 +145,7 @@ class CacheAspectTest {
 
         String noPage = (String) invokePrivate("buildCacheKey",
             new Class<?>[] { ProceedingJoinPoint.class, String.class },
-            new Object[] { joinPoint, "zhi:search:#keyword:#blogArticle" });
+            new Object[] { joinPoint, "zhi:search:#keyword:#article" });
         assertFalse(noPage.contains(":p3:s20"), "无分页时不应带页码：" + noPage);
     }
 }

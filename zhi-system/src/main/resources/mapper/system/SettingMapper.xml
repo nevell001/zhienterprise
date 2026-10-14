@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.SettingMapper">
+    
+    <resultMap type="Setting" id="SettingResult">
+        <result property="id"    column="id"    />
+        <result property="settingKey"    column="config_key"    />
+        <result property="settingValue"    column="config_value"    />
+        <result property="description"    column="description"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <!-- 兼容前端传参格式的ResultMap -->
+    <resultMap type="Setting" id="SettingResultWithConfigFields">
+        <result property="id"    column="id"    />
+        <result property="settingKey"    column="config_key"    />
+        <result property="settingValue"    column="config_value"    />
+        <result property="description"    column="description"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSettingVo">
+        select id, config_key, config_value, description, create_time, update_time from zhi_setting
+    </sql>
+
+    <select id="selectSettingList" parameterType="Setting" resultMap="SettingResult">
+        <include refid="selectSettingVo"/>
+        <where>  
+            <if test="settingKey != null  and settingKey != ''"> and config_key like concat('%', #{settingKey}, '%')</if>
+            <if test="settingValue != null  and settingValue != ''"> and config_value like concat('%', #{settingValue}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSettingValueByKey" parameterType="String" resultType="String">
+        select config_value from zhi_setting where config_key = #{settingKey}
+    </select>
+    
+    <select id="selectSettingById" parameterType="Long" resultMap="SettingResult">
+        <include refid="selectSettingVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSetting" parameterType="Setting" useGeneratedKeys="true" keyProperty="id">
+        insert into zhi_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="settingKey != null and settingKey != ''">config_key,</if>
+            <if test="settingValue != null and settingValue != ''">config_value,</if>
+            <if test="description != null">description,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="settingKey != null and settingKey != ''">#{settingKey},</if>
+            <if test="settingValue != null and settingValue != ''">#{settingValue},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSetting" parameterType="Setting">
+        update zhi_setting
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="settingKey != null and settingKey != ''">config_key = #{settingKey},</if>
+            <if test="settingValue != null and settingValue != ''">config_value = #{settingValue},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    
+    <update id="updateSettingValueByKey">
+        update zhi_setting set config_value = #{settingValue}, update_time = now()
+        where config_key = #{settingKey}
+    </update>
+    
+    <!-- 插入或更新设置值（如果不存在则创建） -->
+    <insert id="insertOrUpdateSetting" parameterType="map">
+        INSERT INTO zhi_setting (config_key, config_value, description, create_time, update_time)
+        VALUES (#{settingKey}, #{settingValue}, #{description}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE 
+        config_value = #{settingValue}, 
+        update_time = NOW()
+    </insert>
+
+    <delete id="deleteSettingById" parameterType="Long">
+        delete from zhi_setting where id = #{id}
+    </delete>
+
+    <delete id="deleteSettingByIds" parameterType="String">
+        delete from zhi_setting where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import com.zhi.system.service.IBlogEmailService;
+import com.zhi.system.service.IEmailService;
 
 /**
  * 邮箱验证码过期清理任务
@@ -18,7 +18,7 @@ public class EmailCodeCleanTask
     private static final Logger log = LoggerFactory.getLogger(EmailCodeCleanTask.class);
 
     @Autowired
-    private IBlogEmailService blogEmailService;
+    private IEmailService emailService;
 
     /**
      * 每天凌晨 02:00 执行
@@ -28,7 +28,7 @@ public class EmailCodeCleanTask
     {
         try
         {
-            int count = blogEmailService.cleanExpiredCodes();
+            int count = emailService.cleanExpiredCodes();
             if (count > 0)
             {
                 log.info("已清理过期邮箱验证码 {} 条", count);

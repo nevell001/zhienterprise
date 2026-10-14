@@ -8,45 +8,45 @@ package com.zhi.common.cache;
 public class CacheConstants
 {
     // 缓存前缀
-    public static final String BLOG_PREFIX = "zhi:";
+    public static final String CACHE_KEY_PREFIX = "zhi:";
     
     // 站点文章相关缓存
-    public static final String BLOG_ARTICLE = BLOG_PREFIX + "article:";
-    public static final String BLOG_ARTICLE_LIST = BLOG_PREFIX + "article:list:";
-    public static final String BLOG_ARTICLE_HOT = BLOG_PREFIX + "article:hot";
-    public static final String BLOG_ARTICLE_LATEST = BLOG_PREFIX + "article:latest";
-    public static final String BLOG_ARTICLE_BY_CATEGORY = BLOG_PREFIX + "article:category:";
-    public static final String BLOG_ARTICLE_BY_TAG = BLOG_PREFIX + "article:tag:";
-    public static final String BLOG_ARTICLE_BY_AUTHOR = BLOG_PREFIX + "article:author:";
+    public static final String ARTICLE = CACHE_KEY_PREFIX + "article:";
+    public static final String ARTICLE_LIST = CACHE_KEY_PREFIX + "article:list:";
+    public static final String ARTICLE_HOT = CACHE_KEY_PREFIX + "article:hot";
+    public static final String ARTICLE_LATEST = CACHE_KEY_PREFIX + "article:latest";
+    public static final String ARTICLE_BY_CATEGORY = CACHE_KEY_PREFIX + "article:category:";
+    public static final String ARTICLE_BY_TAG = CACHE_KEY_PREFIX + "article:tag:";
+    public static final String ARTICLE_BY_AUTHOR = CACHE_KEY_PREFIX + "article:author:";
     
     // 站点分类相关缓存
-    public static final String BLOG_CATEGORY = BLOG_PREFIX + "category:";
-    public static final String BLOG_CATEGORY_LIST = BLOG_PREFIX + "category:list:";
-    public static final String BLOG_CATEGORY_TREE = BLOG_PREFIX + "category:tree";
+    public static final String CATEGORY = CACHE_KEY_PREFIX + "category:";
+    public static final String CATEGORY_LIST = CACHE_KEY_PREFIX + "category:list:";
+    public static final String CATEGORY_TREE = CACHE_KEY_PREFIX + "category:tree";
     
     // 站点标签相关缓存
-    public static final String BLOG_TAG = BLOG_PREFIX + "tag:";
-    public static final String BLOG_TAG_LIST = BLOG_PREFIX + "tag:list:";
-    public static final String BLOG_TAG_POPULAR = BLOG_PREFIX + "tag:popular";
+    public static final String TAG = CACHE_KEY_PREFIX + "tag:";
+    public static final String TAG_LIST = CACHE_KEY_PREFIX + "tag:list:";
+    public static final String TAG_POPULAR = CACHE_KEY_PREFIX + "tag:popular";
     
     // 站点评论相关缓存
-    public static final String BLOG_COMMENT = BLOG_PREFIX + "comment:";
-    public static final String BLOG_COMMENT_LIST = BLOG_PREFIX + "comment:list:";
-    public static final String BLOG_COMMENT_BY_ARTICLE = BLOG_PREFIX + "comment:article:";
+    public static final String COMMENT = CACHE_KEY_PREFIX + "comment:";
+    public static final String COMMENT_LIST = CACHE_KEY_PREFIX + "comment:list:";
+    public static final String COMMENT_BY_ARTICLE = CACHE_KEY_PREFIX + "comment:article:";
     
     // 站点设置相关缓存
-    public static final String BLOG_SETTING = BLOG_PREFIX + "setting:";
-    public static final String BLOG_SETTING_LIST = BLOG_PREFIX + "setting:list:";
-    public static final String BLOG_SETTING_VALUE = BLOG_PREFIX + "setting:value:";
+    public static final String SETTING = CACHE_KEY_PREFIX + "setting:";
+    public static final String SETTING_LIST = CACHE_KEY_PREFIX + "setting:list:";
+    public static final String SETTING_VALUE = CACHE_KEY_PREFIX + "setting:value:";
     
     // 站点友情链接相关缓存
-    public static final String BLOG_FRIEND_LINK = BLOG_PREFIX + "friend_link:";
-    public static final String BLOG_FRIEND_LINK_LIST = BLOG_PREFIX + "friend_link:list:";
+    public static final String FRIEND_LINK = CACHE_KEY_PREFIX + "friend_link:";
+    public static final String FRIEND_LINK_LIST = CACHE_KEY_PREFIX + "friend_link:list:";
     
     // 统计相关缓存
-    public static final String BLOG_STATS = BLOG_PREFIX + "stats:";
-    public static final String BLOG_STATS_DAILY = BLOG_PREFIX + "stats:daily:";
-    public static final String BLOG_STATS_TOTAL = BLOG_PREFIX + "stats:total";
+    public static final String STATS = CACHE_KEY_PREFIX + "stats:";
+    public static final String STATS_DAILY = CACHE_KEY_PREFIX + "stats:daily:";
+    public static final String STATS_TOTAL = CACHE_KEY_PREFIX + "stats:total";
     
     // 系统相关缓存
     public static final String SYS_USER = "sys:user:";

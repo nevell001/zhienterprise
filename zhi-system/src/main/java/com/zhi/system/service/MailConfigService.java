@@ -1,6 +1,6 @@
 package com.zhi.system.service;
 
-import com.zhi.common.utils.BlogSwitchUtils;
+import com.zhi.common.utils.SiteSwitchUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.system.domain.MailConfigForm;
 import jakarta.annotation.PostConstruct;
@@ -44,7 +44,7 @@ public class MailConfigService
 
     /** 走 service 而非 mapper：mail_* 键没有 SQL 种子，写入必须是 upsert，纯 UPDATE 会静默丢失 */
     @Autowired
-    private IBlogSettingService blogSettingService;
+    private ISettingService settingService;
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
@@ -117,7 +117,7 @@ public class MailConfigService
         String password = effective(KEY_PASSWORD, baselinePassword);
         boolean ssl = effectiveSwitch(KEY_SSL, baselineSsl);
         boolean starttls = starttlsOf(ssl, effectiveSwitch(KEY_STARTTLS, baselineStarttls));
-        boolean enabled = BlogSwitchUtils.isOn(read(KEY_ENABLED));
+        boolean enabled = SiteSwitchUtils.isOn(read(KEY_ENABLED));
 
         from = username;
         ready = enabled && StringUtils.isNotEmpty(host) && StringUtils.isNotEmpty(username);
@@ -193,7 +193,7 @@ public class MailConfigService
         boolean ssl = effectiveSwitch(KEY_SSL, baselineSsl);
         view.put("ssl", ssl);
         view.put("starttls", starttlsOf(ssl, effectiveSwitch(KEY_STARTTLS, baselineStarttls)));
-        view.put("enabled", BlogSwitchUtils.isOn(read(KEY_ENABLED)));
+        view.put("enabled", SiteSwitchUtils.isOn(read(KEY_ENABLED)));
         return view;
     }
 
@@ -313,7 +313,7 @@ public class MailConfigService
     {
         try
         {
-            return blogSettingService.selectSettingValueByKey(key);
+            return settingService.selectSettingValueByKey(key);
         }
         catch (Exception e)
         {
@@ -323,7 +323,7 @@ public class MailConfigService
 
     private void upsert(String key, String value)
     {
-        blogSettingService.updateSettingValueByKey(key, value);
+        settingService.updateSettingValueByKey(key, value);
     }
 
     private String effective(String key, String baseline)
@@ -366,7 +366,7 @@ public class MailConfigService
         {
             return baseline;
         }
-        return BlogSwitchUtils.isOn(db);
+        return SiteSwitchUtils.isOn(db);
     }
 
     private static boolean parseBool(String value, boolean def)
@@ -375,7 +375,7 @@ public class MailConfigService
         {
             return def;
         }
-        return BlogSwitchUtils.isOn(value);
+        return SiteSwitchUtils.isOn(value);
     }
 
     private static String maskEmail(String email)

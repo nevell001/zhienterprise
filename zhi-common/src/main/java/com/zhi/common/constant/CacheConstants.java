@@ -45,10 +45,10 @@ public class CacheConstants
     /**
      * 友情链接列表 redis key
      */
-    public static final String BLOG_FRIEND_LINK_LIST = "zhi:friend_link:list";
+    public static final String FRIEND_LINK_LIST = "zhi:friend_link:list";
 
     /**
-     * 博客公开设置聚合缓存键（前台 /common/blog/setting 使用，任何设置写入都必须清除）
+     * 博客公开设置聚合缓存键（前台 /common/site/setting 使用，任何设置写入都必须清除）
      */
-    public static final String BLOG_SETTINGS_ALL = "zhi:settings:all";
+    public static final String SETTINGS_ALL = "zhi:settings:all";
 }

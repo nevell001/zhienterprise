@@ -179,17 +179,17 @@ class GlobalExceptionHandlerTest
     @Test
     void missingHandlerAnswers404WithoutEchoingUrlOrHostOrStackDetails()
     {
-        NoHandlerFoundException e = new NoHandlerFoundException("GET", "/blog/not-exists", null);
+        NoHandlerFoundException e = new NoHandlerFoundException("GET", "/api/not-exists", null);
 
         AjaxResult result = handler.handleNoHandlerFoundException(e, request);
 
         assertThat(codeOf(result)).isEqualTo(HttpStatus.NOT_FOUND);
         String msg = msgOf(result);
         assertThat(msg).isEqualTo("请求的页面或资源不存在");
-        // 回归锁：这段文案曾写死 http://localhost:8080/blog，真实域名下会误导用户
+        // 回归锁：这段文案曾写死 http://localhost:8080/api，真实域名下会误导用户
         assertThat(msg).doesNotContain("localhost").doesNotContain("8080");
         // 请求地址与异常细节只进日志，不回显给前端
-        assertThat(msg).doesNotContain("/blog/not-exists").doesNotContain("No handler found");
+        assertThat(msg).doesNotContain("/api/not-exists").doesNotContain("No handler found");
         assertThat(result.get(AjaxResult.DATA_TAG)).isNull();
     }
 }

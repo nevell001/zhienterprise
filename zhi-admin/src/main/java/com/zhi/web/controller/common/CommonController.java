@@ -24,8 +24,8 @@ import com.zhi.common.utils.file.FileUploadUtils;
 import com.zhi.common.utils.file.FileUtils;
 import com.zhi.common.utils.file.MimeTypeUtils;
 import com.zhi.framework.config.ServerConfig;
-import com.zhi.system.domain.BlogUpload;
-import com.zhi.system.service.IBlogUploadService;
+import com.zhi.system.domain.Upload;
+import com.zhi.system.service.IUploadService;
 
 /**
  * 通用请求处理
@@ -42,7 +42,7 @@ public class CommonController
     private ServerConfig serverConfig;
 
     @Autowired
-    private IBlogUploadService blogUploadService;
+    private IUploadService uploadService;
 
     private static final String FILE_DELIMETER = ",";
 
@@ -378,14 +378,14 @@ public class CommonController
     {
         try
         {
-            BlogUpload record = new BlogUpload();
+            Upload record = new Upload();
             record.setFileName(FileUtils.getName(fileName));
             record.setOriginalName(file.getOriginalFilename());
             record.setUrl(fileName);
             record.setMimeType(file.getContentType());
             record.setFileSize(file.getSize());
             record.setUploadType(uploadType);
-            blogUploadService.recordUpload(record);
+            uploadService.recordUpload(record);
         }
         catch (Exception e)
         {

@@ -36,7 +36,7 @@ public class RepeatableFilter implements Filter
             String requestURI = httpRequest.getRequestURI();
             
             // 对于文章相关的请求，不创建RepeatedlyRequestWrapper，避免干扰Jackson解析
-            if (requestURI != null && (requestURI.contains("/system/article") || requestURI.contains("/blog/article"))) {
+            if (requestURI != null && (requestURI.contains("/system/article") || requestURI.contains("/api/article"))) {
                 chain.doFilter(request, response);
                 return;
             }

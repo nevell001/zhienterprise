@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * 注册链路在 SysUserMapper 上的行为契约。
  *
- * BlogUserService 注册时设置 userType='01'，登录（selectUserByUserName）必须原样读回；
+ * SiteUserService 注册时设置 userType='01'，登录（selectUserByUserName）必须原样读回；
  * 曾经 insertUser 漏了 user_type 列，注册用户落库变成 '00'（系统用户），
  * 前台因此显示「管理后台」入口并把个人中心渲染成管理员界面。
  */
@@ -34,16 +34,16 @@ class SysUserMapperTest {
     private SysUserMapper sysUserMapper;
 
     @Test
-    void insertUserShouldPersistBlogUserType() {
-        SysUser blogUser = new SysUser();
-        blogUser.setUserName("mapper_site_user");
-        blogUser.setNickName("注册用户");
-        blogUser.setPassword("$2a$10$abcdefghijklmnopqrstuv");
-        blogUser.setStatus("0");
-        blogUser.setUserType("01");
+    void insertUserShouldPersistUserType() {
+        SysUser siteUser = new SysUser();
+        siteUser.setUserName("mapper_site_user");
+        siteUser.setNickName("注册用户");
+        siteUser.setPassword("$2a$10$abcdefghijklmnopqrstuv");
+        siteUser.setStatus("0");
+        siteUser.setUserType("01");
 
-        assertEquals(1, sysUserMapper.insertUser(blogUser));
-        assertNotNull(blogUser.getUserId(), "插入后应回填自增主键");
+        assertEquals(1, sysUserMapper.insertUser(siteUser));
+        assertNotNull(siteUser.getUserId(), "插入后应回填自增主键");
 
         SysUser loaded = sysUserMapper.selectUserByUserName("mapper_site_user");
         assertNotNull(loaded, "登录链路应能按用户名读回用户");

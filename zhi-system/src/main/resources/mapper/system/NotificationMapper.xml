@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.NotificationMapper">
+
+    <resultMap type="Notification" id="NotificationResult">
+        <id     property="id"           column="id"            />
+        <result property="recipientId"  column="recipient_id"  />
+        <result property="senderName"   column="sender_name"   />
+        <result property="type"         column="type"          />
+        <result property="title"        column="title"         />
+        <result property="content"      column="content"       />
+        <result property="articleId"    column="article_id"    />
+        <result property="articleTitle" column="article_title" />
+        <result property="commentId"    column="comment_id"    />
+        <result property="isRead"       column="is_read"       />
+        <result property="createTime"   column="create_time"   />
+    </resultMap>
+
+    <sql id="selectNotificationVo">
+        select id, recipient_id, sender_name, type, title, content,
+               article_id, article_title, comment_id, is_read, create_time
+        from zhi_notification
+    </sql>
+
+    <select id="selectNotificationList" parameterType="Notification" resultMap="NotificationResult">
+        <include refid="selectNotificationVo"/>
+        <where>
+            <if test="recipientId != null">
+                and recipient_id = #{recipientId}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="isRead != null">
+                and is_read = #{isRead}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <insert id="insertNotification" parameterType="Notification" useGeneratedKeys="true" keyProperty="id">
+        insert into zhi_notification (
+            <if test="recipientId != null">recipient_id,</if>
+            <if test="senderName != null and senderName != ''">sender_name,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="articleId != null">article_id,</if>
+            <if test="articleTitle != null and articleTitle != ''">article_title,</if>
+            <if test="commentId != null">comment_id,</if>
+            <if test="isRead != null">is_read,</if>
+            create_time
+        ) values (
+            <if test="recipientId != null">#{recipientId},</if>
+            <if test="senderName != null and senderName != ''">#{senderName},</if>
+            <if test="type != null and type != ''">#{type},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="articleId != null">#{articleId},</if>
+            <if test="articleTitle != null and articleTitle != ''">#{articleTitle},</if>
+            <if test="commentId != null">#{commentId},</if>
+            <if test="isRead != null">#{isRead},</if>
+            sysdate()
+        )
+    </insert>
+
+    <update id="markAsRead">
+        update zhi_notification
+        set is_read = 1
+        where is_read = 0
+          and recipient_id = #{recipientId}
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="markAllAsRead">
+        update zhi_notification
+        set is_read = 1
+        where is_read = 0
+          and recipient_id = #{recipientId}
+    </update>
+
+    <select id="selectUnreadCount" parameterType="Long" resultType="int">
+        select count(1) from zhi_notification
+        where is_read = 0 and recipient_id = #{recipientId}
+    </select>
+
+</mapper>

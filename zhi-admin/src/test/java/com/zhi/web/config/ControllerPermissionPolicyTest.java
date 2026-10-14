@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>本项目的鉴权模型是：Spring Security 只兜底「登录即可」（anyRequest().authenticated()），
  * 细粒度权限完全依赖方法上的 {@code @PreAuthorize}。因此漏写注解 = 任何已登录账号
  * （包括自助注册的零权限 site_user）都能调用 —— 一次审计就发现
- * {@code BlogArticleTagController} 两个查询、{@code BlogTagController#getAllTags}、
+ * {@code ArticleTagController} 两个查询、{@code TagController#getAllTags}、
  * {@code SysConfigController#getConfigKey} 就是这样漏的。</p>
  *
  * <p>规则：每个映射方法必须满足其一 —— ① 带 {@code @PreAuthorize}；② 带 {@code @Anonymous}
@@ -67,12 +67,12 @@ class ControllerPermissionPolicyTest
 
         // ── 设计为「任何登录用户可用」的自助接口（服务端按当前 userId 过滤）──
         "SysProfileController#",                // 个人中心：资料/头像/改密
-        "BlogBookmarkController#",              // 我的收藏
-        "BlogLikeController#",                  // 点赞状态与切换
-        "BlogNotificationController#",          // 站内通知
-        "BlogArticleController#getMyArticles",  // 我的文章
-        "BlogFrontController#updateMyComment",  // 改自己评论：登录即可，服务端按当前 userId 校验归属
-        "BlogFrontController#deleteMyComment",  // 删自己评论：登录即可，服务端按当前 userId 校验归属
+        "BookmarkController#",              // 我的收藏
+        "LikeController#",                  // 点赞状态与切换
+        "NotificationController#",          // 站内通知
+        "ArticleController#getMyArticles",  // 我的文章
+        "FrontController#updateMyComment",  // 改自己评论：登录即可，服务端按当前 userId 校验归属
+        "FrontController#deleteMyComment",  // 删自己评论：登录即可，服务端按当前 userId 校验归属
 
         // ── RuoYi 约定的「登录即可读」的下拉/树数据 ─────────────────────────
         "SysLoginController#getRouters",        // 当前用户可访问菜单
@@ -146,7 +146,7 @@ class ControllerPermissionPolicyTest
                 Path root = Path.of(url.getPath());
                 try (Stream<Path> walk = Files.walk(root))
                 {
-                    // 用相对路径推导全限定名，子包（如 com/zhi/web/controller/blog）才不会丢包名
+                    // 用相对路径推导全限定名，子包（如 com/zhi/web/controller/site）才不会丢包名
                     walk.filter(path -> path.toString().endsWith(".class"))
                         .map(root::relativize)
                         .forEach(relative -> classNames.add(packagePath.replace('/', '.') + "."

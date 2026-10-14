@@ -1,7 +1,7 @@
 package com.zhi.web.task;
 
 import com.zhi.common.core.redis.RedisCache;
-import com.zhi.system.mapper.BlogArticleMapper;
+import com.zhi.system.mapper.ArticleMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class ArticleViewSyncTask {
     private RedisCache redisCache;
 
     @Autowired
-    private BlogArticleMapper blogArticleMapper;
+    private ArticleMapper articleMapper;
 
     /**
      * 定时将 Redis 中的浏览量同步到数据库
@@ -40,7 +40,7 @@ public class ArticleViewSyncTask {
                 Integer increment = redisCache.getAndDeleteCacheObject(key);
                 
                 if (increment != null && increment > 0) {
-                    blogArticleMapper.addIncrementViewCount(articleId, increment.longValue());
+                    articleMapper.addIncrementViewCount(articleId, increment.longValue());
                     log.debug("已同步文章 {} 的浏览量增量: {}", articleId, increment);
                 }
             } catch (Exception e) {

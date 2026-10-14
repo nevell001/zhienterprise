@@ -56,7 +56,7 @@ public class ResourcesConfig implements WebMvcConfigurer
                 .excludePathPatterns("/actuator/**")
                 .excludePathPatterns("/manage/actuator/**")
                 .excludePathPatterns("/system/article/**")
-                .excludePathPatterns("/blog/article/**");
+                .excludePathPatterns("/api/article/**");
     }
 
     /**

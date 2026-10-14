@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.CommentMapper">
+
+    <resultMap type="Comment" id="CommentResult">
+        <result property="id"    column="id"    />
+        <result property="articleId"    column="article_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="nickname"    column="nickname"    />
+        <result property="email"    column="email"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="content"    column="content"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="status"    column="status"    />
+        <result property="likeCount"    column="like_count"    />
+        <result property="createTime"    column="create_time"    />
+
+    </resultMap>
+
+    <sql id="selectCommentVo">
+        select c.id, c.article_id, c.user_id, c.nickname, c.email,
+               COALESCE(u.avatar, '') as avatar,
+               c.content, c.parent_id, c.status, c.like_count, c.create_time
+        from zhi_comment c
+        left join sys_user u on c.user_id = u.user_id
+    </sql>
+
+    <select id="selectCommentList" parameterType="Comment" resultMap="CommentResult">
+        <include refid="selectCommentVo"/>
+        <where>
+            <if test="articleId != null "> and c.article_id = #{articleId}</if>
+            <if test="userId != null "> and c.user_id = #{userId}</if>
+            <if test="content != null  and content != ''"> and c.content like concat('%', #{content}, '%')</if>
+            <if test="parentId != null "> and c.parent_id = #{parentId}</if>
+            <if test="status != null  and status != ''"> and c.status = #{status}</if>
+        </where>
+        order by c.create_time desc
+    </select>
+
+    <!-- 前台公开接口用：显式列出渲染所需字段，不带 email（PII）；该接口是 @Anonymous。
+         topLevelOnly/repliesOnly 用于「顶级评论分页 + 回复挂在楼层下」的前台展示；
+         parent_id 建表默认 0 且插入顶级评论时会省略该列，所以「顶级」必须同时覆盖 NULL 和 0
+         （CommentServiceImpl 判断回复用的也是 parentId > 0）；
+         params.sort=oldest 时按时间正序（回复列表始终用正序） -->
+    <select id="selectFrontCommentList" parameterType="Comment" resultMap="CommentResult">
+        select c.id, c.article_id, c.user_id, c.nickname, c.content, c.parent_id, c.status, c.like_count, c.create_time,
+               COALESCE(u.avatar, '') as avatar
+        from zhi_comment c
+        left join sys_user u on c.user_id = u.user_id
+        <where>
+            <if test="articleId != null "> and c.article_id = #{articleId}</if>
+            <if test="parentId != null "> and c.parent_id = #{parentId}</if>
+            <if test="params.topLevelOnly != null "> and (c.parent_id is null or c.parent_id = 0)</if>
+            <if test="params.repliesOnly != null "> and c.parent_id is not null and c.parent_id &gt; 0</if>
+            <if test="status != null  and status != ''"> and c.status = #{status}</if>
+        </where>
+        <choose>
+            <when test='params.sort == "oldest"'>order by c.create_time asc, c.id asc</when>
+            <otherwise>order by c.create_time desc, c.id desc</otherwise>
+        </choose>
+    </select>
+
+    <select id="selectCommentById" parameterType="Long" resultMap="CommentResult">
+        <include refid="selectCommentVo"/>
+        where c.id = #{id}
+    </select>
+        
+    <insert id="insertComment" parameterType="Comment" useGeneratedKeys="true" keyProperty="id">
+        insert into zhi_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleId != null">article_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="nickname != null">nickname,</if>
+            <if test="email != null">email,</if>
+            <if test="content != null">content,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="articleId != null">#{articleId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="nickname != null">#{nickname},</if>
+            <if test="email != null">#{email},</if>
+            <if test="content != null">#{content},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+
+         </trim>
+    </insert>
+
+    <update id="updateComment" parameterType="Comment">
+        update zhi_comment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="articleId != null">article_id = #{articleId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="status != null">status = #{status},</if>
+
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCommentById" parameterType="Long">
+        delete from zhi_comment where id = #{id}
+    </delete>
+
+    <delete id="deleteCommentByIds" parameterType="String">
+        delete from zhi_comment where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 统计评论数量 -->
+    <select id="selectCommentCount" parameterType="Comment" resultType="Long">
+        select count(1) from zhi_comment
+        <where>
+            <if test="articleId != null"> and article_id = #{articleId}</if>
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="status != null"> and status = #{status}</if>
+        </where>
+    </select>
+</mapper>

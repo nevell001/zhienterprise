@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.LikeMapper">
+
+    <!-- ==================== 文章点赞 ==================== -->
+
+    <insert id="insertArticleLike">
+        INSERT INTO zhi_article_like (article_id, user_id)
+        VALUES (#{articleId}, #{userId})
+    </insert>
+
+    <delete id="deleteArticleLike">
+        DELETE FROM zhi_article_like
+        WHERE article_id = #{articleId} AND user_id = #{userId}
+    </delete>
+
+    <select id="existsArticleLike" resultType="int">
+        SELECT COUNT(*) FROM zhi_article_like
+        WHERE article_id = #{articleId} AND user_id = #{userId}
+    </select>
+
+    <select id="selectArticleLikeCount" resultType="long">
+        SELECT like_count FROM zhi_article WHERE id = #{articleId}
+    </select>
+
+    <update id="changeArticleLikeCount">
+        UPDATE zhi_article
+        SET like_count = GREATEST(like_count + #{delta}, 0)
+        WHERE id = #{articleId}
+    </update>
+
+    <!-- ==================== 评论点赞 ==================== -->
+
+    <insert id="insertCommentLike">
+        INSERT INTO zhi_comment_like (comment_id, user_id)
+        VALUES (#{commentId}, #{userId})
+    </insert>
+
+    <delete id="deleteCommentLike">
+        DELETE FROM zhi_comment_like
+        WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </delete>
+
+    <select id="existsCommentLike" resultType="int">
+        SELECT COUNT(*) FROM zhi_comment_like
+        WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </select>
+
+    <select id="selectCommentLikeCount" resultType="long">
+        SELECT like_count FROM zhi_comment WHERE id = #{commentId}
+    </select>
+
+    <update id="changeCommentLikeCount">
+        UPDATE zhi_comment
+        SET like_count = GREATEST(like_count + #{delta}, 0)
+        WHERE id = #{commentId}
+    </update>
+
+    <select id="selectLikedCommentIds" resultType="long">
+        SELECT comment_id FROM zhi_comment_like
+        WHERE user_id = #{userId}
+        <if test="commentIds != null and commentIds.size() > 0">
+            AND comment_id IN
+            <foreach collection="commentIds" item="commentId" open="(" separator="," close=")">
+                #{commentId}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

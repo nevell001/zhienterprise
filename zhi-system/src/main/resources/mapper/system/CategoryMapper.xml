@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.CategoryMapper">
+    
+    <resultMap type="Category" id="CategoryResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="alias"    column="alias"    />
+        <result property="description"    column="description"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="sortOrder"    column="sort_order"    />
+        <result property="articleCount"    column="article_count"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <resultMap type="Category" id="CategoryWithArticleCountResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="alias"    column="alias"    />
+        <result property="description"    column="description"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="sortOrder"    column="sort_order"    />
+        <result property="articleCount"    column="article_count"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectCategoryVo">
+        select id, name, alias, description, parent_id, sort_order, article_count, status, create_time, update_time, del_flag from zhi_category
+    </sql>
+
+    <sql id="selectCategoryWithArticleCountVo">
+        select c.id, c.name, c.alias, c.description, c.parent_id, c.sort_order, c.status,
+               ifnull(count(a.id), 0) as article_count,
+               c.create_time, c.update_time, c.del_flag
+        from zhi_category c
+        left join zhi_article a on c.id = a.category_id and a.del_flag = '0' and a.status = 1
+    </sql>
+
+    <select id="selectCategoryList" parameterType="Category" resultMap="CategoryResult">
+        <include refid="selectCategoryVo"/>
+        <where>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="alias != null  and alias != ''"> and alias like concat('%', #{alias}, '%')</if>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+            <if test="sortOrder != null "> and sort_order = #{sortOrder}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="delFlag != null "> and del_flag = #{delFlag}</if>
+        </where>
+        order by COALESCE(sort_order, sort) asc, create_time desc
+    </select>
+    
+    <select id="selectCategoryById" parameterType="Long" resultMap="CategoryResult">
+        <include refid="selectCategoryVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectCategoryByAlias" parameterType="String" resultMap="CategoryResult">
+        <include refid="selectCategoryVo"/>
+        where alias = #{alias} and del_flag = '0' and status = 1
+        limit 1
+    </select>
+
+    <insert id="insertCategory" parameterType="Category" useGeneratedKeys="true" keyProperty="id">
+        insert into zhi_category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="alias != null and alias != ''">alias,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="sort != null">sort,</if>
+            <if test="status != null">status,</if>
+            <if test="articleCount != null">article_count,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="alias != null and alias != ''">#{alias},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="status != null">#{status},</if>
+            <if test="articleCount != null">#{articleCount},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCategory" parameterType="Category">
+        update zhi_category
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="alias != null and alias != ''">alias = #{alias},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="sort != null">
+                sort = #{sort},
+                sort_order = #{sort},
+            </if>
+            <if test="status != null">status = #{status},</if>
+            <if test="articleCount != null">article_count = #{articleCount},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="deleteCategoryById" parameterType="Long">
+        update zhi_category set del_flag = 1, update_time = now() where id = #{id}
+    </update>
+
+    <update id="deleteCategoryByIds" parameterType="String">
+        update zhi_category set del_flag = 1, update_time = now() where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="countByName" parameterType="Category" resultType="int">
+        select count(1) from zhi_category where name = #{name} and del_flag = 0
+        <if test="id != null"> and id != #{id}</if>
+    </select>
+
+    <!-- 查询前台分类列表（包含文章数量） -->
+    <select id="selectCategoryListForFront" parameterType="Category" resultMap="CategoryWithArticleCountResult">
+        <include refid="selectCategoryWithArticleCountVo"/>
+        <where>
+            c.del_flag = '0'
+            <if test="name != null  and name != ''"> and c.name like concat('%', #{name}, '%')</if>
+            <if test="alias != null  and alias != ''"> and c.alias like concat('%', #{alias}, '%')</if>
+            <if test="parentId != null "> and c.parent_id = #{parentId}</if>
+            <if test="status != null "> and c.status = #{status}</if>
+        </where>
+        group by c.id, c.name, c.alias, c.description, c.parent_id, c.sort_order, c.status, c.create_time, c.update_time, c.del_flag
+        order by COALESCE(c.sort_order, c.sort) asc, c.create_time desc
+    </select>
+
+    <!-- 更新分类文章数量 -->
+    <update id="updateArticleCount" parameterType="Long">
+        update zhi_category c
+        set c.article_count = (
+            select count(*)
+            from zhi_article a
+            where a.category_id = #{id}
+            and a.del_flag = '0'
+            and a.status = 1
+        ),
+        c.update_time = now()
+        where c.id = #{id}
+    </update>
+
+    <!-- 批量更新所有分类的文章数量 -->
+    <update id="updateAllArticleCount">
+        update zhi_category c
+        set c.article_count = (
+            select count(*)
+            from zhi_article a
+            where a.category_id = c.id
+            and a.del_flag = '0'
+            and a.status = 1
+        ),
+        c.update_time = now()
+        where c.del_flag = 0
+    </update>
+
+    <select id="selectCategoryCount" parameterType="Category" resultType="long">
+        select count(*) from zhi_category c
+        <where>
+            <if test="name != null and name != ''"> and c.name like concat('%', #{name}, '%')</if>
+            <if test="status != null"> and c.status = #{status}</if>
+            <if test="delFlag != null"> and c.del_flag = #{delFlag}</if>
+        </where>
+    </select>
+</mapper>

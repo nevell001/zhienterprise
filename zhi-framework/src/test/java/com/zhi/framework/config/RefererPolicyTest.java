@@ -10,7 +10,7 @@ import org.mockito.quality.Strictness;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.zhi.framework.testsupport.SpringContextStub;
-import com.zhi.system.service.IBlogSettingService;
+import com.zhi.system.service.ISettingService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 class RefererPolicyTest
 {
     @Mock
-    private IBlogSettingService blogSettingService;
+    private ISettingService settingService;
 
     private RefererPolicy policy;
 
@@ -35,15 +35,15 @@ class RefererPolicyTest
     {
         SpringContextStub.install();
         policy = new RefererPolicy();
-        ReflectionTestUtils.setField(policy, "blogSettingService", blogSettingService);
+        ReflectionTestUtils.setField(policy, "settingService", settingService);
         ReflectionTestUtils.setField(policy, "defaultEnabled", false);
         ReflectionTestUtils.setField(policy, "defaultAllowedDomains", "");
     }
 
     private void settings(String enabled, String domains)
     {
-        when(blogSettingService.selectSettingValueByKey("referer_enabled")).thenReturn(enabled);
-        when(blogSettingService.selectSettingValueByKey("referer_allowed_domains")).thenReturn(domains);
+        when(settingService.selectSettingValueByKey("referer_enabled")).thenReturn(enabled);
+        when(settingService.selectSettingValueByKey("referer_allowed_domains")).thenReturn(domains);
     }
 
     @Test
@@ -102,9 +102,9 @@ class RefererPolicyTest
     @Test
     void settingsReadFailureDegradesToDefaultsInsteadOfBreakingStaticResources()
     {
-        when(blogSettingService.selectSettingValueByKey("referer_enabled"))
+        when(settingService.selectSettingValueByKey("referer_enabled"))
                 .thenThrow(new RuntimeException("db down"));
-        when(blogSettingService.selectSettingValueByKey("referer_allowed_domains"))
+        when(settingService.selectSettingValueByKey("referer_allowed_domains"))
                 .thenThrow(new RuntimeException("db down"));
         ReflectionTestUtils.setField(policy, "defaultEnabled", true);
         ReflectionTestUtils.setField(policy, "defaultAllowedDomains", "example.com");

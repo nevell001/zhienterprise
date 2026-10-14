@@ -1,8 +1,8 @@
 package com.zhi.common.cache.aspect;
 
-import com.zhi.common.cache.BlogCacheManager;
-import com.zhi.common.cache.annotation.BlogCacheable;
-import com.zhi.common.cache.annotation.BlogCacheEvict;
+import com.zhi.common.cache.SiteCacheManager;
+import com.zhi.common.cache.annotation.SiteCacheable;
+import com.zhi.common.cache.annotation.SiteCacheEvict;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 缓存切面处理器
- * 处理 @BlogCacheable 和 @BlogCacheEvict 注解
+ * 处理 @SiteCacheable 和 @SiteCacheEvict 注解
  * 
  * @author nevell
  * @since 2025-12-20
@@ -31,19 +31,19 @@ public class CacheAspect
     private static final int MAX_KEY_FRAGMENT_LENGTH = 64;
 
     @Autowired
-    private BlogCacheManager blogCacheManager;
+    private SiteCacheManager siteCacheManager;
 
     /**
-     * 处理 @BlogCacheable 注解
+     * 处理 @SiteCacheable 注解
      */
-    @Around("@annotation(blogCacheable)")
-    public Object handleCacheable(ProceedingJoinPoint joinPoint, BlogCacheable blogCacheable) throws Throwable {
-        String cacheKey = buildCacheKey(joinPoint, blogCacheable.key());
+    @Around("@annotation(siteCacheable)")
+    public Object handleCacheable(ProceedingJoinPoint joinPoint, SiteCacheable siteCacheable) throws Throwable {
+        String cacheKey = buildCacheKey(joinPoint, siteCacheable.key());
         log.debug("🔍 CacheAspect: 缓存键 = {}", cacheKey);
         
         try {
             // 尝试从缓存获取
-            Object cachedValue = blogCacheManager.get(cacheKey, Object.class);
+            Object cachedValue = siteCacheManager.get(cacheKey, Object.class);
             if (cachedValue != null) {
                 log.debug("✅ CacheAspect: 缓存命中，key = {}", cacheKey);
                 return cachedValue;
@@ -56,9 +56,9 @@ public class CacheAspect
             
             // 将结果存入缓存
             if (result != null) {
-                long ttl = blogCacheable.ttl();
-                TimeUnit timeUnit = blogCacheable.timeUnit();
-                blogCacheManager.set(cacheKey, result, ttl, timeUnit);
+                long ttl = siteCacheable.ttl();
+                TimeUnit timeUnit = siteCacheable.timeUnit();
+                siteCacheManager.set(cacheKey, result, ttl, timeUnit);
                 log.debug("CacheAspect: 已缓存结果，key = {}, TTL = {} {}", cacheKey, ttl, timeUnit);
             }
             
@@ -72,32 +72,32 @@ public class CacheAspect
     }
 
     /**
-     * 处理 @BlogCacheEvict 注解
+     * 处理 @SiteCacheEvict 注解
      */
-    @Around("@annotation(blogCacheEvict)")
-    public Object handleCacheEvict(ProceedingJoinPoint joinPoint, BlogCacheEvict blogCacheEvict) throws Throwable {
+    @Around("@annotation(siteCacheEvict)")
+    public Object handleCacheEvict(ProceedingJoinPoint joinPoint, SiteCacheEvict siteCacheEvict) throws Throwable {
         try {
             // 先执行原方法
             Object result = joinPoint.proceed();
             
             // 然后执行缓存清除
-            if (blogCacheEvict.allEntries()) {
+            if (siteCacheEvict.allEntries()) {
                 // 清除所有站点相关缓存
-                blogCacheManager.clearAllBlogCache();
-                log.debug("Evicted all blog cache entries");
+                siteCacheManager.clearAllCache();
+                log.debug("Evicted all site cache entries");
             } else {
                 // 清除指定缓存
-                String[] keys = blogCacheEvict.value();
+                String[] keys = siteCacheEvict.value();
                 for (String key : keys) {
                     String resolvedKey = resolveSpEL(key, joinPoint);
-                    blogCacheManager.delete(resolvedKey);
+                    siteCacheManager.delete(resolvedKey);
                     log.debug("Evicted cache key: {}", resolvedKey);
                 }
                 
                 // 如果指定了keyPattern，按模式清除
-                if (!blogCacheEvict.keyPattern().isEmpty()) {
-                    blogCacheManager.deleteByPattern(blogCacheEvict.keyPattern());
-                    log.debug("Evicted cache keys with pattern: {}", blogCacheEvict.keyPattern());
+                if (!siteCacheEvict.keyPattern().isEmpty()) {
+                    siteCacheManager.deleteByPattern(siteCacheEvict.keyPattern());
+                    log.debug("Evicted cache keys with pattern: {}", siteCacheEvict.keyPattern());
                 }
             }
             
@@ -128,7 +128,7 @@ public class CacheAspect
     }
 
     /**
-     * 键片段：字符串化参数，过长（例如 BlogArticle.toString() 含正文）时只保留哈希与长度，
+     * 键片段：字符串化参数，过长（例如 Article.toString() 含正文）时只保留哈希与长度，
      * 避免 Redis 键被撑到几十 KB，同时保持"参数不同 → 键不同"。
      */
     private String keyFragment(Object value) {

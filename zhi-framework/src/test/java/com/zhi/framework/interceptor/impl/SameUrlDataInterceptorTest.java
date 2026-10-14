@@ -155,9 +155,9 @@ class SameUrlDataInterceptorTest
     }
 
     @Test
-    void blogArticleJsonRequestsAlsoBypass() throws Exception
+    void articleJsonRequestsAlsoBypass() throws Exception
     {
-        MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/blog/article");
+        MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/api/article");
         request.setContentType("application/json");
 
         assertThat(interceptor.isRepeatSubmit(request, annotation())).isFalse();
@@ -178,7 +178,7 @@ class SameUrlDataInterceptorTest
     @Test
     void wrappedRequestBodyBecomesTheFingerprint() throws Exception
     {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/blog/message");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/message");
         request.setContentType("application/json");
         request.setContent("{\"content\":\"第一条留言\"}".getBytes(StandardCharsets.UTF_8));
         RepeatedlyRequestWrapper wrapper = new RepeatedlyRequestWrapper(request, new MockHttpServletResponse());

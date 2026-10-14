@@ -6,15 +6,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.core.domain.AjaxResult;
-import com.zhi.system.service.IBlogArticleService;
-import com.zhi.system.service.IBlogCategoryService;
-import com.zhi.system.service.IBlogTagService;
-import com.zhi.system.service.IBlogCommentService;
+import com.zhi.system.service.IArticleService;
+import com.zhi.system.service.ICategoryService;
+import com.zhi.system.service.ITagService;
+import com.zhi.system.service.ICommentService;
 import com.zhi.system.service.ISysUserService;
-import com.zhi.system.domain.BlogArticle;
-import com.zhi.system.domain.BlogCategory;
-import com.zhi.system.domain.BlogTag;
-import com.zhi.system.domain.BlogComment;
+import com.zhi.system.domain.Article;
+import com.zhi.system.domain.Category;
+import com.zhi.system.domain.Tag;
+import com.zhi.system.domain.Comment;
 import com.zhi.common.core.domain.entity.SysUser;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,16 +27,16 @@ import java.util.Map;
 public class StatisticsController {
 
     @Autowired
-    private IBlogArticleService articleService;
+    private IArticleService articleService;
 
     @Autowired
-    private IBlogCategoryService categoryService;
+    private ICategoryService categoryService;
 
     @Autowired
-    private IBlogTagService tagService;
+    private ITagService tagService;
 
     @Autowired
-    private IBlogCommentService commentService;
+    private ICommentService commentService;
 
     @Autowired
     private ISysUserService userService;
@@ -50,16 +50,16 @@ public class StatisticsController {
         Map<String, Object> data = new HashMap<>();
 
         // 获取文章总数
-        long articleCount = articleService.selectBlogArticleCount(new BlogArticle());
+        long articleCount = articleService.selectArticleCount(new Article());
 
         // 获取分类总数（使用列表大小）
-        long categoryCount = categoryService.selectBlogCategoryList(new BlogCategory()).size();
+        long categoryCount = categoryService.selectCategoryList(new Category()).size();
 
         // 获取标签总数（使用列表大小）
-        long tagCount = tagService.selectBlogTagList(new BlogTag()).size();
+        long tagCount = tagService.selectTagList(new Tag()).size();
 
         // 获取评论总数
-        long commentCount = commentService.selectBlogCommentCount(new BlogComment());
+        long commentCount = commentService.selectCommentCount(new Comment());
 
         // 获取总浏览量
         long totalViews = articleService.selectTotalViewCount();

@@ -808,8 +808,8 @@ class SysMenuServiceImplTest {
 
     @Test
     void leafMenuKeepsItsOwnComponentAndHiddenFlagFollowsVisible() {
-        SysMenu visible = menu(31L, 1L, "C", "列表", "list", "blog/list/index");
-        SysMenu hidden = menu(32L, 1L, "C", "详情", "detail", "blog/detail/index");
+        SysMenu visible = menu(31L, 1L, "C", "列表", "list", "article/list/index");
+        SysMenu hidden = menu(32L, 1L, "C", "详情", "detail", "article/detail/index");
         hidden.setVisible("1");
 
         List<RouterVo> routers = menuService.buildMenus(Arrays.asList(visible, hidden));
@@ -817,7 +817,7 @@ class SysMenuServiceImplTest {
         assertEquals(2, routers.size());
         assertFalse(routers.get(0).getHidden());
         assertTrue(routers.get(1).getHidden());
-        assertEquals("blog/list/index", routers.get(0).getComponent());
+        assertEquals("article/list/index", routers.get(0).getComponent());
         assertNull(routers.get(0).getChildren(), "叶子菜单不应被合成 children");
     }
 

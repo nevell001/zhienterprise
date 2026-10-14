@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.PageMapper">
+
+    <resultMap type="Page" id="PageResult">
+        <result property="id"    column="id"    />
+        <result property="title"    column="title"    />
+        <result property="slug"    column="slug"    />
+        <result property="summary"    column="summary"    />
+        <result property="content"    column="content"    />
+        <result property="status"    column="status"    />
+        <result property="showInNav"    column="show_in_nav"    />
+        <result property="sort"    column="sort"    />
+        <result property="viewCount"    column="view_count"    />
+        <result property="seoTitle"    column="seo_title"    />
+        <result property="seoKeywords"    column="seo_keywords"    />
+        <result property="seoDescription"    column="seo_description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectPageVo">
+        select id, title, slug, summary, content, status, show_in_nav, sort, view_count,
+               seo_title, seo_keywords, seo_description,
+               create_by, create_time, update_by, update_time, del_flag
+        from zhi_page
+    </sql>
+
+    <sql id="selectPageBriefVo">
+        select id, title, slug, summary, status, show_in_nav, sort, view_count,
+               create_by, create_time, update_by, update_time, del_flag
+        from zhi_page
+    </sql>
+
+    <select id="selectPageList" parameterType="Page" resultMap="PageResult">
+        <include refid="selectPageBriefVo"/>
+        <where>
+            <if test="title != null and title != ''"> and title like concat('%', #{title}, '%')</if>
+            <if test="slug != null and slug != ''"> and slug like concat('%', #{slug}, '%')</if>
+            <if test="status != null and status != ''"> and status = #{status}</if>
+            and del_flag = '0'
+        </where>
+        order by sort asc, id desc
+    </select>
+
+    <select id="selectPublishedPageList" resultMap="PageResult">
+        <include refid="selectPageBriefVo"/>
+        where status = '1' and del_flag = '0'
+        order by sort asc, id desc
+    </select>
+
+    <select id="selectPageById" parameterType="Long" resultMap="PageResult">
+        <include refid="selectPageVo"/>
+        where id = #{id} and del_flag = '0'
+    </select>
+
+    <select id="selectPageBySlug" parameterType="String" resultMap="PageResult">
+        <include refid="selectPageVo"/>
+        where slug = #{slug} and status = '1' and del_flag = '0'
+        limit 1
+    </select>
+
+    <select id="checkSlugUnique" parameterType="String" resultMap="PageResult">
+        <include refid="selectPageBriefVo"/>
+        where slug = #{slug} and del_flag = '0'
+        limit 1
+    </select>
+
+    <insert id="insertPage" parameterType="Page" useGeneratedKeys="true" keyProperty="id">
+        insert into zhi_page
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">title,</if>
+            <if test="slug != null and slug != ''">slug,</if>
+            <if test="summary != null">summary,</if>
+            <if test="content != null">content,</if>
+            <if test="status != null">status,</if>
+            <if test="showInNav != null">show_in_nav,</if>
+            <if test="sort != null">sort,</if>
+            <if test="viewCount != null">view_count,</if>
+            <if test="seoTitle != null">seo_title,</if>
+            <if test="seoKeywords != null">seo_keywords,</if>
+            <if test="seoDescription != null">seo_description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="slug != null and slug != ''">#{slug},</if>
+            <if test="summary != null">#{summary},</if>
+            <if test="content != null">#{content},</if>
+            <if test="status != null">#{status},</if>
+            <if test="showInNav != null">#{showInNav},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="viewCount != null">#{viewCount},</if>
+            <if test="seoTitle != null">#{seoTitle},</if>
+            <if test="seoKeywords != null">#{seoKeywords},</if>
+            <if test="seoDescription != null">#{seoDescription},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePage" parameterType="Page">
+        update zhi_page
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="slug != null and slug != ''">slug = #{slug},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="showInNav != null">show_in_nav = #{showInNav},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="seoTitle != null">seo_title = #{seoTitle},</if>
+            <if test="seoKeywords != null">seo_keywords = #{seoKeywords},</if>
+            <if test="seoDescription != null">seo_description = #{seoDescription},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="increaseViewCount" parameterType="Long">
+        update zhi_page set view_count = view_count + 1 where id = #{id} and del_flag = '0'
+    </update>
+
+    <delete id="deletePageById" parameterType="Long">
+        update zhi_page set del_flag = '1' where id = #{id}
+    </delete>
+
+    <delete id="deletePageByIds" parameterType="String">
+        update zhi_page set del_flag = '1' where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

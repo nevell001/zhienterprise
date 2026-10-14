@@ -1,6 +1,6 @@
 package com.zhi.common.cache.config;
 
-import com.zhi.common.cache.BlogCacheManager;
+import com.zhi.common.cache.SiteCacheManager;
 import com.zhi.common.cache.UnifiedCacheManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -36,7 +36,7 @@ public class CacheConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(name = "spring.redis.host", matchIfMissing = false)
-    public BlogCacheManager blogCacheManager(UnifiedCacheManager unifiedCacheManager) {
-        return new BlogCacheManager(unifiedCacheManager);
+    public SiteCacheManager siteCacheManager(UnifiedCacheManager unifiedCacheManager) {
+        return new SiteCacheManager(unifiedCacheManager);
     }
 }

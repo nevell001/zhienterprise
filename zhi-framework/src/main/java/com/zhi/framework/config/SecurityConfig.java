@@ -165,7 +165,7 @@ public class SecurityConfig
                 }
 
                 // 站点前台接口：@Anonymous注解机制自动处理匿名访问
-                // 不使用 /blog/** 和 /common/blog/** 全路径permitAll，
+                // 不使用 /api/** 和 /common/site/** 全路径permitAll，
                 // 以确保写操作（如修改设置、清除缓存）需要认证
                 requests.requestMatchers(
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/index"),

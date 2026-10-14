@@ -33,7 +33,7 @@ class RefererFilterTest
     void sameOriginIsAllowed()
     {
         assertTrue(RefererFilter.isAllowed("https://blog.example.com/blog/article/1", "blog.example.com", Collections.emptyList()));
-        assertTrue(RefererFilter.isAllowed("http://127.0.0.1:3000/blog", "127.0.0.1", Collections.emptyList()));
+        assertTrue(RefererFilter.isAllowed("http://127.0.0.1:3000/api", "127.0.0.1", Collections.emptyList()));
     }
 
     @Test

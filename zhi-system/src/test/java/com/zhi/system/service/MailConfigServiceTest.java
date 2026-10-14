@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 class MailConfigServiceTest {
 
     @Mock
-    private IBlogSettingService blogSettingService;
+    private ISettingService settingService;
 
     private MailConfigService mailConfigService;
 
@@ -44,7 +44,7 @@ class MailConfigServiceTest {
     @BeforeEach
     void setUp() {
         mailConfigService = new MailConfigService();
-        ReflectionTestUtils.setField(mailConfigService, "blogSettingService", blogSettingService);
+        ReflectionTestUtils.setField(mailConfigService, "settingService", settingService);
         sender = new JavaMailSenderImpl();
         ReflectionTestUtils.setField(mailConfigService, "mailSender", sender);
     }
@@ -63,18 +63,18 @@ class MailConfigServiceTest {
 
     @Test
     void savePersistsEveryFieldEvenWhenRowDoesNotExistYet() {
-        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn(null);
-        when(blogSettingService.updateSettingValueByKey(anyString(), anyString())).thenReturn(1);
+        when(settingService.selectSettingValueByKey(anyString())).thenReturn(null);
+        when(settingService.updateSettingValueByKey(anyString(), anyString())).thenReturn(1);
 
         mailConfigService.save(form(true, false));
 
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_HOST, "smtp.126.com");
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_PORT, "465");
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_USERNAME, "someone@126.com");
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_PASSWORD, "auth-code");
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_SSL, "true");
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_STARTTLS, "false");
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_ENABLED, "true");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_HOST, "smtp.126.com");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_PORT, "465");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_USERNAME, "someone@126.com");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_PASSWORD, "auth-code");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_SSL, "true");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_STARTTLS, "false");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_ENABLED, "true");
     }
 
     @Test
@@ -84,7 +84,7 @@ class MailConfigServiceTest {
 
         mailConfigService.save(form);
 
-        verify(blogSettingService, org.mockito.Mockito.never())
+        verify(settingService, org.mockito.Mockito.never())
             .updateSettingValueByKey(eq(MailConfigService.KEY_PASSWORD), anyString());
     }
 
@@ -92,8 +92,8 @@ class MailConfigServiceTest {
     void saveResolvesConflictingSwitchesInFavorOfSsl() {
         mailConfigService.save(form(true, true));
 
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_SSL, "true");
-        verify(blogSettingService).updateSettingValueByKey(MailConfigService.KEY_STARTTLS, "false");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_SSL, "true");
+        verify(settingService).updateSettingValueByKey(MailConfigService.KEY_STARTTLS, "false");
     }
 
     @Test
@@ -103,7 +103,7 @@ class MailConfigServiceTest {
         sender.getJavaMailProperties().setProperty("mail.smtp.starttls.enable", "true");
         sender.setHost("smtp.126.com");
         sender.setPort(465);
-        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn(null);
+        when(settingService.selectSettingValueByKey(anyString())).thenReturn(null);
 
         mailConfigService.init();
 
@@ -113,11 +113,11 @@ class MailConfigServiceTest {
 
     @Test
     void maskedViewReportsResolvedStarttlsAndHidesPassword() {
-        when(blogSettingService.selectSettingValueByKey(MailConfigService.KEY_PASSWORD)).thenReturn("auth-code");
-        when(blogSettingService.selectSettingValueByKey(MailConfigService.KEY_SSL)).thenReturn("true");
-        when(blogSettingService.selectSettingValueByKey(MailConfigService.KEY_STARTTLS)).thenReturn("true");
-        when(blogSettingService.selectSettingValueByKey(MailConfigService.KEY_HOST)).thenReturn("smtp.126.com");
-        when(blogSettingService.selectSettingValueByKey(MailConfigService.KEY_USERNAME)).thenReturn("someone@126.com");
+        when(settingService.selectSettingValueByKey(MailConfigService.KEY_PASSWORD)).thenReturn("auth-code");
+        when(settingService.selectSettingValueByKey(MailConfigService.KEY_SSL)).thenReturn("true");
+        when(settingService.selectSettingValueByKey(MailConfigService.KEY_STARTTLS)).thenReturn("true");
+        when(settingService.selectSettingValueByKey(MailConfigService.KEY_HOST)).thenReturn("smtp.126.com");
+        when(settingService.selectSettingValueByKey(MailConfigService.KEY_USERNAME)).thenReturn("someone@126.com");
 
         Map<String, Object> view = mailConfigService.getMaskedView();
 
@@ -134,7 +134,7 @@ class MailConfigServiceTest {
         for (int i = 0; i < keyValuePairs.length; i += 2) {
             values.put(keyValuePairs[i], keyValuePairs[i + 1]);
         }
-        when(blogSettingService.selectSettingValueByKey(anyString()))
+        when(settingService.selectSettingValueByKey(anyString()))
             .thenAnswer(invocation -> values.get(invocation.getArgument(0)));
     }
 
@@ -252,7 +252,7 @@ class MailConfigServiceTest {
         sender.setHost("smtp.env.internal");
         sender.setPort(587);
         sender.setUsername("env@126.com");
-        when(blogSettingService.selectSettingValueByKey(anyString()))
+        when(settingService.selectSettingValueByKey(anyString()))
             .thenThrow(new RuntimeException("db down"));
 
         assertDoesNotThrow(this::initAndReadView);
