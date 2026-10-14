@@ -109,3 +109,64 @@ describe('深色模式 --mo-* 色阶使用约定', () => {
     expect(files.length).toBeGreaterThan(30)
   })
 })
+
+/**
+ * 模板层（--tpl-*）自成一套色阶，不在 theme-dark.css 的 --mo-* 重映射范围内，
+ * 所以深色模式必须由 site-templates.scss 自己同步重映射：漏掉时标题/正文仍是
+ * 浅色模式的深色值，落在深色页底上（企业官网模板实测 1.04:1）。
+ * 同源约束：over-hero 导航浮在页面底色之上，用 --tpl-white 反白在浅色模式下
+ * 等于白底白字；而以 --tpl-ink-900 作底色的反色按钮一旦前景用 --tpl-white，
+ * 深色模式下 ink-900 被重映射成近白后同样不可读。
+ */
+const TPL_KEY_TOKENS = [
+  '--tpl-bg',
+  '--tpl-surface',
+  '--tpl-ink-900',
+  '--tpl-ink-700',
+  '--tpl-ink-500'
+]
+const templatesScss = readFileSync(
+  join(__dirname, '../../assets/styles/themes/site-templates.scss'),
+  'utf8'
+)
+const navFile = join(__dirname, '../../components/enterprise/EnterpriseNav.vue')
+
+describe('模板层 --tpl-* 深浅模式约定', () => {
+  it('site-templates.scss 必须为 html.dark 下的模板层重映射核心色阶', () => {
+    const rule = parseRules(templatesScss).find(r => {
+      const parts = r.selector.split(',').map(s => s.replace(/\s+/g, ' ').trim())
+      return parts.includes('html.dark.tpl-site') && parts.includes('html.dark .tpl-site')
+    })
+    expect(
+      rule,
+      '缺少深色重映射块：须同时命中 <html> 与页面根容器（模板页根节点也声明了 .tpl-site，只写 html 会被它的浅色值覆盖）'
+    ).toBeTruthy()
+    for (const token of TPL_KEY_TOKENS) {
+      expect(rule?.body, `${token} 未在深色块中重映射`).toContain(`${token}:`)
+    }
+  })
+
+  it('over-hero（首页透明态）不得用 --tpl-white 反白文字', () => {
+    const overHero = parseRules(readFileSync(navFile, 'utf8')).filter(r =>
+      r.selector.includes('.over-hero')
+    )
+    expect(overHero.length, '未找到 over-hero 规则，选择器可能已改名').toBeGreaterThan(0)
+    const bad = overHero
+      .filter(r => /(?:^|[;{\s])color:\s*var\(--tpl-white\)/.test(r.body))
+      .map(r => r.selector.replace(/\s+/g, ' '))
+    expect(bad).toEqual([])
+  })
+
+  it('以 --tpl-ink-900 作背景的反色按钮不得配 --tpl-white 前景', () => {
+    const bad = files.flatMap(file =>
+      parseRules(readFileSync(file, 'utf8'))
+        .filter(
+          rule =>
+            /background:\s*var\(--tpl-ink-900\)/.test(rule.body) &&
+            /(?:^|[;{\s])color:\s*var\(--tpl-white\)/.test(rule.body)
+        )
+        .map(rule => `${file.replace(`${blogRoot}/`, '')} → ${rule.selector.replace(/\s+/g, ' ')}`)
+    )
+    expect(bad).toEqual([])
+  })
+})
