@@ -485,11 +485,11 @@ const goNewsItem = (id?: number) => id && router.push(`/article/${id}`)
 
 .btn-d {
   background: var(--tpl-ink-900);
-  color: var(--tpl-white);
+  color: var(--tpl-bg);
 }
 
 .btn-d:hover {
-  background: var(--tpl-dark-2);
+  background: color-mix(in srgb, var(--tpl-ink-900) 80%, var(--tpl-bg));
   transform: translateY(-2px);
   box-shadow: var(--tpl-sh-md);
 }

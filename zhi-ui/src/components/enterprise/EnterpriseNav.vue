@@ -373,23 +373,8 @@ const handleUserCommand = async (command: string) => {
   padding: var(--mo-sp-1);
 }
 
-/* 首页透明态：文字/图标反白 */
-.ent-nav.over-hero .ent-logo,
-.ent-nav.over-hero .ent-links a,
-.ent-nav.over-hero .ent-user,
-.ent-nav.over-hero .ent-login,
-.ent-nav.over-hero .ent-burger {
-  color: var(--tpl-white);
-}
-
-.ent-nav.over-hero .ent-links a.on,
-.ent-nav.over-hero .ent-links a:hover {
-  color: var(--tpl-white);
-}
-
-.ent-nav.over-hero .ent-links a.lv1::after {
-  background: var(--tpl-white);
-}
+/* 首页透明态只去掉背景与描边；文字沿用常规配色 —— Hero 底下是页面底色，
+   深浅两种模式下 ink-900/ink-500 都保持可读，不再反白。 */
 
 /* ---------- 移动端抽屉 ---------- */
 .ent-drawer {
