@@ -21,8 +21,38 @@
         <!-- 头条：16:9 大图 + 摘要（方案文档 §3.4 企业动态） -->
         <article v-if="headline" class="enh-hero-card rv" @click="goItem(headline.id)">
           <div class="enh-hero-media">
-            <img v-if="headline.coverUrl" :src="headline.coverUrl" :alt="headline.title" loading="lazy" decoding="async" />
-            <svg v-else width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".5" aria-hidden="true"><rect x="12" y="12" width="48" height="48" rx="12" stroke="currentColor" stroke-width="1.5" /><path d="M24 36h24M36 24v24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+            <img
+              v-if="headline.coverUrl"
+              :src="headline.coverUrl"
+              :alt="headline.title"
+              loading="lazy"
+              decoding="async"
+            />
+            <svg
+              v-else
+              width="72"
+              height="72"
+              viewBox="0 0 72 72"
+              fill="none"
+              opacity=".5"
+              aria-hidden="true"
+            >
+              <rect
+                x="12"
+                y="12"
+                width="48"
+                height="48"
+                rx="12"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M24 36h24M36 24v24"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
           </div>
           <div class="enh-hero-body">
             <div class="n-meta">
@@ -33,7 +63,15 @@
             <p>{{ headline.summary }}</p>
             <span class="lnk">
               阅读全文
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 8h10M9 4l4 4-4 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </span>
           </div>
         </article>
@@ -140,9 +178,7 @@ const goItem = (id?: number) => id && router.push(`/article/${id}`)
 <style scoped>
 .enh-head {
   padding: calc(var(--mo-sp-12) + 64px) 0 var(--mo-sp-10);
-  background:
-    radial-gradient(circle at 15% 20%, var(--tpl-p-sub), transparent 42%),
-    var(--tpl-bg);
+  background: radial-gradient(circle at 15% 20%, var(--tpl-p-sub), transparent 42%), var(--tpl-bg);
   border-bottom: 1px solid var(--tpl-border);
 }
 

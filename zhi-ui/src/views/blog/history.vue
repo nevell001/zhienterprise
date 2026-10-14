@@ -65,9 +65,24 @@ const STAGES = [
     name: '初创期',
     theme: '找准方向，活下来',
     events: [
-      { year: '2011', title: '公司成立', desc: '核心团队组建，确立深耕行业信息化的发展方向。', honor: false },
-      { year: '2012', title: '首个标杆客户', desc: '签约第一家行业头部客户，产品完成从 0 到 1 的验证。', honor: false },
-      { year: '2014', title: '获得高新技术企业认定', desc: '研发投入与自主知识产权获得官方认可。', honor: true }
+      {
+        year: '2011',
+        title: '公司成立',
+        desc: '核心团队组建，确立深耕行业信息化的发展方向。',
+        honor: false
+      },
+      {
+        year: '2012',
+        title: '首个标杆客户',
+        desc: '签约第一家行业头部客户，产品完成从 0 到 1 的验证。',
+        honor: false
+      },
+      {
+        year: '2014',
+        title: '获得高新技术企业认定',
+        desc: '研发投入与自主知识产权获得官方认可。',
+        honor: true
+      }
     ]
   },
   {
@@ -75,9 +90,24 @@ const STAGES = [
     name: '成长期',
     theme: '打磨产品，规模复制',
     events: [
-      { year: '2015', title: '产品线成型', desc: '三大产品线发布，完成从项目交付到标准产品的转型。', honor: false },
-      { year: '2017', title: '服务客户突破 500 家', desc: '建立全国服务网络，交付与售后体系全面标准化。', honor: false },
-      { year: '2019', title: '通过 ISO 9001 认证', desc: '质量管理体系与国际标准接轨。', honor: true }
+      {
+        year: '2015',
+        title: '产品线成型',
+        desc: '三大产品线发布，完成从项目交付到标准产品的转型。',
+        honor: false
+      },
+      {
+        year: '2017',
+        title: '服务客户突破 500 家',
+        desc: '建立全国服务网络，交付与售后体系全面标准化。',
+        honor: false
+      },
+      {
+        year: '2019',
+        title: '通过 ISO 9001 认证',
+        desc: '质量管理体系与国际标准接轨。',
+        honor: true
+      }
     ]
   },
   {
@@ -85,9 +115,24 @@ const STAGES = [
     name: '领先期',
     theme: '行业头部，方案引领',
     events: [
-      { year: '2020', title: '行业解决方案体系发布', desc: '覆盖制造、金融、零售、医疗四大行业的方案矩阵成型。', honor: false },
-      { year: '2022', title: '服务客户突破 1200 家', desc: '续约率与客户满意度连续三年提升。', honor: false },
-      { year: '2023', title: '斩获行业年度解决方案奖', desc: '头部客户的联合实践获得行业认可。', honor: true }
+      {
+        year: '2020',
+        title: '行业解决方案体系发布',
+        desc: '覆盖制造、金融、零售、医疗四大行业的方案矩阵成型。',
+        honor: false
+      },
+      {
+        year: '2022',
+        title: '服务客户突破 1200 家',
+        desc: '续约率与客户满意度连续三年提升。',
+        honor: false
+      },
+      {
+        year: '2023',
+        title: '斩获行业年度解决方案奖',
+        desc: '头部客户的联合实践获得行业认可。',
+        honor: true
+      }
     ]
   },
   {
@@ -95,8 +140,18 @@ const STAGES = [
     name: '生态期',
     theme: '开放共建，长期主义',
     events: [
-      { year: '2024', title: '通过 ISO 27001 认证', desc: '信息安全管理体系升级，为数据类业务护航。', honor: true },
-      { year: '2025', title: '合作伙伴计划启动', desc: '与上下游厂商共建交付与培训生态。', honor: false }
+      {
+        year: '2024',
+        title: '通过 ISO 27001 认证',
+        desc: '信息安全管理体系升级，为数据类业务护航。',
+        honor: true
+      },
+      {
+        year: '2025',
+        title: '合作伙伴计划启动',
+        desc: '与上下游厂商共建交付与培训生态。',
+        honor: false
+      }
     ]
   }
 ]

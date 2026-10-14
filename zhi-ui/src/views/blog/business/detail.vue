@@ -56,7 +56,15 @@
           <p>联系我们获取方案与报价。</p>
           <router-link class="bd-cta-btn" to="/contact">
             咨询该{{ businessLabel }}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M3 8h10M9 4l4 4-4 4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
           </router-link>
         </section>
       </template>
@@ -308,8 +316,7 @@ onBeforeUnmount(() => {
   text-align: center;
   border-radius: var(--tpl-r-xl);
   background:
-    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.14), transparent 40%),
-    var(--tpl-dark);
+    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.14), transparent 40%), var(--tpl-dark);
 }
 
 .bd-cta h2 {

@@ -12,7 +12,15 @@
           <div class="eh-cta">
             <router-link class="btn-p" to="/business">
               了解我们的业务
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 8h10M9 4l4 4-4 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </router-link>
             <router-link class="btn-s" to="/contact">预约咨询</router-link>
           </div>
@@ -37,9 +45,27 @@
           <p>产品解决「用什么」，服务解决「怎么落地」。两者共用一套方法论，互为支撑。</p>
         </div>
         <div class="biz">
-          <div v-for="(card, ci) in bizCards" :key="card.title" class="biz-card rv" :class="`d${ci}`">
+          <div
+            v-for="(card, ci) in bizCards"
+            :key="card.title"
+            class="biz-card rv"
+            :class="`d${ci}`"
+          >
             <div class="ico" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path :d="card.iconPath" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="M11 2l8 4.5v9L11 20l-8-4.5v-9L11 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path
+                  :d="card.iconPath"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M11 2l8 4.5v9L11 20l-8-4.5v-9L11 2z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </div>
             <h3>{{ card.title }}</h3>
             <p>{{ card.desc }}</p>
@@ -51,7 +77,15 @@
                 @click="item.id && goBusinessItem(item.id)"
               >
                 {{ item.label }}
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><path d="M3 7.5h9M8 4l3.5 3.5L8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                  <path
+                    d="M3 7.5h9M8 4l3.5 3.5L8 11"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
               </li>
             </ul>
           </div>
@@ -79,10 +113,24 @@
             <p>{{ item.desc }}</p>
             <router-link class="lnk" to="/business">
               查看方案
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 8h10M9 4l4 4-4 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </router-link>
             <!-- eslint-disable-next-line vue/no-v-html -->
-            <svg class="sol-art" viewBox="0 0 200 200" fill="none" aria-hidden="true" v-html="tpl.art" />
+            <svg
+              class="sol-art"
+              viewBox="0 0 200 200"
+              fill="none"
+              aria-hidden="true"
+              v-html="tpl.art"
+            />
           </div>
         </div>
       </div>
@@ -98,7 +146,10 @@
         </div>
         <div class="numgrid rv d1">
           <div v-for="o in SITE_OUTCOMES" :key="o.label" class="numcell">
-            <b><i>{{ o.mark }}</i>{{ o.suffix }}</b>
+            <b>
+              <i>{{ o.mark }}</i>
+              {{ o.suffix }}
+            </b>
             <span>{{ o.label }}</span>
           </div>
         </div>
@@ -128,7 +179,15 @@
           </div>
           <router-link class="lnk" to="/news">
             更多动态
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M3 8h10M9 4l4 4-4 4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
           </router-link>
         </div>
         <div v-if="newsItems.length" class="news">
@@ -140,8 +199,38 @@
             @click="goNewsItem(item.id)"
           >
             <div class="n-thumb">
-              <img v-if="item.coverUrl" :src="item.coverUrl" :alt="item.title" loading="lazy" decoding="async" />
-              <svg v-else width="56" height="56" viewBox="0 0 56 56" fill="none" opacity=".5" aria-hidden="true"><rect x="14" y="14" width="28" height="28" rx="8" stroke="currentColor" stroke-width="1.5" /><path d="M20 28h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+              <img
+                v-if="item.coverUrl"
+                :src="item.coverUrl"
+                :alt="item.title"
+                loading="lazy"
+                decoding="async"
+              />
+              <svg
+                v-else
+                width="56"
+                height="56"
+                viewBox="0 0 56 56"
+                fill="none"
+                opacity=".5"
+                aria-hidden="true"
+              >
+                <rect
+                  x="14"
+                  y="14"
+                  width="28"
+                  height="28"
+                  rx="8"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path
+                  d="M20 28h16"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
             </div>
             <div class="n-body">
               <h3>{{ item.title }}</h3>
@@ -158,14 +247,28 @@
 
     <!-- ⑦ 转化区块（深色 + 网格背景图形） -->
     <section class="cta pad">
-      <svg class="cta-bg" viewBox="0 0 1440 400" preserveAspectRatio="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1" fill="none"><path d="M0 80h1440M0 200h1440M0 320h1440M120 0v400M400 0v400M680 0v400M960 0v400M1240 0v400" /></g></svg>
+      <svg class="cta-bg" viewBox="0 0 1440 400" preserveAspectRatio="none" aria-hidden="true">
+        <g stroke="currentColor" stroke-width="1" fill="none">
+          <path
+            d="M0 80h1440M0 200h1440M0 320h1440M120 0v400M400 0v400M680 0v400M960 0v400M1240 0v400"
+          />
+        </g>
+      </svg>
       <div class="eh-wrap eh-cta-inner">
         <h2 class="rv">把下一步交给我们</h2>
         <p class="rv d1">一个小时的免费诊断，换一份可执行的问题清单。</p>
         <div class="rv d2 eh-cta-btns">
           <router-link class="btn-p" to="/contact">
             预约咨询
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M3 8h10M9 4l4 4-4 4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
           </router-link>
           <router-link class="btn-d" to="/about">了解我们</router-link>
         </div>
@@ -208,7 +311,16 @@ const businessItems = ref<Article[]>([])
 const newsItems = ref<Article[]>([])
 const partnerNames = ref<string[]>([])
 
-const FALLBACK_PARTNERS = ['客户 A', '客户 B', '客户 C', '客户 D', '客户 E', '客户 F', '客户 G', '客户 H']
+const FALLBACK_PARTNERS = [
+  '客户 A',
+  '客户 B',
+  '客户 C',
+  '客户 D',
+  '客户 E',
+  '客户 F',
+  '客户 G',
+  '客户 H'
+]
 
 /** 核心业务两卡的列表项：优先用真实业务条目，空数据回退模板占位 */
 const bizCards = computed(() => {
@@ -248,9 +360,9 @@ onMounted(async () => {
     const raw: unknown = partners.value
     const list: unknown = Array.isArray(raw)
       ? raw
-      : (raw as { data?: unknown[]; rows?: unknown[] })?.data ??
+      : ((raw as { data?: unknown[]; rows?: unknown[] })?.data ??
         (raw as { data?: unknown[]; rows?: unknown[] })?.rows ??
-        []
+        [])
     const names = (Array.isArray(list) ? list : [])
       .map((item: unknown) => String((item as { name?: unknown })?.name ?? '').trim())
       .filter(Boolean)

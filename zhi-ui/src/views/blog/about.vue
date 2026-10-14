@@ -76,7 +76,8 @@ const customAboutContent = ref('')
 
 const aboutContentHtml = computed(() => {
   const raw = customAboutContent.value
-  if (!raw || typeof raw !== 'string' || !raw.trim()) return '企业简介内容可在后台「页面管理」中维护（别名 about）。'
+  if (!raw || typeof raw !== 'string' || !raw.trim())
+    return '企业简介内容可在后台「页面管理」中维护（别名 about）。'
   return sanitizeArticleContent(renderMarkdown(raw))
 })
 

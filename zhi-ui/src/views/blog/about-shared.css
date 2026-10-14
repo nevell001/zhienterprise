@@ -47,9 +47,7 @@
 /* ---------- 页头 ---------- */
 .aph {
   padding: calc(var(--mo-sp-12) + 64px) 0 var(--mo-sp-11);
-  background:
-    radial-gradient(circle at 15% 20%, var(--tpl-p-sub), transparent 42%),
-    var(--tpl-bg);
+  background: radial-gradient(circle at 15% 20%, var(--tpl-p-sub), transparent 42%), var(--tpl-bg);
   border-bottom: 1px solid var(--tpl-border);
 }
 

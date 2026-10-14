@@ -29,7 +29,8 @@ function sampleArticles(): {
   )
   expect(start, '找不到示例文章 INSERT 块').toBeGreaterThanOrEqual(0)
 
-  const tailRe = /^'', (\d+), 1, 'admin', \d+, \d+, 1, \d+, \d+(?:, '([a-z]+)')?(?:, '([a-z0-9-]+)')?\)([,;])$/
+  const tailRe =
+    /^'', (\d+), 1, 'admin', \d+, \d+, 1, \d+, \d+(?:, '([a-z]+)')?(?:, '([a-z0-9-]+)')?\)([,;])$/
   const result: {
     title: string
     content: string

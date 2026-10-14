@@ -16,7 +16,9 @@ describe('jsonld', () => {
     setJsonLd('test-jsonld', { a: 1 })
     setJsonLd('test-jsonld', { b: 2 })
     expect(document.querySelectorAll('#test-jsonld').length).toBe(1)
-    expect(JSON.parse(document.getElementById('test-jsonld')?.textContent || '{}')).toEqual({ b: 2 })
+    expect(JSON.parse(document.getElementById('test-jsonld')?.textContent || '{}')).toEqual({
+      b: 2
+    })
   })
 
   it('移除后节点不存在；对不存在的 id 移除是安全空操作', () => {

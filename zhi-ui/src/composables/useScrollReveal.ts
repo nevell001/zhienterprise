@@ -25,10 +25,7 @@ export function useScrollReveal(root: Ref<HTMLElement | null>) {
     const els = Array.from(root.value?.querySelectorAll<HTMLElement>('.rv') ?? [])
     if (els.length === 0) return
 
-    if (
-      typeof IntersectionObserver === 'undefined' ||
-      prefersReducedMotion()
-    ) {
+    if (typeof IntersectionObserver === 'undefined' || prefersReducedMotion()) {
       revealAll()
       return
     }
