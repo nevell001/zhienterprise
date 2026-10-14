@@ -1,158 +1,161 @@
 <template>
-  <div ref="rootEl" class="tpl-site contact-page mo-home-page">
-    <!-- 页头 -->
-    <header class="aph">
-      <div class="eh-wrap">
-        <span class="eyebrow rv">Contact</span>
-        <h1 class="aph-title rv">联系我们</h1>
-        <p class="aph-sub rv d1">期待与您的沟通与合作，我们将尽快响应每一份咨询。</p>
-      </div>
-    </header>
-
-    <main>
-      <!-- 基础联系信息（来自站点设置） -->
-      <section class="pad">
+  <BlogLayout>
+    <div ref="rootEl" class="tpl-site contact-page mo-home-page">
+      <!-- 页头 -->
+      <header class="aph">
         <div class="eh-wrap">
-          <div class="tpl-sec-head rv">
-            <div class="sec-tag">联系方式</div>
-            <h2>随时找到我们</h2>
+          <span class="eyebrow rv">Contact</span>
+          <h1 class="aph-title rv">联系我们</h1>
+          <p class="aph-sub rv d1">期待与您的沟通与合作，我们将尽快响应每一份咨询。</p>
+        </div>
+      </header>
+
+      <main>
+        <!-- 基础联系信息（来自站点设置） -->
+        <section class="pad">
+          <div class="eh-wrap">
+            <div class="tpl-sec-head rv">
+              <div class="sec-tag">联系方式</div>
+              <h2>随时找到我们</h2>
+            </div>
+            <div v-if="basicItems.length" class="ct-grid rv d1">
+              <div v-for="item in basicItems" :key="item.key" class="ct-card">
+                <div class="ct-type">{{ item.label }}</div>
+                <a v-if="item.href" :href="item.href" class="ct-value ct-link">{{ item.value }}</a>
+                <div v-else class="ct-value">{{ item.value }}</div>
+              </div>
+            </div>
+            <el-empty v-else description="暂未公开联系方式，可在后台「站点设置」中填写" />
           </div>
-          <div v-if="basicItems.length" class="ct-grid rv d1">
-            <div v-for="item in basicItems" :key="item.key" class="ct-card">
-              <div class="ct-type">{{ item.label }}</div>
-              <a v-if="item.href" :href="item.href" class="ct-value ct-link">{{ item.value }}</a>
-              <div v-else class="ct-value">{{ item.value }}</div>
+        </section>
+
+        <!-- 分渠道咨询（渠道专属联系方式为占位，接入后替换） -->
+        <section class="pad surface">
+          <div class="eh-wrap">
+            <div class="tpl-sec-head rv">
+              <div class="sec-tag">分渠道咨询</div>
+              <h2>按需求选择对接渠道</h2>
+              <p>以下渠道均可通过页面底部电话与邮箱联系，备注对应渠道即可精准触达。</p>
+            </div>
+            <div class="ct-grid ct-four rv d1">
+              <div v-for="ch in CHANNELS" :key="ch.name" class="ct-card">
+                <div class="ct-type">{{ ch.name }}</div>
+                <p class="ct-desc">{{ ch.desc }}</p>
+              </div>
             </div>
           </div>
-          <el-empty v-else description="暂未公开联系方式，可在后台「站点设置」中填写" />
-        </div>
-      </section>
+        </section>
 
-      <!-- 分渠道咨询（渠道专属联系方式为占位，接入后替换） -->
-      <section class="pad surface">
-        <div class="eh-wrap">
-          <div class="tpl-sec-head rv">
-            <div class="sec-tag">分渠道咨询</div>
-            <h2>按需求选择对接渠道</h2>
-            <p>以下渠道均可通过页面底部电话与邮箱联系，备注对应渠道即可精准触达。</p>
-          </div>
-          <div class="ct-grid ct-four rv d1">
-            <div v-for="ch in CHANNELS" :key="ch.name" class="ct-card">
-              <div class="ct-type">{{ ch.name }}</div>
-              <p class="ct-desc">{{ ch.desc }}</p>
+        <!-- 地图占位（点击跳转外部地图搜索，第三方脚本延后加载，§6.1） -->
+        <section v-if="blogSettings.contact_address" class="pad">
+          <div class="eh-wrap">
+            <div class="tpl-sec-head rv">
+              <div class="sec-tag">到访指引</div>
+              <h2>我们的位置</h2>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 地图占位（点击跳转外部地图搜索，第三方脚本延后加载，§6.1） -->
-      <section v-if="blogSettings.contact_address" class="pad">
-        <div class="eh-wrap">
-          <div class="tpl-sec-head rv">
-            <div class="sec-tag">到访指引</div>
-            <h2>我们的位置</h2>
-          </div>
-          <div class="ct-map rv d1">
-            <svg
-              class="ct-map-bg"
-              viewBox="0 0 800 320"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <g stroke="currentColor" stroke-width="1" fill="none">
-                <path d="M0 80h800M0 160h800M0 240h800M160 0v320M400 0v320M640 0v320" />
-              </g>
-              <circle cx="400" cy="160" r="10" fill="currentColor" />
-              <circle
-                cx="400"
-                cy="160"
-                r="22"
-                stroke="currentColor"
-                stroke-width="1.5"
-                fill="none"
-              />
-            </svg>
-            <div class="ct-map-body">
-              <p>{{ blogSettings.contact_address }}</p>
-              <a class="btn-p" :href="mapLink" target="_blank" rel="noopener noreferrer">
-                获取路线
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path
-                    d="M4 3l4 4-4 4"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- FAQ 折叠面板（方案文档 §3.6：手风琴，同时展开 1 项） -->
-      <section class="pad surface">
-        <div class="eh-wrap ct-faq-wrap">
-          <div class="tpl-sec-head rv">
-            <div class="sec-tag">常见问题</div>
-            <h2>你可能想问</h2>
-          </div>
-          <div class="ct-faq rv d1">
-            <div v-for="(f, fi) in faqs" :key="f.q" class="ct-faq-item">
-              <button
-                type="button"
-                class="ct-faq-q"
-                :aria-expanded="openFaq === fi"
-                @click="openFaq = openFaq === fi ? -1 : fi"
+            <div class="ct-map rv d1">
+              <svg
+                class="ct-map-bg"
+                viewBox="0 0 800 320"
+                preserveAspectRatio="none"
+                aria-hidden="true"
               >
-                {{ f.q }}
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 14 14"
+                <g stroke="currentColor" stroke-width="1" fill="none">
+                  <path d="M0 80h800M0 160h800M0 240h800M160 0v320M400 0v320M640 0v320" />
+                </g>
+                <circle cx="400" cy="160" r="10" fill="currentColor" />
+                <circle
+                  cx="400"
+                  cy="160"
+                  r="22"
+                  stroke="currentColor"
+                  stroke-width="1.5"
                   fill="none"
-                  aria-hidden="true"
-                  :style="{ transform: openFaq === fi ? 'rotate(180deg)' : 'none' }"
-                >
-                  <path
-                    d="M3 5l4 4 4-4"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
-              <p v-show="openFaq === fi" class="ct-faq-a">{{ f.a }}</p>
+                />
+              </svg>
+              <div class="ct-map-body">
+                <p>{{ blogSettings.contact_address }}</p>
+                <a class="btn-p" :href="mapLink" target="_blank" rel="noopener noreferrer">
+                  获取路线
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 3l4 4-4 4"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- 留言入口（询盘表单后置：使用现有留言板承接） -->
-      <section class="pad">
-        <div class="eh-wrap ct-cta rv">
-          <h2>有任何合作意向或问题？</h2>
-          <p>给我们留言，将在 1 个工作日内回复。</p>
-          <router-link v-if="isGuestbookEnabled" class="btn-p" to="/guestbook">
-            前往留言板
-          </router-link>
-          <a
-            v-else-if="blogSettings.blog_email"
-            class="btn-p"
-            :href="`mailto:${blogSettings.blog_email}`"
-          >
-            邮件联系
-          </a>
-        </div>
-      </section>
-    </main>
-  </div>
+        <!-- FAQ 折叠面板（方案文档 §3.6：手风琴，同时展开 1 项） -->
+        <section class="pad surface">
+          <div class="eh-wrap ct-faq-wrap">
+            <div class="tpl-sec-head rv">
+              <div class="sec-tag">常见问题</div>
+              <h2>你可能想问</h2>
+            </div>
+            <div class="ct-faq rv d1">
+              <div v-for="(f, fi) in faqs" :key="f.q" class="ct-faq-item">
+                <button
+                  type="button"
+                  class="ct-faq-q"
+                  :aria-expanded="openFaq === fi"
+                  @click="openFaq = openFaq === fi ? -1 : fi"
+                >
+                  {{ f.q }}
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden="true"
+                    :style="{ transform: openFaq === fi ? 'rotate(180deg)' : 'none' }"
+                  >
+                    <path
+                      d="M3 5l4 4 4-4"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+                <p v-show="openFaq === fi" class="ct-faq-a">{{ f.a }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 留言入口（询盘表单后置：使用现有留言板承接） -->
+        <section class="pad">
+          <div class="eh-wrap ct-cta rv">
+            <h2>有任何合作意向或问题？</h2>
+            <p>给我们留言，将在 1 个工作日内回复。</p>
+            <router-link v-if="isGuestbookEnabled" class="btn-p" to="/guestbook">
+              前往留言板
+            </router-link>
+            <a
+              v-else-if="blogSettings.blog_email"
+              class="btn-p"
+              :href="`mailto:${blogSettings.blog_email}`"
+            >
+              邮件联系
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </BlogLayout>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { setJsonLd } from '@/utils/jsonld'

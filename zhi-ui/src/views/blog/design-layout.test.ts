@@ -12,6 +12,15 @@ const categoryView = readFileSync(resolve(__dirname, 'category/index.vue'), 'utf
 const tagView = readFileSync(resolve(__dirname, 'tag/index.vue'), 'utf8')
 const archiveView = readFileSync(resolve(__dirname, 'archive/index.vue'), 'utf8')
 const aboutView = readFileSync(resolve(__dirname, 'about.vue'), 'utf8')
+const honorsView = readFileSync(resolve(__dirname, 'honors.vue'), 'utf8')
+const historyView = readFileSync(resolve(__dirname, 'history.vue'), 'utf8')
+const contactView = readFileSync(resolve(__dirname, 'contact/index.vue'), 'utf8')
+const businessListView = readFileSync(resolve(__dirname, 'business/index.vue'), 'utf8')
+const businessDetailView = readFileSync(resolve(__dirname, 'business/detail.vue'), 'utf8')
+const enterpriseNav = readFileSync(
+  resolve(__dirname, '../../components/enterprise/EnterpriseNav.vue'),
+  'utf8'
+)
 
 const publicBlogSurfaces = [
   homeView,
@@ -132,6 +141,26 @@ describe('blog design layout guards', () => {
   it('博客用户菜单进入管理后台应直接访问后台路由', () => {
     expect(blogLayout).toContain("router.push('/admin/blog/article')")
     expect(blogLayout).not.toContain("window.location.href = '/login?redirect=/admin'")
+    // 企业导航同款入口：/admin 本身不是页面路由，直达后台列表
+    expect(enterpriseNav).toContain("router.push('/admin/blog/article')")
+  })
+
+  it('企业模板页应挂载 BlogLayout 复用导航与页脚', () => {
+    // 跨文件结构契约：6 个页面各自在 mounted 里请求不同接口，
+    // 逐一挂载需要为每页搭全套 API/路由桩，而这里断言的是
+    // 「与 /news 同一布局链路」这一结构性约束，行为测试覆盖不到
+    const templatePages: Array<[string, string]> = [
+      ['about', aboutView],
+      ['honors', honorsView],
+      ['history', historyView],
+      ['contact', contactView],
+      ['business/list', businessListView],
+      ['business/detail', businessDetailView]
+    ]
+    templatePages.forEach(([name, source]) => {
+      expect(source, name).toContain('<BlogLayout>')
+      expect(source, name).toContain("import BlogLayout from '@/components/BlogLayout.vue'")
+    })
   })
 
   it('列表型页面头部和封面标记应保持低饱和', () => {

@@ -1,85 +1,88 @@
 <template>
-  <div ref="rootEl" class="tpl-site business-detail mo-home-page">
-    <!-- 面包屑（方案文档 §3.2 详情页） -->
-    <nav class="bd-crumb" aria-label="面包屑">
-      <div class="eh-wrap">
-        <router-link to="/">首页</router-link>
-        <i>/</i>
-        <router-link to="/business">{{ businessLabel }}</router-link>
-        <i>/</i>
-        <span>{{ article?.title || '详情' }}</span>
-      </div>
-    </nav>
-
-    <main class="bd-main eh-wrap">
-      <template v-if="article">
-        <div class="bd-head rv">
-          <h1 class="bd-title">{{ article.title }}</h1>
-          <div class="bd-meta">
-            <span v-if="article.createTime">发布于 {{ formatDate(article.createTime) }}</span>
-            <span v-if="isViewCountEnabled">{{ article.viewCount ?? 0 }} 次浏览</span>
-          </div>
+  <BlogLayout>
+    <div ref="rootEl" class="tpl-site business-detail mo-home-page">
+      <!-- 面包屑（方案文档 §3.2 详情页） -->
+      <nav class="bd-crumb" aria-label="面包屑">
+        <div class="eh-wrap">
+          <router-link to="/">首页</router-link>
+          <i>/</i>
+          <router-link to="/business">{{ businessLabel }}</router-link>
+          <i>/</i>
+          <span>{{ article?.title || '详情' }}</span>
         </div>
-        <img
-          v-if="article.coverUrl"
-          :src="article.coverUrl"
-          class="bd-cover rv"
-          :alt="article.title"
-        />
-        <!-- 正文契约与文章详情一致：HTML 经消毒后渲染，不做 Markdown 渲染 -->
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="bd-content rv" v-html="sanitizedContent"></div>
+      </nav>
 
-        <!-- 相关推荐：同类型最新（排除自身） -->
-        <section v-if="relatedItems.length" class="bd-related">
-          <div class="tpl-sec-head rv">
-            <div class="sec-tag">相关推荐</div>
-            <h2>继续了解</h2>
+      <main class="bd-main eh-wrap">
+        <template v-if="article">
+          <div class="bd-head rv">
+            <h1 class="bd-title">{{ article.title }}</h1>
+            <div class="bd-meta">
+              <span v-if="article.createTime">发布于 {{ formatDate(article.createTime) }}</span>
+              <span v-if="isViewCountEnabled">{{ article.viewCount ?? 0 }} 次浏览</span>
+            </div>
           </div>
-          <div class="bd-rel-grid">
-            <article
-              v-for="(item, ri) in relatedItems"
-              :key="item.id"
-              class="bd-rel-card rv"
-              :class="`d${ri % 3}`"
-              @click="goItem(item.id)"
-            >
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.summary }}</p>
-            </article>
-          </div>
-        </section>
+          <img
+            v-if="article.coverUrl"
+            :src="article.coverUrl"
+            class="bd-cover rv"
+            :alt="article.title"
+          />
+          <!-- 正文契约与文章详情一致：HTML 经消毒后渲染，不做 Markdown 渲染 -->
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <div class="bd-content rv" v-html="sanitizedContent"></div>
 
-        <!-- 底部转化条（方案文档 §3.2：滚动至页尾的固定转化区块） -->
-        <section class="bd-cta rv">
-          <h2>对该{{ businessLabel }}感兴趣？</h2>
-          <p>联系我们获取方案与报价。</p>
-          <router-link class="bd-cta-btn" to="/contact">
-            咨询该{{ businessLabel }}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="M3 8h10M9 4l4 4-4 4"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </router-link>
-        </section>
-      </template>
-      <el-empty v-else-if="!loading" description="内容不存在或未发布" />
+          <!-- 相关推荐：同类型最新（排除自身） -->
+          <section v-if="relatedItems.length" class="bd-related">
+            <div class="tpl-sec-head rv">
+              <div class="sec-tag">相关推荐</div>
+              <h2>继续了解</h2>
+            </div>
+            <div class="bd-rel-grid">
+              <article
+                v-for="(item, ri) in relatedItems"
+                :key="item.id"
+                class="bd-rel-card rv"
+                :class="`d${ri % 3}`"
+                @click="goItem(item.id)"
+              >
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.summary }}</p>
+              </article>
+            </div>
+          </section>
 
-      <div class="bd-back-wrap">
-        <button type="button" class="bd-back" @click="goBack">← 返回{{ businessLabel }}</button>
-      </div>
-    </main>
-  </div>
+          <!-- 底部转化条（方案文档 §3.2：滚动至页尾的固定转化区块） -->
+          <section class="bd-cta rv">
+            <h2>对该{{ businessLabel }}感兴趣？</h2>
+            <p>联系我们获取方案与报价。</p>
+            <router-link class="bd-cta-btn" to="/contact">
+              咨询该{{ businessLabel }}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 8h10M9 4l4 4-4 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </router-link>
+          </section>
+        </template>
+        <el-empty v-else-if="!loading" description="内容不存在或未发布" />
+
+        <div class="bd-back-wrap">
+          <button type="button" class="bd-back" @click="goBack">← 返回{{ businessLabel }}</button>
+        </div>
+      </main>
+    </div>
+  </BlogLayout>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import BlogLayout from '@/components/BlogLayout.vue'
 import { getArticleDetail, getArticleList, updateArticleViewCount } from '@/api/blog/article'
 import type { Article } from '@/types'
 import { useBlogSettingsStore } from '@/stores/blogSettings'

@@ -1,73 +1,76 @@
 <template>
-  <div ref="rootEl" class="tpl-site honors-page mo-home-page">
-    <!-- 页头 -->
-    <header class="aph">
-      <div class="eh-wrap">
-        <span class="eyebrow rv">Honor</span>
-        <h1 class="aph-title rv">荣誉资质</h1>
-        <p class="aph-sub rv d1">资质证书、行业奖项与体系认证，是客户信任的注脚。</p>
-      </div>
-    </header>
-
-    <main>
-      <!-- 可选的自定义说明：页面管理 slug=honors -->
-      <section v-if="customContentHtml" class="pad-sm-wrap">
+  <BlogLayout>
+    <div ref="rootEl" class="tpl-site honors-page mo-home-page">
+      <!-- 页头 -->
+      <header class="aph">
         <div class="eh-wrap">
-          <!-- 内容经统一消毒管线渲染 -->
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <div class="aph-content rv" v-html="customContentHtml"></div>
+          <span class="eyebrow rv">Honor</span>
+          <h1 class="aph-title rv">荣誉资质</h1>
+          <p class="aph-sub rv d1">资质证书、行业奖项与体系认证，是客户信任的注脚。</p>
         </div>
-      </section>
+      </header>
 
-      <!-- 证书墙：分类 Tab + 网格（数据为设计稿附录 A 占位，接入内容模型后替换） -->
-      <section class="pad">
-        <div class="eh-wrap">
-          <div class="honor-tabs rv" role="tablist">
-            <button
-              v-for="cat in categories"
-              :key="cat"
-              type="button"
-              class="tag"
-              :class="{ on: activeCat === cat }"
-              role="tab"
-              :aria-selected="activeCat === cat"
-              @click="activeCat = cat"
-            >
-              {{ cat }}
-            </button>
+      <main>
+        <!-- 可选的自定义说明：页面管理 slug=honors -->
+        <section v-if="customContentHtml" class="pad-sm-wrap">
+          <div class="eh-wrap">
+            <!-- 内容经统一消毒管线渲染 -->
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div class="aph-content rv" v-html="customContentHtml"></div>
           </div>
-          <div class="honor-grid rv">
-            <div
-              v-for="(item, hi) in filteredItems"
-              :key="item.name"
-              class="honor-card"
-              :class="`d${hi % 4}`"
-            >
-              <div class="honor-seal" aria-hidden="true">
-                <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-                  <circle cx="17" cy="13" r="8" stroke="currentColor" stroke-width="1.5" />
-                  <path
-                    d="M13 20l-2 10 6-3.5L23 30l-2-10"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-              <h3>{{ item.name }}</h3>
-              <p class="honor-issuer">{{ item.issuer }}</p>
-              <span class="honor-year">{{ item.year }}</span>
+        </section>
+
+        <!-- 证书墙：分类 Tab + 网格（数据为设计稿附录 A 占位，接入内容模型后替换） -->
+        <section class="pad">
+          <div class="eh-wrap">
+            <div class="honor-tabs rv" role="tablist">
+              <button
+                v-for="cat in categories"
+                :key="cat"
+                type="button"
+                class="tag"
+                :class="{ on: activeCat === cat }"
+                role="tab"
+                :aria-selected="activeCat === cat"
+                @click="activeCat = cat"
+              >
+                {{ cat }}
+              </button>
             </div>
+            <div class="honor-grid rv">
+              <div
+                v-for="(item, hi) in filteredItems"
+                :key="item.name"
+                class="honor-card"
+                :class="`d${hi % 4}`"
+              >
+                <div class="honor-seal" aria-hidden="true">
+                  <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+                    <circle cx="17" cy="13" r="8" stroke="currentColor" stroke-width="1.5" />
+                    <path
+                      d="M13 20l-2 10 6-3.5L23 30l-2-10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </div>
+                <h3>{{ item.name }}</h3>
+                <p class="honor-issuer">{{ item.issuer }}</p>
+                <span class="honor-year">{{ item.year }}</span>
+              </div>
+            </div>
+            <p v-if="filteredItems.length === 0" class="honors-empty rv">该分类下暂无内容</p>
           </div>
-          <p v-if="filteredItems.length === 0" class="honors-empty rv">该分类下暂无内容</p>
-        </div>
-      </section>
-    </main>
-  </div>
+        </section>
+      </main>
+    </div>
+  </BlogLayout>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 import { getPublishedPageBySlug } from '@/api/blog/page'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
@@ -113,7 +116,8 @@ useScrollReveal(rootEl)
 
 const loadCustomContent = async () => {
   try {
-    const response = await getPublishedPageBySlug('honors')
+    // slug 可选：未建页属正常态，silent 抑制兜底 toast，仅展示证书墙
+    const response = await getPublishedPageBySlug('honors', { silent: true })
     customContent.value = response?.data?.content || ''
   } catch {
     // slug=honors 的页面不存在或未发布：仅展示证书墙

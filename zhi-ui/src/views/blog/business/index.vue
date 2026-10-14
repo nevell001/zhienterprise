@@ -1,98 +1,107 @@
 <template>
-  <div ref="rootEl" class="tpl-site business-page mo-home-page">
-    <!-- 页头（与关于页同构：eyebrow + 标题 + 副题） -->
-    <header class="aph">
-      <div class="eh-wrap">
-        <span class="eyebrow rv">{{ businessLabel }}</span>
-        <h1 class="aph-title rv">{{ businessLabel }}</h1>
-        <p class="aph-sub rv d1">了解我们的主要业务与产品</p>
-      </div>
-    </header>
-
-    <main class="pad">
-      <div class="eh-wrap">
-        <!-- 分类筛选栏（方案文档 §3.2：分类 Tab 横向排列） -->
-        <div class="biz-tabs rv" role="tablist">
-          <button
-            v-for="cat in categoryTabs"
-            :key="cat.id"
-            type="button"
-            class="tag"
-            :class="{ on: activeCatId === cat.id }"
-            role="tab"
-            :aria-selected="activeCatId === cat.id"
-            @click="switchCat(cat.id)"
-          >
-            {{ cat.name }}
-          </button>
+  <BlogLayout>
+    <div ref="rootEl" class="tpl-site business-page mo-home-page">
+      <!-- 页头（与关于页同构：eyebrow + 标题 + 副题） -->
+      <header class="aph">
+        <div class="eh-wrap">
+          <span class="eyebrow rv">{{ businessLabel }}</span>
+          <h1 class="aph-title rv">{{ businessLabel }}</h1>
+          <p class="aph-sub rv d1">了解我们的主要业务与产品</p>
         </div>
+      </header>
 
-        <div v-if="loading" class="biz-grid">
-          <div v-for="n in 6" :key="n" class="biz-card biz-skeleton"></div>
-        </div>
-        <template v-else>
-          <div v-if="items.length" class="biz-grid">
-            <article
-              v-for="(item, bi) in items"
-              :key="item.id"
-              class="biz-card rv"
-              :class="`d${bi % 3}`"
-              @click="goItem(item.id)"
+      <main class="pad">
+        <div class="eh-wrap">
+          <!-- 分类筛选栏（方案文档 §3.2：分类 Tab 横向排列） -->
+          <div class="biz-tabs rv" role="tablist">
+            <button
+              v-for="cat in categoryTabs"
+              :key="cat.id"
+              type="button"
+              class="tag"
+              :class="{ on: activeCatId === cat.id }"
+              role="tab"
+              :aria-selected="activeCatId === cat.id"
+              @click="switchCat(cat.id)"
             >
-              <div class="biz-thumb">
-                <img
-                  v-if="item.coverUrl"
-                  :src="item.coverUrl"
-                  :alt="item.title"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <span v-else class="biz-thumb-fallback" :style="thumbStyle(item.id)">
-                  {{ (item.title || '').slice(0, 1) }}
-                </span>
-              </div>
-              <div class="biz-body">
-                <h2>{{ item.title }}</h2>
-                <p>{{ item.summary }}</p>
-                <div class="biz-meta">
-                  <span>{{ formatDate(item.createTime) }}</span>
-                  <span class="biz-more">
-                    了解详情
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                      <path
-                        d="M3 7.5h9M8 4l3.5 3.5L8 11"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
+              {{ cat.name }}
+            </button>
+          </div>
+
+          <div v-if="loading" class="biz-grid">
+            <div v-for="n in 6" :key="n" class="biz-card biz-skeleton"></div>
+          </div>
+          <template v-else>
+            <div v-if="items.length" class="biz-grid">
+              <article
+                v-for="(item, bi) in items"
+                :key="item.id"
+                class="biz-card rv"
+                :class="`d${bi % 3}`"
+                @click="goItem(item.id)"
+              >
+                <div class="biz-thumb">
+                  <img
+                    v-if="item.coverUrl"
+                    :src="item.coverUrl"
+                    :alt="item.title"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span v-else class="biz-thumb-fallback" :style="thumbStyle(item.id)">
+                    {{ (item.title || '').slice(0, 1) }}
                   </span>
                 </div>
-              </div>
-            </article>
-          </div>
-          <el-empty v-else description="暂无内容" />
-        </template>
+                <div class="biz-body">
+                  <h2>{{ item.title }}</h2>
+                  <p>{{ item.summary }}</p>
+                  <div class="biz-meta">
+                    <span>{{ formatDate(item.createTime) }}</span>
+                    <span class="biz-more">
+                      了解详情
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 15 15"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M3 7.5h9M8 4l3.5 3.5L8 11"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <el-empty v-else description="暂无内容" />
+          </template>
 
-        <div v-if="!loading && total > pageSize" class="biz-pager">
-          <el-pagination
-            v-model:current-page="page"
-            layout="prev, pager, next"
-            :total="total"
-            :page-size="pageSize"
-            background
-            @current-change="load"
-          />
+          <div v-if="!loading && total > pageSize" class="biz-pager">
+            <el-pagination
+              v-model:current-page="page"
+              layout="prev, pager, next"
+              :total="total"
+              :page-size="pageSize"
+              background
+              @current-change="load"
+            />
+          </div>
         </div>
-      </div>
-    </main>
-  </div>
+      </main>
+    </div>
+  </BlogLayout>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import BlogLayout from '@/components/BlogLayout.vue'
 import { getArticleList } from '@/api/blog'
 import type { Article } from '@/types'
 import { getCategoryList } from '@/api/blog/category'

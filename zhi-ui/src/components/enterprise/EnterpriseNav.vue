@@ -161,7 +161,7 @@ watch(
   }
 )
 
-const goToAdmin = () => router.push('/admin')
+const goToAdmin = () => router.push('/admin/blog/article')
 
 const handleUserCommand = async (command: string) => {
   if (command === 'logout') {

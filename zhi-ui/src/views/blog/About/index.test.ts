@@ -20,7 +20,7 @@ describe('About 页面测试', () => {
   })
 
   it('企业简介正文来自页面管理 slug=about 的已发布页面', () => {
-    expect(source).toContain("getPublishedPageBySlug('about')")
+    expect(source).toContain("getPublishedPageBySlug('about', { silent: true })")
     expect(source).toContain('customAboutContent')
   })
 

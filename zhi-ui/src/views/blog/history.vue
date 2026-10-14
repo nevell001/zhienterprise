@@ -1,56 +1,59 @@
 <template>
-  <div ref="rootEl" class="tpl-site history-page mo-home-page">
-    <!-- 页头 -->
-    <header class="aph">
-      <div class="eh-wrap">
-        <span class="eyebrow rv">Milestones</span>
-        <h1 class="aph-title rv">发展历程</h1>
-        <p class="aph-sub rv d1">从初创到生态，每一步都算数。</p>
-      </div>
-    </header>
+  <BlogLayout>
+    <div ref="rootEl" class="tpl-site history-page mo-home-page">
+      <!-- 页头 -->
+      <header class="aph">
+        <div class="eh-wrap">
+          <span class="eyebrow rv">Milestones</span>
+          <h1 class="aph-title rv">发展历程</h1>
+          <p class="aph-sub rv d1">从初创到生态，每一步都算数。</p>
+        </div>
+      </header>
 
-    <main class="pad">
-      <div class="eh-wrap">
-        <!-- 时间轴：阶段分组，荣誉节点用方形区分（方案文档 §3.5）。
-             事件数据为设计稿附录 A 占位，接入内容模型后替换。 -->
-        <div class="tl">
-          <div v-for="stage in STAGES" :key="stage.name" class="tl-stage">
-            <div class="tl-stage-head rv">
-              <span class="tl-range">{{ stage.range }}</span>
-              <h2>{{ stage.name }}</h2>
-              <p>{{ stage.theme }}</p>
-            </div>
-            <div class="tl-events">
-              <div
-                v-for="(event, ei) in stage.events"
-                :key="event.title"
-                class="tl-event rv"
-                :class="`d${ei % 4}`"
-              >
-                <span class="tl-node" :class="{ square: event.honor }" aria-hidden="true"></span>
-                <div class="tl-body">
-                  <span class="tl-year">{{ event.year }}</span>
-                  <h3>
-                    {{ event.title }}
-                    <span v-if="event.honor" class="tag">荣誉</span>
-                  </h3>
-                  <p>{{ event.desc }}</p>
+      <main class="pad">
+        <div class="eh-wrap">
+          <!-- 时间轴：阶段分组，荣誉节点用方形区分（方案文档 §3.5）。
+               事件数据为设计稿附录 A 占位，接入内容模型后替换。 -->
+          <div class="tl">
+            <div v-for="stage in STAGES" :key="stage.name" class="tl-stage">
+              <div class="tl-stage-head rv">
+                <span class="tl-range">{{ stage.range }}</span>
+                <h2>{{ stage.name }}</h2>
+                <p>{{ stage.theme }}</p>
+              </div>
+              <div class="tl-events">
+                <div
+                  v-for="(event, ei) in stage.events"
+                  :key="event.title"
+                  class="tl-event rv"
+                  :class="`d${ei % 4}`"
+                >
+                  <span class="tl-node" :class="{ square: event.honor }" aria-hidden="true"></span>
+                  <div class="tl-body">
+                    <span class="tl-year">{{ event.year }}</span>
+                    <h3>
+                      {{ event.title }}
+                      <span v-if="event.honor" class="tag">荣誉</span>
+                    </h3>
+                    <p>{{ event.desc }}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="tl-end rv">
-            <span class="tl-node square" aria-hidden="true"></span>
-            <p>未来，正在书写。</p>
+            <div class="tl-end rv">
+              <span class="tl-node square" aria-hidden="true"></span>
+              <p>未来，正在书写。</p>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
+      </main>
+    </div>
+  </BlogLayout>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { useScrollReveal } from '@/composables/useScrollReveal'
