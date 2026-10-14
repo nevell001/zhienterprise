@@ -2,7 +2,7 @@
   <BlogLayout>
     <div class="mo-auth-page">
       <section class="auth-card">
-        <router-link to="/blog" class="auth-brand">
+        <router-link to="/" class="auth-brand">
           <span class="brand-mark">知</span>
           <span>知企建站系统</span>
         </router-link>
@@ -125,9 +125,9 @@
               <input v-model="agreeToTerms" type="checkbox" />
               <span>
                 我已阅读并同意
-                <router-link to="/blog/agreement" target="_blank">《用户协议》</router-link>
+                <router-link to="/agreement" target="_blank">《用户协议》</router-link>
                 和
-                <router-link to="/blog/privacy" target="_blank">《隐私政策》</router-link>
+                <router-link to="/privacy" target="_blank">《隐私政策》</router-link>
               </span>
             </label>
           </div>
@@ -313,7 +313,7 @@ const handleRegister = async () => {
 onMounted(() => {
   // 如果已登录，跳转到首页
   if (blogUserStore.isLogin) {
-    router.push('/blog')
+    router.push('/')
     return
   }
   // 获取验证码

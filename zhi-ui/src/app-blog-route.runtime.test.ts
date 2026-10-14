@@ -25,10 +25,10 @@ vi.mock('@/api/blog/friendLink', () => ({
 }))
 
 describe('App 博客路由运行时渲染', () => {
-  it('真实路由进入 /blog 时应该渲染博客首页', async () => {
+  it('真实路由进入 / 时应该渲染博客首页', async () => {
     window.scrollTo = vi.fn()
 
-    await router.push('/blog')
+    await router.push('/')
     await router.isReady()
 
     const wrapper = mount(App, {

@@ -6,7 +6,7 @@
         <div v-if="!applyEnabled" class="apply-card apply-closed">
           <h1 class="apply-title">本站暂未开放友链申请</h1>
           <p class="apply-sub">站长暂时关闭了友链申请入口，欢迎先浏览本站的其他内容</p>
-          <el-button type="primary" @click="$router.push('/blog')">返回首页</el-button>
+          <el-button type="primary" @click="$router.push('/')">返回首页</el-button>
         </div>
 
         <div v-else class="apply-card">
@@ -68,7 +68,7 @@
               <el-button type="primary" :loading="submitting" @click="handleSubmit">
                 提交申请
               </el-button>
-              <el-button @click="$router.push('/blog')">返回首页</el-button>
+              <el-button @click="$router.push('/')">返回首页</el-button>
             </el-form-item>
           </el-form>
         </div>

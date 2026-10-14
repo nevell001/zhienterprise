@@ -19,7 +19,7 @@
             <router-link
               v-for="tag in tags"
               :key="tag.id ?? tag.name"
-              :to="tag.id ? `/blog/tag/${tag.id}` : '/blog/tag'"
+              :to="tag.id ? `/tag/${tag.id}` : '/tag'"
               class="tag-chip"
               :class="[`is-level-${levelOf(tag)}`, { 'is-empty': !tag.articleCount }]"
               :style="{ '--tag-accent': tag.color || undefined }"
@@ -32,7 +32,7 @@
           </div>
 
           <el-empty v-else-if="!loading" description="暂无标签">
-            <el-button type="primary" @click="$router.push('/blog')">返回首页</el-button>
+            <el-button type="primary" @click="$router.push('/')">返回首页</el-button>
           </el-empty>
         </div>
       </div>

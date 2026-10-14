@@ -29,7 +29,7 @@ vi.mock('axios', () => ({
 const mockAxios = vi.mocked(axios)
 
 // Now import service
-import service, { download, isRelogin } from './request'
+import service, { download, isRelogin, isFrontSitePath } from './request'
 vi.mock('@/utils/auth', () => ({
   getToken: vi.fn(),
   getBlogToken: vi.fn(),
@@ -508,59 +508,51 @@ describe('Request 工具函数测试', () => {
   })
 
   describe('会话管理', () => {
-    it('应该检查是否为博客前台页面', () => {
-      const currentPath = '/blog'
-      const isBlogPath =
-        currentPath.startsWith('/blog') ||
-        currentPath === '/' ||
-        currentPath === '/index' ||
-        currentPath.startsWith('/blog/article/') ||
-        currentPath.startsWith('/blog/category/') ||
-        currentPath.startsWith('/blog/tag/')
+    it('应该识别站点前台的短路径公开页', () => {
+      const frontPaths = [
+        '/',
+        '/index',
+        '/news',
+        '/article/2',
+        '/business',
+        '/business/1',
+        '/contact',
+        '/about',
+        '/honors',
+        '/history',
+        '/category',
+        '/category/9',
+        '/tag',
+        '/tag/3',
+        '/author/1',
+        '/archive',
+        '/guestbook',
+        '/page/about-us',
+        '/friend-links/apply',
+        '/search',
+        '/bookmarks',
+        '/agreement',
+        '/privacy',
+        '/login',
+        '/register',
+        '/forgot-password'
+      ]
 
-      expect(isBlogPath).toBe(true)
+      frontPaths.forEach(path => {
+        expect(isFrontSitePath(path), path).toBe(true)
+      })
     })
 
-    it('应该检查是否为后台管理页面', () => {
-      const currentPath = '/admin'
-      const isBlogPath =
-        currentPath.startsWith('/blog') ||
-        currentPath === '/' ||
-        currentPath === '/index' ||
-        currentPath.startsWith('/blog/article/') ||
-        currentPath.startsWith('/blog/category/') ||
-        currentPath.startsWith('/blog/tag/')
-
-      expect(isBlogPath).toBe(false)
+    it('后台与旧 /blog 前缀路径不应被当成前台页', () => {
+      const adminPaths = ['/admin', '/admin/blog/article', '/blog', '/blog/article/1', '/manage']
+      adminPaths.forEach(path => {
+        expect(isFrontSitePath(path), path).toBe(false)
+      })
     })
 
-    it('应该检查首页路径', () => {
-      const currentPath = '/'
-      const isBlogPath =
-        currentPath.startsWith('/blog') || currentPath === '/' || currentPath === '/index'
-
-      expect(isBlogPath).toBe(true)
-    })
-
-    it('应该检查文章详情页路径', () => {
-      const currentPath = '/blog/article/1'
-      const isBlogPath = currentPath.startsWith('/blog/article/')
-
-      expect(isBlogPath).toBe(true)
-    })
-
-    it('应该检查分类页路径', () => {
-      const currentPath = '/blog/category/technology'
-      const isBlogPath = currentPath.startsWith('/blog/category/')
-
-      expect(isBlogPath).toBe(true)
-    })
-
-    it('应该检查标签页路径', () => {
-      const currentPath = '/blog/tag/vue'
-      const isBlogPath = currentPath.startsWith('/blog/tag/')
-
-      expect(isBlogPath).toBe(true)
+    it('仅前缀匹配的短路径必须有后续段（/article 本身不是前台页）', () => {
+      expect(isFrontSitePath('/article')).toBe(false)
+      expect(isFrontSitePath('/tag')).toBe(true)
     })
   })
 

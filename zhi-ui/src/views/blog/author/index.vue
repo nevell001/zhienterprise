@@ -30,7 +30,7 @@
             </article>
           </div>
           <el-empty v-else description="该作者还没有发布文章">
-            <el-button type="primary" @click="$router.push('/blog')">返回首页</el-button>
+            <el-button type="primary" @click="$router.push('/')">返回首页</el-button>
           </el-empty>
         </template>
       </div>
@@ -88,7 +88,7 @@ const loadAuthorArticles = async () => {
 }
 
 const goArticle = (id: number) => {
-  if (id) router.push(`/blog/article/${id}`)
+  if (id) router.push(`/article/${id}`)
 }
 
 onMounted(loadAuthorArticles)

@@ -81,7 +81,7 @@
                 />
               </el-select>
               <div class="setting-tip">
-                选择自定义页面后首页展示该页面（企业官网模式），文章列表移到 /blog/articles，
+                选择自定义页面后首页展示该页面（企业官网模式），文章列表移到 /news，
                 导航出现「文章」入口；留空则首页为文章列表
               </div>
             </el-form-item>
@@ -91,7 +91,8 @@
                 <el-option label="企业官网模板" value="business" />
               </el-select>
               <div class="setting-tip">
-                企业官网模板提供 Hero、核心业务、数据、案例、动态与联系区块，导航出现「核心业务」入口；
+                企业官网模板提供
+                Hero、核心业务、数据、案例、动态与联系区块，导航出现「核心业务」入口；
                 已设置「首页显示」自定义页面时以自定义页面优先
               </div>
             </el-form-item>
@@ -104,7 +105,8 @@
                 style="max-width: 260px"
               />
               <div class="setting-tip">
-                企业官网模板下导航与首页区块的栏目名称，可按企业形态改为：产品中心 / 服务项目 / 解决方案
+                企业官网模板下导航与首页区块的栏目名称，可按企业形态改为：产品中心 / 服务项目 /
+                解决方案
               </div>
             </el-form-item>
 
@@ -497,7 +499,7 @@
         <el-tab-pane label="协议页面" name="legal">
           <el-form :model="settingsMap" label-width="120px">
             <el-alert
-              title="用户协议与隐私政策在注册页勾选处与前台全文页面（/blog/agreement、/blog/privacy）显示，支持富文本编辑"
+              title="用户协议与隐私政策在注册页勾选处与前台全文页面（/agreement、/privacy）显示，支持富文本编辑"
               type="info"
               :closable="false"
               class="tab-alert"

@@ -34,7 +34,7 @@ vi.mock('@/api/blog/auth', () => ({
 
 vi.mock('@/utils/seo', () => ({
   applySeo: vi.fn(),
-  canonicalUrl: vi.fn(() => 'https://example.com/blog')
+  canonicalUrl: vi.fn(() => 'https://example.com/guestbook')
 }))
 
 function mountGuestbook() {

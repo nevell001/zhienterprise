@@ -35,11 +35,11 @@ describe('blog design layout guards', () => {
 
   it('首页分类导航和热门标签应能跳转到对应列表页', () => {
     expect(homeView).toContain('class="cat-item active"')
-    // 「全部文章」的目标取决于首页是否被自定义页面接管（/blog 或 /blog/articles）
+    // 「全部文章」的目标取决于首页是否被自定义页面接管（/ 或 /news）
     expect(homeView).toContain(':to="listHomePath"')
     // 分类链接 alias 伪静态优先，回退数字 ID
-    expect(homeView).toContain(':to="`/blog/category/${category.alias || category.id}`"')
-    expect(homeView).toContain(':to="`/blog/tag/${tag.id}`"')
+    expect(homeView).toContain(':to="`/category/${category.alias || category.id}`"')
+    expect(homeView).toContain(':to="`/tag/${tag.id}`"')
   })
 
   it('文章详情页不应被旧卡片布局类压缩', () => {
@@ -102,7 +102,7 @@ describe('blog design layout guards', () => {
     expect(forgotPasswordView).not.toContain("from '@/components/BlogNav.vue'")
     expect(forgotPasswordView).toContain("from '@/components/BlogLayout.vue'")
     expect(forgotPasswordView).toContain('html.dark .mo-auth-page')
-    expect(forgotPasswordView).toContain("router.push('/blog/auth/login')")
+    expect(forgotPasswordView).toContain("router.push('/login')")
   })
 
   it('关于页应为模板化叙事页（tpl 体系 + 企业简介/荣誉/历程结构）', () => {

@@ -35,7 +35,7 @@
         </template>
 
         <el-empty v-else description="还没有收藏任何文章">
-          <el-button type="primary" @click="$router.push('/blog')">去首页看看</el-button>
+          <el-button type="primary" @click="$router.push('/')">去首页看看</el-button>
         </el-empty>
       </div>
     </BlogLayout>
@@ -78,7 +78,7 @@ const formatDate = (time?: string) => {
 const loadBookmarks = async () => {
   if (!userStore.token) {
     ElMessage.info('请先登录后再查看收藏')
-    router.push(`/login?redirect=${encodeURIComponent('/blog/bookmarks')}`)
+    router.push(`/login?redirect=${encodeURIComponent('/bookmarks')}`)
     return
   }
   loading.value = true
@@ -95,7 +95,7 @@ const loadBookmarks = async () => {
 }
 
 const goDetail = (item: BookmarkArticle) => {
-  router.push(`/blog/article/${item.articleId}`)
+  router.push(`/article/${item.articleId}`)
 }
 
 const removeBookmark = async (item: BookmarkArticle) => {

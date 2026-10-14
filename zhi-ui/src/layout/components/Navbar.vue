@@ -267,7 +267,7 @@ function handleNotificationClick(item: BlogNotification) {
     router.push('/admin/blog/comment')
   } else if (item.articleId) {
     // 审核结果通知 → 跳到文章详情（评论者查看自己的评论）
-    window.open(`/blog/article/${item.articleId}`, '_blank')
+    window.open(`/article/${item.articleId}`, '_blank')
   }
 }
 

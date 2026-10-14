@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import router, { constantRoutes, dynamicRoutes } from './index'
+import { blogRoutes } from './blog'
 
 const flattenRoutes = (routes: any[], parentPath = ''): any[] =>
   routes.flatMap(route => {
@@ -27,11 +28,15 @@ describe('Router Index 测试', () => {
     expect(typeof router).toBe('object')
   })
 
-  it('constantRoutes 应该包含前台博客路由', () => {
-    const blogRoutes = constantRoutes.filter(
-      route => route.path.startsWith('/blog') || route.path === '/'
-    )
-    expect(blogRoutes.length).toBeGreaterThan(0)
+  it('constantRoutes 应该完整包含前台短路径路由表', () => {
+    const paths = constantRoutes.map(route => route.path)
+    const missing = blogRoutes.map(route => route.path).filter(path => !paths.includes(path))
+    expect(missing).toEqual([])
+  })
+
+  it('constantRoutes 不应该出现 /blog 前缀的页面路由', () => {
+    const legacyRoutes = constantRoutes.filter(route => route.path.startsWith('/blog'))
+    expect(legacyRoutes.map(route => route.path)).toEqual([])
   })
 
   // 移除对动态管理路由在 constantRoutes 中存在的硬性要求，改为在 permission store 中验证

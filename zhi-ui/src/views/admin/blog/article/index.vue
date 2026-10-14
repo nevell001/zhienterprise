@@ -469,7 +469,7 @@
                 />
               </el-form-item>
               <div class="schedule-tip">
-                仅限字母、数字、下划线与连字符；设置后可用 /blog/article/别名 访问，sitemap 优先输出别名
+                仅限字母、数字、下划线与连字符；设置后可用 /article/别名 访问，sitemap 优先输出别名
               </div>
             </section>
 

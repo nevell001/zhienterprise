@@ -15,7 +15,7 @@
         <span v-if="Number(article.isRecommend) === 1" class="card-flag flag-rec">推荐</span>
       </div>
       <h2 class="article-card-title">
-        <router-link :to="`/blog/article/${article.id}`" :title="article.title">
+        <router-link :to="`/article/${article.id}`" :title="article.title">
           {{ article.title }}
         </router-link>
       </h2>
@@ -46,7 +46,7 @@
         </span>
       </div>
       <div class="article-card-footer">
-        <router-link :to="`/blog/article/${article.id}`" class="article-card-more">
+        <router-link :to="`/article/${article.id}`" class="article-card-more">
           阅读全文
           <el-icon><ArrowRight /></el-icon>
         </router-link>

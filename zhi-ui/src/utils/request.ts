@@ -119,6 +119,43 @@ service.interceptors.request.use(
   }
 )
 
+// 站点前台页面路径（与 router/blog.ts、permission.ts 白名单保持一致）：
+// 这些页面允许匿名访问，401 时降级为空数据而非跳转登录页
+const FRONT_EXACT_PATHS = [
+  '/',
+  '/index',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/news',
+  '/business',
+  '/contact',
+  '/about',
+  '/honors',
+  '/history',
+  '/category',
+  '/tag',
+  '/archive',
+  '/guestbook',
+  '/search',
+  '/bookmarks',
+  '/agreement',
+  '/privacy'
+]
+const FRONT_PREFIX_PATHS = [
+  '/article/',
+  '/business/',
+  '/category/',
+  '/tag/',
+  '/author/',
+  '/page/',
+  '/friend-links/'
+]
+
+/** 判断当前浏览器地址是否为站点前台页面 */
+export const isFrontSitePath = (path: string): boolean =>
+  FRONT_EXACT_PATHS.includes(path) || FRONT_PREFIX_PATHS.some(prefix => path.startsWith(prefix))
+
 // 响应拦截器
 service.interceptors.response.use(
   (res: AxiosResponse) => {
@@ -133,16 +170,10 @@ service.interceptors.response.use(
     if (code === 401) {
       // 检查当前访问的路径是否为站点前台页面
       const currentPath = window.location.pathname
-      const isBlogPath =
-        currentPath.startsWith('/blog') ||
-        currentPath === '/' ||
-        currentPath === '/index' ||
-        currentPath.startsWith('/blog/article/') ||
-        currentPath.startsWith('/blog/category/') ||
-        currentPath.startsWith('/blog/tag/')
+      const isFrontPath = isFrontSitePath(currentPath)
 
       // 如果是站点前台页面，不显示登录提示，直接返回数据或空结果
-      if (isBlogPath) {
+      if (isFrontPath) {
         logger.warn('匿名用户访问站点页面，返回空数据或默认数据')
         // 对于站点前台页面，返回空数据而不是强制登录
         return Promise.resolve({ code: 200, data: null, msg: '匿名访问' })

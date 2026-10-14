@@ -3,10 +3,7 @@
     <!-- 首页可能被自定义页面接管：设置未就绪时先给骨架，避免先闪文章列表再整体切换 -->
     <CustomPagePanel v-if="homeMode === 'booting'" loading :page="null" :not-found="false" />
 
-    <div
-      v-else-if="homeMode === 'custom'"
-      :class="{ 'tpl-page-offset': isTplMode }"
-    >
+    <div v-else-if="homeMode === 'custom'" :class="{ 'tpl-page-offset': isTplMode }">
       <CustomPagePanel
         minimal
         :page="homePage"
@@ -70,7 +67,7 @@
                 <router-link
                   v-for="(tag, index) in article.tags.slice(0, 2)"
                   :key="tag.id"
-                  :to="`/blog/tag/${tag.id}`"
+                  :to="`/tag/${tag.id}`"
                   class="tag"
                   :class="tagClass(Number(index))"
                   @click.stop
@@ -142,7 +139,7 @@
               <router-link
                 v-for="category in categories"
                 :key="category.id"
-                :to="`/blog/category/${category.alias || category.id}`"
+                :to="`/category/${category.alias || category.id}`"
                 class="cat-item"
               >
                 {{ category.name }}
@@ -157,7 +154,7 @@
               <router-link
                 v-for="(tag, index) in tags"
                 :key="tag.id || tag.name"
-                :to="`/blog/tag/${tag.id}`"
+                :to="`/tag/${tag.id}`"
                 class="tc"
                 :class="{ lg: index % 5 === 0, md: index % 3 === 0 }"
               >
@@ -185,7 +182,7 @@
           </div>
         </aside>
       </main>
-</div>
+    </div>
   </BlogLayout>
 </template>
 
@@ -232,7 +229,7 @@ const pageItems = computed<(number | '…')[]>(() =>
 const isSearchEnabled = computed(() => blogSettingsStore.isFeatureEnabled('search_enabled'))
 const isSidebarEnabled = computed(() => blogSettingsStore.isFeatureEnabled('sidebar_enabled'))
 
-// —— 企业官网模式：home_page_slug 非空时本页渲染自定义页面，文章列表挪到 /blog/articles ——
+// —— 企业官网模式：home_page_slug 非空时本页渲染自定义页面，文章列表挪到 /news ——
 const settingsReady = ref(blogSettingsStore.lastUpdate > 0)
 const isCustomHomePage = computed(() =>
   hasCustomHomePage(blogSettingsStore.blogSettings.home_page_slug)
@@ -261,7 +258,7 @@ const isTplMode = computed(
   () => String(blogSettingsStore.blogSettings.home_layout || '') === 'business'
 )
 
-// booting 只出现在首页路由：/blog/articles 明确是列表页，不等设置
+// booting 只出现在首页路由：/news 明确是列表页，不等设置
 const homeMode = computed<'booting' | 'custom' | 'business' | 'list'>(() => {
   if (isArticleListRoute.value) return 'list'
   if (!settingsReady.value) return 'booting'
@@ -271,7 +268,7 @@ const homeMode = computed<'booting' | 'custom' | 'business' | 'list'>(() => {
 })
 
 // 侧栏「全部文章」入口：首页被接管后指向列表页，否则就是首页自身
-const listHomePath = computed(() => (isCustomHomePage.value ? '/blog/articles' : '/blog'))
+const listHomePath = computed(() => (isCustomHomePage.value ? '/news' : '/'))
 
 const loadHomePage = async () => {
   const slug = homeSlug.value
@@ -305,7 +302,7 @@ const loadHomePage = async () => {
   }
 }
 
-// 首次进入或从 /blog/articles 返回首页时按需加载；同一 slug 只加载一次
+// 首次进入或从 /news 返回首页时按需加载；同一 slug 只加载一次
 watch(
   [showCustomHome, homeSlug],
   () => {
@@ -332,12 +329,12 @@ const fallbackGradient = (id: number) => {
 }
 
 const goToArticle = (id: number) => {
-  if (id) router.push(`/blog/article/${id}`)
+  if (id) router.push(`/article/${id}`)
 }
 
 // 跳转到作者主页
 const goAuthor = (authorId?: number) => {
-  if (authorId) router.push(`/blog/author/${authorId}`)
+  if (authorId) router.push(`/author/${authorId}`)
 }
 
 const scrollToAllArticles = () => {
@@ -352,7 +349,7 @@ const handleCurrentChange = (page: number) => {
 // 前往独立搜索页
 const handleSearch = () => {
   const keyword = searchKeyword.value.trim()
-  router.push({ path: '/blog/search', query: keyword ? { q: keyword } : {} })
+  router.push({ path: '/search', query: keyword ? { q: keyword } : {} })
 }
 
 const loadArticles = async () => {

@@ -79,7 +79,7 @@ describe('ArticleCard 组件', () => {
   it('文章详情链接应该指向文章 id', () => {
     const wrapper = mountCard({ id: 42, title: 't', summary: 's' })
 
-    expect(wrapper.find('.article-card-more').attributes('data-to')).toBe('/blog/article/42')
+    expect(wrapper.find('.article-card-more').attributes('data-to')).toBe('/article/42')
   })
 
   it('入场动画延迟应该跟随索引', () => {

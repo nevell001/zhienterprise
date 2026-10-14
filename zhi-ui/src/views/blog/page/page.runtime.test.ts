@@ -5,7 +5,7 @@ import CustomPage from './index.vue'
 import BlogLayout from '@/components/BlogLayout.vue'
 
 /**
- * 自定义页面（/blog/page/:slug）行为测试。
+ * 自定义页面（/page/:slug）行为测试。
  *
  * 取代原来的源码字符串断言：原来只检查"源码里有没有 renderMarkdown / sanitizeArticleContent
  * 这两行 import"，无法证明渲染结果真的被消毒。这里挂载组件并断言 DOM。
@@ -17,13 +17,13 @@ vi.mock('@/api/blog/page', () => ({
 }))
 
 vi.mock('vue-router', () => ({
-  useRoute: () => ({ params: { slug: 'about-me' }, query: {}, path: '/blog/page/about-me' }),
+  useRoute: () => ({ params: { slug: 'about-me' }, query: {}, path: '/page/about-me' }),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() })
 }))
 
 vi.mock('@/utils/seo', () => ({
   applySeo: vi.fn(),
-  canonicalUrl: vi.fn(() => 'https://example.com/blog/page/about-me')
+  canonicalUrl: vi.fn(() => 'https://example.com/page/about-me')
 }))
 
 function mountPage() {

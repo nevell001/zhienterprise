@@ -113,7 +113,7 @@ const doSearch = async (page = 1) => {
     return
   }
   // 同步 URL，便于分享与刷新
-  router.replace({ path: '/blog/search', query: kw ? { q: kw } : {} })
+  router.replace({ path: '/search', query: kw ? { q: kw } : {} })
 
   loading.value = true
   try {
@@ -159,11 +159,11 @@ const resetSearch = () => {
   total.value = 0
   query.value = ''
   hasSearched.value = false
-  router.replace('/blog/search')
+  router.replace('/search')
 }
 
 const goArticle = (id: number) => {
-  if (id) router.push(`/blog/article/${id}`)
+  if (id) router.push(`/article/${id}`)
 }
 
 // 从 URL 初始化或关键词变化时重新搜索

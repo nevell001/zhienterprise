@@ -20,7 +20,7 @@ vi.mock('@/api/blog/auth', () => ({
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-  useRoute: () => ({ query: {}, params: {}, path: '/blog/register' })
+  useRoute: () => ({ query: {}, params: {}, path: '/register' })
 }))
 
 vi.mock('@/plugins/element-plus-service', () => ({

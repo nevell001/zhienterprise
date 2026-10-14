@@ -14,7 +14,7 @@
             <router-link
               v-for="category in categories"
               :key="category.id"
-              :to="`/blog/category/${category.alias || category.id}`"
+              :to="`/category/${category.alias || category.id}`"
               class="cat-card"
             >
               <div class="cat-card-head">
@@ -30,7 +30,7 @@
         </template>
 
         <el-empty v-else description="暂无分类">
-          <el-button type="primary" @click="$router.push('/blog')">返回首页</el-button>
+          <el-button type="primary" @click="$router.push('/')">返回首页</el-button>
         </el-empty>
       </div>
     </BlogLayout>

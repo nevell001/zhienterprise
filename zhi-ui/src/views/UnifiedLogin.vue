@@ -1,7 +1,7 @@
 <template>
   <div class="unified-login-container mo-auth-page">
     <section class="auth-card">
-      <router-link to="/blog" class="auth-brand">
+      <router-link to="/" class="auth-brand">
         <span class="brand-mark">知</span>
         <span>知企建站系统</span>
       </router-link>
@@ -13,7 +13,7 @@
 
       <div class="auth-switch">
         <span class="switch-item active">登录</span>
-        <router-link to="/blog/auth/register" class="switch-item">注册</router-link>
+        <router-link to="/register" class="switch-item">注册</router-link>
       </div>
 
       <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form">
@@ -72,7 +72,7 @@
             <input v-model="rememberMe" type="checkbox" />
             记住我
           </label>
-          <router-link to="/blog/auth/forgot-password" class="forgot">忘记密码？</router-link>
+          <router-link to="/forgot-password" class="forgot">忘记密码？</router-link>
         </div>
 
         <el-button type="primary" :loading="loading" class="auth-submit" @click="handleLogin">
@@ -82,7 +82,7 @@
 
       <p class="auth-footer">
         还没有账号？
-        <router-link to="/blog/auth/register">立即注册</router-link>
+        <router-link to="/register">立即注册</router-link>
       </p>
     </section>
   </div>

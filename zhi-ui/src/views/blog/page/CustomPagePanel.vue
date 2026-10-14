@@ -8,7 +8,7 @@
         <h1 class="empty-title">页面不存在或未发布</h1>
         <p class="empty-desc">该页面可能已被删除、更名，或者尚未发布。</p>
         <div class="empty-actions">
-          <el-button type="primary" @click="$router.push('/blog')">返回首页</el-button>
+          <el-button type="primary" @click="$router.push('/')">返回首页</el-button>
           <el-button @click="emit('retry')">重新加载</el-button>
         </div>
       </div>
@@ -37,7 +37,7 @@ import { renderMarkdown } from '@/utils/markdown'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 
 /**
- * 自定义页面展示面板：被 /blog/page/:slug 与「首页接管」两种场景复用。
+ * 自定义页面展示面板：被 /page/:slug 与「首页接管」两种场景复用。
  * minimal 模式用于首页：隐藏 Page 标签与更新/浏览元信息，只保留标题与正文。
  */
 const props = defineProps<{

@@ -1,181 +1,151 @@
 import type { RouteRecordRaw } from 'vue-router'
 
 // 站点前台路由配置 - 仅包含前台相关路由
+// 地址规范：前台页面一律使用短路径（不带 /blog 前缀），与导航、站点地图保持一致
 export const blogRoutes: RouteRecordRaw[] = [
   {
-    path: '/blog',
-    component: () => import('@/views/blog/index.vue'),
-    name: 'PublicBlogHome',
-    meta: { title: '站点首页' }
-  },
-  {
     // 企业官网模式下首页被自定义页面接管，文章列表固定在本地址（默认模式下与首页内容相同）
-    path: '/blog/articles',
+    path: '/news',
     component: () => import('@/views/blog/index.vue'),
     name: 'PublicBlogArticleList',
-    meta: { title: '文章列表' },
-    // 企业官网模板导航使用短地址 /news
-    alias: ['/news']
+    meta: { title: '文章列表' }
   },
   {
-    path: '/blog/article/:id',
+    path: '/article/:id',
     component: () => import('@/views/blog/article/detail.vue'),
     name: 'PublicBlogArticleDetail',
-    meta: { title: '文章详情' },
-    alias: ['/article/:id']
+    meta: { title: '文章详情' }
   },
   {
     // 核心业务（article_type=business 的文章）：企业官网模板的落地页
-    path: '/blog/business',
+    path: '/business',
     component: () => import('@/views/blog/business/index.vue'),
     name: 'PublicBusinessList',
-    meta: { title: '核心业务' },
-    alias: ['/business']
+    meta: { title: '核心业务' }
   },
   {
-    path: '/blog/business/:id',
+    path: '/business/:id',
     component: () => import('@/views/blog/business/detail.vue'),
     name: 'PublicBusinessDetail',
-    meta: { title: '业务详情' },
-    alias: ['/business/:id']
+    meta: { title: '业务详情' }
   },
   {
     // 联系我们：企业官网模板模式导航入口，信息来自站点设置
-    path: '/blog/contact',
+    path: '/contact',
     component: () => import('@/views/blog/contact/index.vue'),
     name: 'PublicContact',
-    meta: { title: '联系我们' },
-    alias: ['/contact']
+    meta: { title: '联系我们' }
   },
   {
-    path: '/blog/category',
+    path: '/category',
     component: () => import('@/views/blog/category/list.vue'),
     name: 'PublicBlogCategoryList',
     meta: { title: '分类列表' }
   },
   {
-    path: '/blog/category/:id',
+    path: '/category/:id',
     component: () => import('@/views/blog/category/index.vue'),
     name: 'PublicBlogCategory',
     meta: { title: '分类文章' }
   },
   {
-    path: '/blog/tag',
+    path: '/tag',
     component: () => import('@/views/blog/tag/list.vue'),
     name: 'PublicBlogTagList',
     meta: { title: '标签列表' }
   },
   {
-    path: '/blog/tag/:id',
+    path: '/tag/:id',
     component: () => import('@/views/blog/tag/index.vue'),
     name: 'PublicBlogTag',
     meta: { title: '标签文章' }
   },
   {
-    path: '/blog/author/:id',
+    path: '/author/:id',
     component: () => import('@/views/blog/author/index.vue'),
     name: 'PublicBlogAuthor',
     meta: { title: '作者文章' }
   },
   {
-    path: '/blog/friend-links/apply',
+    path: '/friend-links/apply',
     component: () => import('@/views/blog/friendLink/apply.vue'),
     name: 'PublicBlogFriendLinkApply',
     meta: { title: '友链申请' }
   },
   {
-    path: '/blog/archive',
+    path: '/archive',
     component: () => import('@/views/blog/archive/index.vue'),
     name: 'PublicBlogArchive',
     meta: { title: '文章归档' }
   },
   {
-    path: '/blog/about',
+    path: '/about',
     component: () => import('@/views/blog/about.vue'),
     name: 'PublicAbout',
     meta: { title: '关于我们' }
   },
   {
     // 荣誉资质（关于我们子页，方案文档 §1.3）
-    path: '/blog/honors',
+    path: '/honors',
     component: () => import('@/views/blog/honors.vue'),
     name: 'PublicHonors',
-    meta: { title: '荣誉资质' },
-    alias: ['/honors']
+    meta: { title: '荣誉资质' }
   },
   {
     // 发展历程（关于我们子页，阶段化时间轴）
-    path: '/blog/history',
+    path: '/history',
     component: () => import('@/views/blog/history.vue'),
     name: 'PublicHistory',
-    meta: { title: '发展历程' },
-    alias: ['/history']
+    meta: { title: '发展历程' }
   },
   {
-    path: '/blog/guestbook',
+    path: '/guestbook',
     component: () => import('@/views/blog/guestbook/index.vue'),
     name: 'PublicBlogGuestbook',
     meta: { title: '留言板' }
   },
   {
-    path: '/blog/page/:slug',
+    path: '/page/:slug',
     component: () => import('@/views/blog/page/index.vue'),
     name: 'PublicBlogPage',
     meta: { title: '页面' }
   },
   {
-    path: '/blog/agreement',
+    path: '/agreement',
     component: () => import('@/views/blog/legal/index.vue'),
     name: 'PublicBlogUserAgreement',
     meta: { title: '用户协议' }
   },
   {
-    path: '/blog/privacy',
+    path: '/privacy',
     component: () => import('@/views/blog/legal/index.vue'),
     name: 'PublicBlogPrivacyPolicy',
     meta: { title: '隐私政策' }
   },
-  // 注册用户认证路由
+  // 注册用户认证路由（登录统一在根级 /login）
   {
-    path: '/blog/auth/login',
-    redirect: '/login',
-    meta: { title: '用户登录' }
-  },
-  {
-    path: '/blog/auth/register',
+    path: '/register',
     component: () => import('@/views/blog/auth/Register.vue'),
     name: 'BlogRegister',
     meta: { title: '用户注册' }
   },
   {
-    path: '/blog/auth/forgot-password',
+    path: '/forgot-password',
     component: () => import('@/views/blog/auth/ForgotPassword.vue'),
     name: 'BlogForgotPassword',
     meta: { title: '找回密码' }
   },
   {
-    path: '/blog/search',
+    path: '/search',
     component: () => import('@/views/blog/search/index.vue'),
     name: 'PublicBlogSearch',
     meta: { title: '搜索文章' }
   },
   {
-    path: '/blog/bookmarks',
+    path: '/bookmarks',
     component: () => import('@/views/blog/bookmark/index.vue'),
     name: 'PublicBlogBookmarks',
     meta: { title: '我的收藏' }
-  },
-  {
-    path: '/index',
-    component: () => import('@/views/blog/index.vue'),
-    name: 'PublicIndex',
-    meta: { title: '首页' }
-  },
-  {
-    path: '/about',
-    component: () => import('@/views/blog/about.vue'),
-    name: 'PublicAboutPage',
-    meta: { title: '关于' }
   }
 ]
 

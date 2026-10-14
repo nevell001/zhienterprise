@@ -158,8 +158,8 @@
           </div>
 
           <div class="forgot-password-footer">
-            <router-link to="/blog/auth/login" class="link">返回登录</router-link>
-            <router-link to="/blog/auth/register" class="link">注册账号</router-link>
+            <router-link to="/login" class="link">返回登录</router-link>
+            <router-link to="/register" class="link">注册账号</router-link>
           </div>
         </div>
       </div>
@@ -347,12 +347,12 @@ const resetPassword = async () => {
 
 // 跳转到统一登录页
 const goToLogin = () => {
-  router.push('/blog/auth/login')
+  router.push('/login')
 }
 
 // 返回首页
 const goToHome = () => {
-  router.push('/blog')
+  router.push('/')
 }
 </script>
 

@@ -209,7 +209,7 @@
                     <p class="notify-body">
                       <strong>{{ item.senderName }}</strong>
                       {{ item.type === 'reply' ? ' 回复了你的评论' : ' 评论了你的文章' }}
-                      <router-link class="notify-link" :to="`/blog/article/${item.articleId}`">
+                      <router-link class="notify-link" :to="`/article/${item.articleId}`">
                         《{{ item.articleTitle }}》
                       </router-link>
                     </p>
@@ -426,7 +426,7 @@ function openSettings(tab: 'userinfo' | 'resetPwd') {
 }
 
 function goPublicArticle(articleId: number) {
-  router.push(`/blog/article/${articleId}`)
+  router.push(`/article/${articleId}`)
 }
 
 onMounted(() => {

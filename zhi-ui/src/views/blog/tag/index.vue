@@ -115,7 +115,7 @@
               <router-link
                 v-for="(tag, index) in relatedTags.slice(0, 12)"
                 :key="tag.id"
-                :to="`/blog/tag/${tag.id}`"
+                :to="`/tag/${tag.id}`"
                 class="related-tag-item"
                 :class="{ active: tag.id === currentTagId }"
                 :style="{
@@ -144,7 +144,7 @@
                 :style="{ animationDelay: `${0.4 + index * 0.05}s` }"
               >
                 <div class="tag-rank">#{{ popularTags.indexOf(tag) + 1 }}</div>
-                <router-link :to="`/blog/tag/${tag.id}`" class="tag-link">
+                <router-link :to="`/tag/${tag.id}`" class="tag-link">
                   {{ tag.name }}
                 </router-link>
                 <div class="tag-article-count">{{ tag.article_count }}篇</div>
@@ -166,7 +166,7 @@
                 :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
               >
                 <router-link
-                  :to="`/blog/article/${article.id}`"
+                  :to="`/article/${article.id}`"
                   class="recent-link"
                   :title="article.title"
                 >

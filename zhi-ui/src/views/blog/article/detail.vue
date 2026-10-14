@@ -156,7 +156,7 @@
                 <router-link
                   v-for="tag in article.tags"
                   :key="tag.id"
-                  :to="`/blog/tag/${tag.id}`"
+                  :to="`/tag/${tag.id}`"
                   class="tc"
                 >
                   {{ tag.name }}
@@ -338,9 +338,7 @@ onUnmounted(() => {
 })
 
 // 企业官网模板模式：阅读进度条 + 模板皮肤开关
-const isTplMode = computed(
-  () => String(blogSettings.value?.home_layout || '') === 'business'
-)
+const isTplMode = computed(() => String(blogSettings.value?.home_layout || '') === 'business')
 const readProgress = ref(0)
 
 const updateReadProgress = () => {

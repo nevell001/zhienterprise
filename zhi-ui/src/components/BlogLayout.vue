@@ -3,8 +3,7 @@
     class="blog-layout"
     :class="{
       'tpl-fixed-nav': isBusinessNavEnabled,
-      'tpl-nav-offset':
-        isBusinessNavEnabled && route.path !== '/' && route.path !== '/blog'
+      'tpl-nav-offset': isBusinessNavEnabled && route.path !== '/'
     }"
   >
     <!-- 企业官网模板导航（透明→实底，方案文档 §1.1） -->
@@ -12,7 +11,7 @@
     <!-- 统一顶部导航 -->
     <nav v-else class="blog-top-nav">
       <div class="nav-inner">
-        <router-link to="/blog" class="nav-left">
+        <router-link to="/" class="nav-left">
           <div class="brand-logo">
             {{ blogSettings.blog_name?.charAt(0) || '知' }}
           </div>
@@ -144,7 +143,7 @@
           {{ m.name }}
         </router-link>
         <template v-if="userStore.token && userStore.name">
-          <router-link to="/blog/bookmarks" class="mobile-nav-link" @click="mobileMenuOpen = false">
+          <router-link to="/bookmarks" class="mobile-nav-link" @click="mobileMenuOpen = false">
             我的收藏
           </router-link>
           <router-link to="/user/profile" class="mobile-nav-link" @click="mobileMenuOpen = false">
@@ -187,13 +186,13 @@
         <div class="footer-links">
           <div class="footer-col">
             <h4>快速导航</h4>
-            <router-link to="/blog">首页</router-link>
-            <router-link v-if="isCustomHomePage" to="/blog/articles">文章</router-link>
-            <router-link v-if="isCategoryNavEnabled" to="/blog/category">分类</router-link>
-            <router-link v-if="isTagNavEnabled" to="/blog/tag">标签</router-link>
-            <router-link v-if="isArchiveNavEnabled" to="/blog/archive">归档</router-link>
-            <router-link to="/blog/about">关于</router-link>
-            <router-link v-if="isFriendLinkApplyEnabled" to="/blog/friend-links/apply">
+            <router-link to="/">首页</router-link>
+            <router-link v-if="isCustomHomePage" to="/news">文章</router-link>
+            <router-link v-if="isCategoryNavEnabled" to="/category">分类</router-link>
+            <router-link v-if="isTagNavEnabled" to="/tag">标签</router-link>
+            <router-link v-if="isArchiveNavEnabled" to="/archive">归档</router-link>
+            <router-link to="/about">关于</router-link>
+            <router-link v-if="isFriendLinkApplyEnabled" to="/friend-links/apply">
               友链申请
             </router-link>
           </div>
@@ -405,7 +404,7 @@ const handleNotifClick = async (n: BlogNotification) => {
     }
   }
   if (n.articleId) {
-    router.push(`/blog/article/${n.articleId}`)
+    router.push(`/article/${n.articleId}`)
   }
 }
 
@@ -434,7 +433,7 @@ const isCopyrightEnabled = computed(() => blogSettingsStore.isFeatureEnabled('co
 const isBeianEnabled = computed(() => blogSettingsStore.isFeatureEnabled('beian_enabled'))
 const isGuestbookEnabled = computed(() => blogSettingsStore.isFeatureEnabled('guestbook_enabled'))
 
-// 企业官网模式：home_page_slug 非空时首页被自定义页面接管，文章列表迁到 /blog/articles，
+// 企业官网模式：home_page_slug 非空时首页被自定义页面接管，文章列表迁到 /news，
 // 导航补「文章」入口；分类/标签/归档三个入口由下方开关控制（裁剪导航用）
 const isCustomHomePage = computed(() =>
   hasCustomHomePage(blogSettingsStore.blogSettings.home_page_slug)
@@ -458,7 +457,7 @@ const customPages = ref<BlogPage[]>([])
 
 // 菜单组装规则在 utils/blogNav.ts（纯函数、与站点前台尺度解耦，便于单测）。
 // 「关于」不设固定入口：它就是页面管理里 slug=about 的那一行（是否出现在导航由该行的
-// 「导航显示」控制）。行被删/下架时导航与 /blog/about 一并空态，不存在第二数据源。
+// 「导航显示」控制）。行被删/下架时导航与 /about 一并空态，不存在第二数据源。
 const menus = computed(() =>
   buildNavMenus({
     customHomePage: isCustomHomePage.value,
@@ -491,7 +490,7 @@ watch(
       '@type': 'Organization',
       name: settings.blog_name,
       description: settings.blog_desc || undefined,
-      url: `${window.location.origin}/blog`,
+      url: `${window.location.origin}/`,
       contactPoint: settings.contact_phone || settings.blog_email ? contactPoint : undefined
     })
   },
@@ -572,7 +571,7 @@ const handleUserCommand = async (command: string) => {
   if (command === 'profile') {
     window.location.href = '/user/profile'
   } else if (command === 'bookmark') {
-    router.push('/blog/bookmarks')
+    router.push('/bookmarks')
   } else if (command === 'logout') {
     try {
       await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
@@ -582,7 +581,7 @@ const handleUserCommand = async (command: string) => {
       })
       await userStore.logOut()
       ElMessage.success('已退出登录')
-      router.push('/blog')
+      router.push('/')
     } catch {
       // User cancelled
     }
@@ -1047,7 +1046,7 @@ function fetchPublishedPages() {
 }
 
 /* 企业官网模板模式：导航 fixed 脱离文档流，非首页内容留出导航高度；
-   首页（/blog）由各首页形态自行消化（hero 大间距 / 自定义页偏移） */
+   首页（/）由各首页形态自行消化（hero 大间距 / 自定义页偏移） */
 .blog-layout.tpl-nav-offset {
   padding-top: 64px;
 }

@@ -240,7 +240,8 @@
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
             <el-dropdown trigger="click" @command="insertBlock">
               <el-button type="primary" plain>
-                插入区块模板<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                插入区块模板
+                <el-icon class="el-icon--right"><arrow-down /></el-icon>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -255,7 +256,9 @@
               </template>
             </el-dropdown>
             <el-button @click="previewVisible = true">预览</el-button>
-            <span class="slug-tip">区块为 HTML 片段，插入到光标处后可直接修改文字；预览为前台实际渲染效果</span>
+            <span class="slug-tip">
+              区块为 HTML 片段，插入到光标处后可直接修改文字；预览为前台实际渲染效果
+            </span>
           </div>
         </el-form-item>
         <el-form-item label="页面内容" prop="content">
@@ -510,7 +513,7 @@ const blockTemplates = [
   },
   {
     name: 'CTA 行动条',
-    html: '<section style="padding:36px 24px;text-align:center;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#ffffff;margin:24px 0"><h2 style="margin:0 0 12px">期待与您的合作</h2><p style="margin:0 0 16px;opacity:.85">欢迎联系我们获取方案与报价</p><a href="/blog/contact" style="display:inline-block;padding:10px 26px;border-radius:8px;background:#ffffff;color:#4f46e5;font-weight:600;text-decoration:none">联系我们</a></section>'
+    html: '<section style="padding:36px 24px;text-align:center;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#ffffff;margin:24px 0"><h2 style="margin:0 0 12px">期待与您的合作</h2><p style="margin:0 0 16px;opacity:.85">欢迎联系我们获取方案与报价</p><a href="/contact" style="display:inline-block;padding:10px 26px;border-radius:8px;background:#ffffff;color:#4f46e5;font-weight:600;text-decoration:none">联系我们</a></section>'
   }
 ]
 

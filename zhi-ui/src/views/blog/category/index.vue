@@ -116,7 +116,7 @@
                 :style="{ animationDelay: `${0.3 + index * 0.05}s` }"
               >
                 <router-link
-                  :to="`/blog/category/${category.alias || category.id}`"
+                  :to="`/category/${category.alias || category.id}`"
                   class="category-link"
                   :class="{ active: category.id === currentCategoryId }"
                 >
@@ -137,7 +137,7 @@
               <router-link
                 v-for="(tag, index) in popularTags.slice(0, 15)"
                 :key="tag.id"
-                :to="`/blog/tag/${tag.id}`"
+                :to="`/tag/${tag.id}`"
                 class="tag-item"
                 :style="{
                   animationDelay: `${0.4 + index * 0.03}s`,
@@ -165,7 +165,7 @@
                 :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
               >
                 <router-link
-                  :to="`/blog/article/${article.id}`"
+                  :to="`/article/${article.id}`"
                   class="recent-link"
                   :title="article.title"
                 >

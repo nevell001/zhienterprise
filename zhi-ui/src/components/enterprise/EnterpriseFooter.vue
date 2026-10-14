@@ -4,7 +4,23 @@
       <div class="fgrid">
         <div class="fbrand">
           <div class="flogo">
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="currentColor" stroke-width="1.5" /><path d="M7 13h12M13 7v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+              <rect
+                x="1.5"
+                y="1.5"
+                width="23"
+                height="23"
+                rx="6"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M7 13h12M13 7v12"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
             {{ blogSettings.blog_name || '知企建站系统' }}
           </div>
           <p class="fdesc">{{ blogSettings.blog_desc || '' }}</p>
@@ -26,8 +42,13 @@
         <div class="fcol">
           <h4>合作</h4>
           <router-link to="/contact">咨询合作</router-link>
-          <router-link v-if="isGuestbookEnabled" to="/blog/guestbook">留言板</router-link>
-          <a v-if="blogSettings.github_url" :href="formatUrl(blogSettings.github_url)" target="_blank" rel="noopener noreferrer">
+          <router-link v-if="isGuestbookEnabled" to="/guestbook">留言板</router-link>
+          <a
+            v-if="blogSettings.github_url"
+            :href="formatUrl(blogSettings.github_url)"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             GitHub
           </a>
           <a :href="rssUrl" target="_blank" rel="noopener noreferrer">RSS 订阅</a>
@@ -36,7 +57,10 @@
         <div class="fcol">
           <h4>联系我们</h4>
           <span v-if="blogSettings.contact_address">{{ blogSettings.contact_address }}</span>
-          <a v-if="blogSettings.contact_phone" :href="`tel:${blogSettings.contact_phone.replace(/\s/g, '')}`">
+          <a
+            v-if="blogSettings.contact_phone"
+            :href="`tel:${blogSettings.contact_phone.replace(/\s/g, '')}`"
+          >
             {{ blogSettings.contact_phone }}
           </a>
           <a v-if="blogSettings.blog_email" :href="`mailto:${blogSettings.blog_email}`">
@@ -49,8 +73,8 @@
       <div class="fbot">
         <span>© {{ currentYear }} {{ blogSettings.blog_name || '知企建站系统' }} 保留所有权利</span>
         <span class="fbot-links">
-          <router-link to="/blog/agreement">法律声明</router-link>
-          <router-link to="/blog/privacy">隐私政策</router-link>
+          <router-link to="/agreement">法律声明</router-link>
+          <router-link to="/privacy">隐私政策</router-link>
         </span>
       </div>
     </div>
@@ -58,7 +82,15 @@
     <!-- 返回顶部：滚动超过 600px 滑入（方案文档 §1.2） -->
     <transition name="totop">
       <button v-if="showToTop" type="button" class="to-top" aria-label="返回顶部" @click="toTop">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M8 13V3M4 7l4-4 4 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
       </button>
     </transition>
   </footer>

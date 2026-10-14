@@ -11,29 +11,35 @@ import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 // 确保 NProgress 配置
 NProgress.configure({ showSpinner: false })
 
+// 站点前台一律使用短路径（不带 /blog 前缀），与路由表 router/blog.ts 保持一致
 const whiteList = [
   '/login',
   '/register',
+  '/forgot-password',
   '/index',
-  '/blog',
-  '/blog/*',
-  '/blog/auth/login',
-  '/blog/auth/register',
-  '/blog/auth/forgot-password',
-  '/about',
   '/',
-  '/blog/article/*',
-  '/blog/category/*',
-  '/blog/tag/*',
-  // 多段路径必须单独列出：/blog/* 只匹配一层（* 编译为 [^/]*）
-  '/blog/author/*',
-  '/blog/page/*',
-  '/blog/friend-links/apply',
-  '/blog/archive',
-  '/blog/simple',
-  '/blog/article',
-  '/blog/category',
-  '/blog/tag'
+  '/news',
+  '/article/*',
+  '/business',
+  '/business/*',
+  '/contact',
+  '/about',
+  '/honors',
+  '/history',
+  '/category',
+  '/category/*',
+  '/tag',
+  '/tag/*',
+  // 多段路径必须单独列出：* 编译为 [^/]*，只匹配一层
+  '/author/*',
+  '/page/*',
+  '/friend-links/apply',
+  '/archive',
+  '/guestbook',
+  '/search',
+  '/bookmarks',
+  '/agreement',
+  '/privacy'
 ]
 
 const isWhiteList = (path: string): boolean => {
@@ -57,9 +63,9 @@ router.beforeEach(
       if (getToken()) {
         to.meta.title && useSettingsStore().setTitle(to.meta.title as string)
         /* has token*/
-        // 如果访问站点前台页面，需要获取用户信息
-        // 同时预加载后台路由，避免点击"管理后台"时出现404
-        if (to.path.startsWith('/blog')) {
+        // 站点前台路径（白名单）需要获取/校验用户信息，同时预加载后台路由，
+        // 避免登录态下点击「管理后台」出现404；/login 由下方分支单独处理
+        if (isWhiteList(to.path) && to.path !== '/login') {
           const userStore = useUserStore()
           const permissionStore = usePermissionStore()
 
@@ -137,7 +143,7 @@ router.beforeEach(
           }
           // 校验 getInfo 的结果而非依赖它抛错：401 拦截器对站点路径会返回
           // 「匿名访问」假 200 占位响应，getInfo 静默成功但拿不到用户信息。
-          // 此时 token 实际无效，必须清掉，否则点击「登录」会被重定向回 /blog，
+          // 此时 token 实际无效，必须清掉，否则点击「登录」会被重定向回首页，
           // 登录页永远打不开
           if (!userStore.name) {
             userStore.token = ''
@@ -151,7 +157,7 @@ router.beforeEach(
             if (redirect && redirect !== '/login' && redirect !== '/' && redirect !== '/index') {
               next({ path: redirect, replace: true })
             } else {
-              next({ path: '/blog', replace: true })
+              next({ path: '/', replace: true })
             }
           }
         } else {

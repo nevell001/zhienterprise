@@ -53,17 +53,38 @@
             <h2>我们的位置</h2>
           </div>
           <div class="ct-map rv d1">
-            <svg class="ct-map-bg" viewBox="0 0 800 320" preserveAspectRatio="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1" fill="none"><path d="M0 80h800M0 160h800M0 240h800M160 0v320M400 0v320M640 0v320" /></g><circle cx="400" cy="160" r="10" fill="currentColor" /><circle cx="400" cy="160" r="22" stroke="currentColor" stroke-width="1.5" fill="none" /></svg>
+            <svg
+              class="ct-map-bg"
+              viewBox="0 0 800 320"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <g stroke="currentColor" stroke-width="1" fill="none">
+                <path d="M0 80h800M0 160h800M0 240h800M160 0v320M400 0v320M640 0v320" />
+              </g>
+              <circle cx="400" cy="160" r="10" fill="currentColor" />
+              <circle
+                cx="400"
+                cy="160"
+                r="22"
+                stroke="currentColor"
+                stroke-width="1.5"
+                fill="none"
+              />
+            </svg>
             <div class="ct-map-body">
               <p>{{ blogSettings.contact_address }}</p>
-              <a
-                class="btn-p"
-                :href="mapLink"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a class="btn-p" :href="mapLink" target="_blank" rel="noopener noreferrer">
                 获取路线
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M4 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path
+                    d="M4 3l4 4-4 4"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
               </a>
             </div>
           </div>
@@ -93,7 +114,15 @@
                   fill="none"
                   aria-hidden="true"
                   :style="{ transform: openFaq === fi ? 'rotate(180deg)' : 'none' }"
-                ><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                >
+                  <path
+                    d="M3 5l4 4 4-4"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
               </button>
               <p v-show="openFaq === fi" class="ct-faq-a">{{ f.a }}</p>
             </div>
@@ -106,8 +135,16 @@
         <div class="eh-wrap ct-cta rv">
           <h2>有任何合作意向或问题？</h2>
           <p>给我们留言，将在 1 个工作日内回复。</p>
-          <router-link v-if="isGuestbookEnabled" class="btn-p" to="/blog/guestbook">前往留言板</router-link>
-          <a v-else-if="blogSettings.blog_email" class="btn-p" :href="`mailto:${blogSettings.blog_email}`">邮件联系</a>
+          <router-link v-if="isGuestbookEnabled" class="btn-p" to="/guestbook">
+            前往留言板
+          </router-link>
+          <a
+            v-else-if="blogSettings.blog_email"
+            class="btn-p"
+            :href="`mailto:${blogSettings.blog_email}`"
+          >
+            邮件联系
+          </a>
         </div>
       </section>
     </main>
@@ -142,10 +179,22 @@ const CHANNELS = [
 
 /* FAQ：通用占位（接入内容模型后可后台维护） */
 const faqs = [
-  { q: '咨询后多久能得到回复？', a: '工作时间内我们将在 1 个工作日内与您联系；紧急事项建议直接电话联系。' },
-  { q: '是否支持上门调研与定制方案？', a: '支持。我们会先进行线上初诊，再根据情况安排上门调研并输出可执行的方案与报价。' },
-  { q: '合作流程是怎样的？', a: '需求沟通 → 方案与报价 → 合同签订 → 实施交付 → 验收与长期陪跑，全程有专属对接人。' },
-  { q: '如何验证贵司的资质与案例？', a: '可在「关于我们 → 荣誉资质」查看证书与奖项，「核心业务」中查看典型客户案例。' }
+  {
+    q: '咨询后多久能得到回复？',
+    a: '工作时间内我们将在 1 个工作日内与您联系；紧急事项建议直接电话联系。'
+  },
+  {
+    q: '是否支持上门调研与定制方案？',
+    a: '支持。我们会先进行线上初诊，再根据情况安排上门调研并输出可执行的方案与报价。'
+  },
+  {
+    q: '合作流程是怎样的？',
+    a: '需求沟通 → 方案与报价 → 合同签订 → 实施交付 → 验收与长期陪跑，全程有专属对接人。'
+  },
+  {
+    q: '如何验证贵司的资质与案例？',
+    a: '可在「关于我们 → 荣誉资质」查看证书与奖项，「核心业务」中查看典型客户案例。'
+  }
 ] as const
 
 const openFaq = ref(-1)
@@ -360,8 +409,7 @@ onMounted(() => {
   padding: var(--mo-sp-9) var(--mo-sp-7);
   border-radius: var(--tpl-r-xl);
   background:
-    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.14), transparent 40%),
-    var(--tpl-dark);
+    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.14), transparent 40%), var(--tpl-dark);
 }
 
 .ct-cta h2 {

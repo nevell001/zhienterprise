@@ -35,8 +35,8 @@ vi.mock('@/api/blog/page', () => ({
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [
-    { path: '/blog', component: BlogHome, name: 'PublicBlogHome' },
-    { path: '/blog/articles', component: BlogHome, name: 'PublicBlogArticleList' }
+    { path: '/', component: BlogHome, name: 'PublicRoot' },
+    { path: '/news', component: BlogHome, name: 'PublicBlogArticleList' }
   ]
 })
 
@@ -60,7 +60,7 @@ function mountHome() {
 
 describe('博客首页运行时渲染', () => {
   it('没有后端数据时也应该渲染首屏结构', async () => {
-    router.push('/blog')
+    router.push('/')
     await router.isReady()
 
     const wrapper = mountHome()
@@ -72,7 +72,7 @@ describe('博客首页运行时渲染', () => {
   })
 
   it('存在旧 token 时也应该渲染首屏，不应被用户下拉菜单阻断', async () => {
-    router.push('/blog')
+    router.push('/')
     await router.isReady()
 
     const pinia = createPinia()
@@ -114,7 +114,7 @@ describe('博客首页运行时渲染', () => {
       }
     } as any)
 
-    router.push('/blog')
+    router.push('/')
     await router.isReady()
 
     const wrapper = mountHome()
@@ -126,7 +126,7 @@ describe('博客首页运行时渲染', () => {
     // 文章列表没有被渲染，且首页模式隐藏了 Page 标签与更新/浏览元信息
     expect(wrapper.find('.mo-home-page').exists()).toBe(false)
     expect(wrapper.html()).not.toContain('>Page<')
-    expect(wrapper.find('a[href="/blog/articles"]').exists()).toBe(true)
+    expect(wrapper.find('a[href="/news"]').exists()).toBe(true)
   })
 
   it('home_page_slug 对应页面不存在时降级回文章列表', async () => {
@@ -135,7 +135,7 @@ describe('博客首页运行时渲染', () => {
     } as any)
     vi.mocked(getPublishedPageBySlug).mockRejectedValueOnce(new Error('404'))
 
-    router.push('/blog')
+    router.push('/')
     await router.isReady()
 
     const wrapper = mountHome()
@@ -151,7 +151,7 @@ describe('博客首页运行时渲染', () => {
       () => new Promise(resolve => (resolveSettings = resolve)) as any
     )
 
-    router.push('/blog')
+    router.push('/')
     await router.isReady()
 
     const wrapper = mountHome()

@@ -99,11 +99,10 @@ async function mountDetail() {
     history: createMemoryHistory(),
     routes: [
       { path: '/', component: { template: '<div />' } },
-      { path: '/blog', component: { template: '<div />' } },
-      { path: '/blog/article/:id', name: 'PublicBlogArticleDetail', component: ArticleDetail }
+      { path: '/article/:id', name: 'PublicBlogArticleDetail', component: ArticleDetail }
     ]
   })
-  router.push('/blog/article/1')
+  router.push('/article/1')
   await router.isReady()
   return mount(ArticleDetail, {
     global: {

@@ -2,7 +2,23 @@
   <nav class="ent-nav" :class="{ solid: navSolid || !isHome, 'over-hero': isHome && !navSolid }">
     <div class="ent-nav-in">
       <router-link to="/" class="ent-logo">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="currentColor" stroke-width="1.5" /><path d="M7 13h12M13 7v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+          <rect
+            x="1.5"
+            y="1.5"
+            width="23"
+            height="23"
+            rx="6"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            d="M7 13h12M13 7v12"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
         {{ blogSettings.blog_name || '知企建站系统' }}
       </router-link>
 
@@ -16,9 +32,7 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/news" :class="{ on: route.path === '/news' }">
-            新闻动态
-          </router-link>
+          <router-link to="/news" :class="{ on: route.path === '/news' }">新闻动态</router-link>
         </li>
         <li class="has-drop">
           <router-link to="/about" class="lv1" :class="{ on: route.path.startsWith('/about') }">
@@ -38,7 +52,11 @@
       </ul>
 
       <div class="ent-nav-right">
-        <el-dropdown v-if="userStore.token && userStore.name" trigger="click" @command="handleUserCommand">
+        <el-dropdown
+          v-if="userStore.token && userStore.name"
+          trigger="click"
+          @command="handleUserCommand"
+        >
           <span class="ent-user">
             <el-icon :size="16"><UserFilled /></el-icon>
             <span class="ent-user-name">{{ userStore.name }}</span>
@@ -83,7 +101,12 @@
       <router-link to="/contact" class="ent-drawer-link" @click="mobileOpen = false">
         联系我们
       </router-link>
-      <router-link v-if="!userStore.token" to="/login" class="ent-drawer-link" @click="mobileOpen = false">
+      <router-link
+        v-if="!userStore.token"
+        to="/login"
+        class="ent-drawer-link"
+        @click="mobileOpen = false"
+      >
         登录
       </router-link>
       <router-link class="ent-drawer-cta" to="/contact" @click="mobileOpen = false">
@@ -112,8 +135,7 @@ const businessLabel = computed(
 )
 
 /* ---------- 首页透明 → 滚动实底（方案文档 §1.1） ---------- */
-// 根路径与 /blog 同为站点首页（企业模板导航使用短地址）
-const isHome = computed(() => route.path === '/' || route.path === '/blog')
+const isHome = computed(() => route.path === '/')
 const navSolid = ref(false)
 
 const onScroll = () => {
