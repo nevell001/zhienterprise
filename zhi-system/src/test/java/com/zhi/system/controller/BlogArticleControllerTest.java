@@ -7,6 +7,7 @@ import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogTagService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -658,6 +659,62 @@ class BlogArticleControllerTest {
 
         assertThat(rootCause(thrown)).isInstanceOf(RuntimeException.class).hasMessage("数据库错误");
         verify(blogArticleService).updateBlogArticle(any(BlogArticle.class));
+    }
+
+    /**
+     * 后台保存必须携带内容类型与别名/SEO：解析层早前漏掉这几个字段，
+     * 核心业务管理发布的内容于是落库成 news（article_type 走 DDL 默认值），
+     * 别名与 SEO 三字段静默丢弃。
+     */
+    @Test
+    void add_mapsArticleTypeSlugAndSeoFields() throws Exception {
+        when(blogArticleService.insertBlogArticle(any(BlogArticle.class))).thenReturn(1);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("title", "核心业务发布测试");
+        params.put("content", "测试文章内容足够长");
+        params.put("status", 1L);
+        params.put("articleType", "business");
+        params.put("slug", "ops-hosting");
+        params.put("seoTitle", "SEO 标题");
+        params.put("seoKeywords", "关键词一,关键词二");
+        params.put("seoDescription", "SEO 描述");
+
+        mockMvc.perform(post("/system/article")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<BlogArticle> captor = ArgumentCaptor.forClass(BlogArticle.class);
+        verify(blogArticleService).insertBlogArticle(captor.capture());
+        BlogArticle saved = captor.getValue();
+        assertThat(saved.getArticleType()).isEqualTo("business");
+        assertThat(saved.getSlug()).isEqualTo("ops-hosting");
+        assertThat(saved.getSeoTitle()).isEqualTo("SEO 标题");
+        assertThat(saved.getSeoKeywords()).isEqualTo("关键词一,关键词二");
+        assertThat(saved.getSeoDescription()).isEqualTo("SEO 描述");
+    }
+
+    /**
+     * 内容类型只接受白名单值，非法值不落库（插入时由 mapper 回退为默认 news）。
+     */
+    @Test
+    void add_ignoresArticleTypeOutsideWhitelist() throws Exception {
+        when(blogArticleService.insertBlogArticle(any(BlogArticle.class))).thenReturn(1);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("title", "测试文章标题");
+        params.put("content", "测试文章内容足够长");
+        params.put("articleType", "video");
+
+        mockMvc.perform(post("/system/article")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<BlogArticle> captor = ArgumentCaptor.forClass(BlogArticle.class);
+        verify(blogArticleService).insertBlogArticle(captor.capture());
+        assertThat(captor.getValue().getArticleType()).isNull();
     }
 
     private static Throwable rootCause(Throwable thrown) {
