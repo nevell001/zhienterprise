@@ -968,6 +968,7 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('business_label', '核心业务', '核心业务栏目名称（可改为：产品中心/服务项目/解决方案）', NOW(), NOW()),
 ('home_layout', '', '首页模板：留空=文章列表（默认）；business=企业官网区块化模板（home_page_slug 已设置时自定义页面优先）', NOW(), NOW()),
+('site_template', 'consult', '企业官网行业模板：consult 管理咨询 / tech 信息技术 / mfg 制造业 / trade 商贸 / digital 数码产品', NOW(), NOW()),
 ('contact_phone', '', '联系电话（官网联系信息展示）', NOW(), NOW()),
 ('contact_address', '', '联系地址（官网联系信息展示）', NOW(), NOW());
 

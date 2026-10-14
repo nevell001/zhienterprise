@@ -30,6 +30,7 @@ interface BlogSettingsState {
   business_label: string
   contact_phone: string
   contact_address: string
+  site_template: string
   user_agreement_content: string
   privacy_policy_content: string
   author_title: string
@@ -82,6 +83,7 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
       business_label: '核心业务',
       contact_phone: '',
       contact_address: '',
+      site_template: 'consult',
 
       // 其他设置
       user_agreement_content: '',

@@ -269,6 +269,11 @@ import { getApiBaseUrl } from '@/utils/index'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { buildNavMenus, hasCustomHomePage } from '@/utils/blogNav'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
+import {
+  normalizeSiteTemplate,
+  SITE_TEMPLATE_CLASS_NAMES,
+  type SiteTemplateId
+} from '@/config/siteTemplates'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -479,15 +484,26 @@ watch(
   { immediate: true }
 )
 
-// 企业官网模板模式：给 <html> 挂企业主题（稳重蓝色板），仅前台生效，离开公开站点摘除
-watch(isBusinessNavEnabled, applyEnterpriseTheme, { immediate: true })
+// 企业官网模板模式：给 <html> 挂企业主题与行业模板类，仅前台生效，离开公开站点摘除
+const siteTemplateId = computed(() =>
+  normalizeSiteTemplate(blogSettingsStore.blogSettings.site_template)
+)
 
-function applyEnterpriseTheme(enabled: boolean) {
-  document.documentElement.classList.toggle('theme-enterprise', enabled)
+watch([isBusinessNavEnabled, siteTemplateId], applySiteAppearance, { immediate: true })
+
+function applySiteAppearance([enabled, tplId]: [boolean, SiteTemplateId]) {
+  const root = document.documentElement.classList
+  root.toggle('theme-enterprise', enabled)
+  SITE_TEMPLATE_CLASS_NAMES.forEach(cn => root.remove(cn))
+  if (enabled) {
+    root.add('tpl-site', `tpl-${tplId}`)
+  }
 }
 
 onBeforeUnmount(() => {
-  document.documentElement.classList.remove('theme-enterprise')
+  const root = document.documentElement.classList
+  root.remove('theme-enterprise', 'tpl-site')
+  SITE_TEMPLATE_CLASS_NAMES.forEach(cn => root.remove(cn))
   removeJsonLd('zh-jsonld-organization')
 })
 

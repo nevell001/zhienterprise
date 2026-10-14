@@ -1,0 +1,188 @@
+/* ===== 企业官网 · 5 套行业模板 · 变量层 =====
+   设计出处：docs/design/templates/{base.css,themes.css}（两层分离架构）。
+   基类 .tpl-site 提供共用默认（base.css :root），.tpl-xxx 只覆盖差异
+   （主色 / 圆角 / 阴影 / 深色底 / 标题字体）——与原型"改组件改一次，
+   五套同时生效"的约束一致。
+   组件层：views/blog/EnterpriseHome.vue（五套共用，不感知模板差异）。
+   挂载：前台布局在 home_layout=business 时给 <html> 挂 .tpl-site + .tpl-xxx。 */
+
+/* ---------- 基类：共用默认（base.css :root） ---------- */
+.tpl-site {
+  --tpl-p: #1a56db;
+  --tpl-p-h: #1544b0;
+  --tpl-p-sub: #eef3fe;
+  --tpl-p-text: #1a56db;
+  --tpl-p-d: #5b8def;
+  --tpl-accent: #ff6b35;
+  --tpl-ink-900: #0b0f19;
+  --tpl-ink-700: #1f2937;
+  --tpl-ink-500: #4b5563;
+  --tpl-ink-400: #6b7280;
+  --tpl-border: #e5e7eb;
+  --tpl-surface: #f7f8fa;
+  --tpl-bg: #fff;
+  --tpl-white: #fff;
+  --tpl-dark: #0b0f19;
+  --tpl-dark-2: #141b2a;
+  --tpl-dark-dim: #9ca3af;
+  --tpl-grid: 1280px;
+  --tpl-r-sm: 6px;
+  --tpl-r-md: 10px;
+  --tpl-r-lg: 16px;
+  --tpl-r-xl: 24px;
+  --tpl-sh-sm: 0 1px 2px rgba(11, 15, 25, 0.06), 0 1px 3px rgba(11, 15, 25, 0.04);
+  --tpl-sh-md: 0 8px 24px rgba(11, 15, 25, 0.1), 0 2px 6px rgba(11, 15, 25, 0.04);
+  --tpl-serif: inherit;
+}
+
+/* ---------- 1. 管理咨询：指针罗盘 · 方向与决断 ---------- */
+.tpl-consult {
+  --tpl-p: #185fa5;
+  --tpl-p-h: #123f73;
+  --tpl-p-sub: #e6f1fb;
+  --tpl-p-text: #185fa5;
+  --tpl-p-d: #85b7eb;
+  --tpl-accent: #c2410c;
+  --tpl-r-sm: 4px;
+  --tpl-r-md: 6px;
+  --tpl-r-lg: 8px;
+  --tpl-r-xl: 12px;
+  --tpl-serif: 'Noto Serif SC', Georgia, serif;
+}
+
+/* ---------- 2. 信息技术：节点连接 · 架构与连接 ---------- */
+.tpl-tech {
+  --tpl-p: #0f6e56;
+  --tpl-p-h: #0a5341;
+  --tpl-p-sub: #e1f5ee;
+  --tpl-p-text: #0f6e56;
+  --tpl-p-d: #5dcaa5;
+  --tpl-accent: #e9a23b;
+  --tpl-r-sm: 6px;
+  --tpl-r-md: 10px;
+  --tpl-r-lg: 16px;
+  --tpl-r-xl: 24px;
+}
+
+/* ---------- 3. 制造业：模块榫接 · 结构与咬合 ---------- */
+.tpl-mfg {
+  --tpl-p: #b0442a;
+  --tpl-p-h: #8a3420;
+  --tpl-p-sub: #faece7;
+  --tpl-p-text: #b0442a;
+  --tpl-p-d: #f0997b;
+  --tpl-accent: #185fa5;
+  --tpl-r-sm: 3px;
+  --tpl-r-md: 5px;
+  --tpl-r-lg: 6px;
+  --tpl-r-xl: 8px;
+  --tpl-dark: #1c1512;
+  --tpl-dark-2: #251c18;
+  --tpl-sh-sm: 0 1px 2px rgba(28, 21, 18, 0.08), 0 1px 3px rgba(28, 21, 18, 0.05);
+  --tpl-sh-md: 0 8px 24px rgba(28, 21, 18, 0.12), 0 2px 6px rgba(28, 21, 18, 0.06);
+}
+
+/* 制造业：区块标题加一道工业感的细竖线（原型 themes.css） */
+.tpl-mfg .tpl-sec-head h2 {
+  position: relative;
+  padding-left: 16px;
+}
+
+.tpl-mfg .tpl-sec-head h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.28em;
+  bottom: 0.28em;
+  width: 3px;
+  background: var(--tpl-p);
+  border-radius: 2px;
+}
+
+/* ---------- 4. 商贸：流通曲线 · 连接与流转 ---------- */
+.tpl-trade {
+  --tpl-p: #7c4a9e;
+  --tpl-p-h: #5f3579;
+  --tpl-p-sub: #f3eaf9;
+  --tpl-p-text: #7c4a9e;
+  --tpl-p-d: #c6acda;
+  --tpl-accent: #d4537e;
+  --tpl-r-sm: 8px;
+  --tpl-r-md: 12px;
+  --tpl-r-lg: 20px;
+  --tpl-r-xl: 28px;
+}
+
+/* ---------- 5. 数码产品：产品轮廓 · 实体与细节 ---------- */
+.tpl-digital {
+  --tpl-p: #c2410c;
+  --tpl-p-h: #9a3412;
+  --tpl-p-sub: #fff1e7;
+  --tpl-p-text: #c2410c;
+  --tpl-p-d: #fb923c;
+  --tpl-accent: #0f6e56;
+  --tpl-r-sm: 10px;
+  --tpl-r-md: 14px;
+  --tpl-r-lg: 22px;
+  --tpl-r-xl: 32px;
+  --tpl-sh-sm: 0 2px 6px rgba(11, 15, 25, 0.06), 0 1px 2px rgba(11, 15, 25, 0.04);
+  --tpl-sh-md: 0 12px 32px rgba(11, 15, 25, 0.1), 0 3px 8px rgba(11, 15, 25, 0.04);
+}
+
+/* 数码产品：主视觉偏浅，整体更通透（原型 themes.css） */
+.tpl-digital .tpl-hero-viz {
+  background: linear-gradient(180deg, var(--tpl-p-sub), transparent);
+}
+
+.tpl-consult .tpl-hero-viz,
+.tpl-mfg .tpl-hero-viz {
+  background: transparent;
+}
+
+/* ---------- 滚动入场（移植自 base.css .rv / rv.js 行为约定） ----------
+   降级红线（方案文档 §4.7）：IntersectionObserver 不可用或用户偏好减弱动效时，
+   元素直接呈现终态——绝不允许因动效失败导致内容不可见。 */
+.tpl-site .rv {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tpl-site .rv.in {
+  opacity: 1;
+  transform: none;
+}
+
+.tpl-site .d1 {
+  transition-delay: 0.08s;
+}
+
+.tpl-site .d2 {
+  transition-delay: 0.16s;
+}
+
+.tpl-site .d3 {
+  transition-delay: 0.24s;
+}
+
+.tpl-site .d4 {
+  transition-delay: 0.32s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tpl-site .rv {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .tpl-site {
+    --tpl-ink-500: #374151;
+    --tpl-border: #9ca3af;
+    --tpl-ink-400: #4b5563;
+  }
+}

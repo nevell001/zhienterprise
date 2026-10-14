@@ -138,13 +138,37 @@
 
 ### Phase 3 — 竞争力（v2，按需排期）
 
-- slug 伪静态路由（`/news/{slug}`、`/business/{slug}`，`blog_category.alias` 已有字段）；
+- ~~slug 伪静态路由~~（✅ Phase 2.5/2.6 已完成）；
 - 询盘转化（已定后置）：`blog_message` 字段扩展、新留言通知（复用评论通知链路）、询盘跟进状态；
 - 自定义页面可视化搭建（区块化结构化字段 + 前端组件渲染）；
-- 模板市场 / 一键换主题。
+- ~~模板市场 / 一键换主题~~（✅ 首批落地，见 Phase 3.1）。
+
+### Phase 3.1 — 5 套行业模板与模板切换（✅ 已完成，2026-10-14）
+
+严格按 `docs/design/` 体系落地（企业官网UI-UX架构方案.md 规范基线 +
+templates/ 的两层分离架构）：
+
+1. ✅ **两层架构**：`config/siteTemplates.ts`（注册表：5 套行业模板的文案配置
+   CONF / 母题主视觉 MOTIFS / 方案卡插画 ART，全部自原型移植）+
+   `themes/site-templates.scss`（变量层：`.tpl-site` 基类默认 + `.tpl-consult/
+   tech/mfg/trade/digital` 只覆盖主色/圆角/阴影/深色底/标题字体，含
+   制造业竖线标题、数码浅色 Hero 差异与 reduced-motion/contrast 降级）；
+2. ✅ **首页模板化重做**：`EnterpriseHome.vue` 按原型首页 10 模块结构实现
+   （Hero+信任指标 → 核心业务两卡 → 解决方案精选 → 数据成果深色区 →
+   Logo 墙 → 新闻动态 → 转化区块），滚动入场动效按 §4.3/§4.7 落地
+   （`useScrollReveal`：IO 0.15 触发即 unobserve，不支持/减弱动效直接终态）；
+   动态数据接入：核心业务=business 文章、新闻=news 文章、Logo 墙=友链，
+   空数据回退设计稿占位；
+3. ✅ **模板切换**：设置键 `site_template`（白名单 + 种子 + 管理端「站点信息 →
+   行业模板」下拉带主色点）→ 前台 `<html>` 挂 `.tpl-site .tpl-xxx`
+   （仅企业官网模板模式，离开公开站点摘除），非法值回退默认管理咨询模板；
+4. ✅ **契约**：组件样式全走 `--tpl-*` 变量（字号/间距尽量 `--mo-*` token，
+   通过字号/间距/裸 hex 三道棘轮），新增 6 个模板单测。
+
+   备注：模板差异当前作用于企业首页（差异最集中处）；about/honor/history/
+   news/contact 内页的模板化视觉随后续批次跟进。
 
 ## 四、验收口径
-
 - Phase 1 完成后：一个服务型企业可以在**不写代码**的情况下，用后台完成
   「改导航文案 → 建核心业务条目 → 首页出现业务区块 → 发布一条公司动态」的完整闭环；
 - 每阶段保持：`mvn clean install -DskipTests` 通过、`npm run test` 通过、
