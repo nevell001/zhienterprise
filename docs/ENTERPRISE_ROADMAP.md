@@ -93,6 +93,32 @@
 2. ✅ **sitemap 补全**：收录启用中的分类页（alias 优先）；企业模板模式下
    联系页 `/blog/contact` 一并入图。
 
+### Phase 2.7 — 伪静态链路安全与性能复查（✅ 已完成，2026-10-14）
+
+复查范围：article_type/伪静态/主题/JSON-LD/联系页全部新增链路。已修复：
+
+1. 🔒 **安全回归修复**：分类详情接口重构时丢失了旧代码的 `del_flag` 校验，
+   数字 ID 路径会返回已删除分类——`resolveFrontCategory` 数字路径补回删除过滤
+   （status 口径与历史行为保持一致）；alias 路径本就只命中启用分类。
+2. ⚡ **索引补齐**：`idx_slug` 此前只写在 CREATE TABLE（仅全新库有），
+   已用 `sp_create_index_if_not_exists` 补幂等迁移；顺带给 `blog_category.alias`
+   加 `idx_alias`（伪静态点查列）。
+3. ⚡ **详情单查询**：slug 路径原本解析一次 + 按 ID 重取一次；
+   `selectBlogArticleBySlug` 列集与 ById 对齐后去掉二次查询，slug 流量减半。
+
+复查确认无问题项：新查询全部参数化（无注入面）；sitemap `writeUrl` 已做 XML 转义
+（覆盖 admin 可控的 slug/alias）；JSON-LD 走 `textContent + JSON.stringify`（无 XSS）；
+前台 `v-html` 统一经 `sanitizeArticleContent`；slug 查询只命中已发布文章（草稿不可探测）；
+详情/正则字符集约束齐备。
+
+留作后续的性能可选项（当前数据量下无感，先记录）：
+
+- 企业首页模板每次访问发 4 个请求、`/blog/stats/overview` 每次跑 5 个聚合 COUNT，
+  可考虑短 TTL 缓存（复用 Redis，参照站点设置 600s 缓存模式）；
+- `/sitemap.xml` 每次全量生成，文章量大后可加缓存；
+- 分类页「解析分类 → 加载文章」为串行两请求，可改走已支持 alias 的
+  `/blog/article/category/{key}` 并行化。
+
 ### Phase 2 — 完善批次（✅ 已完成，2026-10-14）
 
 1. ✅ **文章级 TDK**：`blog_article` 补 `seo_title/seo_keywords/seo_description`
