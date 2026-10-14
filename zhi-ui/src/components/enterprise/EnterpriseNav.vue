@@ -26,6 +26,8 @@
           </router-link>
           <div class="drop">
             <router-link to="/blog/about">企业简介</router-link>
+            <router-link to="/blog/honors">荣誉资质</router-link>
+            <router-link to="/blog/history">发展历程</router-link>
           </div>
         </li>
         <li>

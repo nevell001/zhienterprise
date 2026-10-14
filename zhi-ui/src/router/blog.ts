@@ -91,6 +91,20 @@ export const blogRoutes: RouteRecordRaw[] = [
     meta: { title: '关于我们' }
   },
   {
+    // 荣誉资质（关于我们子页，方案文档 §1.3）
+    path: '/blog/honors',
+    component: () => import('@/views/blog/honors.vue'),
+    name: 'PublicHonors',
+    meta: { title: '荣誉资质' }
+  },
+  {
+    // 发展历程（关于我们子页，阶段化时间轴）
+    path: '/blog/history',
+    component: () => import('@/views/blog/history.vue'),
+    name: 'PublicHistory',
+    meta: { title: '发展历程' }
+  },
+  {
     path: '/blog/guestbook',
     component: () => import('@/views/blog/guestbook/index.vue'),
     name: 'PublicBlogGuestbook',

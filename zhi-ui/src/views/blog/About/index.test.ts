@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import About from '../about.vue'
@@ -6,63 +6,36 @@ import About from '../about.vue'
 const source = readFileSync(resolve(__dirname, '../about.vue'), 'utf8')
 
 describe('About 页面测试', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
   it('应该导出 About 组件', () => {
     expect(About).toBeDefined()
     expect(typeof About).toBe('object')
   })
 
-  it('应该有关于页面内容', () => {
-    const hasContent = true
-    expect(hasContent).toBe(true)
+  it('模板化根结构：tpl-site 根类 + 页头（eyebrow / 主标题 / 副标题）', () => {
+    expect(source).toContain('class="tpl-site about-page mo-home-page"')
+    expect(source).toContain('class="aph"')
+    expect(source).toContain('eyebrow')
+    expect(source).toContain('aph-title')
+    expect(source).toContain('aph-sub')
   })
 
-  it('应该有页面标题', () => {
-    const title = '关于我们'
-    expect(title).toBe('关于我们')
+  it('企业简介正文来自页面管理 slug=about 的已发布页面', () => {
+    expect(source).toContain("getPublishedPageBySlug('about')")
+    expect(source).toContain('customAboutContent')
   })
 
-  it('应该有项目信息', () => {
-    const projectInfo = {
-      name: '知企建站系统',
-      version: '1.0.0',
-      author: 'Nevell'
-    }
-    expect(projectInfo.name).toBe('知企建站系统')
-    expect(projectInfo.version).toBe('1.0.0')
+  it('正文必须经与前台统一的消毒管线渲染', () => {
+    expect(source).toContain('sanitizeArticleContent(renderMarkdown(raw))')
+    expect(source).toContain('v-html="aboutContentHtml"')
   })
 
-  it('应该有技术栈信息', () => {
-    const techStack = ['Vue 3', 'Spring Boot', 'TypeScript', 'MySQL']
-    expect(Array.isArray(techStack)).toBe(true)
-    expect(techStack.length).toBe(4)
+  it('数据概览接入公开统计接口（不虚构数字）', () => {
+    expect(source).toContain('getPublicStatisticsOverview')
+    expect(source).toContain('statItems')
   })
 
-  it('应该有联系信息', () => {
-    const contactInfo = {
-      email: 'test@example.com',
-      github: 'https://github.com/nevell001/zhienterprise'
-    }
-    expect(contactInfo.email).toBe('test@example.com')
-    expect(contactInfo.github).toContain('github.com')
-  })
-
-  it('深色模式文字必须使用重映射后的文字色阶（n50/n900 是背景色）', () => {
-    const darkBlock = source.slice(source.indexOf('html.dark'))
-    // 标题用主文字色 n200，正文用次要文字色 n500；不得把背景色阶当文字色
-    expect(darkBlock).toContain('color: var(--mo-n200)')
-    expect(darkBlock).toContain('color: var(--mo-n500)')
-    expect(darkBlock).not.toMatch(/(?:^|[;{\s])color:\s*var\(--mo-n(?:0|50|800|900)\)/)
-  })
-
-  it('深色模式正文链接应该使用浅色阶（p700/p800 在深色底上几乎不可见）', () => {
-    const darkBlock = source.slice(source.indexOf('html.dark'))
-    expect(darkBlock).toContain('html.dark .about-content :deep(a)')
-    expect(darkBlock).toContain('color: var(--mo-p300)')
-    expect(darkBlock).toContain('html.dark .about-content :deep(a:hover)')
-    expect(darkBlock).toContain('color: var(--mo-p200)')
+  it('提供荣誉资质/发展历程入口', () => {
+    expect(source).toContain('to="/blog/honors"')
+    expect(source).toContain('to="/blog/history"')
   })
 })

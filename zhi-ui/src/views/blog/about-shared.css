@@ -1,0 +1,208 @@
+/* 关于我们三页（企业简介/荣誉资质/发展历程）共享样式。
+   变量层见 assets/styles/themes/site-templates.scss（.tpl-site 基类 + .tpl-xxx），
+   颜色一律引用 --tpl-*，字号间距尽量 --mo-* token。 */
+
+.eh-wrap {
+  max-width: var(--tpl-grid);
+  margin: 0 auto;
+  padding: 0 var(--mo-sp-7);
+}
+
+.pad {
+  padding: var(--mo-sp-12) 0;
+}
+
+.pad.surface {
+  background: var(--tpl-surface);
+}
+
+.sec-tag {
+  font-size: var(--mo-fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--tpl-p-text);
+  margin-bottom: var(--mo-sp-3);
+}
+
+.tpl-sec-head {
+  margin-bottom: var(--mo-sp-11);
+}
+
+.tpl-sec-head h2 {
+  margin: 0 0 var(--mo-sp-3);
+  font-size: var(--mo-fs-5xl);
+  color: var(--tpl-ink-900);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.tpl-sec-head p {
+  margin: 0;
+  font-size: var(--mo-fs-md);
+  color: var(--tpl-ink-500);
+  max-width: 620px;
+}
+
+/* ---------- 页头 ---------- */
+.aph {
+  padding: calc(var(--mo-sp-12) + 64px) 0 var(--mo-sp-11);
+  background:
+    radial-gradient(circle at 15% 20%, var(--tpl-p-sub), transparent 42%),
+    var(--tpl-bg);
+  border-bottom: 1px solid var(--tpl-border);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--mo-fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--tpl-p-text);
+  background: var(--tpl-p-sub);
+  padding: var(--mo-sp-1) var(--mo-sp-3);
+  border-radius: 999px;
+  margin-bottom: var(--mo-sp-6);
+}
+
+.aph-title {
+  margin: 0 0 var(--mo-sp-4);
+  font-size: var(--mo-fs-7xl);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--tpl-ink-900);
+  font-family: var(--tpl-serif);
+}
+
+.aph-sub {
+  font-size: var(--mo-fs-lg);
+  line-height: 1.75;
+  color: var(--tpl-ink-500);
+  max-width: 640px;
+  margin: 0;
+}
+
+/* ---------- 正文 ---------- */
+.aph-body-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.aph-content {
+  color: var(--tpl-ink-700);
+  font-size: var(--mo-fs-md);
+  line-height: 1.85;
+  max-width: 720px;
+  word-break: break-word;
+}
+
+.aph-content :deep(h1),
+.aph-content :deep(h2),
+.aph-content :deep(h3) {
+  color: var(--tpl-ink-900);
+  margin: var(--mo-sp-7) 0 var(--mo-sp-3);
+}
+
+.aph-content :deep(img) {
+  max-width: 100%;
+  border-radius: var(--tpl-r-lg);
+}
+
+.aph-content :deep(a) {
+  color: var(--tpl-p-text);
+}
+
+/* ---------- 数据概览 ---------- */
+.aph-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--mo-sp-5);
+}
+
+.aph-stat {
+  background: var(--tpl-bg);
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  padding: var(--mo-sp-7);
+  text-align: center;
+}
+
+.aph-stat b {
+  display: block;
+  font-size: var(--mo-fs-4xl);
+  color: var(--tpl-ink-900);
+  letter-spacing: -0.02em;
+}
+
+.aph-stat span {
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-400);
+}
+
+/* ---------- 荣誉/历程入口卡 ---------- */
+.aph-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--mo-sp-6);
+}
+
+.aph-link-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mo-sp-2);
+  padding: var(--mo-sp-8);
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  background: var(--tpl-surface);
+  text-decoration: none;
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s,
+    border-color 0.3s;
+}
+
+.aph-link-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--tpl-sh-md);
+  border-color: var(--tpl-p);
+}
+
+.aph-link-title {
+  font-size: var(--mo-fs-xl);
+  font-weight: 600;
+  color: var(--tpl-ink-900);
+}
+
+.aph-link-desc {
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-400);
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 991px) {
+  .eh-wrap {
+    padding: 0 var(--mo-sp-5);
+  }
+
+  .pad {
+    padding: var(--mo-sp-11) 0;
+  }
+
+  .aph {
+    padding: calc(var(--mo-sp-10) + 64px) 0 var(--mo-sp-9);
+  }
+
+  .aph-title {
+    font-size: var(--mo-fs-5xl);
+  }
+
+  .aph-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .aph-links {
+    grid-template-columns: 1fr;
+  }
+}

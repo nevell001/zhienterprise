@@ -104,14 +104,23 @@ describe('Blog Routes 详细测试', () => {
     expect(detail?.meta?.title).toBe('业务详情')
   })
 
+  it('荣誉资质/发展历程路由应该有正确的路径与标题（关于我们子页）', () => {
+    const honors = blogRoutes.find(r => r.path === '/blog/honors')
+    expect(honors?.name).toBe('PublicHonors')
+    expect(honors?.meta?.title).toBe('荣誉资质')
+    const history = blogRoutes.find(r => r.path === '/blog/history')
+    expect(history?.name).toBe('PublicHistory')
+    expect(history?.meta?.title).toBe('发展历程')
+  })
+
   it('联系我们路由应该有正确的路径、组件与标题（企业官网模板入口）', () => {
     const route = blogRoutes.find(r => r.path === '/blog/contact')
     expect(route?.name).toBe('PublicContact')
     expect(route?.meta?.title).toBe('联系我们')
   })
 
-  it('路由总数应该为 25 个', () => {
-    expect(blogRoutes.length).toBe(25)
+  it('路由总数应该为 27 个', () => {
+    expect(blogRoutes.length).toBe(27)
   })
 
   it('留言板路由应该有正确的路径、组件与标题', () => {

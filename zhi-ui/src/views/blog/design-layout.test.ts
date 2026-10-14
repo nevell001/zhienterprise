@@ -105,12 +105,13 @@ describe('blog design layout guards', () => {
     expect(forgotPasswordView).toContain("router.push('/blog/auth/login')")
   })
 
-  it('关于页应降噪为当前主题页面结构', () => {
-    expect(aboutView).toContain('class="about-page mo-about-page"')
-    expect(aboutView).toContain('class="about-shell"')
-    expect(aboutView).toContain('class="about-panel about-hero"')
-    expect(aboutView).toContain('var(--mo-p600)')
-    expect(aboutView).toContain('var(--mo-n50)')
+  it('关于页应为模板化叙事页（tpl 体系 + 企业简介/荣誉/历程结构）', () => {
+    expect(aboutView).toContain('class="tpl-site about-page mo-home-page"')
+    expect(aboutView).toContain('class="aph"')
+    expect(aboutView).toContain('to="/blog/honors"')
+    expect(aboutView).toContain('to="/blog/history"')
+    // 样式走 --tpl-* 变量层，不再引用 mo 主题组件皮肤 token
+    expect(aboutView).toContain('sanitizeArticleContent(renderMarkdown(raw))')
     expect(aboutView).not.toContain('email-icon')
     expect(aboutView).not.toContain('github-icon')
     expect(aboutView).not.toContain('weibo-icon')
