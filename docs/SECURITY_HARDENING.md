@@ -197,6 +197,8 @@ find "$OUT" -type f -mtime +14 -delete
 ### 2.7 `[P1]` 运行时可观测与告警
 
 - 保留 `Actuator/Prometheus` 仅供内网（本仓库监控页已走 `127.0.0.1` 绑定 + nginx 代理）；
+- Prometheus/Grafana 在生产 compose 里归入 `monitoring` profile：**默认不随 `up -d` 启动**，
+  企业站点交付零负担；自用运维时 `docker compose -f docker-compose.prod.yml --profile monitoring up -d` 显式启用；
 - 对登录失败率、5xx 比例、磁盘/内存设置阈值告警；
 - 日志至少保留 30 天，并确认日志里不会打印验证码明文（只在 `EMAIL_DEV_PRINT_CODE=true` 的 dev 才打印，
   生产 `application-prod.yml` 已显式关闭）。
@@ -318,6 +320,7 @@ crontab -l -u deploy                            # 备份任务存在
 ## 6. 本仓库已做的相关加固（对照用，勿回退）
 
 - 生产 compose 的 admin/前端端口绑定 `127.0.0.1`，对外只经 nginx；
+- 监控栈（Prometheus/Grafana）归入 `monitoring` profile，默认不随 `up -d` 启动，减小攻击面与内存占用；
 - `docker-compose.prod.yml` 的 `zhi-admin` 使用 `env_file: .env`，密钥不写进编排文件；
 - 生产 `application-prod.yml` 显式 `email-code.dev-print-code: false`（不在日志里打印验证码）；
 - `SecurityConfigValidator` 在生产缺 `R_TOKEN_SECRET`/`DRUID_PASSWORD`/`REDIS_PASSWORD`/`DB_PASSWORD` 时**阻止启动**；

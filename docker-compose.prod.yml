@@ -179,9 +179,13 @@ services:
       retries: 3
       start_period: 30s
 
+  # 监控栈（可选）：默认不随 `up -d` 启动，企业站点交付零负担；自用运维时显式启用：
+  #   docker compose -f docker-compose.prod.yml --profile monitoring up -d
+  # 停用时执行 --profile monitoring down 以免遗留 restart:always 的孤儿容器
   prometheus:
     image: prom/prometheus:v2.54.1
     container_name: prometheus
+    profiles: ["monitoring"]
     restart: always
     ports:
       - "127.0.0.1:9090:9090"  # 仅本地访问，安全考虑
@@ -208,6 +212,7 @@ services:
   grafana:
     image: grafana/grafana:11.3.1
     container_name: grafana
+    profiles: ["monitoring"]
     restart: always
     ports:
       - "127.0.0.1:3001:3000"  # 仅本地访问，安全考虑

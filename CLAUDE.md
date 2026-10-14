@@ -58,6 +58,8 @@ docker compose -f docker-compose.prod.yml up -d --build   # Production
 
 No default `docker-compose.yml` exists - must specify dev or prod.
 
+**Monitoring stack (optional)**: Prometheus/Grafana in prod compose are behind `profiles: ["monitoring"]` — enterprise deliveries get `up -d` without them; operators enable via `docker compose -f docker-compose.prod.yml --profile monitoring up -d`.
+
 ### Database
 
 ```bash

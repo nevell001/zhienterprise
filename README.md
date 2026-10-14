@@ -10,7 +10,7 @@
 - **统计完善**：按访客去重的浏览量、每日 PV/UV 聚合、访问明细（可筛选/导出/清理）
 - **安全**：JWT + 图形验证码 + 邮箱码防爆破、IP 限流、XSS 消毒、防盗链白名单后台化
 - **权限与开关**：Spring Security 细粒度权限；站点功能开关前台隐藏入口且接口拒绝
-- **一键部署**：Docker Compose 管理前后端、MySQL、Redis 与 Prometheus/Grafana
+- **一键部署**：Docker Compose 管理前后端、MySQL、Redis；Prometheus/Grafana 监控栈可选（`--profile monitoring` 启用）
 
 ## 🌐 访问方式
 
@@ -19,7 +19,7 @@
 | 站点前台 | http://localhost:3000/blog |
 | 管理后台 | http://localhost:3000/admin |
 | API 文档 | http://localhost:8080/swagger-ui.html |
-| Prometheus / Grafana | http://localhost:9090 / http://localhost:3001 |
+| Prometheus / Grafana | http://localhost:9090 / http://localhost:3001（需 `--profile monitoring` 启用） |
 
 默认账号 `admin`（首次登录请修改默认密码）。
 
@@ -197,7 +197,7 @@ R_TOKEN_SECRET={your_secret_key}
 5. **注册页提示「未开放注册」**：`sys.account.registerUser` 默认关闭，去「站点设置 → 功能设置 → 用户注册」打开（只认字面 `true`，且必须走后台，直接改库不会生效）
 6. **媒体删除后文件仍在 / 角色 2 看不到媒体管理**：前者是“尽力删除”（占用时仅删记录）；后者确认已重跑 00 并在角色管理中补勾权限
 7. **个人中心 404、登录后闪退、改了前端代码页面没变化**：确认后端已重启；前端清浏览器缓存，容器内 dev server 已启用轮询监听
-8. **监控页里的 Prometheus/Grafana 地址是 localhost 或打不开**：地址按「站点访问地址」推导，先确认后台该地址已填成真实域名；也可在「监控入口」里直接写完整地址。生产环境这两个服务默认只监听 `127.0.0.1`（安全考虑），外网访问需自行反代或走 SSH 隧道
+8. **监控页里的 Prometheus/Grafana 地址是 localhost 或打不开**：地址按「站点访问地址」推导，先确认后台该地址已填成真实域名；也可在「监控入口」里直接写完整地址。生产环境这两个服务默认只监听 `127.0.0.1`（安全考虑），外网访问需自行反代或走 SSH 隧道；且监控栈默认不随 `up -d` 启动，需 `docker compose -f docker-compose.prod.yml --profile monitoring up -d` 显式启用
 
 ## 📄 许可证
 
