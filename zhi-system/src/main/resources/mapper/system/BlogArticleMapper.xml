@@ -91,12 +91,13 @@
         order by ba.create_time desc, ba.id desc
     </select>
 
+    <!-- slug 解析专用：列集与 ById 对齐，前台详情解析一次即可返回，无需二次回表 -->
     <select id="selectBlogArticleBySlug" parameterType="String" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.article_type,
-               ba.seo_title, ba.seo_keywords, ba.seo_description, ba.slug,
-               ba.cover_url, ba.category_id, ba.author_id, ba.author_name, ba.is_top,
-               ba.is_recommend, ba.status, ba.view_count, ba.like_count, ba.comment_count,
-               ba.create_time, ba.update_time, ba.del_flag, bc.name as category_name
+        select ba.id, ba.title, ba.summary, ba.content, ba.content_md, ba.format, ba.article_type,
+               ba.seo_title, ba.seo_keywords, ba.seo_description, ba.slug, ba.cover_url, ba.category_id,
+               ba.author_id, ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time,
+               ba.view_count, ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+               bc.name as category_name
         from blog_article ba
         left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
         where ba.slug = #{slug} and ba.del_flag = 0 and ba.status = 1

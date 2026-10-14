@@ -2373,6 +2373,10 @@ PREPARE add_article_slug_stmt FROM @add_article_slug;
 EXECUTE add_article_slug_stmt;
 DEALLOCATE PREPARE add_article_slug_stmt;
 
+-- 幂等索引：伪静态查询列（slug/alias 的解析查询走点查，早期库重跑补齐索引）
+CALL sp_create_index_if_not_exists('blog_article', 'idx_slug', 'CREATE INDEX idx_slug ON blog_article(slug)');
+CALL sp_create_index_if_not_exists('blog_category', 'idx_alias', 'CREATE INDEX idx_alias ON blog_category(alias)');
+
 -- 老库升级：补齐 blog_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_friend_link' AND COLUMN_NAME = 'email');

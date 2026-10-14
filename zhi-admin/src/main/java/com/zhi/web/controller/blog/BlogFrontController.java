@@ -335,15 +335,8 @@ public class BlogFrontController extends BaseController
             // 即使增加浏览量失败，也继续返回文章详情
         }
 
-        blogArticle = blogArticleService.selectBlogArticleById(id);
-        if (blogArticle == null) {
-            logger.warn("文章不存在，ID: {}", id);
-            return error("文章不存在");
-        }
-
         logger.info("找到文章，ID: {}, 状态: {}, 删除标记: {}, 浏览量: {}",
             id, blogArticle.getStatus(), blogArticle.getDelFlag(), blogArticle.getViewCount());
-        // slug 入口时上面已按 key 解析过一次；此处保持按 ID 重取完整字段（含 content_md/format）
         
         // 确保所有字段都有值，避免null
         if (blogArticle.getStatus() == null) {
@@ -918,7 +911,16 @@ public class BlogFrontController extends BaseController
         }
         if (key.chars().allMatch(Character::isDigit)) {
             try {
-                return blogCategoryService.selectBlogCategoryById(Long.parseLong(key));
+                BlogCategory category = blogCategoryService.selectBlogCategoryById(Long.parseLong(key));
+                // 数字 ID 路径保留旧接口的删除校验（status 不限，与历史行为一致）
+                if (category == null) {
+                    return null;
+                }
+                String delFlag = category.getDelFlag();
+                if (delFlag != null && !"0".equals(delFlag)) {
+                    return null;
+                }
+                return category;
             } catch (NumberFormatException e) {
                 return null;
             }
