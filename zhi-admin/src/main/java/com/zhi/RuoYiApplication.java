@@ -3,7 +3,6 @@ package com.zhi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import com.zhi.common.config.ImageCompressConfig;
@@ -11,9 +10,14 @@ import com.zhi.common.config.ImageCompressConfig;
 /**
  * 启动程序
  *
+ * 注意：不要排除 DataSourceAutoConfiguration——Druid 的 DruidDataSourceWrapper
+ * 需要容器中存在 DataSourceProperties bean（Boot 3.5 + Druid 1.2.28 起为必填依赖）。
+ * 该自动配置只会创建属性对象，真正的数据源仍由 DruidConfig 的
+ * master/slave/dynamicDataSource 提供（@ConditionalOnMissingBean 自动让位）。
+ *
  * @author ruoyi
  */
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, RedisAutoConfiguration.class })
+@SpringBootApplication(exclude = { RedisAutoConfiguration.class })
 @ComponentScan(basePackages = {"com.zhi", "com.zhi.system.controller"})
 @EnableConfigurationProperties({ImageCompressConfig.class})
 @org.springframework.scheduling.annotation.EnableScheduling

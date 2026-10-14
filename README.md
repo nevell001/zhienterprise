@@ -1,6 +1,6 @@
 # 知企建站系统（ZhiEnterprise）
 
-面向企业官网的建站系统：Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript。
+面向企业官网的建站系统：Spring Boot 3.5 + Vue 3 + Element Plus + TypeScript。
 
 ## 🚀 项目特色
 
@@ -152,7 +152,7 @@ zhienterprise/
 
 ## 🏗️ 技术栈
 
-- **后端**：Spring Boot 3.3 / Java 17、MyBatis + PageHelper、MySQL 8.4、Redis 6.2、Spring Security 6 + JWT、flexmark（Markdown 渲染）、Thumbnailator（图片压缩）、Quartz
+- **后端**：Spring Boot 3.5 / Java 17、MyBatis + PageHelper、MySQL 8.4、Redis 6.2、Spring Security 6 + JWT、flexmark（Markdown 渲染）、Thumbnailator（图片压缩）、Quartz
 - **前端**：Vue 3.5 / TypeScript 5.9 / Vite 7、Element Plus 2.13、Pinia、Vue Router、Quill + marked、DOMPurify、ECharts
 
 ## 🔧 配置说明

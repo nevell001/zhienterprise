@@ -13,8 +13,7 @@ services:
       - sh
       - -c
       - |
-        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
-        echo $TZ > /etc/timezone
+        # 时区由镜像构建时写入（Dockerfile-admin 以 root 完成），容器以非 root 运行时不可重写
         for i in {1..60}; do
           curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2
         done

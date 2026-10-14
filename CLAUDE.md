@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ZhiEnterprise (知企建站系统) is a full-stack enterprise website building system built on Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript. The backend is a multi-module Maven project based on RuoYi-Vue 3.9.1, upgraded to Jakarta EE and Java 17.
+ZhiEnterprise (知企建站系统) is a full-stack enterprise website building system built on Spring Boot 3.5 + Vue 3 + Element Plus + TypeScript. The backend is a multi-module Maven project based on RuoYi-Vue 3.9.1, upgraded to Jakarta EE and Java 17.
 
 **Current Version**: v1.0.0 (defined in `pom.xml`)
 
