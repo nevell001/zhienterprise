@@ -21,7 +21,7 @@ import com.zhi.system.service.IBlogNotificationService;
  * @date 2026-07-26
  */
 @RestController
-@RequestMapping("/blog/notification")
+@RequestMapping("/api/notification")
 public class BlogNotificationController extends BaseController
 {
     @Autowired

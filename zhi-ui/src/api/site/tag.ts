@@ -6,7 +6,7 @@ import type { Tag, PageParams, QueryResult } from '@/types'
  */
 export function getTagList(query?: PageParams): Promise<QueryResult<Tag>> {
   return request({
-    url: '/blog/api/tag/list',
+    url: '/api/tag/list',
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -18,7 +18,7 @@ export function getTagList(query?: PageParams): Promise<QueryResult<Tag>> {
  */
 export function getTagDetail(id: number): Promise<Tag & { data?: Tag }> {
   return request({
-    url: '/blog/api/tag/' + id,
+    url: '/api/tag/' + id,
     method: 'get',
     headers: { isToken: false }
   })
@@ -29,7 +29,7 @@ export function getTagDetail(id: number): Promise<Tag & { data?: Tag }> {
  */
 export function getTagCloud(): Promise<Tag[] & { data?: Tag[] }> {
   return request({
-    url: '/blog/api/tag/cloud',
+    url: '/api/tag/cloud',
     method: 'get',
     headers: { isToken: false }
   })
@@ -40,7 +40,7 @@ export function getTagCloud(): Promise<Tag[] & { data?: Tag[] }> {
  */
 export function getArticlesByTag(tagId: number, query?: PageParams): Promise<any> {
   return request({
-    url: '/blog/api/article/tag/' + tagId,
+    url: '/api/article/tag/' + tagId,
     method: 'get',
     params: query,
     headers: { isToken: false }

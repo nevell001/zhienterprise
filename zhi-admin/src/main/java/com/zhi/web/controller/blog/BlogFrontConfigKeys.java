@@ -3,7 +3,7 @@ package com.zhi.web.controller.blog;
 /**
  * 前台可匿名访问的站点配置键白名单。
  *
- * 两个前台设置接口（/blog/setting 与 /common/blog/setting）共用同一份白名单，
+ * 两个前台设置接口（/api/setting 与 /common/api/setting）共用同一份白名单，
  * 避免各自维护导致键集合漂移。
  *
  * @author zhi

@@ -47,13 +47,13 @@ public class GenUtilsTest {
         // 测试表名转换成Java类名
         assertEquals("SysUser", GenUtils.convertClassName("sys_user"));
         assertEquals("SysRole", GenUtils.convertClassName("sys_role"));
-        assertEquals("BlogArticle", GenUtils.convertClassName("zhi_article"));
+        assertEquals("ZhiArticle", GenUtils.convertClassName("zhi_article"));
     }
 
     @Test
     public void testReplaceFirst() {
         // 测试批量替换前缀
-        String[] searchList = {"sys_", "blog_"};
+        String[] searchList = {"sys_", "zhi_"};
         assertEquals("user", GenUtils.replaceFirst("sys_user", searchList));
         assertEquals("article", GenUtils.replaceFirst("zhi_article", searchList));
         assertEquals("test", GenUtils.replaceFirst("test", searchList));

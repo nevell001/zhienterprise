@@ -40,7 +40,7 @@ describe('自定义页面 API 测试', () => {
       const result = await getPublishedPages()
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/page/list',
+        url: '/api/page/list',
         method: 'get',
         headers: { isToken: false }
       })
@@ -60,7 +60,7 @@ describe('自定义页面 API 测试', () => {
       const result = await getPublishedPageBySlug('about-site')
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/page/about-site',
+        url: '/api/page/about-site',
         method: 'get',
         headers: { isToken: false }
       })
@@ -73,7 +73,7 @@ describe('自定义页面 API 测试', () => {
       await getPublishedPageBySlug('a b')
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/page/a%20b',
+        url: '/api/page/a%20b',
         method: 'get',
         headers: { isToken: false }
       })

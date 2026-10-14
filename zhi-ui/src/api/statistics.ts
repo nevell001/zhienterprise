@@ -16,7 +16,7 @@ export function getStatisticsOverview(): Promise<any> {
  */
 export function getPublicStatisticsOverview(): Promise<any> {
   return request({
-    url: '/blog/stats/overview',
+    url: '/api/stats/overview',
     method: 'get'
   })
 }

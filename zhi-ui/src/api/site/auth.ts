@@ -18,7 +18,7 @@ export interface SiteRegisterData {
  */
 export function siteRegister(data: SiteRegisterData): Promise<any> {
   return request({
-    url: '/blog/auth/register',
+    url: '/api/auth/register',
     headers: {
       isToken: false,
       repeatSubmit: false
@@ -33,7 +33,7 @@ export function siteRegister(data: SiteRegisterData): Promise<any> {
  */
 export function sendRegisterCode(email: string): Promise<any> {
   return request({
-    url: '/blog/auth/send-register-code',
+    url: '/api/auth/send-register-code',
     headers: {
       isToken: false,
       repeatSubmit: false
@@ -48,7 +48,7 @@ export function sendRegisterCode(email: string): Promise<any> {
  */
 export function sendResetCode(email: string): Promise<any> {
   return request({
-    url: '/blog/auth/send-reset-code',
+    url: '/api/auth/send-reset-code',
     headers: {
       isToken: false,
       repeatSubmit: false
@@ -68,7 +68,7 @@ export function resetPassword(data: {
   confirmPassword: string
 }): Promise<any> {
   return request({
-    url: '/blog/auth/reset-password',
+    url: '/api/auth/reset-password',
     headers: {
       isToken: false,
       repeatSubmit: false

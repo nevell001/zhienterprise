@@ -118,7 +118,7 @@ const hasContactInfo = computed(
 
 const rssUrl = computed(() => {
   const base = getApiBaseUrl().replace(/\/$/, '')
-  return `${base}/blog/rss`
+  return `${base}/api/rss`
 })
 
 const formatUrl = (url?: string) => {

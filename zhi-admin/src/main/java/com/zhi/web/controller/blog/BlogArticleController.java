@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "文章管理（前台）")
 @Anonymous
 @RestController("blogFrontArticleController")
-@RequestMapping("/common/blog/article")
+@RequestMapping("/common/site/article")
 public class BlogArticleController extends BaseController {
 
     @Autowired

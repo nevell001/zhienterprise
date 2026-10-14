@@ -84,7 +84,7 @@ xss:
   # 启用XSS过滤
   enabled: true
   # 排除链接
-  excludes: /blog/**,/api/**,/index
+  excludes: /api/**,/index
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*,/admin/*
 

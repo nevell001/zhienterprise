@@ -26,7 +26,7 @@ import com.zhi.system.service.IBlogSettingService;
  * @date 2026-09-05
  */
 @RestController
-@RequestMapping("/blog/like")
+@RequestMapping("/api/like")
 public class BlogLikeController extends BaseController
 {
     @Autowired

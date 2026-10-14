@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * 留言板前台接口单元测试
- * 覆盖 /blog/message 的服务端校验、审核开关与公开列表
+ * 覆盖 /api/message 的服务端校验、审核开关与公开列表
  */
 class BlogFrontMessageControllerTest
 {
@@ -82,7 +82,7 @@ class BlogFrontMessageControllerTest
         message.setContent("你好");
         when(blogMessageService.selectPublishedMessageList()).thenReturn(Collections.singletonList(message));
 
-        mockMvc.perform(get("/blog/message/list"))
+        mockMvc.perform(get("/api/message/list"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.rows[0].nickname").value("访客"))
@@ -95,7 +95,7 @@ class BlogFrontMessageControllerTest
     {
         when(blogMessageService.selectPublishedMessageCount()).thenReturn(7L);
 
-        mockMvc.perform(get("/blog/message/count"))
+        mockMvc.perform(get("/api/message/count"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data").value(7));
     }
@@ -109,7 +109,7 @@ class BlogFrontMessageControllerTest
     {
         when(blogSettingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("false");
 
-        mockMvc.perform(get("/blog/message/list"))
+        mockMvc.perform(get("/api/message/list"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(500))
             .andExpect(jsonPath("$.msg").value("本站暂未开放留言板"))
@@ -123,7 +123,7 @@ class BlogFrontMessageControllerTest
     {
         when(blogSettingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("0");
 
-        mockMvc.perform(get("/blog/message/count"))
+        mockMvc.perform(get("/api/message/count"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(500))
             .andExpect(jsonPath("$.msg").value("本站暂未开放留言板"));
@@ -152,7 +152,7 @@ class BlogFrontMessageControllerTest
         when(blogSettingService.selectSettingValueByKey("guestbook_enabled")).thenReturn(null);
         when(blogMessageService.selectPublishedMessageCount()).thenReturn(3L);
 
-        mockMvc.perform(get("/blog/message/count"))
+        mockMvc.perform(get("/api/message/count"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.data").value(3));
@@ -309,7 +309,7 @@ class BlogFrontMessageControllerTest
         message.setReplyContent("伪造回复");
         message.setReplyBy("伪造人");
 
-        mockMvc.perform(post("/blog/message")
+        mockMvc.perform(post("/api/message")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("User-Agent", "JUnit-Agent")
                 .content(objectMapper.writeValueAsString(message)))
@@ -422,7 +422,7 @@ class BlogFrontMessageControllerTest
 
     private ResultActions perform(BlogMessage message) throws Exception
     {
-        return mockMvc.perform(post("/blog/message")
+        return mockMvc.perform(post("/api/message")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(message)));
     }

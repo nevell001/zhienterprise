@@ -70,7 +70,7 @@ export function updateSettingValueByKey(key: string, value: string): Promise<Ope
  */
 export function getSiteSettings(): Promise<DataResult<Record<string, unknown>>> {
   return request({
-    url: '/common/blog/setting',
+    url: '/common/site/setting',
     method: 'get',
     headers: { isToken: false },
     params: { _t: Date.now() }
@@ -82,7 +82,7 @@ export function getSiteSettings(): Promise<DataResult<Record<string, unknown>>> 
  */
 export function getSiteSettingsAnonymous(): Promise<DataResult<Record<string, unknown>>> {
   return request({
-    url: '/common/blog/setting',
+    url: '/common/site/setting',
     method: 'get',
     headers: { isToken: false },
     params: { _t: Date.now() }
@@ -94,7 +94,7 @@ export function getSiteSettingsAnonymous(): Promise<DataResult<Record<string, un
  */
 export function clearSiteCache(): Promise<{ code: number; msg: string }> {
   return request({
-    url: '/common/blog/setting/clear-blog-cache',
+    url: '/common/site/setting/clear-site-cache',
     method: 'get'
   })
 }

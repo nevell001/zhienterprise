@@ -35,7 +35,7 @@ import com.zhi.system.service.ICaptchaService;
  * @date 2026-09-10
  */
 @RestController
-@RequestMapping("/blog/message")
+@RequestMapping("/api/message")
 public class BlogFrontMessageController extends BaseController
 {
     /** 昵称最大长度 */

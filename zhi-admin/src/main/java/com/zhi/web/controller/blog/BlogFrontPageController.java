@@ -25,7 +25,7 @@ import com.zhi.system.service.IBlogVisitLogService;
  * @date 2026-09-10
  */
 @RestController
-@RequestMapping("/blog/page")
+@RequestMapping("/api/page")
 public class BlogFrontPageController extends BaseController
 {
     @Autowired

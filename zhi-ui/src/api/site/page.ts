@@ -37,7 +37,7 @@ export interface SitePageDetailResult extends AjaxResult {
  */
 export function getPublishedPages(): Promise<SitePageListResult> {
   return request({
-    url: '/blog/page/list',
+    url: '/api/page/list',
     method: 'get',
     headers: { isToken: false }
   })
@@ -56,7 +56,7 @@ export function getPublishedPageBySlug(
   config?: { silent?: boolean }
 ): Promise<SitePageDetailResult> {
   return request({
-    url: '/blog/page/' + encodeURIComponent(slug),
+    url: '/api/page/' + encodeURIComponent(slug),
     method: 'get',
     headers: { isToken: false },
     ...config

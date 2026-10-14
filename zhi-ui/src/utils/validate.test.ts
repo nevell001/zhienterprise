@@ -140,7 +140,7 @@ describe('validate 工具测试', () => {
 
     it('应该识别相对路径', () => {
       expect(isExternal('/admin/user')).toBe(false)
-      expect(isExternal('/blog/article')).toBe(false)
+      expect(isExternal('/api/article')).toBe(false)
       expect(isExternal('./file.pdf')).toBe(false)
       expect(isExternal('../parent')).toBe(false)
     })

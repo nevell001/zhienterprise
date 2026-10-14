@@ -146,7 +146,7 @@ describe('Comment API 测试', () => {
       await getArticleComments(1)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/comment/article/1',
+        url: '/api/comment/article/1',
         method: 'get',
         params: undefined
       })
@@ -159,7 +159,7 @@ describe('Comment API 测试', () => {
       await getArticleComments(1, query)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/comment/article/1',
+        url: '/api/comment/article/1',
         method: 'get',
         params: query
       })
@@ -184,7 +184,7 @@ describe('Comment API 测试', () => {
       await addSiteComment(comment)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/comment',
+        url: '/api/comment',
         method: 'post',
         data: comment
       })

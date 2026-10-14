@@ -88,7 +88,7 @@ class ArticleListQueryShapeTest
         String block = selectBlock(readXml(), "selectBlogArticleById");
 
         // 曾经只删掉 GROUP BY 却留着两个标签 JOIN：多标签文章返回 N 行，
-        // 前台 /blog/article/{id} 与后台详情一律 500
+        // 前台 /api/article/{id} 与后台详情一律 500
         assertFalse(block.contains("zhi_article_tag"),
             "selectBlogArticleById 不投影标签列，JOIN 会让一行变多行");
         assertFalse(block.toLowerCase().contains("group by"),

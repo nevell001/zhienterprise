@@ -6,7 +6,7 @@ import request from '@/utils/request'
  */
 export function toggleBookmark(articleId: number): Promise<any> {
   return request({
-    url: '/blog/bookmark/toggle/' + articleId,
+    url: '/api/bookmark/toggle/' + articleId,
     method: 'post'
   })
 }
@@ -16,7 +16,7 @@ export function toggleBookmark(articleId: number): Promise<any> {
  */
 export function getBookmarkList(): Promise<any> {
   return request({
-    url: '/blog/bookmark/list',
+    url: '/api/bookmark/list',
     method: 'get'
   })
 }

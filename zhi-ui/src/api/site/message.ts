@@ -40,7 +40,7 @@ export interface SiteMessageCountResult {
  */
 export function getMessageList(query?: PageParams): Promise<TableDataInfo<SiteMessage>> {
   return request({
-    url: '/blog/message/list',
+    url: '/api/message/list',
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -52,7 +52,7 @@ export function getMessageList(query?: PageParams): Promise<TableDataInfo<SiteMe
  */
 export function getMessageCount(): Promise<SiteMessageCountResult> {
   return request({
-    url: '/blog/message/count',
+    url: '/api/message/count',
     method: 'get',
     headers: { isToken: false }
   })
@@ -63,7 +63,7 @@ export function getMessageCount(): Promise<SiteMessageCountResult> {
  */
 export function addMessage(data: SiteMessageForm): Promise<AjaxResult> {
   return request({
-    url: '/blog/message',
+    url: '/api/message',
     method: 'post',
     data,
     headers: { isToken: false }

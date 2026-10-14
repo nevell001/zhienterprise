@@ -19,7 +19,7 @@ import com.zhi.system.service.IBlogBookmarkService;
  * @date 2026-01-18
  */
 @RestController
-@RequestMapping("/blog/bookmark")
+@RequestMapping("/api/bookmark")
 public class BlogBookmarkController extends BaseController {
 
     @Autowired

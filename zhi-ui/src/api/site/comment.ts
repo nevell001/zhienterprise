@@ -62,7 +62,7 @@ export function getArticleComments(
   query?: PageParams & { sort?: 'newest' | 'oldest' }
 ): Promise<any> {
   return request({
-    url: '/blog/comment/article/' + articleId,
+    url: '/api/comment/article/' + articleId,
     method: 'get',
     params: query
   })
@@ -73,7 +73,7 @@ export function getArticleComments(
  */
 export function addSiteComment(data: Comment): Promise<any> {
   return request({
-    url: '/blog/comment',
+    url: '/api/comment',
     method: 'post',
     data: data
   })
@@ -84,7 +84,7 @@ export function addSiteComment(data: Comment): Promise<any> {
  */
 export function updateMyComment(id: number, data: { content: string }): Promise<any> {
   return request({
-    url: '/blog/comment/' + id,
+    url: '/api/comment/' + id,
     method: 'put',
     data: data
   })
@@ -95,7 +95,7 @@ export function updateMyComment(id: number, data: { content: string }): Promise<
  */
 export function deleteMyComment(id: number): Promise<any> {
   return request({
-    url: '/blog/comment/' + id,
+    url: '/api/comment/' + id,
     method: 'delete'
   })
 }

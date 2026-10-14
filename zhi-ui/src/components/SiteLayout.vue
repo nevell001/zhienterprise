@@ -522,7 +522,7 @@ onBeforeUnmount(() => {
 
 const rssUrl = computed(() => {
   const baseUrl = getApiBaseUrl()
-  return `${baseUrl}/blog/rss`
+  return `${baseUrl}/api/rss`
 })
 
 const formatUrl = (url: string) => {

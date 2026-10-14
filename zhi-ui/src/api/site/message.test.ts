@@ -25,7 +25,7 @@ describe('留言板 API 测试', () => {
       await getMessageList(query)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/message/list',
+        url: '/api/message/list',
         method: 'get',
         params: query,
         headers: { isToken: false }
@@ -65,7 +65,7 @@ describe('留言板 API 测试', () => {
       const result = await getMessageCount()
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/message/count',
+        url: '/api/message/count',
         method: 'get',
         headers: { isToken: false }
       })
@@ -91,7 +91,7 @@ describe('留言板 API 测试', () => {
       await addMessage(data)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/message',
+        url: '/api/message',
         method: 'post',
         data,
         headers: { isToken: false }

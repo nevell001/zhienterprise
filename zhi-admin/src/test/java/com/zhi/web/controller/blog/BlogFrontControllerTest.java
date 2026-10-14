@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * 博客前台接口单元测试
- * 覆盖 /blog/comment 的服务端校验与提交链路，以及 /blog/stats/overview 公开统计
+ * 覆盖 /api/comment 的服务端校验与提交链路，以及 /api/stats/overview 公开统计
  */
 class BlogFrontControllerTest
 {
@@ -100,7 +100,7 @@ class BlogFrontControllerTest
     {
         when(blogSettingService.selectSettingValueByKey("search_enabled")).thenReturn("0");
 
-        mockMvc.perform(get("/blog/article/search").param("keyword", "test"))
+        mockMvc.perform(get("/api/article/search").param("keyword", "test"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(500))
             .andExpect(jsonPath("$.msg").value("搜索功能已关闭"))
@@ -116,7 +116,7 @@ class BlogFrontControllerTest
         when(blogTagService.selectBlogTagCount(any(BlogTag.class))).thenReturn(1L);
         when(blogArticleService.selectTotalViewCount()).thenReturn(567L);
 
-        mockMvc.perform(get("/blog/stats/overview"))
+        mockMvc.perform(get("/api/stats/overview"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.data.articleCount").value(12))
@@ -230,7 +230,7 @@ class BlogFrontControllerTest
     private ResultActions perform(BlogComment comment)
         throws Exception
     {
-        return mockMvc.perform(post("/blog/comment")
+        return mockMvc.perform(post("/api/comment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(comment)));
     }
@@ -255,7 +255,7 @@ class BlogFrontControllerTest
         comment.setEmail("secret@example.com"); // 实体即便带 email，前台接口也不允许输出
         when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of(comment), List.of());
 
-        mockMvc.perform(get("/blog/comment/article/1"))
+        mockMvc.perform(get("/api/comment/article/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.rows[0].nickname").value("访客"))
             .andExpect(jsonPath("$.rows[0].content").value("你好"))
@@ -277,7 +277,7 @@ class BlogFrontControllerTest
             .thenReturn(List.of(top))
             .thenReturn(List.of(reply, nestedReply, otherThreadReply));
 
-        mockMvc.perform(get("/blog/comment/article/1"))
+        mockMvc.perform(get("/api/comment/article/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.rows.length()").value(1))
             .andExpect(jsonPath("$.rows[0].id").value(10))
@@ -302,7 +302,7 @@ class BlogFrontControllerTest
     {
         when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of());
 
-        mockMvc.perform(get("/blog/comment/article/1").param("sort", "id desc; drop table zhi_comment"))
+        mockMvc.perform(get("/api/comment/article/1").param("sort", "id desc; drop table zhi_comment"))
             .andExpect(status().isOk());
 
         ArgumentCaptor<BlogComment> captor = ArgumentCaptor.forClass(BlogComment.class);
@@ -315,7 +315,7 @@ class BlogFrontControllerTest
     {
         when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of());
 
-        mockMvc.perform(get("/blog/comment/article/1").param("sort", "oldest"))
+        mockMvc.perform(get("/api/comment/article/1").param("sort", "oldest"))
             .andExpect(status().isOk());
 
         ArgumentCaptor<BlogComment> captor = ArgumentCaptor.forClass(BlogComment.class);
@@ -384,7 +384,7 @@ class BlogFrontControllerTest
             new UsernamePasswordAuthenticationToken(new LoginUser(100L, null, new SysUser(), null), null, List.of()));
         try
         {
-            mockMvc.perform(delete("/blog/comment/5"))
+            mockMvc.perform(delete("/api/comment/5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.commentCount").value(7));
@@ -417,7 +417,7 @@ class BlogFrontControllerTest
             return List.of();
         });
 
-        mockMvc.perform(get("/blog/rss")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/rss")).andExpect(status().isOk());
 
         // 旧实现是把全部已发布文章（含正文）拉进内存再截前 10 条
         assertNotNull(captured.get(), "RSS 必须用 PageHelper 限制条数");
@@ -430,7 +430,7 @@ class BlogFrontControllerTest
      *
      * <p>事故回归：@Anonymous 曾夹在两段 Javadoc 之间、挂到了私有方法 resolvePublishedArticle 上，
      * 真正的端点 getArticleDetail 没有注解。SecurityConfig 只放行扫描清单里的 URL，
-     * 加上前端公开接口不带头（isToken:false），所有访客访问 /blog/article/{id} 一律 401。
+     * 加上前端公开接口不带头（isToken:false），所有访客访问 /api/article/{id} 一律 401。
      * 本测试跑的就是生产同款 PermitAllUrlProperties 扫描，注解一旦挂错位置立即红灯。</p>
      */
     @Test
@@ -451,8 +451,8 @@ class BlogFrontControllerTest
             permitAllUrl.setApplicationContext(ctx);
             permitAllUrl.afterPropertiesSet();
 
-            assertTrue(permitAllUrl.getUrls().contains("/blog/article/{key:[A-Za-z0-9_-]+}"),
-                "@Anonymous 缺失或挂错位置：/blog/article/{key} 未进入匿名放行清单，前台访客会被拦截成 401");
+            assertTrue(permitAllUrl.getUrls().contains("/api/article/{key:[A-Za-z0-9_-]+}"),
+                "@Anonymous 缺失或挂错位置：/api/article/{key} 未进入匿名放行清单，前台访客会被拦截成 401");
         }
     }
 }

@@ -5,10 +5,11 @@ import { resolve } from 'node:path'
 const sourcePath = resolve(process.cwd(), 'vite.config.ts')
 
 describe('Vite dev proxy route boundaries', () => {
-  it('should keep public blog page routes out of API proxy matching', () => {
+  it('should keep public site API routes out of front page route matching', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
-    expect(source).toContain("'^/blog/api/'")
+    // 公开接口统一在 /api/*（后端同前缀，代理不改写），页面路由都是短路径
+    expect(source).toContain("'^/api/'")
     expect(source).not.toContain("'^/blog/(article|tag|category|setting|comment)/'")
   })
 

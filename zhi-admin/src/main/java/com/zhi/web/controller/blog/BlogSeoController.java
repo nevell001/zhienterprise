@@ -26,7 +26,7 @@ import com.zhi.system.service.IBlogSettingService;
 @RestController
 public class BlogSeoController
 {
-    /** 页面地址集合（站点前台为短路径，与 zhi-ui/src/router/blog.ts 一致） */
+    /** 页面地址集合（站点前台为短路径，与 zhi-ui/src/router/site.ts 一致） */
     private static final String[] STATIC_PATHS = { "/about", "/honors", "/history", "/category", "/tag", "/archive", "/guestbook" };
 
     @Autowired

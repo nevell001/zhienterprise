@@ -20,9 +20,12 @@ describe('Nginx 反向代理配置守卫', () => {
     const source = readConfig(name)
 
     // 否则会被 location / 的 try_files 回落成 index.html（搜索引擎抓 sitemap 拿到 HTML）
-    for (const path of ['/sitemap.xml', '/robots.txt', '/blog/rss']) {
+    for (const path of ['/sitemap.xml', '/robots.txt']) {
       expect(source).toContain(`location = ${path} {`)
     }
+    // RSS 与全部公开接口统一在 /api/ 前缀 location 下原样转发，同样不能被 SPA 回落
+    expect(source).toContain('location ^~ /api/ {')
+    expect(source).toContain('proxy_pass http://zhi-admin:8080/api/;')
   })
 
   it.each(CONFIGS)('%s 必须覆盖 X-Forwarded-For 而不是追加', name => {

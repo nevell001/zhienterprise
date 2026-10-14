@@ -48,7 +48,7 @@ class BlogLikeControllerTest
     {
         when(blogSettingService.selectSettingValueByKey("like_enabled")).thenReturn("false");
 
-        mockMvc.perform(post("/blog/like/article/1"))
+        mockMvc.perform(post("/api/like/article/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(500))
             .andExpect(jsonPath("$.msg").value("点赞功能已关闭"));
@@ -61,7 +61,7 @@ class BlogLikeControllerTest
     {
         when(blogSettingService.selectSettingValueByKey("like_enabled")).thenReturn("0");
 
-        mockMvc.perform(post("/blog/like/comment/2"))
+        mockMvc.perform(post("/api/like/comment/2"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(500))
             .andExpect(jsonPath("$.msg").value("点赞功能已关闭"));
@@ -79,7 +79,7 @@ class BlogLikeControllerTest
         {
             mocked.when(SecurityUtils::getUserId).thenReturn(7L);
 
-            mockMvc.perform(post("/blog/like/article/1"))
+            mockMvc.perform(post("/api/like/article/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
 

@@ -34,11 +34,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  */
 @Tag(name = "站点前台设置管理")
 @RestController
-@RequestMapping("/common/blog/setting")
+@RequestMapping("/common/site/setting")
 public class BlogFrontSettingController extends BaseController {
 
     /**
-     * 站点配置键白名单（与 /blog/setting 共用，统一收敛到 {@link BlogFrontConfigKeys}）
+     * 站点配置键白名单（与 /api/setting 共用，统一收敛到 {@link BlogFrontConfigKeys}）
      */
     private static final String[] BLOG_CONFIG_KEYS = BlogFrontConfigKeys.BLOG_CONFIG_KEYS;
 
@@ -269,7 +269,7 @@ public class BlogFrontSettingController extends BaseController {
     }
 
     @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
-    @GetMapping("/clear-blog-cache")
+    @GetMapping("/clear-site-cache")
     @Operation(summary = "清除站点设置缓存")
     public AjaxResult clearBlogCache() {
         try {

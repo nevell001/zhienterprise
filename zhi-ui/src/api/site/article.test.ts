@@ -21,7 +21,7 @@ describe('Site Article API 测试', () => {
       articleApi.getArticleList({ pageNum: 1, pageSize: 10 })
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/list',
+        url: '/api/article/list',
         method: 'get',
         params: { pageNum: 1, pageSize: 10 },
         headers: { isToken: false }
@@ -38,7 +38,7 @@ describe('Site Article API 测试', () => {
       articleApi.getHotArticles({ pageNum: 1 })
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/hot',
+        url: '/api/article/hot',
         method: 'get',
         params: { pageNum: 1, pageSize: 5 },
         headers: { isToken: false }
@@ -49,7 +49,7 @@ describe('Site Article API 测试', () => {
       articleApi.getHotArticles({ pageNum: 1, pageSize: 10 })
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/hot',
+        url: '/api/article/hot',
         method: 'get',
         params: { pageNum: 1, pageSize: 10 },
         headers: { isToken: false }
@@ -66,7 +66,7 @@ describe('Site Article API 测试', () => {
       articleApi.getArticleDetail(123)
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/123',
+        url: '/api/article/123',
         method: 'get',
         headers: { isToken: false }
       })
@@ -83,7 +83,7 @@ describe('Site Article API 测试', () => {
       articleApi.updateArticleViewCount(123)
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/view/123',
+        url: '/api/article/view/123',
         method: 'post',
         headers: { isToken: false }
       })
@@ -100,7 +100,7 @@ describe('Site Article API 测试', () => {
       articleApi.getArticleArchive()
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article-archive',
+        url: '/api/article-archive',
         method: 'get',
         headers: { isToken: false }
       })
@@ -117,7 +117,7 @@ describe('Site Article API 测试', () => {
       articleApi.getArticlesByArchive(2024, 3, { pageNum: 1, pageSize: 10 })
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/archive-month/2024/3',
+        url: '/api/article/archive-month/2024/3',
         method: 'get',
         params: { pageNum: 1, pageSize: 10 },
         headers: { isToken: false }
@@ -135,7 +135,7 @@ describe('Site Article API 测试', () => {
       articleApi.searchArticles('测试', { pageNum: 1, pageSize: 10 })
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/search',
+        url: '/api/article/search',
         method: 'get',
         params: { pageNum: 1, pageSize: 10, keyword: '测试' },
         headers: { isToken: false }
@@ -153,7 +153,7 @@ describe('Site Article API 测试', () => {
       articleApi.getRelatedArticles(123)
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/related/123',
+        url: '/api/article/related/123',
         method: 'get',
         headers: { isToken: false }
       })
@@ -171,7 +171,7 @@ describe('Site Article API 测试', () => {
       articleApi.submitComment(commentData)
 
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/comment',
+        url: '/api/comment',
         method: 'post',
         data: commentData
       })

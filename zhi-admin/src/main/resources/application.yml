@@ -150,7 +150,7 @@ spring:
     redis:
       time-to-live: 600s  # 默认缓存10分钟
       cache-null-values: false
-      key-prefix: "blog:"
+      key-prefix: "zhi:"
       use-key-prefix: true
   # 邮件服务配置
   mail:

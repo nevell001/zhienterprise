@@ -6,9 +6,9 @@ import { resolve } from 'node:path'
  * 示例文章种子的契约守卫（读 SQL，属"跨产物一致性"检查，不是行为断言）。
  *
  * 守的是三条曾经真实踩过的坑：
- * 1. 示例正文写的是 Markdown，而 `blog_article.content` 的契约是 HTML
+ * 1. 示例正文写的是 Markdown，而 `zhi_article.content` 的契约是 HTML
  *    （前台详情只做 sanitize + v-html，不做 Markdown 渲染，页面会显示原始 `#`/代码围栏）；
- * 2. `blog_article_tag` 种子里引用了不存在的 tag_id（幽灵关联，表上没有外键，静默失效）；
+ * 2. `zhi_article_tag` 种子里引用了不存在的 tag_id（幽灵关联，表上没有外键，静默失效）；
  * 3. 示例文章的 category_id 挂错分类（发布/服务类文章没进「产品发布」、招聘没进「团队风采」）。
  */
 
@@ -25,7 +25,7 @@ function sampleArticles(): {
   slug: string
 }[] {
   const start = lines.findIndex(l =>
-    l.startsWith('INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`')
+    l.startsWith('INSERT IGNORE INTO `zhi_article` (`title`, `summary`, `content`')
   )
   expect(start, '找不到示例文章 INSERT 块').toBeGreaterThanOrEqual(0)
 
@@ -79,7 +79,7 @@ function seededIds(table: string): Set<number> {
 /** 标签关联块里引用的 article_id / tag_id 对 */
 function articleTagLinks(): { articleId: number; tagId: number }[] {
   const start = lines.findIndex(l =>
-    l.startsWith('INSERT IGNORE INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES')
+    l.startsWith('INSERT IGNORE INTO `zhi_article_tag` (`article_id`, `tag_id`) VALUES')
   )
   expect(start, '找不到标签关联块').toBeGreaterThanOrEqual(0)
   const links: { articleId: number; tagId: number }[] = []
@@ -110,7 +110,7 @@ describe('示例文章种子', () => {
   })
 
   it('分类必须挂在种子里真实存在的分类上', () => {
-    const categories = seededIds('blog_category')
+    const categories = seededIds('zhi_category')
     for (const a of articles) {
       expect(categories.has(a.categoryId), `${a.title} 的 category_id=${a.categoryId} 不存在`).toBe(
         true
@@ -139,7 +139,7 @@ describe('示例文章种子', () => {
   })
 
   it('标签关联只能引用真实存在的标签', () => {
-    const tags = seededIds('blog_tag')
+    const tags = seededIds('zhi_tag')
     const links = articleTagLinks()
     expect(links.length).toBeGreaterThan(10)
     for (const l of links) {

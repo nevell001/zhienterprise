@@ -161,7 +161,7 @@ describe('Request 工具函数测试', () => {
     it('应该让博客前台 API 绕开默认 baseURL 以命中独立代理', () => {
       const source = readFileSync(requestSourcePath, 'utf-8')
 
-      expect(source).toContain("config.url.startsWith('/blog/api/')")
+      expect(source).toContain("config.url.startsWith('/api/')")
       expect(source).toContain("config.baseURL = ''")
     })
 
@@ -338,7 +338,7 @@ describe('Request 工具函数测试', () => {
 
       const res = {
         data: { code: 500, msg: '页面不存在或未发布' },
-        config: { url: '/blog/page/honors', silent: true },
+        config: { url: '/api/page/honors', silent: true },
         request: { responseType: 'json' },
         status: 200
       }
@@ -352,7 +352,7 @@ describe('Request 工具函数测试', () => {
 
       const res = {
         data: { code: 500, msg: '页面不存在或未发布' },
-        config: { url: '/blog/page/honors' },
+        config: { url: '/api/page/honors' },
         request: { responseType: 'json' },
         status: 200
       }
@@ -587,7 +587,7 @@ describe('Request 工具函数测试', () => {
     })
 
     it('后台与旧 /blog 前缀路径不应被当成前台页', () => {
-      const adminPaths = ['/admin', '/admin/article', '/blog', '/blog/article/1', '/manage']
+      const adminPaths = ['/admin', '/admin/article', '/blog', '/api/article/1', '/manage']
       adminPaths.forEach(path => {
         expect(isFrontSitePath(path), path).toBe(false)
       })

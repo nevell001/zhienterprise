@@ -28,7 +28,7 @@ describe('Site Auth API 测试', () => {
       }
       authApi.siteRegister(registerData)
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/auth/register',
+        url: '/api/auth/register',
         headers: {
           isToken: false,
           repeatSubmit: false
@@ -48,7 +48,7 @@ describe('Site Auth API 测试', () => {
     it('应该调用发送注册验证码接口', () => {
       authApi.sendRegisterCode('test@example.com')
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/auth/send-register-code',
+        url: '/api/auth/send-register-code',
         headers: {
           isToken: false,
           repeatSubmit: false
@@ -68,7 +68,7 @@ describe('Site Auth API 测试', () => {
     it('应该调用发送密码重置验证码接口', () => {
       authApi.sendResetCode('test@example.com')
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/auth/send-reset-code',
+        url: '/api/auth/send-reset-code',
         headers: {
           isToken: false,
           repeatSubmit: false
@@ -94,7 +94,7 @@ describe('Site Auth API 测试', () => {
       }
       authApi.resetPassword(resetData)
       expect(request).toHaveBeenCalledWith({
-        url: '/blog/auth/reset-password',
+        url: '/api/auth/reset-password',
         headers: {
           isToken: false,
           repeatSubmit: false

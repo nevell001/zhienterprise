@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function toggleArticleLike(articleId: number): Promise<any> {
   return request({
-    url: `/blog/like/article/${articleId}`,
+    url: `/api/like/article/${articleId}`,
     method: 'post'
   })
 }
@@ -15,7 +15,7 @@ export function toggleArticleLike(articleId: number): Promise<any> {
  */
 export function getArticleLikeStatus(articleId: number): Promise<any> {
   return request({
-    url: `/blog/like/article/${articleId}/status`,
+    url: `/api/like/article/${articleId}/status`,
     method: 'get'
   })
 }
@@ -25,7 +25,7 @@ export function getArticleLikeStatus(articleId: number): Promise<any> {
  */
 export function toggleCommentLike(commentId: number): Promise<any> {
   return request({
-    url: `/blog/like/comment/${commentId}`,
+    url: `/api/like/comment/${commentId}`,
     method: 'post'
   })
 }
@@ -35,7 +35,7 @@ export function toggleCommentLike(commentId: number): Promise<any> {
  */
 export function getCommentLikedStatuses(commentIds: number[]): Promise<any> {
   return request({
-    url: '/blog/like/comments/status',
+    url: '/api/like/comments/status',
     method: 'get',
     params: { commentIds: commentIds.join(',') }
   })

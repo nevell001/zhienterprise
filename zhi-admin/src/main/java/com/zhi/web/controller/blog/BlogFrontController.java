@@ -79,7 +79,7 @@ class ArticleNavigationDTO {
  * @date 2025-10-11
  */
 @RestController
-@RequestMapping("/blog")
+@RequestMapping("/api")
 public class BlogFrontController extends BaseController
 {
     private static final Logger log = LoggerFactory.getLogger(BlogFrontController.class);

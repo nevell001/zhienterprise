@@ -59,7 +59,7 @@ class BlogFrontPageControllerTest
         page.setShowInNav("1");
         when(blogPageService.selectPublishedPageList()).thenReturn(Collections.singletonList(page));
 
-        mockMvc.perform(get("/blog/page/list"))
+        mockMvc.perform(get("/api/page/list"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.data[0].slug").value("about-site"))
@@ -77,7 +77,7 @@ class BlogFrontPageControllerTest
         page.setViewCount(10L);
         when(blogPageService.selectBlogPageBySlug("about-site")).thenReturn(page);
 
-        mockMvc.perform(get("/blog/page/about-site"))
+        mockMvc.perform(get("/api/page/about-site"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.data.content").value("# 关于"))
@@ -97,7 +97,7 @@ class BlogFrontPageControllerTest
         page.setViewCount(null);
         when(blogPageService.selectBlogPageBySlug("fresh-page")).thenReturn(page);
 
-        mockMvc.perform(get("/blog/page/fresh-page"))
+        mockMvc.perform(get("/api/page/fresh-page"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.viewCount").value(1));
 
@@ -114,7 +114,7 @@ class BlogFrontPageControllerTest
         when(blogPageService.selectBlogPageBySlug("quiet-page")).thenReturn(page);
         when(blogSettingService.selectSettingValueByKey("view_count_enabled")).thenReturn("false");
 
-        mockMvc.perform(get("/blog/page/quiet-page"))
+        mockMvc.perform(get("/api/page/quiet-page"))
             .andExpect(status().isOk())
             // 开关关闭时返回体浏览数保持不变
             .andExpect(jsonPath("$.data.viewCount").value(20));
@@ -128,7 +128,7 @@ class BlogFrontPageControllerTest
     {
         when(blogPageService.selectBlogPageBySlug("missing")).thenReturn(null);
 
-        mockMvc.perform(get("/blog/page/missing"))
+        mockMvc.perform(get("/api/page/missing"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(500))
             .andExpect(jsonPath("$.msg").value("页面不存在或未发布"));

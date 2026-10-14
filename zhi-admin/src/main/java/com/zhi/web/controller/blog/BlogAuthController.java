@@ -27,7 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @date 2025-01-26
  */
 @RestController
-@RequestMapping("/blog/auth")
+@RequestMapping("/api/auth")
 public class BlogAuthController extends BaseController
 {
     @Autowired

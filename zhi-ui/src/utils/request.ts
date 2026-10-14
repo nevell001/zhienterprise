@@ -34,7 +34,7 @@ const service: AxiosInstance = axios.create({
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (config.url && config.url.startsWith('/blog/api/')) {
+    if (config.url && config.url.startsWith('/api/')) {
       config.baseURL = ''
     }
 

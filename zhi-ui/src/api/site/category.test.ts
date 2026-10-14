@@ -181,7 +181,7 @@ describe('Category API 测试', () => {
       await getCategoryList(query)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/api/category/list',
+        url: '/api/category/list',
         method: 'get',
         params: query,
         headers: { isToken: false }
@@ -194,7 +194,7 @@ describe('Category API 测试', () => {
       await getCategoryList()
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/api/category/list',
+        url: '/api/category/list',
         method: 'get',
         params: undefined,
         headers: { isToken: false }
@@ -214,7 +214,7 @@ describe('Category API 测试', () => {
       await getCategoryDetail(1)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/api/category/1',
+        url: '/api/category/1',
         method: 'get',
         headers: { isToken: false }
       })
@@ -226,7 +226,7 @@ describe('Category API 测试', () => {
       await getCategoryDetail(123)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/api/category/123',
+        url: '/api/category/123',
         method: 'get',
         headers: { isToken: false }
       })

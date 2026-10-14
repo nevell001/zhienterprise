@@ -56,7 +56,7 @@ class BlogVisitLogServiceImplTest {
         when(unifiedCacheManager.exists(anyString())).thenReturn(false);
         when(blogVisitLogMapper.insertBlogVisitLog(any(BlogVisitLog.class))).thenReturn(1);
 
-        blogVisitLogService.recordVisit("article", 9L, "/blog/article/9", "ip:1.2.3.4", request);
+        blogVisitLogService.recordVisit("article", 9L, "/article/9", "ip:1.2.3.4", request);
 
         ArgumentCaptor<BlogVisitLog> captor = ArgumentCaptor.forClass(BlogVisitLog.class);
         verify(blogVisitLogMapper).insertBlogVisitLog(captor.capture());
@@ -90,7 +90,7 @@ class BlogVisitLogServiceImplTest {
         when(unifiedCacheManager.exists(anyString())).thenReturn(false);
         when(blogVisitLogMapper.insertBlogVisitLog(any(BlogVisitLog.class))).thenReturn(1);
 
-        blogVisitLogService.recordVisit("page", 3L, "/blog/page/about", null, request);
+        blogVisitLogService.recordVisit("page", 3L, "/page/about", null, request);
 
         ArgumentCaptor<BlogVisitLog> captor = ArgumentCaptor.forClass(BlogVisitLog.class);
         verify(blogVisitLogMapper).insertBlogVisitLog(captor.capture());

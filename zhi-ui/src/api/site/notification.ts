@@ -29,7 +29,7 @@ export function getNotificationList(
   params?: NotificationListParams
 ): Promise<QueryResult<SiteNotification>> {
   return request({
-    url: '/blog/notification/list',
+    url: '/api/notification/list',
     method: 'get',
     params
   })
@@ -40,7 +40,7 @@ export function getNotificationList(
  */
 export function getUnreadCount(): Promise<any> {
   return request({
-    url: '/blog/notification/unread-count',
+    url: '/api/notification/unread-count',
     method: 'get'
   })
 }
@@ -50,7 +50,7 @@ export function getUnreadCount(): Promise<any> {
  */
 export function markAsRead(ids: number[]) {
   return request({
-    url: `/blog/notification/read/${ids.join(',')}`,
+    url: `/api/notification/read/${ids.join(',')}`,
     method: 'put'
   })
 }
@@ -60,7 +60,7 @@ export function markAsRead(ids: number[]) {
  */
 export function markAllAsRead() {
   return request({
-    url: '/blog/notification/read-all',
+    url: '/api/notification/read-all',
     method: 'put'
   })
 }

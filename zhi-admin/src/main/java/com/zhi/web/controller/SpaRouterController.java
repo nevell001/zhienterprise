@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class SpaRouterController {
 
     /**
-     * 捕获站点前台页面路由（短路径，与 zhi-ui/src/router/blog.ts 一致），重定向到index.html
+     * 捕获站点前台页面路由（短路径，与 zhi-ui/src/router/site.ts 一致），重定向到index.html
      * 这样前端路由可以处理这些请求
      *
      * 只放行 GET/HEAD：/register 等路径同时承担业务接口（POST），不能一并吞掉

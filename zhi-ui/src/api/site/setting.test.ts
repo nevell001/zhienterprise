@@ -187,13 +187,13 @@ describe('Site Setting API 测试', () => {
       expect(typeof getSiteSettings).toBe('function')
     })
 
-    it('应该调用 GET /common/blog/setting 并添加时间戳参数', async () => {
+    it('应该调用 GET /common/site/setting 并添加时间戳参数', async () => {
       mockRequest.mockResolvedValue({ blog_name: '我的博客' })
 
       await getSiteSettings()
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/common/blog/setting',
+        url: '/common/site/setting',
         method: 'get',
         headers: { isToken: false },
         params: { _t: expect.any(Number) }
@@ -207,13 +207,13 @@ describe('Site Setting API 测试', () => {
       expect(typeof getSiteSettingsAnonymous).toBe('function')
     })
 
-    it('应该调用 GET /common/blog/setting 并设置 isToken: false', async () => {
+    it('应该调用 GET /common/site/setting 并设置 isToken: false', async () => {
       mockRequest.mockResolvedValue({ blog_name: '我的博客' })
 
       await getSiteSettingsAnonymous()
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/common/blog/setting',
+        url: '/common/site/setting',
         method: 'get',
         headers: { isToken: false },
         params: { _t: expect.any(Number) }
@@ -227,13 +227,13 @@ describe('Site Setting API 测试', () => {
       expect(typeof clearSiteCache).toBe('function')
     })
 
-    it('应该调用 GET /common/blog/setting/clear-blog-cache', async () => {
+    it('应该调用 GET /common/site/setting/clear-site-cache', async () => {
       mockRequest.mockResolvedValue({ code: 200, msg: '缓存已清除' })
 
       await clearSiteCache()
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/common/blog/setting/clear-blog-cache',
+        url: '/common/site/setting/clear-site-cache',
         method: 'get'
       })
     })
