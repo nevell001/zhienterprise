@@ -68,7 +68,7 @@ docker compose -f docker-compose.release.yml up -d
 
 ## 5. 验证
 
-- 站点前台：`http://服务器IP/blog`
+- 站点前台：`http://服务器IP/`
 - 管理后台：`http://服务器IP/admin`
 - 后端健康检查：`http://服务器IP/manage/actuator/health`
 - 本机调试可直接访问 `http://127.0.0.1:8080`

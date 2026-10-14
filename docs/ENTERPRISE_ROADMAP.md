@@ -8,9 +8,9 @@
 
 已完成（机制层）：
 
-- 企业官网模式：`home_page_slug` 首页被自定义页面接管，文章列表迁至 `/blog/articles`；
+- 企业官网模式：`home_page_slug` 首页被自定义页面接管，文章列表迁至 `/api/articles`；
 - 导航裁剪：`nav_category_enabled` / `nav_tag_enabled` / `nav_archive_enabled`；
-- 自定义页面（`blog_page`）：Markdown 内容 + 页面级 TDK + `show_in_nav` + sitemap 收录；
+- 自定义页面（`zhi_page`）：Markdown 内容 + 页面级 TDK + `show_in_nav` + sitemap 收录；
 - 品牌：站名/登录页/README/compose 均已统一「知企建站系统（ZhiEnterprise）」；
 - SEO 基础：站点级 TDK、sitemap.xml、robots.txt、RSS；
 - 完善的评论/审核/通知体系与认真的移动端适配。
@@ -26,8 +26,8 @@
 
 | 决策 | 内容 |
 |---|---|
-| 询盘转化**后置** | 不做 `blog_message` 字段扩展（公司/电话/需求类型）、不做新留言通知、不做询盘跟进管理。「联系我们」保留最小形态：静态联系信息页 + 现有留言板开关。 |
-| 核心业务 = 产品**或**服务，统一建模 | **不建**独立 `blog_product` 表；`blog_article` 增加 `article_type`（`news` 新闻 / `business` 核心业务 / `case` 案例），业务条目复用分类做下级组织（产品线/服务类型）。 |
+| 询盘转化**后置** | 不做 `zhi_message` 字段扩展（公司/电话/需求类型）、不做新留言通知、不做询盘跟进管理。「联系我们」保留最小形态：静态联系信息页 + 现有留言板开关。 |
+| 核心业务 = 产品**或**服务，统一建模 | **不建**独立 `zhi_product` 表；`zhi_article` 增加 `article_type`（`news` 新闻 / `business` 核心业务 / `case` 案例），业务条目复用分类做下级组织（产品线/服务类型）。 |
 | 形态命名可配 | 新增设置键 `business_label`（默认「核心业务」，可改「产品中心」/「服务项目」/「解决方案」），统一驱动导航菜单名、首页区块标题、面包屑与 SEO 标题——同一套代码适配产品型/服务型/混合型企业。 |
 | 业务详情页通用版式 | 封面/图集 + 富文本正文 + 可选属性区（产品放参数表、服务放流程/套餐），不强绑产品字段。 |
 
@@ -36,14 +36,14 @@
 ### Phase 0 — 快赢与卫生（✅ 已完成，2026-10-12）
 
 1. ✅ 品牌残留清理：SQL 种子 `RuoYi` 关键词（含已有库幂等 UPDATE）、后台 `ruoyi.zip`、
-   job 帮助文案包名、prometheus `zhiblog` 标签、`/opt/zhiblog` 运维文档路径、
-   `package.json`/`package-lock` 的 `zhiblog`、sonar projectKey、`components/RuoYi` 死代码目录、
+   job 帮助文案包名、prometheus `zhienterprise` 标签、`/opt/zhienterprise` 运维文档路径、
+   `package.json`/`package-lock` 的 `zhienterprise`、sonar projectKey、`components/RuoYi` 死代码目录、
    `design-spec.html` 旧「博客系统」定位文案；
 2. ✅ 死代码清理：首页永不显示的 contact 弹窗（模板/脚本/亮暗样式）、
    `mo-blog.scss` 中无任何组件引用的 hero/cta/article-row/popular-*/page-btn 等规则
    （棘轮测试 `mo-blog.test.ts` 同步指向存活选择器）；
-3. ✅ 前台设置白名单统一：新增 `BlogFrontConfigKeys`，`/blog/setting` 与
-   `/common/blog/setting` 共用同一份白名单，消除键集合漂移；
+3. ✅ 前台设置白名单统一：新增 `FrontConfigKeys`，`/api/setting` 与
+   `/common/site/setting` 共用同一份白名单，消除键集合漂移；
 4. ✅ 种子数据企业化：分类（公司动态/行业资讯/产品知识/技术支持 + 二级栏目）、
    18 个企业标签、6 篇企业风示例文章（发布/案例/趋势/SEO 指南/服务/招聘）、
    友链收敛为技术栈官方站点、站点设置（描述/版权/SEO/问候语）去博客味。
@@ -54,13 +54,13 @@
 ### Phase 1 — 核心批次（✅ 已完成，2026-10-12）
 
 1. ✅ **核心业务内容类型**
-   - `blog_article.article_type`（`news`/`business`/`case`）：实体 + Mapper 过滤、
-     幂等 ALTER 迁移已有库，前台 `/blog/article/list` 绑定实体即获得类型筛选；
+   - `zhi_article.article_type`（`news`/`business`/`case`）：实体 + Mapper 过滤、
+     幂等 ALTER 迁移已有库，前台 `/api/article/list` 绑定实体即获得类型筛选；
    - 管理端「站点管理 → 核心业务管理」菜单（menu 2010，复用文章管理组件，按路由
-     `/admin/business` 固定 `articleType=business`，权限沿用 `blog:article:*`）；
+     `/admin/business` 固定 `articleType=business`，权限沿用 `zhi:article:*`）；
      文章管理页新增类型筛选/类型列/编辑项；
-   - 前台 `/blog/business` 列表（卡片网格 + 分页）与 `/blog/business/:id` 详情页；
-   - sitemap：business/case 文章写规范入口 `/blog/business/{id}`，
+   - 前台 `/api/business` 列表（卡片网格 + 分页）与 `/api/business/:id` 详情页；
+   - sitemap：business/case 文章写规范入口 `/api/business/{id}`，
      `home_layout=business` 时收录列表页；
    - 设置键 `business_label`、`contact_phone`、`contact_address`（进前台白名单与设置页）。
 2. ✅ **企业首页区块化模板**
@@ -77,21 +77,21 @@
    `--mo-p*/--mo-a*` 色板（靛蓝+粉 → 稳重蓝+青蓝）与标题字体（衬线 → 无衬线），
    不复制组件皮肤，避免双份漂移；前台布局在 `home_layout=business` 时挂
    `html.theme-enterprise`（含 Mo-Blog 深色 Element 主色修正），离开公开站点自动摘除；
-2. ✅ **slug 伪静态路由**：`blog_article.slug`（幂等 ALTER + 唯一性校验，软删除不占用），
-   前台详情接口按「数字 ID 或 slug」统一解析（`/blog/article/{key}`、`/blog/business/{key}`
+2. ✅ **slug 伪静态路由**：`zhi_article.slug`（幂等 ALTER + 唯一性校验，软删除不占用），
+   前台详情接口按「数字 ID 或 slug」统一解析（`/api/article/{key}`、`/api/business/{key}`
    双入口兼容历史链接），sitemap 优先输出别名，管理端文章表单新增「URL 别名」，
-   6 篇示例文章已带别名（如 `/blog/article/zhi-v1-release`）。
+   6 篇示例文章已带别名（如 `/api/article/zhi-v1-release`）。
 
    备注：~~分类仍按数字 ID 访问~~（✅ alias 已接入，见 Phase 2.6）。
 
 ### Phase 2.6 — 分类 alias 伪静态（✅ 已完成，2026-10-14）
 
-1. ✅ **分类 alias 伪静态**：`/blog/category/{key}`、`/blog/article/category/{key}`
+1. ✅ **分类 alias 伪静态**：`/api/category/{key}`、`/api/article/category/{key}`
    按「数字 ID 或 alias」统一解析（alias 只命中启用且未删除的分类）；
    前台三处分类链接改为 alias 优先、回退数字 ID；分类页先解析分类再按数字 ID
    加载文章，alias 未命中时回退「所有分类」视图；
 2. ✅ **sitemap 补全**：收录启用中的分类页（alias 优先）；企业模板模式下
-   联系页 `/blog/contact` 一并入图。
+   联系页 `/api/contact` 一并入图。
 
 ### Phase 2.7 — 伪静态链路安全与性能复查（✅ 已完成，2026-10-14）
 
@@ -101,10 +101,10 @@
    数字 ID 路径会返回已删除分类——`resolveFrontCategory` 数字路径补回删除过滤
    （status 口径与历史行为保持一致）；alias 路径本就只命中启用分类。
 2. ⚡ **索引补齐**：`idx_slug` 此前只写在 CREATE TABLE（仅全新库有），
-   已用 `sp_create_index_if_not_exists` 补幂等迁移；顺带给 `blog_category.alias`
+   已用 `sp_create_index_if_not_exists` 补幂等迁移；顺带给 `zhi_category.alias`
    加 `idx_alias`（伪静态点查列）。
 3. ⚡ **详情单查询**：slug 路径原本解析一次 + 按 ID 重取一次；
-   `selectBlogArticleBySlug` 列集与 ById 对齐后去掉二次查询，slug 流量减半。
+   `selectArticleBySlug` 列集与 ById 对齐后去掉二次查询，slug 流量减半。
 
 复查确认无问题项：新查询全部参数化（无注入面）；sitemap `writeUrl` 已做 XML 转义
 （覆盖 admin 可控的 slug/alias）；JSON-LD 走 `textContent + JSON.stringify`（无 XSS）；
@@ -113,22 +113,22 @@
 
 留作后续的性能可选项（当前数据量下无感，先记录）：
 
-- 企业首页模板每次访问发 4 个请求、`/blog/stats/overview` 每次跑 5 个聚合 COUNT，
+- 企业首页模板每次访问发 4 个请求、`/api/stats/overview` 每次跑 5 个聚合 COUNT，
   可考虑短 TTL 缓存（复用 Redis，参照站点设置 600s 缓存模式）；
 - `/sitemap.xml` 每次全量生成，文章量大后可加缓存；
 - 分类页「解析分类 → 加载文章」为串行两请求，可改走已支持 alias 的
-  `/blog/article/category/{key}` 并行化。
+  `/api/article/category/{key}` 并行化。
 
 ### Phase 2 — 完善批次（✅ 已完成，2026-10-14）
 
-1. ✅ **文章级 TDK**：`blog_article` 补 `seo_title/seo_keywords/seo_description`
+1. ✅ **文章级 TDK**：`zhi_article` 补 `seo_title/seo_keywords/seo_description`
    （幂等 ALTER 迁移），管理端文章表单新增 SEO 区块，前台文章/业务详情页 SEO
    优先用文章级字段、回退标题/摘要；
 2. ✅ **JSON-LD 结构化数据**：常驻布局注入 Organization（含联系方式 ContactPoint），
    文章与业务详情注入 Article（卸载时移除防路由残留），`utils/jsonld.ts` 带单测；
 3. ✅ **「关于我们」企业化重做**：hero 从博主人设（头像/站长头衔）改为企业定位
    （站点名 + 描述），联系卡片补电话/地址（企业联系方式一等公民化）；
-4. ✅ **「联系我们」页** `/blog/contact`：电话/邮箱/地址卡片 + 留言板入口
+4. ✅ **「联系我们」页** `/api/contact`：电话/邮箱/地址卡片 + 留言板入口
    （受 `guestbook_enabled` 控制），企业模板模式导航注入入口；
 5. ✅ **页面编辑器升级**：预置区块模板（Hero 横幅/三列卡片/图文左右/数据条/CTA 条）
    一键插入光标处 + 前台同管线实时预览（renderMarkdown + 消毒）。
@@ -139,7 +139,7 @@
 ### Phase 3 — 竞争力（v2，按需排期）
 
 - ~~slug 伪静态路由~~（✅ Phase 2.5/2.6 已完成）；
-- 询盘转化（已定后置）：`blog_message` 字段扩展、新留言通知（复用评论通知链路）、询盘跟进状态；
+- 询盘转化（已定后置）：`zhi_message` 字段扩展、新留言通知（复用评论通知链路）、询盘跟进状态；
 - 自定义页面可视化搭建（区块化结构化字段 + 前端组件渲染）；
 - ~~模板市场 / 一键换主题~~（✅ 首批落地，见 Phase 3.1；全站内页模板化见 3.2）。
 
@@ -171,7 +171,7 @@ templates/ 的两层分离架构）：
    80px 实底收拢、咨询 CTA 常驻、关于我们二级下拉、移动端抽屉）+
    EnterpriseFooter（四栏 + 返回顶部）；博客模式零改动；
 2. ✅ **导航短路径**：`/` 直接渲染首页；`/business`、`/business/:id`、`/news`、
-   `/contact`、`/honors`、`/history` 短别名（`/blog/*` 保留兼容）；
+   `/contact`、`/honors`、`/history` 短别名（`/api/*` 保留兼容）；
    企业模板模式 sitemap 输出短路径规范地址；
 3. ✅ **关于我们三页**（§1.3）：企业简介（slug=about 正文 + 站点统计概览）、
    荣誉资质 `/honors`（分类 Tab + 证书墙占位 + slug=honors 说明位）、

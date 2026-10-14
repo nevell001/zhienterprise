@@ -16,7 +16,7 @@
 
 | 入口 | 地址 |
 | --- | --- |
-| 站点前台 | http://localhost:3000/blog |
+| 站点前台 | http://localhost:3000/ |
 | 管理后台 | http://localhost:3000/admin |
 | API 文档 | http://localhost:8080/swagger-ui.html |
 | Prometheus / Grafana | http://localhost:9090 / http://localhost:3001（需 `--profile monitoring` 启用） |
@@ -80,8 +80,8 @@ cd zhi-ui && npm install && npm run dev
 
 所有表/列/索引/菜单/权限变更都收敛在唯一且**幂等**的 `sql/00_init_database.sql`，**已有库直接重跑**即可，会自动补齐：
 
-- 表：媒体库 `blog_upload`、点赞、每日 PV/UV、收藏、通知、留言板、自定义页面、访问明细等
-- 列：`blog_comment.like_count`、`blog_article.publish_time/format/content_md`、`blog_friend_link.email`、`blog_message.create_by/update_by` 等
+- 表：媒体库 `zhi_upload`、点赞、每日 PV/UV、收藏、通知、留言板、自定义页面、访问明细等
+- 列：`zhi_comment.like_count`、`zhi_article.publish_time/format/content_md`、`zhi_friend_link.email`、`zhi_message.create_by/update_by` 等
 - 新菜单与按钮权限（含角色 1/2 分配）、`email_notify_enabled` / `friend_link_apply_enabled` 等设置种子
 - 按已发布评论**重算评论数**
 
@@ -94,10 +94,10 @@ mysql -u root -p zhienterprise < sql/00_init_database.sql
 > 需要修正既有数据时另写一次性数据补丁（`sql/99_fix_*.sql` 命名约定）按需执行。
 > 部署提示：`/sitemap.xml`、`/robots.txt` 在后端根路径，Nginx 同源反代时请转发到后端；PV/UV 曲线依赖每小时定时汇总（当天数据约 1 小时延迟）。
 >
-> **存量库更名提示**：数据库名与应用账号已统一为 `zhienterprise` / `zhienterprise_app`。从旧库名（`zhiblog` / `zhiblog_app`）升级时需手工迁移一次——导出旧库、建新库导入、重跑 00 创建新账号并授权，再把 `.env` 的 `DB_NAME` / `DB_USERNAME` 更新为新值：
+> **存量库更名提示**：数据库名与应用账号已统一为 `zhienterprise` / `zhienterprise_app`。从旧库名（`zhienterprise` / `zhienterprise_app`）升级时需手工迁移一次——导出旧库、建新库导入、重跑 00 创建新账号并授权，再把 `.env` 的 `DB_NAME` / `DB_USERNAME` 更新为新值：
 >
 > ```bash
-> mysqldump -u root -p zhiblog > db-backup.sql
+> mysqldump -u root -p zhienterprise > db-backup.sql
 > mysql -u root -p -e "CREATE DATABASE zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 > mysql -u root -p zhienterprise < db-backup.sql
 > mysql -u root -p zhienterprise < sql/00_init_database.sql
@@ -116,7 +116,7 @@ zhienterprise/
 ├── zhi-common/         # 通用工具（Markdown 渲染、图片压缩、XSS）
 ├── zhi-quartz/         # Quartz 定时任务
 ├── zhi-generator/      # 代码生成
-├── zhi-ui/             # Vue3 + TS 前端（src/api、src/views/blog、src/views/admin）
+├── zhi-ui/             # Vue3 + TS 前端（src/api、src/views/site、src/views/admin）
 ├── sql/                # 数据库脚本（唯一初始化/迁移入口）
 ├── docs/               # 项目文档
 ├── prometheus/         # Prometheus 配置
