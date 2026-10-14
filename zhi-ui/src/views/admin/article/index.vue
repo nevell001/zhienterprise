@@ -638,7 +638,7 @@ const fixedArticleType = route.path.endsWith('/business') ? 'business' : ''
 const articleTypeLabel = (type?: string) =>
   ({ news: '资讯动态', business: '核心业务', case: '客户案例' })[type || 'news'] || '资讯动态'
 const articleTypeTag = (type?: string) =>
-  ({ news: 'info', business: '', case: 'warning' })[type || 'news'] ?? 'info'
+  ({ news: 'info', business: 'primary', case: 'warning' })[type || 'news'] ?? 'info'
 const userStore = useUserStore()
 const articleList = ref([])
 const open = ref(false)
