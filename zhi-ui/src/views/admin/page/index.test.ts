@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import PageManage from './index.vue'
 
-const sourcePath = resolve(process.cwd(), 'src/views/admin/blog/page/index.vue')
+const sourcePath = resolve(process.cwd(), 'src/views/admin/page/index.vue')
 
 describe('PageManage 视图组件测试', () => {
   it('应该导出 PageManage 组件', () => {

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import ArticleManage from './index.vue'
 
-const sourcePath = resolve(process.cwd(), 'src/views/admin/blog/article/index.vue')
+const sourcePath = resolve(process.cwd(), 'src/views/admin/article/index.vue')
 
 describe('ArticleManage 视图组件测试', () => {
   it('应该导出 ArticleManage 组件', () => {

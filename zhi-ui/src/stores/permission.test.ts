@@ -77,7 +77,7 @@ describe('Permission Store 测试', () => {
               {
                 path: 'article',
                 name: 'Article',
-                component: 'blog/article/index'
+                component: 'article/index'
               }
             ]
           }

@@ -14,7 +14,7 @@ import { resolve } from 'node:path'
  * 行为断言请用组件挂载测试。
  */
 
-const PAGE = resolve(process.cwd(), 'src/views/admin/blog/setting/index.vue')
+const PAGE = resolve(process.cwd(), 'src/views/admin/setting/index.vue')
 const SQL = resolve(process.cwd(), '../sql/00_init_database.sql')
 
 /** 设置页里出现的设置键（含下划线的 snake_case 字符串） */

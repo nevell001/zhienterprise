@@ -32,8 +32,8 @@ const DARK_HEX_CEILING: Record<string, number> = {
   'views/admin/system/user/user/profile/index.vue': 30,
   'components/ArticleTOC.vue': 1,
   'assets/styles/themes/mo-blog.scss': 2,
-  'views/admin/blog/setting/index.vue': 4,
-  'views/admin/blog/article/index.vue': 1
+  'views/admin/setting/index.vue': 4,
+  'views/admin/article/index.vue': 1
 }
 
 // 另一类漏网：整页/整组件只有浅色字面量、文件内**没有任何**深色分支（下面棘轮的目标）。

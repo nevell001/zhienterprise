@@ -750,8 +750,8 @@ class SysMenuServiceImplTest {
     @Test
     void topLevelDirectoryWithChildrenUsesChildrenAsRoutes() {
         SysMenu dir = menu(1L, 0L, "M", "站点管理", "admin", "Layout");
-        SysMenu article = menu(2L, 1L, "C", "文章管理", "article", "blog/article/index");
-        SysMenu category = menu(3L, 1L, "C", "分类管理", "category", "blog/category/index");
+        SysMenu article = menu(2L, 1L, "C", "文章管理", "article", "article/index");
+        SysMenu category = menu(3L, 1L, "C", "分类管理", "category", "category/index");
         childOf(dir, article, category);
 
         List<RouterVo> routers = menuService.buildMenus(Arrays.asList(dir));
