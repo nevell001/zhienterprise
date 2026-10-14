@@ -438,25 +438,18 @@ const loadArticleDetail = async () => {
   const detailToken = detailGuard.next()
   try {
     loading.value = true
-    const articleId = Number(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
+    // 路由参数兼容数字 ID（历史链接）与 slug 伪静态链接，由后端统一解析
+    const articleKey = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 
-    // 验证文章ID
-    if (!articleId) {
+    // 验证文章标识
+    if (!articleKey) {
       logger.error('文章ID为空')
       ElMessage.error('文章ID不能为空')
       return
     }
 
-    // 确保ID是数字
-    const numericId = Number(articleId)
-    if (isNaN(numericId) || numericId <= 0) {
-      logger.error('文章ID格式不正确:', articleId)
-      ElMessage.error('文章ID格式不正确')
-      return
-    }
-
     // 获取文章详情
-    const response = await getArticleDetail(numericId)
+    const response = await getArticleDetail(articleKey)
     // 快速切换文章时，旧详情不能覆盖新详情
     if (!detailGuard.isLatest(detailToken)) return
 
@@ -487,9 +480,9 @@ const loadArticleDetail = async () => {
         }
       }
 
-      // 获取相关文章
+      // 获取相关文章（slug 入口时用响应里的真实 ID）
       try {
-        const relatedResponse = await getRelatedArticles(articleId)
+        const relatedResponse = await getRelatedArticles(article.value.id!)
         relatedArticles.value = relatedResponse.data || []
       } catch (e) {
         // 相关文章加载失败不影响主内容
@@ -576,7 +569,9 @@ const echoCommentLikedStatuses = async (comments: any[]) => {
 // 获取评论列表：顶级评论分页，回复随楼层返回；当前页越界（如删除后总页数减少）时回退到最后一页
 const loadComments = async () => {
   try {
-    const articleId = Number(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
+    // slug 入口时路由参数不是数字 ID，统一用详情响应里的真实 ID
+    const articleId = article.value?.id
+    if (!articleId) return
     const response = await getArticleComments(articleId, {
       pageNum: commentPage.value,
       pageSize: COMMENT_PAGE_SIZE,

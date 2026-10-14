@@ -36,10 +36,11 @@ export function getHotArticles(query?: ArticleParams): Promise<QueryResult<Artic
 
 /**
  * 获取文章详情（前台用，包含完整内容和上下篇文章信息）
+ * @param key 数字 ID 或 slug 伪静态别名，由后端统一解析
  */
-export function getArticleDetail(id: number): Promise<DataResult<ArticleDetailResponse>> {
+export function getArticleDetail(key: number | string): Promise<DataResult<ArticleDetailResponse>> {
   return request({
-    url: '/blog/api/article/' + id,
+    url: '/blog/api/article/' + key,
     method: 'get',
     headers: { isToken: false }
   })

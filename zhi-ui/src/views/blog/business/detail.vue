@@ -55,13 +55,14 @@ onBeforeUnmount(() => {
 })
 
 onMounted(async () => {
-  const id = Number(router.currentRoute.value.params.id)
-  if (!Number.isFinite(id) || id <= 0) {
+  // 路由参数兼容数字 ID（历史链接）与 slug 伪静态链接，由后端统一解析
+  const key = String(router.currentRoute.value.params.id || '')
+  if (!key) {
     loading.value = false
     return
   }
   try {
-    const response = await getArticleDetail(id)
+    const response = await getArticleDetail(key)
     if (response && response.code === 200 && response.data?.article) {
       article.value = response.data.article
       const siteName = settings.value.blog_name || '知企建站系统'
@@ -81,9 +82,10 @@ onMounted(async () => {
         datePublished: article.value.createTime || undefined,
         author: { '@type': 'Person', name: article.value.authorName || 'admin' }
       })
-      // 浏览计数与文章详情同一开关、同一接口
-      if (isViewCountEnabled.value) {
-        updateArticleViewCount(id).catch(() => {
+      // 浏览计数与文章详情同一开关、同一接口；slug 入口时用响应里的真实 ID
+      const articleId = article.value.id
+      if (isViewCountEnabled.value && articleId) {
+        updateArticleViewCount(articleId).catch(() => {
           // 计数失败不打扰用户
         })
       }

@@ -69,7 +69,20 @@
    - 模板模式下导航注入「核心业务」入口（名称取 `business_label`）；
    - 组件样式全部走 `--mo-*`/`--el-*` token，通过 design-contract 与 dark-mode 棘轮测试。
 
-   剩余：独立企业向主题（稳重蓝/青配色，去粉色强调）留待后续批次。
+   剩余：~~独立企业向主题~~（✅ 已完成，见 Phase 2.5）。
+
+### Phase 2.5 — 企业主题与伪静态（✅ 已完成，2026-10-14）
+
+1. ✅ **独立企业主题（theme-enterprise）**：`themes/enterprise.scss` 只重映射
+   `--mo-p*/--mo-a*` 色板（靛蓝+粉 → 稳重蓝+青蓝）与标题字体（衬线 → 无衬线），
+   不复制组件皮肤，避免双份漂移；前台布局在 `home_layout=business` 时挂
+   `html.theme-enterprise`（含 Mo-Blog 深色 Element 主色修正），离开公开站点自动摘除；
+2. ✅ **slug 伪静态路由**：`blog_article.slug`（幂等 ALTER + 唯一性校验，软删除不占用），
+   前台详情接口按「数字 ID 或 slug」统一解析（`/blog/article/{key}`、`/blog/business/{key}`
+   双入口兼容历史链接），sitemap 优先输出别名，管理端文章表单新增「URL 别名」，
+   6 篇示例文章已带别名（如 `/blog/article/zhi-v1-release`）。
+
+   备注：分类仍按数字 ID 访问（`blog_category.alias` 字段已备，接入待后续需要）。
 
 ### Phase 2 — 完善批次（✅ 已完成，2026-10-14）
 

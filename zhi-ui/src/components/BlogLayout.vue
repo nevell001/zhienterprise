@@ -268,7 +268,7 @@ import {
 import { getApiBaseUrl } from '@/utils/index'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { buildNavMenus, hasCustomHomePage } from '@/utils/blogNav'
-import { setJsonLd } from '@/utils/jsonld'
+import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -478,6 +478,18 @@ watch(
   },
   { immediate: true }
 )
+
+// 企业官网模板模式：给 <html> 挂企业主题（稳重蓝色板），仅前台生效，离开公开站点摘除
+watch(isBusinessNavEnabled, applyEnterpriseTheme, { immediate: true })
+
+function applyEnterpriseTheme(enabled: boolean) {
+  document.documentElement.classList.toggle('theme-enterprise', enabled)
+}
+
+onBeforeUnmount(() => {
+  document.documentElement.classList.remove('theme-enterprise')
+  removeJsonLd('zh-jsonld-organization')
+})
 
 const rssUrl = computed(() => {
   const baseUrl = getApiBaseUrl()

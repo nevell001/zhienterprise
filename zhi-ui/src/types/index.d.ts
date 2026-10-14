@@ -110,6 +110,8 @@ export interface Article {
   seoKeywords?: string
   /** SEO 描述（留空回退文章摘要） */
   seoDescription?: string
+  /** URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID） */
+  slug?: string
   status?: number
   isTop?: number
   isRecommend?: number

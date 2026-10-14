@@ -17,14 +17,26 @@ const source = readFileSync(SQL, 'utf-8')
 const lines = source.split('\n')
 
 /** 示例文章 INSERT 块：返回每篇的标题与正文字面量（已还原 SQL 转义） */
-function sampleArticles(): { title: string; content: string; categoryId: number; articleType: string }[] {
+function sampleArticles(): {
+  title: string
+  content: string
+  categoryId: number
+  articleType: string
+  slug: string
+}[] {
   const start = lines.findIndex(l =>
     l.startsWith('INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`')
   )
   expect(start, '找不到示例文章 INSERT 块').toBeGreaterThanOrEqual(0)
 
-  const tailRe = /^'', (\d+), 1, 'admin', \d+, \d+, 1, \d+, \d+(?:, '([a-z]+)')?\)([,;])$/
-  const result: { title: string; content: string; categoryId: number; articleType: string }[] = []
+  const tailRe = /^'', (\d+), 1, 'admin', \d+, \d+, 1, \d+, \d+(?:, '([a-z]+)')?(?:, '([a-z0-9-]+)')?\)([,;])$/
+  const result: {
+    title: string
+    content: string
+    categoryId: number
+    articleType: string
+    slug: string
+  }[] = []
   let cursor = start + 1
   for (let i = start; i < lines.length; i++) {
     const m = tailRe.exec(lines[i])
@@ -35,6 +47,7 @@ function sampleArticles(): { title: string; content: string; categoryId: number;
       title: lines[cursor].match(/^\('([^']+)'/)?.[1] ?? '',
       categoryId: Number(m[1]),
       articleType: m[2] || 'news',
+      slug: m[3] || '',
       content: lines
         .slice(cursor + 1, i)
         .join('\n')
@@ -44,7 +57,7 @@ function sampleArticles(): { title: string; content: string; categoryId: number;
         .replace(/''/g, "'")
     })
     cursor = i + 1
-    if (m[3] === ';') break
+    if (m[4] === ';') break
   }
   return result
 }
@@ -116,6 +129,12 @@ describe('示例文章种子', () => {
     expect(byTitle.get('站点运维托管服务正式上线')).toBe('business')
     expect(byTitle.get('客户案例：某制造企业官网升级实践')).toBe('case')
     expect(byTitle.get('2026 企业数字化转型趋势观察')).toBe('news')
+  })
+
+  it('示例文章都带 slug 伪静态别名且互不重复', () => {
+    const slugs = articles.map(a => a.slug).filter(Boolean)
+    expect(slugs.length).toBe(articles.length)
+    expect(new Set(slugs).size).toBe(slugs.length)
   })
 
   it('标签关联只能引用真实存在的标签', () => {

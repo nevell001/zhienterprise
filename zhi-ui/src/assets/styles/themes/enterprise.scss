@@ -1,0 +1,34 @@
+/* ==================== 企业官网主题（theme-enterprise） ==================== */
+/* 在任意外观主题之上重映射 --mo-* 色板为稳重蓝系、强调色去粉、标题改无衬线。
+   前台布局在 home_layout=business 时把类挂到 <html>，离开公开站点自动摘除。
+   只改 token 不写组件皮肤——所有引用 --mo-* 的组件（含 Element 变量映射）
+   自动换装，避免复制一份 mo-blog 皮肤造成两份漂移。 */
+
+html.theme-enterprise {
+  --mo-p50: #eff6ff;
+  --mo-p100: #dbeafe;
+  --mo-p200: #bfdbfe;
+  --mo-p300: #93c5fd;
+  --mo-p400: #60a5fa;
+  --mo-p500: #2563eb;
+  --mo-p600: #1d4ed8;
+  --mo-p700: #1e40af;
+  --mo-p800: #1e3a8a;
+  --mo-p900: #172554;
+
+  /* 强调色去粉：改用青蓝（sky）系 */
+  --mo-a50: #f0f9ff;
+  --mo-a100: #e0f2fe;
+  --mo-a200: #bae6fd;
+  --mo-a400: #38bdf8;
+  --mo-a500: #0ea5e9;
+  --mo-a600: #0284c7;
+
+  /* 企业站标题不走衬线 */
+  --mo-font-serif: var(--mo-font-sans);
+}
+
+/* Mo-Blog 深色把 Element 主色钉死在靛蓝字面量上，企业主题跟随蓝系提亮一档 */
+html.dark.theme-enterprise.theme-mo-blog {
+  --el-color-primary: var(--mo-p500);
+}

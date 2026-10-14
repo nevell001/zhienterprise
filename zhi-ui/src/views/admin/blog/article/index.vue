@@ -459,6 +459,21 @@
             </section>
 
             <section class="side-section">
+              <div class="side-title">URL 别名</div>
+              <el-form-item prop="slug" class="compact-form-item">
+                <el-input
+                  v-model="form.slug"
+                  placeholder="留空使用数字 ID"
+                  :maxlength="100"
+                  show-word-limit
+                />
+              </el-form-item>
+              <div class="schedule-tip">
+                仅限字母、数字、下划线与连字符；设置后可用 /blog/article/别名 访问，sitemap 优先输出别名
+              </div>
+            </section>
+
+            <section class="side-section">
               <div class="side-title">分类</div>
               <el-form-item prop="categoryId" class="compact-form-item">
                 <el-select v-model="form.categoryId" placeholder="请选择分类">
@@ -823,6 +838,7 @@ function reset() {
     seoTitle: '',
     seoKeywords: '',
     seoDescription: '',
+    slug: '',
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,
