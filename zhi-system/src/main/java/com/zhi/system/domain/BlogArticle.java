@@ -103,6 +103,15 @@ public class BlogArticle extends BaseEntity
     /** 内容类型：news 资讯（默认）、business 核心业务、case 客户案例 */
     private String articleType;
 
+    /** SEO 标题（留空回退文章标题） */
+    private String seoTitle;
+
+    /** SEO 关键词（英文逗号分隔） */
+    private String seoKeywords;
+
+    /** SEO 描述（留空回退文章摘要） */
+    private String seoDescription;
+
     public void setArticleType(String articleType)
     {
         this.articleType = articleType;
@@ -111,6 +120,36 @@ public class BlogArticle extends BaseEntity
     public String getArticleType()
     {
         return articleType;
+    }
+
+    public void setSeoTitle(String seoTitle)
+    {
+        this.seoTitle = seoTitle;
+    }
+
+    public String getSeoTitle()
+    {
+        return seoTitle;
+    }
+
+    public void setSeoKeywords(String seoKeywords)
+    {
+        this.seoKeywords = seoKeywords;
+    }
+
+    public String getSeoKeywords()
+    {
+        return seoKeywords;
+    }
+
+    public void setSeoDescription(String seoDescription)
+    {
+        this.seoDescription = seoDescription;
+    }
+
+    public String getSeoDescription()
+    {
+        return seoDescription;
     }
 
     public void setId(Long id)

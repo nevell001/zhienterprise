@@ -575,6 +575,9 @@ CREATE TABLE IF NOT EXISTS `blog_article` (
   `content_md` longtext COMMENT 'Markdown 源码（format=markdown 时保存）',
   `format` varchar(10) NOT NULL DEFAULT 'html' COMMENT '内容格式 html|markdown',
   `article_type` varchar(20) NOT NULL DEFAULT 'news' COMMENT '内容类型：news 资讯 business 核心业务 case 客户案例',
+  `seo_title` varchar(200) DEFAULT NULL COMMENT 'SEO 标题（留空回退文章标题）',
+  `seo_keywords` varchar(255) DEFAULT NULL COMMENT 'SEO 关键词（英文逗号分隔）',
+  `seo_description` varchar(500) DEFAULT NULL COMMENT 'SEO 描述（留空回退文章摘要）',
   `cover_url` varchar(255) DEFAULT NULL COMMENT '封面图片URL',
   `category_id` bigint DEFAULT NULL COMMENT '分类ID',
   `author_id` bigint DEFAULT NULL COMMENT '作者ID',
@@ -2329,6 +2332,34 @@ SET @add_article_type := IF(@has_article_type = 0,
 PREPARE add_article_type_stmt FROM @add_article_type;
 EXECUTE add_article_type_stmt;
 DEALLOCATE PREPARE add_article_type_stmt;
+
+-- 老库升级：补齐 blog_article 文章级 TDK 列（幂等，SEO 优化）
+SET @has_article_seo_title := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'seo_title');
+SET @add_article_seo_title := IF(@has_article_seo_title = 0,
+    'ALTER TABLE `blog_article` ADD COLUMN `seo_title` varchar(200) DEFAULT NULL COMMENT ''SEO 标题（留空回退文章标题）''',
+    'SELECT 1');
+PREPARE add_article_seo_title_stmt FROM @add_article_seo_title;
+EXECUTE add_article_seo_title_stmt;
+DEALLOCATE PREPARE add_article_seo_title_stmt;
+
+SET @has_article_seo_keywords := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'seo_keywords');
+SET @add_article_seo_keywords := IF(@has_article_seo_keywords = 0,
+    'ALTER TABLE `blog_article` ADD COLUMN `seo_keywords` varchar(255) DEFAULT NULL COMMENT ''SEO 关键词（英文逗号分隔）''',
+    'SELECT 1');
+PREPARE add_article_seo_keywords_stmt FROM @add_article_seo_keywords;
+EXECUTE add_article_seo_keywords_stmt;
+DEALLOCATE PREPARE add_article_seo_keywords_stmt;
+
+SET @has_article_seo_description := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'seo_description');
+SET @add_article_seo_description := IF(@has_article_seo_description = 0,
+    'ALTER TABLE `blog_article` ADD COLUMN `seo_description` varchar(500) DEFAULT NULL COMMENT ''SEO 描述（留空回退文章摘要）''',
+    'SELECT 1');
+PREPARE add_article_seo_description_stmt FROM @add_article_seo_description;
+EXECUTE add_article_seo_description_stmt;
+DEALLOCATE PREPARE add_article_seo_description_stmt;
 
 -- 老库升级：补齐 blog_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS
