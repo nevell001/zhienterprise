@@ -1217,34 +1217,38 @@ VALUES (2000, '站点管理', 0, 1, 'admin', NULL, '', '', 1, 0, 'M', '0', '0', 
 -- 存量升级：一级菜单路径去 blog（admin/blog → admin），幂等，可重复执行
 UPDATE sys_menu SET path = 'admin' WHERE menu_id = 2000 AND path = 'admin/blog';
 
+-- 存量升级：菜单组件路径去 blog 前缀（blog/article/index → article/index），
+-- 与前端视图目录 views/admin/blog/* → views/admin/* 同步；幂等，可重复执行
+UPDATE sys_menu SET component = SUBSTRING(component, 6) WHERE component LIKE 'blog/%';
+
 -- 文章管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2001, '文章管理', 2000, 1, 'article', 'blog/article/index', '', '', 1, 0, 'C', '0', '0', 'blog:article:list', 'edit', 'admin', NOW(), '', NULL, '文章管理菜单');
+VALUES (2001, '文章管理', 2000, 1, 'article', 'article/index', '', '', 1, 0, 'C', '0', '0', 'blog:article:list', 'edit', 'admin', NOW(), '', NULL, '文章管理菜单');
 
 -- 分类管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2002, '分类管理', 2000, 2, 'category', 'blog/category/index', '', '', 1, 0, 'C', '0', '0', 'blog:category:list', 'list', 'admin', NOW(), '', NULL, '分类管理菜单');
+VALUES (2002, '分类管理', 2000, 2, 'category', 'category/index', '', '', 1, 0, 'C', '0', '0', 'blog:category:list', 'list', 'admin', NOW(), '', NULL, '分类管理菜单');
 
 -- 标签管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2003, '标签管理', 2000, 3, 'tag', 'blog/tag/index', '', '', 1, 0, 'C', '0', '0', 'blog:tag:list', 'tab', 'admin', NOW(), '', NULL, '标签管理菜单');
+VALUES (2003, '标签管理', 2000, 3, 'tag', 'tag/index', '', '', 1, 0, 'C', '0', '0', 'blog:tag:list', 'tab', 'admin', NOW(), '', NULL, '标签管理菜单');
 
 -- 评论管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2004, '评论管理', 2000, 4, 'comment', 'blog/comment/index', '', '', 1, 0, 'C', '0', '0', 'blog:comment:list', 'message', 'admin', NOW(), '', NULL, '评论管理菜单');
+VALUES (2004, '评论管理', 2000, 4, 'comment', 'comment/index', '', '', 1, 0, 'C', '0', '0', 'blog:comment:list', 'message', 'admin', NOW(), '', NULL, '评论管理菜单');
 
 -- 友链管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2006, '友链管理', 2000, 5, 'friendLink', 'blog/friendLink/index', '', '', 1, 0, 'C', '0', '0', 'blog:friendLink:list', 'link', 'admin', NOW(), '', NULL, '友链管理菜单');
+VALUES (2006, '友链管理', 2000, 5, 'friendLink', 'friendLink/index', '', '', 1, 0, 'C', '0', '0', 'blog:friendLink:list', 'link', 'admin', NOW(), '', NULL, '友链管理菜单');
 
 -- 媒体管理（上传记录）
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2007, '媒体管理', 2000, 6, 'media', 'blog/media/index', '', '', 1, 0, 'C', '0', '0', 'blog:media:list', 'component', 'admin', NOW(), '', NULL, '媒体管理菜单');
+VALUES (2007, '媒体管理', 2000, 6, 'media', 'media/index', '', '', 1, 0, 'C', '0', '0', 'blog:media:list', 'component', 'admin', NOW(), '', NULL, '媒体管理菜单');
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20080, '媒体删除', 2007, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:media:remove', '#', 'admin', NOW(), '', NULL, '');
 -- 留言管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
-(2008, '留言管理', 2000, 7, 'message', 'blog/message/index', '', '', 1, 0, 'C', '0', '0', 'blog:message:list', 'message', 'admin', NOW(), '', NULL, '留言管理菜单');
+(2008, '留言管理', 2000, 7, 'message', 'message/index', '', '', 1, 0, 'C', '0', '0', 'blog:message:list', 'message', 'admin', NOW(), '', NULL, '留言管理菜单');
 
 -- 留言管理按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1256,7 +1260,7 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 
 -- 自定义页面管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
-(2009, '页面管理', 2000, 8, 'page', 'blog/page/index', '', '', 1, 0, 'C', '0', '0', 'blog:page:list', 'documentation', 'admin', NOW(), '', NULL, '自定义页面管理菜单');
+(2009, '页面管理', 2000, 8, 'page', 'page/index', '', '', 1, 0, 'C', '0', '0', 'blog:page:list', 'documentation', 'admin', NOW(), '', NULL, '自定义页面管理菜单');
 
 -- 自定义页面按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1270,7 +1274,7 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2007), (1, 20080)
 
 -- 站点设置
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2005, '站点设置', 2000, 7, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'swagger', 'admin', NOW(), '', NULL, '站点设置菜单');
+VALUES (2005, '站点设置', 2000, 7, 'setting', 'setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'swagger', 'admin', NOW(), '', NULL, '站点设置菜单');
 
 -- 为管理员角色分配站点管理菜单权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
@@ -1278,7 +1282,7 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 
 -- 核心业务管理（同一文章实体按 article_type=business 过滤，复用文章管理组件与权限）
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2010, '核心业务管理', 2000, 2, 'business', 'blog/article/index', '', '', 1, 0, 'C', '0', '0', 'blog:article:list', 'shopping', 'admin', NOW(), '', NULL, '核心业务管理菜单（article_type=business 的文章）');
+VALUES (2010, '核心业务管理', 2000, 2, 'business', 'article/index', '', '', 1, 0, 'C', '0', '0', 'blog:article:list', 'shopping', 'admin', NOW(), '', NULL, '核心业务管理菜单（article_type=business 的文章）');
 
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2010), (2, 2010);
 
