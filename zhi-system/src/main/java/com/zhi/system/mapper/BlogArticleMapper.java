@@ -84,6 +84,13 @@ public interface BlogArticleMapper
     public BlogArticle selectBlogArticleByTitle(String title);
 
     /**
+     * 按别名查询文章（仅命中已发布且未删除的文章，slug 伪静态入口用）
+     * @param slug 文章别名
+     * @return 博客文章
+     */
+    public BlogArticle selectBlogArticleBySlug(String slug);
+
+    /**
      * 文章浏览量+1
      * @param id 文章ID
      */

@@ -86,7 +86,10 @@ public class BlogSeoController
                     String type = article.getArticleType();
                     String pathPrefix = "business".equals(type) || "case".equals(type)
                         ? "/blog/business/" : "/blog/article/";
-                    writeUrl(out, baseUrl + pathPrefix + article.getId(), lastmod);
+                    // 伪静态优先：有 slug 用 slug，否则回退数字 ID
+                    String seg = article.getSlug() != null && !article.getSlug().trim().isEmpty()
+                        ? article.getSlug().trim() : String.valueOf(article.getId());
+                    writeUrl(out, baseUrl + pathPrefix + seg, lastmod);
                 }
             }
         }

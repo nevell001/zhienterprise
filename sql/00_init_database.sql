@@ -578,6 +578,7 @@ CREATE TABLE IF NOT EXISTS `blog_article` (
   `seo_title` varchar(200) DEFAULT NULL COMMENT 'SEO 标题（留空回退文章标题）',
   `seo_keywords` varchar(255) DEFAULT NULL COMMENT 'SEO 关键词（英文逗号分隔）',
   `seo_description` varchar(500) DEFAULT NULL COMMENT 'SEO 描述（留空回退文章摘要）',
+  `slug` varchar(100) DEFAULT NULL COMMENT 'URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID）',
   `cover_url` varchar(255) DEFAULT NULL COMMENT '封面图片URL',
   `category_id` bigint DEFAULT NULL COMMENT '分类ID',
   `author_id` bigint DEFAULT NULL COMMENT '作者ID',
@@ -599,7 +600,8 @@ CREATE TABLE IF NOT EXISTS `blog_article` (
   KEY `idx_author_id` (`author_id`),
   KEY `idx_status` (`status`),
   KEY `idx_is_top` (`is_top`),
-  KEY `idx_create_time` (`create_time`)
+  KEY `idx_create_time` (`create_time`),
+  KEY `idx_slug` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客文章表';
 
 -- 博客分类表
@@ -1036,7 +1038,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_insert_sample_articles()
 BEGIN
   IF (SELECT COUNT(*) FROM `blog_article` WHERE `title` = '知企建站系统 v1.0 正式发布：一站式企业官网搭建平台') = 0 THEN
-INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`, `article_type`) VALUES
+INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`, `article_type`, `slug`) VALUES
 -- 置顶推荐文章
 ('知企建站系统 v1.0 正式发布：一站式企业官网搭建平台', '知企建站系统 v1.0 正式发布，提供内容管理、产品与服务展示、SEO 优化、功能开关与安全部署等一站式企业官网搭建能力。',
 '<h1>知企建站系统 v1.0 正式发布</h1>
@@ -1052,7 +1054,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 <h2>🚀 快速开始</h2>
 <p>使用 Docker Compose 即可一键部署，配合后台「站点设置」完成站点信息、导航与功能开关的配置，几分钟内即可上线您的企业官网。</p>
 <p>感谢一路支持我们的用户，欢迎通过「关于」页面提出宝贵意见。</p>',
-'', 7, 1, 'admin', 1, 1, 1, 156, 23, 'business'),
+'', 7, 1, 'admin', 1, 1, 1, 156, 23, 'business', 'zhi-v1-release'),
 
 ('2026 企业数字化转型趋势观察', '从官网体验、内容运营到数据驱动，梳理 2026 年企业数字化转型中最值得关注的几个趋势。',
 '<h1>2026 企业数字化转型趋势观察</h1>
@@ -1064,7 +1066,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 <p>个人信息保护与数据安全法规日益完善，企业在数字化转型中需要把安全合规作为基础设施来投入。</p>
 <h2>💡 小结</h2>
 <p>数字化转型不是一次性项目，而是持续的运营过程。选择一套可长期演进、自主可控的建站系统，是迈向数字化的第一步。</p>',
-'', 10, 1, 'admin', 0, 1, 1, 89, 15, 'news'),
+'', 10, 1, 'admin', 0, 1, 1, 89, 15, 'news', 'digital-2026-trends'),
 
 -- 客户案例
 ('客户案例：某制造企业官网升级实践', '分享某制造企业基于知企建站系统完成官网升级的实践：从内容梳理、页面搭建到上线运营的全过程。',
@@ -1080,7 +1082,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 </ol>
 <h2>✅ 上线效果</h2>
 <p>新官网上线后，页面平均停留时长与访问深度显著提升，市场部可以自主完成内容更新，不再依赖外部开发资源。</p>',
-'', 1, 1, 'admin', 0, 0, 1, 67, 12, 'case'),
+'', 1, 1, 'admin', 0, 0, 1, 67, 12, 'case', 'manufacturing-website-case'),
 
 ('企业官网 SEO 优化实用指南', '从站点标题、描述关键词到 sitemap 与 robots，介绍企业官网 SEO 优化的实用配置要点。',
 '<h1>企业官网 SEO 优化实用指南</h1>
@@ -1096,7 +1098,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 <p>系统内置 sitemap.xml 与 robots.txt，会随内容发布自动更新；将站点地址提交到搜索引擎站长平台，可以进一步加快收录。</p>
 <h2>📊 效果追踪</h2>
 <p>结合后台的访问统计与文章统计功能，持续观察哪些内容带来更多访问，逐步优化内容策略。</p>',
-'', 4, 1, 'admin', 0, 0, 1, 45, 8, 'news'),
+'', 4, 1, 'admin', 0, 0, 1, 45, 8, 'news', 'enterprise-seo-guide'),
 
 ('站点运维托管服务正式上线', '面向没有专职技术团队的中小企业，提供站点备份、监控告警与版本升级的运维托管服务。',
 '<h1>站点运维托管服务正式上线</h1>
@@ -1110,7 +1112,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 <p>没有专职运维人员的中小企业：把站点交给我们，团队专注于业务内容的运营。</p>
 <h2>📮 申请方式</h2>
 <p>通过官网「关于」页面的联系方式与我们取得联系，我们会安排专人对接评估与实施。</p>',
-'', 7, 1, 'admin', 0, 1, 1, 78, 11, 'business'),
+'', 7, 1, 'admin', 0, 1, 1, 78, 11, 'business', 'ops-hosting-service'),
 
 ('加入我们：与知企一起成长', '知企团队诚邀技术、设计与市场伙伴加入，一起把企业建站这件事做到极致。',
 '<h1>加入我们：与知企一起成长</h1>
@@ -1124,7 +1126,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `
 </ul>
 <h2>🤝 我们期待</h2>
 <p>热爱技术、乐于分享、对产品体验有追求的你。有意向请通过「关于」页面的联系方式与我们取得联系。</p>',
-'', 8, 1, 'admin', 0, 0, 1, 92, 16, 'news');
+'', 8, 1, 'admin', 0, 0, 1, 92, 16, 'news', 'join-zhiqi');
   END IF;
 END$$
 DELIMITER ;
@@ -2360,6 +2362,16 @@ SET @add_article_seo_description := IF(@has_article_seo_description = 0,
 PREPARE add_article_seo_description_stmt FROM @add_article_seo_description;
 EXECUTE add_article_seo_description_stmt;
 DEALLOCATE PREPARE add_article_seo_description_stmt;
+
+-- 老库升级：补齐 blog_article.slug 列（幂等，伪静态别名）
+SET @has_article_slug := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'slug');
+SET @add_article_slug := IF(@has_article_slug = 0,
+    'ALTER TABLE `blog_article` ADD COLUMN `slug` varchar(100) DEFAULT NULL COMMENT ''URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID）''',
+    'SELECT 1');
+PREPARE add_article_slug_stmt FROM @add_article_slug;
+EXECUTE add_article_slug_stmt;
+DEALLOCATE PREPARE add_article_slug_stmt;
 
 -- 老库升级：补齐 blog_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS

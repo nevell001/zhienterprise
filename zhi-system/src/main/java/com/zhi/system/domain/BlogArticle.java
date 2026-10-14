@@ -112,6 +112,9 @@ public class BlogArticle extends BaseEntity
     /** SEO 描述（留空回退文章摘要） */
     private String seoDescription;
 
+    /** URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID） */
+    private String slug;
+
     public void setArticleType(String articleType)
     {
         this.articleType = articleType;
@@ -150,6 +153,16 @@ public class BlogArticle extends BaseEntity
     public String getSeoDescription()
     {
         return seoDescription;
+    }
+
+    public void setSlug(String slug)
+    {
+        this.slug = slug;
+    }
+
+    public String getSlug()
+    {
+        return slug;
     }
 
     public void setId(Long id)

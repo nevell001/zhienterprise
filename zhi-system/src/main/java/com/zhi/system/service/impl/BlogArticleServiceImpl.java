@@ -166,11 +166,40 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /**
+     * 按别名查询文章（仅命中已发布且未删除的文章）
+     */
+    public BlogArticle selectBlogArticleBySlug(String slug)
+    {
+        return blogArticleMapper.selectBlogArticleBySlug(slug);
+    }
+
+    /**
+     * 校验并规范化文章别名：可空；非空时仅允许字母/数字/下划线/连字符，且全站唯一（未删除范围）
+     */
+    private void validateSlug(BlogArticle blogArticle)
+    {
+        String slug = blogArticle.getSlug();
+        if (slug == null || slug.trim().isEmpty()) {
+            return;
+        }
+        slug = slug.trim();
+        if (!slug.matches("[A-Za-z0-9_-]{1,100}")) {
+            throw new IllegalArgumentException("文章别名只允许字母、数字、下划线与连字符（1-100 个字符）");
+        }
+        BlogArticle exist = blogArticleMapper.selectBlogArticleBySlug(slug);
+        if (exist != null && !exist.getId().equals(blogArticle.getId())) {
+            throw new IllegalArgumentException("文章别名已存在：" + slug);
+        }
+        blogArticle.setSlug(slug);
+    }
+
     public int insertBlogArticle(BlogArticle blogArticle)
     {
         validateArticleContent(blogArticle);
         String title = validateArticleTitle(blogArticle.getTitle());
         blogArticle.setTitle(title);
+        validateSlug(blogArticle);
         blogArticle.setCreateTime(DateUtils.getNowDate());
         blogArticle.setAuthorId(com.zhi.common.utils.SecurityUtils.getLoginUser().getUser().getUserId());
         blogArticle.setAuthorName(com.zhi.common.utils.SecurityUtils.getLoginUser().getUser().getNickName());
@@ -309,6 +338,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         if (exist != null && !exist.getId().equals(blogArticle.getId())) {
             throw new IllegalArgumentException("文章标题已存在");
         }
+        validateSlug(blogArticle);
         // 如果只更新状态等其他字段，不校验标题和唯一性
         blogArticle.setUpdateTime(DateUtils.getNowDate());
         // 确保delFlag有默认值

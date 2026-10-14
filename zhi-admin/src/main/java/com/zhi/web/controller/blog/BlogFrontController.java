@@ -284,10 +284,35 @@ public class BlogFrontController extends BaseController
      * 获取文章详情（前台用）
      */
     @Anonymous
-    @GetMapping("/article/{id:\\d+}")
-    public AjaxResult getArticleDetail(@PathVariable("id") Long id, HttpServletRequest request)
+    /**
+     * 按数字 ID 或 slug 解析文章；slug 只命中已发布且未删除的文章，数字 ID 由后续状态校验兜底
+     */
+    private BlogArticle resolvePublishedArticle(String key) {
+        if (key == null || key.isEmpty()) {
+            return null;
+        }
+        if (key.chars().allMatch(Character::isDigit)) {
+            try {
+                return blogArticleService.selectBlogArticleById(Long.parseLong(key));
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return blogArticleService.selectBlogArticleBySlug(key);
+    }
+
+    @GetMapping("/article/{key:[A-Za-z0-9_-]+}")
+    public AjaxResult getArticleDetail(@PathVariable("key") String key, HttpServletRequest request)
     {
-        logger.info("请求文章详情，ID: {}", id);
+        logger.info("请求文章详情，key: {}", key);
+
+        // 兼容两种入口：数字 ID（历史链接）与 slug 伪静态链接，先解析再计数
+        BlogArticle blogArticle = resolvePublishedArticle(key);
+        if (blogArticle == null) {
+            logger.warn("文章不存在或未发布，key: {}", key);
+            return error("文章不存在");
+        }
+        Long id = blogArticle.getId();
 
         // 检查浏览统计开关，决定是否增加浏览量
         try {
@@ -310,7 +335,7 @@ public class BlogFrontController extends BaseController
             // 即使增加浏览量失败，也继续返回文章详情
         }
 
-        BlogArticle blogArticle = blogArticleService.selectBlogArticleById(id);
+        blogArticle = blogArticleService.selectBlogArticleById(id);
         if (blogArticle == null) {
             logger.warn("文章不存在，ID: {}", id);
             return error("文章不存在");
@@ -318,6 +343,7 @@ public class BlogFrontController extends BaseController
 
         logger.info("找到文章，ID: {}, 状态: {}, 删除标记: {}, 浏览量: {}",
             id, blogArticle.getStatus(), blogArticle.getDelFlag(), blogArticle.getViewCount());
+        // slug 入口时上面已按 key 解析过一次；此处保持按 ID 重取完整字段（含 content_md/format）
         
         // 确保所有字段都有值，避免null
         if (blogArticle.getStatus() == null) {
