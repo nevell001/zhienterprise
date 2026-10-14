@@ -68,10 +68,11 @@ export function getCategoryList(query?: PageParams): Promise<QueryResult<Categor
 
 /**
  * 获取分类详情（前台用）
+ * @param key 数字 ID 或 alias 伪静态别名，由后端统一解析
  */
-export function getCategoryDetail(id: number): Promise<Category & { data?: Category }> {
+export function getCategoryDetail(key: number | string): Promise<Category & { data?: Category }> {
   return request({
-    url: '/blog/api/category/' + id,
+    url: '/blog/api/category/' + key,
     method: 'get',
     headers: { isToken: false }
   })

@@ -135,7 +135,7 @@
               <router-link
                 v-for="category in categories"
                 :key="category.id"
-                :to="`/blog/category/${category.id}`"
+                :to="`/blog/category/${category.alias || category.id}`"
                 class="cat-item"
               >
                 {{ category.name }}

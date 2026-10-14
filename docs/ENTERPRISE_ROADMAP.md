@@ -82,7 +82,16 @@
    双入口兼容历史链接），sitemap 优先输出别名，管理端文章表单新增「URL 别名」，
    6 篇示例文章已带别名（如 `/blog/article/zhi-v1-release`）。
 
-   备注：分类仍按数字 ID 访问（`blog_category.alias` 字段已备，接入待后续需要）。
+   备注：~~分类仍按数字 ID 访问~~（✅ alias 已接入，见 Phase 2.6）。
+
+### Phase 2.6 — 分类 alias 伪静态（✅ 已完成，2026-10-14）
+
+1. ✅ **分类 alias 伪静态**：`/blog/category/{key}`、`/blog/article/category/{key}`
+   按「数字 ID 或 alias」统一解析（alias 只命中启用且未删除的分类）；
+   前台三处分类链接改为 alias 优先、回退数字 ID；分类页先解析分类再按数字 ID
+   加载文章，alias 未命中时回退「所有分类」视图；
+2. ✅ **sitemap 补全**：收录启用中的分类页（alias 优先）；企业模板模式下
+   联系页 `/blog/contact` 一并入图。
 
 ### Phase 2 — 完善批次（✅ 已完成，2026-10-14）
 

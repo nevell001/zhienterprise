@@ -116,7 +116,7 @@
                 :style="{ animationDelay: `${0.3 + index * 0.05}s` }"
               >
                 <router-link
-                  :to="`/blog/category/${category.id}`"
+                  :to="`/blog/category/${category.alias || category.id}`"
                   class="category-link"
                   :class="{ active: category.id === currentCategoryId }"
                 >
@@ -236,6 +236,9 @@ const loadingMore = ref(false)
 
 const currentCategoryId = ref(null)
 
+// 路由参数（数字 ID 或 alias 伪静态别名）
+const currentCategoryKey = ref('')
+
 const lastUpdateTime = ref('')
 
 const relatedCategories = ref([])
@@ -302,19 +305,47 @@ const loadBlogSettings = async () => {
   }
 }
 
-// 获取分类详情
-const loadCategoryDetail = async () => {
+// 获取分类详情（按数字 ID 或 alias 解析），成功时回填数字 ID 供文章列表过滤
+const loadCategoryDetail = async (): Promise<boolean> => {
   try {
-    const response = await getCategoryDetail(queryParams.categoryId)
+    const response = await getCategoryDetail(currentCategoryKey.value)
 
     const category = response.data || response
+    if (!category || !category.id) return false
+    currentCategoryId.value = category.id
+    queryParams.categoryId = category.id
     categoryName.value = category.name || ''
     categoryDescription.value = category.description || ''
     lastUpdateTime.value = formatDate(new Date().toISOString())
+    return true
   } catch (error) {
     logger.error('获取分类详情失败:', error)
-    ElMessage.error('获取分类详情失败')
+    return false
   }
+}
+
+// 按路由标识初始化分类页：解析成功加载该分类，失败（含 alias 未命中）回退全部文章
+const initCategoryPage = async () => {
+  const ok = await loadCategoryDetail()
+  if (ok) {
+    loadCategoryArticles()
+    loadRelatedCategories()
+  } else {
+    logger.warn('分类不存在或未启用，回退全部文章:', currentCategoryKey.value)
+    resetToAllCategories()
+  }
+}
+
+// 重置为「所有分类」视图
+const resetToAllCategories = () => {
+  currentCategoryId.value = null
+  currentCategoryKey.value = ''
+  queryParams.categoryId = null
+  queryParams.pageNum = 1
+  categoryName.value = '所有分类'
+  categoryDescription.value = '浏览所有分类下的文章'
+  loadCategoryArticles()
+  loadRelatedCategories()
 }
 
 // 获取相关分类
@@ -398,38 +429,15 @@ const getTagScale = count => {
 // 监听路由变化，Vue 3 会自动清理
 watch(
   () => route.params.id,
-  newId => {
-    if (newId) {
-      // 有分类ID，加载特定分类的文章
-      const parsedId = parseInt(newId as string)
-      // 检查是否为有效数字
-      if (!isNaN(parsedId) && parsedId > 0) {
-        currentCategoryId.value = parsedId
-        queryParams.categoryId = parsedId
-        queryParams.pageNum = 1
-        loadCategoryDetail()
-        loadCategoryArticles()
-        loadRelatedCategories()
-      } else {
-        // 无效的分类ID，显示所有分类列表
-        logger.warn('无效的分类ID:', newId)
-        currentCategoryId.value = null
-        queryParams.categoryId = null
-        queryParams.pageNum = 1
-        categoryName.value = '所有分类'
-        categoryDescription.value = '浏览所有分类下的文章'
-        loadCategoryArticles()
-        loadRelatedCategories()
-      }
-    } else {
-      // 没有分类ID，显示所有分类列表
-      currentCategoryId.value = null
-      queryParams.categoryId = null
+  newKey => {
+    if (newKey) {
+      // 路由参数兼容数字 ID（历史链接）与 alias 伪静态链接：先解析分类，再按解析出的数字 ID 加载文章
+      currentCategoryKey.value = String(newKey)
       queryParams.pageNum = 1
-      categoryName.value = '所有分类'
-      categoryDescription.value = '浏览所有分类下的文章'
-      loadCategoryArticles()
-      loadRelatedCategories()
+      initCategoryPage()
+    } else {
+      // 没有分类标识，显示所有分类列表
+      resetToAllCategories()
     }
   },
   { immediate: true }

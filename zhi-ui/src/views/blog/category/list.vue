@@ -14,7 +14,7 @@
             <router-link
               v-for="category in categories"
               :key="category.id"
-              :to="`/blog/category/${category.id}`"
+              :to="`/blog/category/${category.alias || category.id}`"
               class="cat-card"
             >
               <div class="cat-card-head">
@@ -46,6 +46,7 @@ interface CategoryItem {
   // 与共享类型 @/types 的 Category 对齐（接口返回的 id 允许为空）
   id?: number
   name: string
+  alias?: string
   description?: string
   articleCount?: number
   count?: number

@@ -37,7 +37,8 @@ describe('blog design layout guards', () => {
     expect(homeView).toContain('class="cat-item active"')
     // 「全部文章」的目标取决于首页是否被自定义页面接管（/blog 或 /blog/articles）
     expect(homeView).toContain(':to="listHomePath"')
-    expect(homeView).toContain(':to="`/blog/category/${category.id}`"')
+    // 分类链接 alias 伪静态优先，回退数字 ID
+    expect(homeView).toContain(':to="`/blog/category/${category.alias || category.id}`"')
     expect(homeView).toContain(':to="`/blog/tag/${tag.id}`"')
   })
 
