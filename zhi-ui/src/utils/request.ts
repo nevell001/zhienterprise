@@ -196,11 +196,14 @@ service.interceptors.response.use(
         status: res.status,
         response: res.data
       })
-      ElMessage({
-        message: `服务器错误: ${msg}`,
-        type: 'error',
-        duration: 5000
-      })
+      // silent：调用方自行降级处理（如可选 slug 页面不存在属正常态），不弹兜底 toast
+      if (!(res.config as any)?.silent) {
+        ElMessage({
+          message: `服务器错误: ${msg}`,
+          type: 'error',
+          duration: 5000
+        })
+      }
       return Promise.reject(new Error(msg))
     } else if (code === 601) {
       ElMessage({ message: msg, type: 'warning' })

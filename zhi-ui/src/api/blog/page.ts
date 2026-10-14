@@ -48,11 +48,17 @@ export function getPublishedPages(): Promise<BlogPageListResult> {
  *
  * 页面不存在或未发布时后端返回 code != 200 与消息「页面不存在或未发布」，
  * 请求封装会 reject，调用方需要捕获并展示友好提示。
+ * 可选 slug（如 about/honors 这类站点自带页面 slug 可能尚未在后台建页）传
+ * config.silent 抑制请求封装的兜底 toast，由调用方自行降级为默认文案。
  */
-export function getPublishedPageBySlug(slug: string): Promise<BlogPageDetailResult> {
+export function getPublishedPageBySlug(
+  slug: string,
+  config?: { silent?: boolean }
+): Promise<BlogPageDetailResult> {
   return request({
     url: '/blog/page/' + encodeURIComponent(slug),
     method: 'get',
-    headers: { isToken: false }
+    headers: { isToken: false },
+    ...config
   })
 }

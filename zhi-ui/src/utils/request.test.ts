@@ -4,13 +4,22 @@ import axios from 'axios'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
+// Captured response interceptor (set when request.ts registers it on the mocked instance)
+const capturedInterceptors = vi.hoisted(() => ({
+  response: undefined as ((res: any) => any) | undefined
+}))
+
 // Mock dependencies
 vi.mock('axios', () => ({
   default: {
     create: vi.fn(() => ({
       interceptors: {
         request: { use: vi.fn() },
-        response: { use: vi.fn() }
+        response: {
+          use: vi.fn((onFulfilled: (res: any) => any) => {
+            capturedInterceptors.response = onFulfilled
+          })
+        }
       },
       defaults: {
         baseURL: '/dev-api',
@@ -79,10 +88,10 @@ vi.mock('@/plugins/element-plus-service', () => ({
   ElNotification: {
     error: vi.fn()
   },
-  ElMessage: {
+  ElMessage: Object.assign(vi.fn(), {
     error: vi.fn(),
     warning: vi.fn()
-  },
+  }),
   ElMessageBox: {
     confirm: vi.fn()
   },
@@ -321,6 +330,40 @@ describe('Request 工具函数测试', () => {
 
       expect(code).toBe(601)
       expect(msg).toBe('参数错误')
+    })
+
+    it('code=500 且 silent 时只记录日志、不弹兜底 toast（可选 slug 未建页属正常态）', async () => {
+      const interceptor = capturedInterceptors.response
+      expect(interceptor).toBeDefined()
+
+      const res = {
+        data: { code: 500, msg: '页面不存在或未发布' },
+        config: { url: '/blog/page/honors', silent: true },
+        request: { responseType: 'json' },
+        status: 200
+      }
+
+      await expect(interceptor!(res)).rejects.toThrow('服务器内部错误')
+      expect(ElMessage).not.toHaveBeenCalled()
+    })
+
+    it('code=500 且非 silent 时仍弹兜底 toast', async () => {
+      const interceptor = capturedInterceptors.response
+
+      const res = {
+        data: { code: 500, msg: '页面不存在或未发布' },
+        config: { url: '/blog/page/honors' },
+        request: { responseType: 'json' },
+        status: 200
+      }
+
+      await expect(interceptor!(res)).rejects.toThrow('服务器内部错误')
+      expect(ElMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'error',
+          message: expect.stringContaining('服务器内部错误')
+        })
+      )
     })
 
     it('应该处理二进制数据响应', async () => {
