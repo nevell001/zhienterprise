@@ -5,7 +5,20 @@
 --   1) 17 张业务表 blog_* 重命名为 zhi_*（含索引/自增/注释随表迁移）
 --   2) sys_role.role_key: 'blog_user' → 'site_user'（自助注册用户角色）
 --
--- 为什么必须单独跑：
+-- ★ 必须配合第二步：本补丁跑完后，**再重跑一次 00_init_database.sql**。
+--   原因：MySQL 的 RENAME TABLE 不会改写数据库侧例程体——
+--   tr_article_* 触发器、update_category_article_count 函数、
+--   sp_fix_category_article_count* / sp_verify_category_article_count 存储过程
+--   里都写死了 `FROM blog_category` 之类的语句，
+--   表改名后它们会在运行时抛 `Table 'xxx.blog_category' doesn't exist`
+--   （定时任务「同步文章浏览量」最先炸出来）。
+--   00 里这些例程都是 `DROP ... IF EXISTS` + `CREATE`，重跑即按新表名重建，且幂等。
+--
+-- 完整升级（顺序不能反）：
+--   mysql -u root -p <库名> < sql/99_rename_blog_to_zhi.sql
+--   mysql -u root -p <库名> < sql/00_init_database.sql
+--
+-- 为什么表名必须单独跑：
 --   sql/00_init_database.sql 用 CREATE TABLE IF NOT EXISTS / INSERT IGNORE 初始化，
 --   老库里同名对象一律被「跳过」而非重建——重跑初始化脚本不会改掉已有的表名。
 --
@@ -170,6 +183,18 @@ SET @sql := IF(
   'DO 0');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+-- ---------- 丢弃数据库侧例程（第二步重跑 00 会按新表名重建） ----------
+-- RENAME TABLE 不改写例程体：不先丢掉这些陈旧对象，第二步的种子脚本会在数据段
+-- 被陈旧触发器/函数绊住（报 Table 'xxx.blog_category' doesn't exist）而中途失败。
+-- 00 里每个例程都是 DROP ... IF EXISTS + CREATE，所以这里丢掉是安全的。
+DROP TRIGGER IF EXISTS `tr_article_update_time`;
+DROP TRIGGER IF EXISTS `tr_article_insert`;
+DROP TRIGGER IF EXISTS `tr_article_delete_physical`;
+DROP FUNCTION IF EXISTS `update_category_article_count`;
+DROP PROCEDURE IF EXISTS `sp_fix_category_article_count_by_id`;
+DROP PROCEDURE IF EXISTS `sp_fix_category_article_count`;
+DROP PROCEDURE IF EXISTS `sp_verify_category_article_count`;
+
 -- ---------- 角色键：blog_user → site_user（幂等） ----------
 SELECT CONCAT('role blog_user before: ', COUNT(*)) AS note FROM sys_role WHERE role_key = 'blog_user';
 UPDATE sys_role SET role_key = 'site_user'
@@ -182,3 +207,6 @@ SELECT COUNT(*) AS remaining_blog_tables FROM information_schema.TABLES
 SELECT TABLE_NAME AS renamed_table FROM information_schema.TABLES
  WHERE TABLE_SCHEMA = @db AND TABLE_NAME LIKE 'zhi\_%' ORDER BY TABLE_NAME;
 SELECT role_id, role_key FROM sys_role WHERE role_key IN ('blog_user', 'site_user');
+SELECT CONCAT('例程已丢弃，当前触发器数=', COUNT(*),
+              '；下一步必须重跑 sql/00_init_database.sql 按新表名重建') AS must_run_step2
+  FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA = @db;

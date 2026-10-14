@@ -24,7 +24,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/system-stats")
-public class StatisticsController {
+public class SystemStatsController {
 
     @Autowired
     private IArticleService articleService;

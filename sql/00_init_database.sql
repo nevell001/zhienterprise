@@ -1805,7 +1805,7 @@ SELECT
     (DATA_LENGTH + INDEX_LENGTH) as TOTAL_SIZE
 FROM information_schema.TABLES
 WHERE TABLE_SCHEMA = DATABASE()
-    AND TABLE_NAME LIKE 'blog_%'
+    AND TABLE_NAME LIKE 'zhi_%'
 ORDER BY (DATA_LENGTH + INDEX_LENGTH) DESC;
 
 CREATE OR REPLACE VIEW v_index_usage AS
@@ -1818,7 +1818,7 @@ SELECT
     INDEX_TYPE
 FROM information_schema.STATISTICS
 WHERE TABLE_SCHEMA = DATABASE()
-    AND TABLE_NAME LIKE 'blog_%'
+    AND TABLE_NAME LIKE 'zhi_%'
 ORDER BY TABLE_NAME, INDEX_NAME;
 
 -- 执行统计信息更新
@@ -2145,7 +2145,7 @@ SELECT 'zhi_setting' AS table_name, COUNT(*) AS record_count FROM zhi_setting;
 
 SELECT '🎉 数据库初始化完成！' AS result;
 SELECT '✅ 系统基础表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'sys_%';
-SELECT '✅ 站点系统表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'blog_%';
+SELECT '✅ 站点系统表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'zhi_%';
 SELECT '✅ Quartz定时任务表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'QRTZ_%';
 SELECT '✅ 代码生成器表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'gen_%';
 SELECT '✅ 站点管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_name = '站点管理' OR parent_id = 2000;

@@ -13,8 +13,20 @@
 - 幂等：每张表都先查 `information_schema`，只有「旧名在、新名不在」才 `RENAME TABLE`；
   `sys_role` 的更新带 `WHERE` 守卫。**重复执行第二次为 0 行变化**。
 - 范围：只改 17 张表名 + 1 行角色键；不动任何数据行，也不动 `blog_name` 等设置项键。
-- 执行：`mysql -u root -p <库名> < sql/99_rename_blog_to_zhi.sql`（脚本内不含 `CREATE DATABASE`/`USE`）。
+- **必须两步、顺序不能反**：
+  ```bash
+  mysql -u root -p <库名> < sql/99_rename_blog_to_zhi.sql   # 1. 改表名/角色键
+  mysql -u root -p <库名> < sql/00_init_database.sql        # 2. 刷新数据库侧例程
+  ```
+  第二步不可省：`RENAME TABLE` **不会改写触发器/函数/存储过程体**，
+  `tr_article_*`、`update_category_article_count`、`sp_fix_category_article_count*`、
+  `sp_verify_category_article_count` 里都写死了 `blog_category` 之类的表名，
+  不重建就会在运行时抛 `Table 'xxx.blog_category' doesn't exist`。
+  00 里这些例程都是 `DROP … IF EXISTS` + `CREATE`，重跑即按新表名重建，且幂等。
 - 执行前建议备份：`mysqldump --single-transaction <库名> zhi_article zhi_setting > rename.before.sql`。
+- 演练注意：用 `CREATE TABLE … LIKE` 复制的 scratch 副本**不含触发器/存储过程**，
+  因此表改名演练必须额外把例程也复制过去（或按上面的两步流程在副本上端到端跑一遍），
+  否则会漏掉「例程体里的旧表名」这类只在运行时暴露的缺陷。
 - 权限串（`blog:*` → `zhi:*`）已由 `00_init_database.sql` 里的幂等 UPDATE 覆盖，无需单独跑；
   但**已登录用户的权限缓存在 Redis**，改完要重新登录一次才生效。
 
