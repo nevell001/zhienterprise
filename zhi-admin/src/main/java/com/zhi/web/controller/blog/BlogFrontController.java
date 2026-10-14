@@ -281,10 +281,6 @@ public class BlogFrontController extends BaseController
     }
 
     /**
-     * 获取文章详情（前台用）
-     */
-    @Anonymous
-    /**
      * 按数字 ID 或 slug 解析文章；slug 只命中已发布且未删除的文章，数字 ID 由后续状态校验兜底
      */
     private BlogArticle resolvePublishedArticle(String key) {
@@ -301,6 +297,10 @@ public class BlogFrontController extends BaseController
         return blogArticleService.selectBlogArticleBySlug(key);
     }
 
+    /**
+     * 获取文章详情（前台用）
+     */
+    @Anonymous
     @GetMapping("/article/{key:[A-Za-z0-9_-]+}")
     public AjaxResult getArticleDetail(@PathVariable("key") String key, HttpServletRequest request)
     {
@@ -325,7 +325,7 @@ public class BlogFrontController extends BaseController
                 String viewerKey = buildViewerKey(request);
                 blogArticleService.addViewCount(id, viewerKey);
                 // 文章访问同样写入 blog_visit_log 明细，否则管理端文章 PV/UV 明细永远为空
-                blogVisitLogService.recordVisit("article", id, "/blog/article/" + id, viewerKey, request);
+                blogVisitLogService.recordVisit("article", id, "/article/" + id, viewerKey, request);
                 logger.info("文章浏览量已增加，ID: {}", id);
             } else {
                 logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
@@ -593,7 +593,7 @@ public class BlogFrontController extends BaseController
         if (shouldCount) {
             String viewerKey = buildViewerKey(request);
             blogArticleService.addViewCount(id, viewerKey);
-            blogVisitLogService.recordVisit("article", id, "/blog/article/" + id, viewerKey, request);
+            blogVisitLogService.recordVisit("article", id, "/article/" + id, viewerKey, request);
             logger.info("文章浏览量已增加（API调用），ID: {}", id);
         } else {
             logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
@@ -1050,10 +1050,10 @@ public class BlogFrontController extends BaseController
 
             out.println("<item>");
             out.println("<title><![CDATA[" + (article.getTitle() != null ? article.getTitle() : "") + "]]></title>");
-            out.println("<link>" + blogUrl + "/blog/article/" + article.getId() + "</link>");
+            out.println("<link>" + blogUrl + "/article/" + article.getId() + "</link>");
             out.println("<description><![CDATA[" + (article.getSummary() != null ? article.getSummary() : "") + "]]></description>");
             out.println("<pubDate>" + pubDate + "</pubDate>");
-            out.println("<guid>" + blogUrl + "/blog/article/" + article.getId() + "</guid>");
+            out.println("<guid>" + blogUrl + "/article/" + article.getId() + "</guid>");
             out.println("</item>");
 
             count++;

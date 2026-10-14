@@ -3,6 +3,7 @@ package com.zhi.web.controller.blog;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.core.domain.model.LoginUser;
+import com.zhi.framework.config.properties.PermitAllUrlProperties;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogCategory;
 import com.zhi.system.domain.BlogComment;
@@ -23,11 +24,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -419,5 +423,36 @@ class BlogFrontControllerTest
         assertNotNull(captured.get(), "RSS 必须用 PageHelper 限制条数");
         assertEquals(1, captured.get().getPageNum());
         assertEquals(10, captured.get().getPageSize());
+    }
+
+    /**
+     * 文章详情端点必须进入 @Anonymous 扫描出的匿名放行清单。
+     *
+     * <p>事故回归：@Anonymous 曾夹在两段 Javadoc 之间、挂到了私有方法 resolvePublishedArticle 上，
+     * 真正的端点 getArticleDetail 没有注解。SecurityConfig 只放行扫描清单里的 URL，
+     * 加上前端公开接口不带头（isToken:false），所有访客访问 /blog/article/{id} 一律 401。
+     * 本测试跑的就是生产同款 PermitAllUrlProperties 扫描，注解一旦挂错位置立即红灯。</p>
+     */
+    @Test
+    void articleDetailShouldBeRegisteredAsAnonymousPermitUrl()
+    {
+        try (AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext())
+        {
+            ctx.refresh();
+            // 手动注册的实例不经过后置处理器：本测试只关心请求映射与 @Anonymous 扫描，无需注入依赖
+            ctx.getBeanFactory().registerSingleton("blogFrontController", new BlogFrontController());
+
+            RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
+            mapping.setApplicationContext(ctx);
+            mapping.afterPropertiesSet();
+            ctx.getBeanFactory().registerSingleton("requestMappingHandlerMapping", mapping);
+
+            PermitAllUrlProperties permitAllUrl = new PermitAllUrlProperties();
+            permitAllUrl.setApplicationContext(ctx);
+            permitAllUrl.afterPropertiesSet();
+
+            assertTrue(permitAllUrl.getUrls().contains("/blog/article/{key:[A-Za-z0-9_-]+}"),
+                "@Anonymous 缺失或挂错位置：/blog/article/{key} 未进入匿名放行清单，前台访客会被拦截成 401");
+        }
     }
 }
