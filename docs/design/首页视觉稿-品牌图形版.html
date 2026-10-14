@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XX 科技有限公司 — 首页视觉稿</title>
+<style>
+:root{
+  --primary:#1A56DB;--primary-hover:#1544B0;--primary-subtle:#EEF3FE;
+  --accent:#FF6B35;
+  --ink-900:#0B0F19;--ink-700:#1F2937;--ink-500:#4B5563;--ink-400:#6B7280;
+  --border:#E5E7EB;--surface:#F7F8FA;--bg:#fff;
+  --r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:24px;
+  --sh-sm:0 1px 2px rgba(11,15,25,.06),0 1px 3px rgba(11,15,25,.04);
+  --sh-md:0 8px 24px rgba(11,15,25,.10),0 2px 6px rgba(11,15,25,.04);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --container:1280px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter","Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  color:var(--ink-700);background:var(--bg);font-size:16px;line-height:1.75;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--container);margin:0 auto;padding:0 32px}
+h1,h2,h3,h4{color:var(--ink-900);font-weight:600;line-height:1.2;letter-spacing:-.02em}
+
+/* ---- nav ---- */
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:var(--container);margin:0 auto;padding:0 32px;height:64px;
+  display:flex;align-items:center;gap:40px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:600;color:var(--ink-900);font-size:17px;letter-spacing:-.01em}
+.nav-links{display:flex;gap:30px;margin-left:auto;list-style:none}
+.nav-links a{color:var(--ink-500);text-decoration:none;font-size:15px;position:relative;padding:4px 0}
+.nav-links a.on{color:var(--primary);font-weight:500}
+.nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.5px;
+  background:var(--primary);transform:scaleX(0);transform-origin:left;transition:transform .25s var(--ease-out)}
+.nav-links a:hover{color:var(--ink-900)}
+.nav-links a:hover::after{transform:scaleX(1)}
+
+/* ---- buttons ---- */
+.btn{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 22px;
+  border-radius:var(--r-md);font-size:16px;font-weight:600;border:1px solid transparent;
+  cursor:pointer;text-decoration:none;transition:transform .2s var(--ease-out),background .2s,box-shadow .2s}
+.btn-p{background:var(--primary);color:#fff}
+.btn-p:hover{background:var(--primary-hover);transform:translateY(-2px);box-shadow:var(--sh-md)}
+.btn-s{background:#fff;color:var(--primary);border-color:var(--primary)}
+.btn-s:hover{background:var(--primary-subtle);transform:translateY(-2px);box-shadow:var(--sh-sm)}
+.btn-d{background:var(--ink-900);color:#fff}
+.btn-d:hover{background:#1c2437;transform:translateY(-2px);box-shadow:var(--sh-md)}
+.btn-sm{height:40px;padding:0 16px;font-size:14px}
+
+/* ---- hero ---- */
+.hero{padding:84px 0 72px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:500;
+  letter-spacing:.02em;color:var(--primary);background:var(--primary-subtle);
+  padding:6px 12px;border-radius:999px;margin-bottom:22px}
+.hero h1{font-size:60px;margin-bottom:22px}
+.hero h1 em{font-style:normal;color:var(--primary)}
+.hero-sub{font-size:18px;line-height:1.7;color:var(--ink-500);max-width:490px;margin-bottom:34px}
+.hero-cta{display:flex;gap:14px;margin-bottom:52px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-top:30px;border-top:1px solid var(--border)}
+.metric b{display:block;font-size:30px;color:var(--ink-900);letter-spacing:-.02em;line-height:1.2}
+.metric span{font-size:13px;color:var(--ink-400)}
+
+/* brand graphic */
+.brandviz{position:relative;aspect-ratio:1;width:100%}
+.brandviz svg{width:100%;height:100%;overflow:visible}
+
+/* ---- section ---- */
+section{position:relative}
+.pad{padding:104px 0}
+.sec-head{margin-bottom:52px}
+.sec-tag{font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--primary);margin-bottom:14px}
+.sec-head h2{font-size:36px;margin-bottom:14px}
+.sec-head p{font-size:16px;color:var(--ink-500);max-width:600px}
+.rule{height:1px;background:var(--border);transform-origin:left}
+
+/* ---- business ---- */
+.biz{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.biz-card{border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;
+  background:#fff;transition:transform .3s var(--ease-out),box-shadow .3s}
+.biz-card:hover{transform:translateY(-4px);box-shadow:var(--sh-md)}
+.biz-ico{width:44px;height:44px;border-radius:12px;background:var(--primary-subtle);
+  display:grid;place-items:center;margin-bottom:22px}
+.biz-card h3{font-size:24px;margin-bottom:8px}
+.biz-card>p{font-size:15px;color:var(--ink-400);margin-bottom:24px}
+.biz-list{list-style:none;border-top:1px solid var(--border)}
+.biz-list li{display:flex;align-items:center;gap:11px;padding:14px 0;
+  border-bottom:1px solid var(--border);font-size:15px;color:var(--ink-700);cursor:pointer;
+  transition:color .2s}
+.biz-list li:hover{color:var(--primary)}
+.biz-list svg{flex:none;transition:transform .25s var(--ease-out)}
+.biz-list li:hover svg{transform:translateX(3px)}
+
+/* ---- solutions ---- */
+.sol{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.sol-card{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--surface);
+  border:1px solid var(--border);padding:34px;min-height:268px;display:flex;flex-direction:column;
+  transition:transform .3s var(--ease-out),box-shadow .3s}
+.sol-card:hover{transform:translateY(-4px);box-shadow:var(--sh-md)}
+.sol-card .num{font-size:13px;font-weight:500;color:var(--primary);letter-spacing:.08em;margin-bottom:16px}
+.sol-card h3{font-size:22px;margin-bottom:10px}
+.sol-card p{font-size:15px;color:var(--ink-500);flex:1}
+.sol-card .lnk{display:inline-flex;align-items:center;gap:8px;font-size:15px;
+  color:var(--primary);font-weight:500;margin-top:20px}
+.sol-art{position:absolute;right:-24px;bottom:-24px;width:190px;opacity:.5;
+  transition:transform .5s var(--ease-out)}
+.sol-card:hover .sol-art{transform:scale(1.05) rotate(-2deg)}
+
+/* ---- numbers ---- */
+.nums{background:var(--ink-900);color:#fff}
+.nums h2{color:#fff}
+.numgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.13);
+  border-radius:var(--r-lg);overflow:hidden;margin-top:56px}
+.numcell{background:var(--ink-900);padding:44px 36px}
+.numcell b{display:block;font-size:48px;color:#fff;letter-spacing:-.02em;line-height:1.1}
+.numcell b i{font-style:normal;color:#5B8DEF}
+.numcell span{display:block;margin-top:12px;font-size:14px;color:#9CA3AF}
+
+/* ---- clients ---- */
+.logos{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:8px}
+.logocell{background:#fff;height:104px;display:grid;place-items:center;
+  font-size:15px;font-weight:500;color:var(--ink-400);filter:grayscale(1);opacity:.65;
+  transition:opacity .4s var(--ease-out),color .4s,filter .4s}
+.logocell:hover{opacity:1;filter:grayscale(0);color:var(--primary)}
+
+/* ---- news ---- */
+.news{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:24px}
+.n-card{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;
+  background:#fff;cursor:pointer;transition:transform .3s var(--ease-out),box-shadow .3s}
+.n-card:hover{transform:translateY(-4px);box-shadow:var(--sh-md)}
+.n-thumb{aspect-ratio:16/9;background:var(--surface);display:grid;place-items:center;border-bottom:1px solid var(--border)}
+.n-body{padding:20px 22px 24px}
+.n-body h3{font-size:17px;line-height:1.5;margin-bottom:12px}
+.n-meta{display:flex;gap:10px;font-size:13px;color:var(--ink-400)}
+.n-meta .tag{color:var(--primary);background:var(--primary-subtle);padding:3px 9px;border-radius:999px;font-size:12px}
+
+/* ---- cta ---- */
+.cta{position:relative;background:var(--ink-900);overflow:hidden;text-align:center}
+.cta h2{color:#fff;font-size:40px;margin-bottom:16px}
+.cta p{color:#9CA3AF;font-size:18px;margin-bottom:34px}
+.cta .btn{margin:0 6px}
+.cta-bg{position:absolute;inset:0;opacity:.2;pointer-events:none}
+
+/* ---- footer ---- */
+footer{background:var(--ink-900);color:#9CA3AF;padding:0 0 32px;border-top:1px solid rgba(255,255,255,.12)}
+.sub{padding:34px 0;border-bottom:1px solid rgba(255,255,255,.12);display:flex;
+  align-items:center;gap:20px;flex-wrap:wrap}
+.sub h3{color:#fff;font-size:20px;margin-right:auto}
+.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:48px;padding:56px 0}
+.fgrid h4{color:#fff;font-size:14px;margin-bottom:18px;font-weight:500}
+.fgrid ul{list-style:none}
+.fgrid li{margin-bottom:11px;font-size:14px}
+.fgrid a{color:#9CA3AF;text-decoration:none;transition:color .2s}
+.fgrid a:hover{color:#fff}
+.fbot{display:flex;justify-content:space-between;align-items:center;
+  padding-top:26px;border-top:1px solid rgba(255,255,255,.12);font-size:13px}
+
+/* ---- motion ---- */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out)}
+.rv.in{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}
+  *{animation:none!important;transition-duration:.01ms!important}}
+@media(max-width:991px){
+  .hero-grid,.biz,.sol,.news,.fgrid{grid-template-columns:1fr}
+  .hero h1{font-size:40px}.sec-head h2{font-size:28px}.numgrid,.logos{grid-template-columns:1fr 1fr}
+  .wrap,.nav-in{padding:0 20px}.metrics{grid-template-columns:1fr 1fr}.nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="nav-in">
+  <div class="logo">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+      <rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="#1A56DB" stroke-width="1.5"/>
+      <path d="M7 13h12M13 7v12" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    XX 科技
+  </div>
+  <ul class="nav-links">
+    <li><a href="#" class="on">首页</a></li>
+    <li><a href="#">核心业务</a></li>
+    <li><a href="#">解决方案</a></li>
+    <li><a href="#">新闻动态</a></li>
+    <li><a href="#">关于我们</a></li>
+    <li><a href="#">联系我们</a></li>
+  </ul>
+  <a class="btn btn-p btn-sm" href="#">咨询合作</a>
+</div></nav>
+
+<!-- HERO -->
+<header class="hero"><div class="wrap"><div class="hero-grid">
+  <div class="rv in">
+    <span class="eyebrow">结构化能力 · 15 年行业深耕</span>
+    <h1>让复杂的业务<br>变得<em>清晰可控</em></h1>
+    <p class="hero-sub">面向【行业】企业提供产品与服务一体化解决方案，从诊断咨询到落地交付，全程陪跑，让每一次决策都有据可依。</p>
+    <div class="hero-cta">
+      <a class="btn btn-p" href="#">了解我们的方案
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="btn btn-s" href="#">预约演示</a>
+    </div>
+    <div class="metrics">
+      <div class="metric"><b>15</b><span>年行业深耕</span></div>
+      <div class="metric"><b>1200+</b><span>服务客户</span></div>
+      <div class="metric"><b>30+</b><span>覆盖省份</span></div>
+      <div class="metric"><b>86</b><span>技术专利</span></div>
+    </div>
+  </div>
+
+  <!-- 品牌图形母题：精密网格 -->
+  <div class="brandviz rv in d1">
+    <svg viewBox="0 0 560 560" fill="none" aria-label="品牌图形母题：精密网格">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#1A56DB"/><stop offset="1" stop-color="#5B8DEF"/>
+        </linearGradient>
+      </defs>
+      <g stroke="#E5E7EB" stroke-width="1">
+        <path d="M40 80h480M40 160h480M40 240h480M40 320h480M40 400h480M40 480h480"/>
+        <path d="M80 40v480M160 40v480M240 40v480M320 40v480M400 40v480M480 40v480"/>
+      </g>
+      <g stroke="url(#g1)" stroke-width="1.5">
+        <path d="M80 240h160v160H80z"/>
+        <path d="M320 160h160v160H320z"/>
+        <path d="M240 400h160v80H240z"/>
+      </g>
+      <g fill="url(#g1)">
+        <circle cx="80" cy="80" r="7"/><circle cx="480" cy="80" r="7"/>
+        <circle cx="400" cy="480" r="7"/><circle cx="240" cy="320" r="7"/>
+      </g>
+      <g fill="#FF6B35"><circle cx="480" cy="400" r="9"/></g>
+      <g stroke="#1A56DB" stroke-width="1.5" stroke-dasharray="4 6">
+        <path d="M87 87L233 233M327 167L407 247M247 407L393 473"/>
+      </g>
+      <rect x="240" y="80" width="160" height="80" rx="14" fill="#EEF3FE" stroke="#1A56DB" stroke-width="1.5"/>
+      <text x="320" y="128" text-anchor="middle" font-family="Inter,sans-serif" font-size="20" font-weight="600" fill="#1A56DB" letter-spacing="-0.5">XX 科技</text>
+    </svg>
+  </div>
+</div></div></header>
+
+<!-- 核心业务 -->
+<section class="pad" style="background:var(--surface)"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="sec-tag">核心业务</div>
+    <h2>两条业务线，覆盖你的完整链路</h2>
+    <p>产品解决「用什么」，服务解决「怎么落地」。两者共用一套方法论，互为支撑。</p>
+  </div>
+  <div class="biz">
+    <div class="biz-card rv">
+      <div class="biz-ico"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2l8 4.5v9L11 20l-8-4.5v-9L11 2z" stroke="#1A56DB" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 6.5l8 4.5 8-4.5M11 11v9" stroke="#1A56DB" stroke-width="1.5"/></svg></div>
+      <h3>产品中心</h3>
+      <p>面向不同规模与场景的标准化产品模块，可组合、可独立部署。</p>
+      <ul class="biz-list">
+        <li>产品线 A · 占位名称<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8 4l3.5 3.5L8 11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+        <li>产品线 B · 占位名称<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8 4l3.5 3.5L8 11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+        <li>产品线 C · 占位名称<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8 4l3.5 3.5L8 11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+      </ul>
+    </div>
+    <div class="biz-card rv d1">
+      <div class="biz-ico"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8.5" stroke="#1A56DB" stroke-width="1.5"/><path d="M11 6v5l3.5 2" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <h3>服务中心</h3>
+      <p>咨询诊断、方案设计、部署实施、运营陪跑的全周期服务。</p>
+      <ul class="biz-list">
+        <li>咨询诊断 · 占位名称<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8 4l3.5 3.5L8 11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+        <li>部署实施 · 占位名称<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8 4l3.5 3.5L8 11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+        <li>运营陪跑 · 占位名称<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8 4l3.5 3.5L8 11" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- 解决方案 -->
+<section class="pad"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="sec-tag">解决方案</div>
+    <h2>按行业，看我们怎么解题</h2>
+    <p>每个方案都基于真实业务场景，包含客户挑战、方案架构、实施路径与可量化成果。</p>
+  </div>
+  <div class="sol">
+    <div class="sol-card rv">
+      <div class="num">01 / 行业</div><h3>制造业数字化</h3>
+      <p>打通产线数据与管理系统，让产能、质量、成本可视可控。</p>
+      <span class="lnk">查看方案<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <svg class="sol-art" viewBox="0 0 200 200" fill="none"><g stroke="#1A56DB" stroke-width="1.5"><rect x="30" y="30" width="70" height="70" rx="10"/><rect x="110" y="45" width="60" height="60" rx="10"/><rect x="55" y="110" width="90" height="55" rx="10"/></g><path d="M100 65h10M145 105v5M110 137H75" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="3 4"/></svg>
+    </div>
+    <div class="sol-card rv d1">
+      <div class="num">02 / 行业</div><h3>金融服务</h3>
+      <p>满足合规与风控要求的数据治理与业务连续性方案。</p>
+      <span class="lnk">查看方案<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <svg class="sol-art" viewBox="0 0 200 200" fill="none"><circle cx="100" cy="95" r="52" stroke="#1A56DB" stroke-width="1.5"/><circle cx="100" cy="95" r="30" stroke="#1A56DB" stroke-width="1.5"/><circle cx="100" cy="95" r="7" fill="#FF6B35"/></svg>
+    </div>
+    <div class="sol-card rv d2">
+      <div class="num">03 / 行业</div><h3>零售连锁</h3>
+      <p>整合线上线下会员与订单数据，支撑精准运营决策。</p>
+      <span class="lnk">查看方案<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <svg class="sol-art" viewBox="0 0 200 200" fill="none"><g stroke="#1A56DB" stroke-width="1.5"><path d="M35 155V75l30-22v22h30V52l30-25v128"/></g><path d="M95 128h30M80 100h30" stroke="#FF6B35" stroke-width="1.5"/></svg>
+    </div>
+    <div class="sol-card rv d3">
+      <div class="num">04 / 行业</div><h3>医疗健康</h3>
+      <p>面向机构与患者两端的信息流转与数据安全体系。</p>
+      <span class="lnk">查看方案<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <svg class="sol-art" viewBox="0 0 200 200" fill="none"><rect x="60" y="60" width="80" height="80" rx="18" stroke="#1A56DB" stroke-width="1.5"/><path d="M100 82v36M82 100h36" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/><circle cx="100" cy="100" r="46" stroke="#1A56DB" stroke-width="1.5" stroke-dasharray="4 6"/></svg>
+    </div>
+  </div>
+</div></section>
+
+<!-- 数据成果 -->
+<section class="pad nums"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="sec-tag">数据成果</div>
+    <h2>可量化的改变</h2>
+    <p>我们只把能被验证的数字写进这里。</p>
+  </div>
+  <div class="numgrid rv d1">
+    <div class="numcell"><b><i>↓38</i>%</b><span>平均运营成本下降幅度</span></div>
+    <div class="numcell"><b><i>↑2.4</i>×</b><span>方案交付效率提升倍数</span></div>
+    <div class="numcell"><b><i>99.9</i>%</b><span>平台服务可用性</span></div>
+  </div>
+</div></section>
+
+<!-- 客户 -->
+<section class="pad" style="background:var(--surface)"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="sec-tag">客户与案例</div>
+    <h2>他们已经在用</h2>
+  </div>
+  <div class="logos rv">
+    <div class="logocell">客户 A</div><div class="logocell">客户 B</div>
+    <div class="logocell">客户 C</div><div class="logocell">客户 D</div>
+    <div class="logocell">客户 E</div><div class="logocell">客户 F</div>
+    <div class="logocell">客户 G</div><div class="logocell">客户 H</div>
+  </div>
+</div></section>
+
+<!-- 新闻 -->
+<section class="pad"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="sec-tag">新闻动态</div>
+    <h2>最近在做什么</h2>
+  </div>
+  <div class="news">
+    <div class="n-card rv">
+      <div class="n-thumb">
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".6"><rect x="12" y="12" width="48" height="48" rx="12" stroke="#1A56DB" stroke-width="1.5"/><path d="M24 36h24M36 24v24" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="n-body">
+        <h3>新闻标题占位（一）：企业动态头条</h3>
+        <div class="n-meta"><span class="tag">企业动态</span><span>2026-10-08</span></div>
+      </div>
+    </div>
+    <div class="n-card rv d1">
+      <div class="n-thumb">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none" opacity=".6"><circle cx="28" cy="28" r="18" stroke="#1A56DB" stroke-width="1.5"/><path d="M28 18v10l7 4" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="n-body">
+        <h3>新闻标题占位（二）：行业资讯</h3>
+        <div class="n-meta"><span class="tag">行业资讯</span><span>2026-09-26</span></div>
+      </div>
+    </div>
+    <div class="n-card rv d2">
+      <div class="n-thumb">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none" opacity=".6"><rect x="14" y="14" width="28" height="28" rx="8" stroke="#1A56DB" stroke-width="1.5"/><path d="M20 28h16" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="n-body">
+        <h3>新闻标题占位（三）：企业动态</h3>
+        <div class="n-meta"><span class="tag">企业动态</span><span>2026-09-11</span></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta pad">
+  <svg class="cta-bg" viewBox="0 0 1440 400" preserveAspectRatio="none"><g stroke="#5B8DEF" stroke-width="1" fill="none"><path d="M0 80h1440M0 200h1440M0 320h1440M120 0v400M400 0v400M680 0v400M960 0v400M1240 0v400"/></g></svg>
+  <div class="wrap" style="position:relative">
+    <div class="sec-head rv" style="max-width:680px;margin:0 auto 0">
+      <h2>把下一步交给我们</h2>
+      <p>一个小时的免费诊断，换一份可执行的问题清单。</p>
+      <a class="btn btn-p" href="#">预约咨询
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="btn btn-d" href="#">下载产品手册</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="sub">
+    <h3>订阅行业洞察</h3>
+    <input placeholder="输入邮箱地址" style="height:44px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;min-width:250px;font-size:14px">
+    <a class="btn btn-p btn-sm" href="#">订阅</a>
+  </div>
+  <div class="fgrid">
+    <div>
+      <div class="logo" style="color:#fff;margin-bottom:14px">
+        <svg width="24" height="24" viewBox="0 0 26 26" fill="none"><rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="#5B8DEF" stroke-width="1.5"/><path d="M7 13h12M13 7v12" stroke="#5B8DEF" stroke-width="1.5" stroke-linecap="round"/></svg>
+        XX 科技
+      </div>
+      <p style="font-size:14px;max-width:280px">为【行业】企业提供产品与服务一体化解决方案。</p>
+      <p style="font-size:13px;margin-top:14px;opacity:.6">ICP 备案号占位</p>
+    </div>
+    <div><h4>核心业务</h4><ul>
+      <li><a href="#">产品中心</a></li><li><a href="#">产品线 A</a></li>
+      <li><a href="#">产品线 B</a></li><li><a href="#">服务中心</a></li></ul></div>
+    <div><h4>解决方案</h4><ul>
+      <li><a href="#">制造业</a></li><li><a href="#">金融服务</a></li>
+      <li><a href="#">零售连锁</a></li><li><a href="#">医疗健康</a></li></ul></div>
+    <div><h4>联系我们</h4><ul>
+      <li>XX 省 XX 市 XX 区 XX 路 XX 号</li><li>400-000-0000</li>
+      <li>contact@example.com</li></ul></div>
+  </div>
+  <div class="fbot">
+    <span>© 2026 XX 科技有限公司　保留所有权利</span>
+    <span style="display:flex;gap:22px"><a href="#" style="color:inherit;text-decoration:none">法律声明</a><a href="#" style="color:inherit;text-decoration:none">隐私政策</a><a href="#" style="color:inherit;text-decoration:none">站点地图</a></span>
+  </div>
+</div></footer>
+
+<script>
+(function(){
+  var els=document.querySelectorAll('.rv:not(.in)');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(e){e.classList.add('in')});
+    document.querySelector('.metrics').style.opacity=1;
+    return;
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+  },{threshold:.15,rootMargin:'0px 0px -10% 0px'});
+  els.forEach(function(e){io.observe(e)});
+
+  // 数字计数
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var pairs=[['↓38',38],['↑2.4',2.4],['99.9',99.9]];
+  var nums=document.querySelectorAll('.numcell b i');
+  if(reduce){return}
+  var nio=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting)return;
+      var el=e.target,idx=Array.prototype.indexOf.call(nums,el);
+      var target=pairs[idx][1],t0=null,dur=1200;
+      function step(t){
+        if(!t0)t0=t;
+        var p=Math.min((t-t0)/dur,1);
+        var ease=1-Math.pow(1-p,4);
+        el.textContent=(idx===0?'↓':idx===1?'↑':'')+(Math.round(target*ease*10)/10+(idx===0?'%':idx===2?'%':''));
+        if(p<1)requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);nio.unobserve(el);
+    });
+  },{threshold:.4});
+  nums.forEach(function(n){nio.observe(n)});
+})();
+</script>
+</body>
+</html>

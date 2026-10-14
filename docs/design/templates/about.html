@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>企业简介 - XX 科技</title>
+<link rel="stylesheet" href="base.css">
+<style>
+.hero-ab{padding:84px 0 72px;background:var(--surface);border-bottom:1px solid var(--border)}
+.hero-ab h1{font-size:48px;margin-bottom:22px}
+.hero-ab .lead{font-size:19px;line-height:1.75;color:var(--ink-500);max-width:720px}
+.pos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:64px}
+.pos-cell{background:#fff;padding:32px 26px}
+.pos-cell b{display:block;font-size:34px;color:var(--p-text);letter-spacing:-.02em;line-height:1.15}
+.pos-cell span{font-size:13px;color:var(--ink-400)}
+.stmt{display:grid;grid-template-columns:1fr 1.2fr;gap:72px;align-items:start}
+.stmt h3{font-size:26px;margin-bottom:20px}
+.stmt p{font-size:16px;line-height:1.85;color:var(--ink-500);margin-bottom:16px}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.pillar{border:1px solid var(--border);border-radius:var(--r-lg);padding:30px}
+.pillar .n{font-size:13px;font-weight:500;color:var(--p-text);letter-spacing:.08em;margin-bottom:14px}
+.pillar h4{font-size:19px;margin-bottom:10px}
+.pillar p{font-size:15px;color:var(--ink-500);line-height:1.75}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g-item{aspect-ratio:4/3;border-radius:var(--r-lg);background:var(--surface);
+  border:1px solid var(--border);display:grid;place-items:center;overflow:hidden;
+  transition:transform .3s var(--ease-out),box-shadow .3s;cursor:pointer}
+.g-item:hover{transform:translateY(-4px);box-shadow:var(--sh-md)}
+.g-item span{font-size:13px;color:var(--ink-400)}
+@media(max-width:991px){.stmt{grid-template-columns:1fr;gap:36px}
+  .pos-grid,.pillars,.gallery{grid-template-columns:1fr 1fr}.hero-ab h1{font-size:34px}}
+@media(max-width:639px){.pos-grid,.pillars,.gallery{grid-template-columns:1fr}}
+</style></head><body>
+
+<nav class="nav"><div class="nav-in">
+  <div class="logo"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="#1A56DB" stroke-width="1.5"/><path d="M7 13h12M13 7v12" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/></svg>XX 科技</div>
+  <ul class="nav-links">
+    <li><a href="index.html">首页</a></li>
+    <li><a href="#">核心业务</a></li>
+    <li><a href="#">解决方案</a></li>
+    <li><a href="news-list.html">新闻动态</a></li>
+    <li class="has-drop"><a class="lv1 on" href="about.html">关于我们</a>
+      <div class="drop">
+        <a href="about.html">企业简介</a>
+        <a href="honor.html">荣誉资质</a>
+        <a href="history.html">发展历程</a>
+      </div></li>
+    <li><a href="#">联系我们</a></li>
+  </ul>
+  <a class="btn btn-p btn-sm" href="#">咨询合作</a>
+</div></nav>
+
+<div class="wrap"><div class="crumb"><a href="index.html">首页</a><i>/</i>关于我们<i>/</i>企业简介</div></div>
+
+<header class="hero-ab"><div class="wrap">
+  <div class="sec-tag rv">关于我们 / 01</div>
+  <h1 class="rv d1">我们只做一件事<br>让复杂的问题有清晰的答案</h1>
+  <p class="lead rv d2">XX 科技成立于 2011 年，专注为【行业】企业提供产品与服务一体化解决方案。我们相信，好的技术不应该增加复杂度，而应该把复杂度吸收掉。</p>
+  <div class="pos-grid rv d3">
+    <div class="pos-cell"><b>2011</b><span>成立年份</span></div>
+    <div class="pos-cell"><b>1200+</b><span>累计服务客户</span></div>
+    <div class="pos-cell"><b>30+</b><span>业务覆盖省份</span></div>
+    <div class="pos-cell"><b>86</b><span>技术专利与软著</span></div>
+  </div>
+</div></header>
+
+<section class="pad"><div class="wrap">
+  <div class="stmt">
+    <div class="rv">
+      <div class="sec-tag">定位陈述</div>
+      <h3>我们不是系统供应商<br>而是问题解决方</h3>
+    </div>
+    <div class="rv d1">
+      <p>市面上不缺功能强大的系统，缺的是能真正落地的方案。客户的困难从来不是"软件不够好"，而是"业务流程和软件对不上"。</p>
+      <p>所以我们从诊断开始：先理解业务，再决定用什么技术。这让我们的交付周期看起来更长，但上线后的返工率明显更低——平均实施周期 8–12 周，一次通过率超过 92%。</p>
+      <p>我们不追求做最大的公司，只追求做被真正用起来的系统。</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="pad" style="background:var(--surface)"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="sec-tag">企业理念</div>
+    <h2>四条准则，写在墙上也写在产品里</h2>
+    <p>它们不是口号，是我们判断需求取舍时实际使用的标准。</p>
+  </div>
+  <div class="pillars">
+    <div class="pillar rv"><div class="n">01</div><h4>先诊断，后开方</h4><p>没搞清问题就不给方案。这会让项目前期多花两周，但避免后期整体返工。</p></div>
+    <div class="pillar rv d1"><div class="n">02</div><h4>技术服务于业务</h4><p>技术选型的唯一标准是能不能解决问题、团队能不能维护，而不是技术是否先进。</p></div>
+    <div class="pillar rv d2"><div class="n">03</div><h4>交付即开始</h4><p>上线不是终点。我们把运营陪跑写进合同，包括首季度的数据复盘与流程调优。</p></div>
+    <div class="pillar rv d3"><div class="n">04</div><h4>把复杂留给自己</h4><p>客户不该为我们的架构复杂度买单。界面要简单，流程要顺，责任要清晰。</p></div>
+  </div>
+</div></section>
+
+<section class="pad"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="sec-tag">企业环境</div>
+    <h2>我们的办公环境</h2>
+    <p>图片占位：总部办公区、会议室、产品实验室、团队活动。</p>
+  </div>
+  <div class="gallery">
+    <div class="g-item rv"><span>图片占位 · 总部办公区</span></div>
+    <div class="g-item rv d1"><span>图片占位 · 会议室</span></div>
+    <div class="g-item rv d2"><span>图片占位 · 产品实验室</span></div>
+    <div class="g-item rv"><span>图片占位 · 前台接待</span></div>
+    <div class="g-item rv d1"><span>图片占位 · 团队活动</span></div>
+    <div class="g-item rv d2"><span>图片占位 · 洽谈区</span></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="sub-bar"><h3>订阅行业洞察</h3>
+    <input placeholder="输入邮箱地址"><a class="btn btn-p btn-sm" href="#">订阅</a></div>
+  <div class="fgrid">
+    <div><div class="logo" style="margin-bottom:14px">XX 科技</div>
+      <p style="font-size:14px;max-width:280px">为【行业】企业提供产品与服务一体化解决方案。</p>
+      <p style="font-size:13px;margin-top:14px;opacity:.6">ICP 备案号占位</p></div>
+    <div><h4>核心业务</h4><ul><li><a href="#">产品中心</a></li><li><a href="#">产品线 A</a></li><li><a href="#">服务中心</a></li></ul></div>
+    <div><h4>解决方案</h4><ul><li><a href="#">制造业</a></li><li><a href="#">金融服务</a></li><li><a href="#">零售连锁</a></li></ul></div>
+    <div><h4>联系我们</h4><ul><li>XX 省 XX 市 XX 区 XX 路 XX 号</li><li>400-000-0000</li><li>contact@example.com</li></ul></div>
+  </div>
+  <div class="fbot"><span>© 2026 XX 科技有限公司　保留所有权利</span>
+    <span style="display:flex;gap:22px"><a href="#">法律声明</a><a href="#">隐私政策</a><a href="#">站点地图</a></span></div>
+</div></footer>
+
+<script src="rv.js"></script>
+</body></html>

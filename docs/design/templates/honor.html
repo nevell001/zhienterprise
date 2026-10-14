@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>荣誉资质 - XX 科技</title>
+<link rel="stylesheet" href="base.css">
+<style>
+.page-hd{padding:76px 0 56px;background:var(--surface);border-bottom:1px solid var(--border)}
+.page-hd h1{font-size:44px;margin-bottom:18px}
+.page-hd p{font-size:17px;color:var(--ink-500);max-width:620px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filters .tag{cursor:pointer;border:1px solid transparent;transition:all .24s var(--ease-out)}
+.filters .tag:hover{border-color:var(--p)}
+.filters .tag:active{transform:scale(.92)}
+.count-line{font-size:14px;color:var(--ink-400);margin-bottom:26px}
+.count-line b{color:var(--ink-900);font-weight:600}
+.hon-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.hon{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:#fff;
+  cursor:zoom-in;transition:transform .3s var(--ease-out),box-shadow .3s,border-color .3s}
+.hon:hover{transform:translateY(-4px);box-shadow:var(--sh-md);border-color:var(--p)}
+.hon-img{aspect-ratio:4/3;background:var(--surface);display:grid;place-items:center;border-bottom:1px solid var(--border)}
+.hon-body{padding:16px 18px 18px}
+.hon-body h4{font-size:15px;line-height:1.5;margin-bottom:7px}
+.hon-body p{font-size:13px;color:var(--ink-400);line-height:1.5}
+.modal{position:fixed;inset:0;z-index:200;background:rgba(11,15,25,.6);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:32px}
+.modal.open{display:flex;animation:fade .25s var(--ease-out)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal-box{background:#fff;border-radius:var(--r-xl);max-width:720px;width:100%;
+  overflow:hidden;animation:pop .25s var(--ease-out)}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-img{aspect-ratio:4/3;background:var(--surface);display:grid;place-items:center}
+.modal-bd{padding:26px 30px 30px;display:flex;gap:20px;justify-content:space-between;align-items:flex-start}
+.modal-bd h3{font-size:20px;margin-bottom:8px}
+.modal-bd p{font-size:14px;color:var(--ink-500)}
+.modal-x{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:#fff;
+  cursor:pointer;flex:none;display:grid;place-items:center;transition:all .2s}
+.modal-x:hover{background:var(--surface);transform:rotate(90deg)}
+@media(max-width:1199px){.hon-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:991px){.hon-grid{grid-template-columns:1fr 1fr}.page-hd h1{font-size:32px}}
+@media(max-width:639px){.hon-grid{grid-template-columns:1fr}}
+</style></head><body>
+
+<nav class="nav"><div class="nav-in">
+  <div class="logo"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="#1A56DB" stroke-width="1.5"/><path d="M7 13h12M13 7v12" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/></svg>XX 科技</div>
+  <ul class="nav-links">
+    <li><a href="index.html">首页</a></li>
+    <li><a href="#">核心业务</a></li>
+    <li><a href="#">解决方案</a></li>
+    <li><a href="news-list.html">新闻动态</a></li>
+    <li class="has-drop"><a class="lv1 on" href="about.html">关于我们</a>
+      <div class="drop"><a href="about.html">企业简介</a><a href="honor.html">荣誉资质</a><a href="history.html">发展历程</a></div></li>
+    <li><a href="#">联系我们</a></li>
+  </ul>
+  <a class="btn btn-p btn-sm" href="#">咨询合作</a>
+</div></nav>
+
+<div class="wrap"><div class="crumb"><a href="index.html">首页</a><i>/</i>关于我们<i>/</i>荣誉资质</div></div>
+
+<header class="page-hd"><div class="wrap">
+  <div class="sec-tag rv">关于我们 / 02</div>
+  <h1 class="rv d1">荣誉资质</h1>
+  <p class="rv d2">每一项资质都是第三方对我们能力的验证。以下分类可筛选，点击可查看大图。</p>
+</div></header>
+
+<section class="pad"><div class="wrap">
+  <div class="filters rv" data-filter-group=".hon" style="margin-bottom:22px">
+    <button class="tag on" data-filter="all">全部</button>
+    <button class="tag" data-filter="cert">资质证书</button>
+    <button class="tag" data-filter="award">行业奖项</button>
+    <button class="tag" data-filter="sys">体系认证</button>
+  </div>
+  <div class="count-line rv">共 <b data-count>8</b> 项资质</div>
+
+  <div class="hon-grid">
+    <div class="hon rv" data-cat="sys">
+      <div class="hon-img"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".55"><rect x="18" y="14" width="36" height="44" rx="4" stroke="#1A56DB" stroke-width="1.5"/><path d="M26 26h20M26 34h20M26 42h13" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/><circle cx="46" cy="50" r="7" stroke="#1A56DB" stroke-width="1.5"/></svg></div>
+      <div class="hon-body"><h4>ISO 9001 质量管理体系认证</h4><p>颁发机构：认证机构 A · 2024</p></div></div>
+    <div class="hon rv d1" data-cat="sys">
+      <div class="hon-img"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".55"><path d="M36 12l18 9v14c0 13-8 21-18 25-10-4-18-12-18-25V21l18-9z" stroke="#1A56DB" stroke-width="1.5" stroke-linejoin="round"/><path d="M29 36l5 5 10-11" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="hon-body"><h4>ISO 27001 信息安全认证</h4><p>颁发机构：认证机构 B · 2025</p></div></div>
+    <div class="hon rv d2" data-cat="award">
+      <div class="hon-img"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".55"><circle cx="36" cy="28" r="13" stroke="#1A56DB" stroke-width="1.5"/><path d="M28 39l-4 21 12-6 12 6-4-21" stroke="#1A56DB" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+      <div class="hon-body"><h4>年度优秀服务商</h4><p>颁发机构：行业协会 · 2025</p></div></div>
+    <div class="hon rv d3" data-cat="cert">
+      <div class="hon-img"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".55"><rect x="14" y="12" width="44" height="48" rx="5" stroke="#1A56DB" stroke-width="1.5"/><path d="M24 26h24M24 34h24M24 42h16" stroke="#1A56DB" stroke-width="1.2"/><rect x="42" y="48" width="12" height="8" rx="1" stroke="#FF6B35" stroke-width="1.5"/></svg></div>
+      <div class="hon-body"><h4>高新技术企业证书</h4><p>颁发机构：科技主管部门 · 2023</p></div></div>
+    <div class="hon rv" data-cat="sys">
+      <div class="hon-img"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".55"><circle cx="36" cy="36" r="22" stroke="#1A56DB" stroke-width="1.5"/><path d="M36 22v28M22 36h28" stroke="#1A56DB" stroke-width="1.2"/><circle cx="36" cy="36" r="7" stroke="#1A56DB" stroke-width="1.5"/></svg></div>
+      <div class="hon-body"><h4>CMMI 5 级认证</h4><p>颁发机构：评估机构 C · 2024</p></div></div>
+    <div class="hon rv d1" data-cat="award">
+      <div class="hon-img"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".55"><path d="M36 10l8 18 19 2-14 13 4 19-17-10-17 10 4-19L9 30l19-2 8-18z" stroke="#1A56DB" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+      <div class="hon-body"><h4>行业创新产品奖</h4><p>颁发机构：行业媒体 D · 2025</p></div></div>
+    <div class="hon rv d2" data-cat="cert">
+      <div class="hon-img"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".55"><path d="M20 16h32v40H20z" stroke="#1A56DB" stroke-width="1.5"/><path d="M27 28h18M27 36h18M27 44h11" stroke="#1A56DB" stroke-width="1.2"/><circle cx="46" cy="47" r="6" stroke="#FF6B35" stroke-width="1.5"/></svg></div>
+      <div class="hon-body"><h4>软件著作权登记证书</h4><p>颁发机构：版权保护中心 · 2025</p></div></div>
+    <div class="hon rv d3" data-cat="award">
+      <div class="hon-img"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" opacity=".55"><rect x="14" y="18" width="44" height="36" rx="5" stroke="#1A56DB" stroke-width="1.5"/><path d="M22 28h18M22 36h24M22 44h14" stroke="#1A56DB" stroke-width="1.2"/><circle cx="52" cy="26" r="5" fill="#FF6B35"/></svg></div>
+      <div class="hon-body"><h4>客户满意度标杆企业</h4><p>颁发机构：第三方调研机构 E · 2024</p></div></div>
+  </div>
+
+  <div class="empty" data-empty style="display:none">
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="12" y="16" width="40" height="32" rx="5" stroke="#9CA3AF" stroke-width="1.5"/><path d="M22 28h20M22 36h13" stroke="#9CA3AF" stroke-width="1.5"/></svg>
+    <p>该分类下暂无资质</p>
+    <button class="btn btn-s btn-sm" onclick="location.reload()">查看全部</button>
+  </div>
+</div></section>
+
+<div class="modal" id="m" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <div class="modal-img"><svg width="200" height="150" viewBox="0 0 200 150" fill="none" opacity=".5"><rect x="45" y="18" width="110" height="114" rx="8" stroke="#1A56DB" stroke-width="2"/><path d="M62 48h76M62 64h76M62 80h50" stroke="#1A56DB" stroke-width="1.5"/><circle cx="132" cy="106" r="15" stroke="#FF6B35" stroke-width="2"/></svg></div>
+    <div class="modal-bd">
+      <div><h3 id="mt">资质名称</h3><p id="md">颁发机构 · 年份</p></div>
+      <button class="modal-x" onclick="closeM()" aria-label="关闭"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#1F2937" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<footer><div class="wrap">
+  <div class="sub-bar"><h3>订阅行业洞察</h3><input placeholder="输入邮箱地址"><a class="btn btn-p btn-sm" href="#">订阅</a></div>
+  <div class="fgrid">
+    <div><div class="logo" style="margin-bottom:14px">XX 科技</div>
+      <p style="font-size:14px;max-width:280px">为【行业】企业提供产品与服务一体化解决方案。</p>
+      <p style="font-size:13px;margin-top:14px;opacity:.6">ICP 备案号占位</p></div>
+    <div><h4>核心业务</h4><ul><li><a href="#">产品中心</a></li><li><a href="#">产品线 A</a></li><li><a href="#">服务中心</a></li></ul></div>
+    <div><h4>解决方案</h4><ul><li><a href="#">制造业</a></li><li><a href="#">金融服务</a></li><li><a href="#">零售连锁</a></li></ul></div>
+    <div><h4>联系我们</h4><ul><li>XX 省 XX 市 XX 区 XX 路 XX 号</li><li>400-000-0000</li><li>contact@example.com</li></ul></div>
+  </div>
+  <div class="fbot"><span>© 2026 XX 科技有限公司　保留所有权利</span>
+    <span style="display:flex;gap:22px"><a href="#">法律声明</a><a href="#">隐私政策</a><a href="#">站点地图</a></span></div>
+</div></footer>
+
+<script src="rv.js"></script>
+<script>
+Array.prototype.forEach.call(document.querySelectorAll('.hon'), function(el){
+  el.addEventListener('click', function(){
+    document.getElementById('mt').textContent = el.querySelector('h4').textContent;
+    document.getElementById('md').textContent = el.querySelector('p').textContent;
+    document.getElementById('m').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+});
+function closeM(){document.getElementById('m').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('m').addEventListener('click', function(e){if(e.target===this)closeM();});
+document.addEventListener('keydown', function(e){if(e.key==='Escape')closeM();});
+</script>
+</body></html>

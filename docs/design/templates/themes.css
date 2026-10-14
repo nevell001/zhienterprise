@@ -1,0 +1,69 @@
+/* ===== 5 套行业模板 · 主题变量层 =====
+   用法：<html class="t-consult"> 或切换 document.documentElement.className
+   模板差异只有三处：主色 / 字体 / 母题（母题在 HTML 的 brandviz 里）
+   共用组件见 base.css —— 改组件改一次，五套同时生效 */
+
+/* ---------- 1. 管理咨询类 ----------
+   行业心智：权威、判断、可信。深蓝 + 衬线点缀，圆角偏小，克制。
+   母题：指针罗盘（方向与决断） */
+.t-consult{
+  --p:#185FA5;--p-h:#123F73;--p-sub:#E6F1FB;--p-text:#185FA5;--p-d:#85B7EB;
+  --accent:#C2410C;
+  --r-sm:4px;--r-md:6px;--r-lg:8px;--r-xl:12px;
+  --font:"Inter","Noto Sans SC","Source Han Sans SC",-apple-system,"PingFang SC",sans-serif;
+}
+.t-consult h1,.t-consult .quote{font-family:"Noto Serif SC",Georgia,serif}
+
+/* ---------- 2. 信息技术类 ----------
+   行业心智：稳定、技术、可维护。墨绿偏冷，低饱和，避免"硅谷蓝"。
+   母题：节点连接（架构与连接） */
+.t-tech{
+  --p:#0F6E56;--p-h:#0A5341;--p-sub:#E1F5EE;--p-text:#0F6E56;--p-d:#5DCAA5;
+  --accent:#E9A23B;
+  --r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:24px;
+  --font:"Inter","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
+}
+
+/* ---------- 3. 制造业类 ----------
+   行业心智：力量、精度、工业感。赭红，硬朗，标题字距收紧。
+   母题：模块榫接（结构与咬合） */
+.t-mfg{
+  --p:#B0442A;--p-h:#8A3420;--p-sub:#FAECE7;--p-text:#B0442A;--p-d:#F0997B;
+  --accent:#185FA5;
+  --r-sm:3px;--r-md:5px;--r-lg:6px;--r-xl:8px;
+  --dark:#1C1512;--dark-2:#251C18;
+  --font:"Inter","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
+  --sh-sm:0 1px 2px rgba(28,21,18,.08),0 1px 3px rgba(28,21,18,.05);
+  --sh-md:0 8px 24px rgba(28,21,18,.12),0 2px 6px rgba(28,21,18,.06);
+}
+
+/* ---------- 4. 商贸类 ----------
+   行业心智：流通、连接、广阔。紫调，圆角偏大，柔化处理。
+   母题：流通曲线（连接与流转） */
+.t-trade{
+  --p:#7C4A9E;--p-h:#5F3579;--p-sub:#F3EAF9;--p-text:#7C4A9E;--p-d:#C6ACDA;
+  --accent:#D4537E;
+  --r-sm:8px;--r-md:12px;--r-lg:20px;--r-xl:28px;
+  --font:"Inter","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
+}
+
+/* ---------- 5. 数码产品类 ----------
+   行业心智：具体、消费、年轻。暖橙，圆角最大，视觉最轻。
+   母题：产品轮廓（实体与细节） */
+.t-digital{
+  --p:#C2410C;--p-h:#9A3412;--p-sub:#FFF1E7;--p-text:#C2410C;--p-d:#FB923C;
+  --accent:#0F6E56;
+  --r-sm:10px;--r-md:14px;--r-lg:22px;--r-xl:32px;
+  --sh-sm:0 2px 6px rgba(11,15,25,.06),0 1px 2px rgba(11,15,25,.04);
+  --sh-md:0 12px 32px rgba(11,15,25,.10),0 3px 8px rgba(11,15,25,.04);
+  --font:"Inter","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
+}
+
+/* 数码产品模板：主视觉偏浅，整体更通透 */
+.t-digital .hero-viz{background:linear-gradient(180deg,var(--p-sub),transparent)}
+.t-consult .hero-viz,.t-mfg .hero-viz{background:transparent}
+
+/* 制造业：区块标题加一道工业感的细横线 */
+.t-mfg .sec-head h2{position:relative;padding-left:16px}
+.t-mfg .sec-head h2::before{content:"";position:absolute;left:0;top:.28em;bottom:.28em;
+  width:3px;background:var(--p);border-radius:2px}
