@@ -22,9 +22,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 配置静态资源处理，支持SPA应用history模式
-        // 只对 /blog 和 /admin 路径应用 SPA 路由支持
+        // 站点前台为短路径（与 zhi-ui/src/router/blog.ts 一致），后台为 /admin
         // 注意：排除 /profile 路径，该路径由 ResourcesConfig 处理上传文件
-        registry.addResourceHandler("/blog/**", "/admin/**")
+        registry.addResourceHandler(
+                        "/login", "/register", "/forgot-password", "/about",
+                        "/news", "/article/**", "/business/**", "/contact", "/honors", "/history",
+                        "/category/**", "/tag/**", "/author/**", "/archive", "/guestbook", "/page/**",
+                        "/friend-links/**", "/agreement", "/privacy", "/search", "/bookmarks",
+                        "/admin/**")
                 .addResourceLocations("classpath:/META-INF/resources/")
                 .addResourceLocations("classpath:/resources/")
                 .addResourceLocations("classpath:/static/")

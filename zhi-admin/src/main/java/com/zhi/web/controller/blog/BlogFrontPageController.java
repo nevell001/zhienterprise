@@ -68,7 +68,7 @@ public class BlogFrontPageController extends BaseController
             String viewerKey = buildViewerKey(request);
             blogPageService.addViewCount(page.getId(), viewerKey);
             page.setViewCount(page.getViewCount() == null ? 1L : page.getViewCount() + 1);
-            blogVisitLogService.recordVisit("page", page.getId(), "/blog/page/" + page.getSlug(), viewerKey, request);
+            blogVisitLogService.recordVisit("page", page.getId(), "/page/" + page.getSlug(), viewerKey, request);
         }
         return success(page);
     }

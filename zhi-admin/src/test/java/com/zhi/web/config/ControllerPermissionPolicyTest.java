@@ -61,7 +61,7 @@ class ControllerPermissionPolicyTest
         "CaptchaController#getCode",            // /captchaImage
         "SysIndexController#index",             // 站点首页探活
         "SysRegisterController#register",       // 自助注册（受 sys.account.registerUser 开关控制）
-        "SpaRouterController#spaBlogRouter",    // 前台 SPA 路由回落
+        "SpaRouterController#spaFrontRouter",   // 前台 SPA 路由回落（短路径）
         "SpaRouterController#spaIndexRouter",
         "AdminRouterController#spaAdminRouter", // 后台 SPA 路由回落
 
