@@ -107,29 +107,6 @@
                 企业官网模板下导航与首页区块的栏目名称，可按企业形态改为：产品中心 / 服务项目 / 解决方案
               </div>
             </el-form-item>
-            <el-form-item label="行业模板" prop="site_template">
-              <el-select v-model="settingsMap.site_template" style="width: 320px">
-                <el-option v-for="t in siteTemplates" :key="t.id" :value="t.id" :label="t.name">
-                  <span style="display: inline-flex; align-items: center; gap: 8px">
-                    <span
-                      :style="{
-                        width: '10px',
-                        height: '10px',
-                        borderRadius: '999px',
-                        background: t.color,
-                        display: 'inline-block',
-                        flex: 'none'
-                      }"
-                    />
-                    {{ t.name }} · {{ t.industry }}
-                  </span>
-                </el-option>
-              </el-select>
-              <div class="setting-tip">
-                企业官网的行业形态：主色 / 圆角 / 母题主视觉 / 文案随模板整体切换（管理咨询 /
-                信息技术 / 制造业 / 商贸 / 数码产品），保存后前台首页即时生效
-              </div>
-            </el-form-item>
 
             <el-divider content-position="left">联系信息（企业官网模板展示）</el-divider>
             <el-form-item label="联系电话" prop="contact_phone">
@@ -365,6 +342,32 @@
                 </span>
               </button>
             </div>
+
+            <el-divider content-position="left">官网行业模板（前台企业官网首页皮肤）</el-divider>
+            <el-form-item label="行业模板" prop="site_template">
+              <el-select v-model="settingsMap.site_template" style="width: 320px">
+                <el-option v-for="t in siteTemplates" :key="t.id" :value="t.id" :label="t.name">
+                  <span style="display: inline-flex; align-items: center; gap: 8px">
+                    <span
+                      :style="{
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '999px',
+                        background: t.color,
+                        display: 'inline-block',
+                        flex: 'none'
+                      }"
+                    ></span>
+                    {{ t.name }} · {{ t.industry }}
+                  </span>
+                </el-option>
+              </el-select>
+              <div class="setting-tip">
+                企业官网的行业形态：主色 / 圆角 / 母题主视觉 / 文案随模板整体切换（管理咨询 /
+                信息技术 / 制造业 / 商贸 / 数码产品）。仅在「站点信息 → 首页模板 =
+                企业官网模板」时作用于前台首页，保存后即时生效
+              </div>
+            </el-form-item>
           </el-form>
         </el-tab-pane>
 
