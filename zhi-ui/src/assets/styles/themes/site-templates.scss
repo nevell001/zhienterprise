@@ -3,7 +3,7 @@
    基类 .tpl-site 提供共用默认（base.css :root），.tpl-xxx 只覆盖差异
    （主色 / 圆角 / 阴影 / 深色底 / 标题字体）——与原型"改组件改一次，
    五套同时生效"的约束一致。
-   组件层：views/blog/EnterpriseHome.vue（五套共用，不感知模板差异）。
+   组件层：views/site/EnterpriseHome.vue（五套共用，不感知模板差异）。
    挂载：前台布局在 home_layout=business 时给 <html> 挂 .tpl-site + .tpl-xxx。 */
 
 /* ---------- 基类：共用默认（base.css :root） ---------- */

@@ -284,14 +284,14 @@
 import StatCard from '@/components/StatCard.vue'
 import { parseTime } from '@/utils/zhi'
 import { getVisitLogList, getVisitSummary, cleanVisitLog, delVisitLog } from '@/api/statistics'
-import type { BlogVisitLog, VisitQueryParams, VisitSummary, VisitTopTarget } from '@/api/statistics'
+import type { SiteVisitLog, VisitQueryParams, VisitSummary, VisitTopTarget } from '@/api/statistics'
 
 const { proxy } = getCurrentInstance()
 
 const loading = ref(false)
 const summaryLoading = ref(false)
 const showSearch = ref(true)
-const visitList = ref<BlogVisitLog[]>([])
+const visitList = ref<SiteVisitLog[]>([])
 const topTargets = ref<VisitTopTarget[]>([])
 const total = ref(0)
 const summaryDays = ref(30)
@@ -425,7 +425,7 @@ function handleRankRowClick(row: VisitTopTarget) {
 }
 
 /** 多选框选中数据 */
-function handleSelectionChange(selection: BlogVisitLog[]) {
+function handleSelectionChange(selection: SiteVisitLog[]) {
   ids.value = selection.map(item => item.id)
   multiple.value = !selection.length
 }
@@ -460,7 +460,7 @@ function handleClean() {
 }
 
 /** 删除按钮操作 */
-function handleDelete(row?: BlogVisitLog) {
+function handleDelete(row?: SiteVisitLog) {
   const deleteIds = row ? row.id : ids.value.join(',')
   proxy.$modal
     .confirm('是否确认删除访问明细编号为"' + deleteIds + '"的数据项？')

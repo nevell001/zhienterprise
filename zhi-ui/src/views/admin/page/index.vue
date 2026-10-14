@@ -337,16 +337,9 @@
   </div>
 </template>
 
-<script setup lang="ts" name="BlogPage">
-import {
-  listPage,
-  getPage,
-  addPage,
-  updatePage,
-  changePageStatus,
-  delPage
-} from '@/api/admin/blog/page'
-import type { BlogPage, PageQueryParams, PageStatus } from '@/api/admin/blog/page'
+<script setup lang="ts" name="SitePage">
+import { listPage, getPage, addPage, updatePage, changePageStatus, delPage } from '@/api/admin/page'
+import type { SitePage, PageQueryParams, PageStatus } from '@/api/admin/page'
 import { parseTime } from '@/utils/zhi'
 import { renderMarkdown } from '@/utils/markdown'
 import { sanitizeArticleContent } from '@/utils/sanitize'
@@ -356,7 +349,7 @@ const { proxy } = getCurrentInstance()
 /** 页面别名只允许字母、数字、下划线、连字符 */
 const SLUG_PATTERN = /^[A-Za-z0-9_-]{1,100}$/
 
-const pageList = ref<BlogPage[]>([])
+const pageList = ref<SitePage[]>([])
 const open = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
@@ -368,7 +361,7 @@ const title = ref('')
 const screenWidth = ref(window.innerWidth)
 
 /** 生成页面表单默认值 */
-function createDefaultForm(): BlogPage {
+function createDefaultForm(): SitePage {
   return {
     id: undefined,
     title: '',
@@ -385,7 +378,7 @@ function createDefaultForm(): BlogPage {
   }
 }
 
-const form = ref<BlogPage>(createDefaultForm())
+const form = ref<SitePage>(createDefaultForm())
 
 const queryParams = ref<PageQueryParams>({
   pageNum: 1,
@@ -480,7 +473,7 @@ function resetQuery() {
 }
 
 /** 多选框选中数据 */
-function handleSelectionChange(selection: BlogPage[]) {
+function handleSelectionChange(selection: SitePage[]) {
   ids.value = selection.map(item => item.id)
   single.value = selection.length !== 1
   multiple.value = !selection.length
@@ -534,7 +527,7 @@ function insertBlock(name: string) {
 }
 
 /** 修改按钮操作 */
-function handleUpdate(row?: BlogPage) {
+function handleUpdate(row?: SitePage) {
   const id = row?.id || ids.value[0]
   if (!id) {
     proxy.$modal.msgError('请选择要修改的页面')
@@ -582,7 +575,7 @@ function submitForm() {
     if (!valid) return
 
     const isEdit = !!form.value.id
-    const payload: BlogPage = {
+    const payload: SitePage = {
       ...form.value,
       title: (form.value.title || '').trim(),
       slug: (form.value.slug || '').trim(),
@@ -610,7 +603,7 @@ function submitForm() {
 }
 
 /** 发布/下架按钮操作 */
-function handleStatusChange(row: BlogPage) {
+function handleStatusChange(row: SitePage) {
   const newStatus: PageStatus = String(row.status) === '1' ? '0' : '1'
   const actionText = newStatus === '1' ? '发布' : '下架'
   proxy.$modal
@@ -628,7 +621,7 @@ function handleStatusChange(row: BlogPage) {
 }
 
 /** 删除按钮操作 */
-function handleDelete(row?: BlogPage) {
+function handleDelete(row?: SitePage) {
   const deleteIds = row?.id || ids.value
   proxy.$modal
     .confirm('是否确认删除页面编号为"' + deleteIds + '"的数据项？')

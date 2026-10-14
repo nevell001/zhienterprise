@@ -8,7 +8,7 @@
  * 本文件是"变量层 + 文案配置层"的 TS 侧实现；变量层的 CSS 侧在
  * assets/styles/themes/site-templates.scss（.tpl-site 基类 + .tpl-xxx 覆盖）。
  * 切换模板 = 站点设置 site_template + 前台 <html> 挂 .tpl-xxx 类，五套共用
- * 同一套首页组件（views/blog/EnterpriseHome.vue），不需要动组件一行。
+ * 同一套首页组件（views/site/EnterpriseHome.vue），不需要动组件一行。
  *
  * 安全说明：hero.titleHtml 为仓库内置静态配置（非用户输入），可安全 v-html。
  */

@@ -41,7 +41,7 @@ const mockAxios = vi.mocked(axios)
 import service, { download, isRelogin, isFrontSitePath } from './request'
 vi.mock('@/utils/auth', () => ({
   getToken: vi.fn(),
-  getBlogToken: vi.fn(),
+  getSiteToken: vi.fn(),
   removeToken: vi.fn()
 }))
 vi.mock('@/utils/errorCode', () => ({
@@ -103,9 +103,9 @@ vi.mock('@/plugins/element-plus-service', () => ({
 }))
 
 // Get mocked functions
-import { getToken, getBlogToken, removeToken } from '@/utils/auth'
+import { getToken, getSiteToken, removeToken } from '@/utils/auth'
 const mockGetToken = vi.mocked(getToken)
-const mockGetBlogToken = vi.mocked(getBlogToken)
+const mockGetSiteToken = vi.mocked(getSiteToken)
 const mockRemoveToken = vi.mocked(removeToken)
 
 import errorCode from '@/utils/errorCode'
@@ -189,7 +189,7 @@ describe('Request 工具函数测试', () => {
 
     it('应该优先使用管理员 token', async () => {
       mockGetToken.mockReturnValue('admin-token')
-      mockGetBlogToken.mockReturnValue('blog-token')
+      mockGetSiteToken.mockReturnValue('blog-token')
 
       const config = {
         headers: {},
@@ -199,7 +199,7 @@ describe('Request 工具函数测试', () => {
 
       const result = config
       if (result) {
-        const token = getToken() || getBlogToken()
+        const token = getToken() || getSiteToken()
         if (token && (result.headers as any)?.isToken !== false) {
           ;(result.headers as any).Authorization = 'Bearer ' + token
         }
@@ -209,9 +209,9 @@ describe('Request 工具函数测试', () => {
 
     it('应该在管理员 token 不存在时使用博客 token', async () => {
       mockGetToken.mockReturnValue('')
-      mockGetBlogToken.mockReturnValue('blog-token')
+      mockGetSiteToken.mockReturnValue('blog-token')
 
-      const token = getToken() || getBlogToken()
+      const token = getToken() || getSiteToken()
       expect(token).toBe('blog-token')
     })
 

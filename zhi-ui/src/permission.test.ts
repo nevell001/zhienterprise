@@ -12,11 +12,11 @@ const removeTokenMock = vi.hoisted(() => vi.fn())
 
 vi.mock('@/utils/auth', () => ({
   getToken: () => authToken.value,
-  getBlogToken: () => undefined,
+  getSiteToken: () => undefined,
   setToken: vi.fn(),
-  setBlogToken: vi.fn(),
+  setSiteToken: vi.fn(),
   removeToken: () => removeTokenMock(),
-  removeBlogToken: vi.fn()
+  removeSiteToken: vi.fn()
 }))
 
 // nprogress 的 done() 延迟约 200ms 才 remove()，vitest 先拆掉 jsdom 环境后该定时器读取
@@ -54,29 +54,29 @@ describe('匿名访问站点前台（白名单行为）', () => {
   // 白名单与路由表必须一一对应：一旦缺项，匿名访问会被重定向到 /login
   const publicPages: Array<{ path: string; name: string }> = [
     { path: '/', name: 'PublicRoot' },
-    { path: '/news', name: 'PublicBlogArticleList' },
-    { path: '/article/2', name: 'PublicBlogArticleDetail' },
+    { path: '/news', name: 'PublicSiteArticleList' },
+    { path: '/article/2', name: 'PublicSiteArticleDetail' },
     { path: '/business', name: 'PublicBusinessList' },
     { path: '/business/1', name: 'PublicBusinessDetail' },
     { path: '/contact', name: 'PublicContact' },
     { path: '/about', name: 'PublicAbout' },
     { path: '/honors', name: 'PublicHonors' },
     { path: '/history', name: 'PublicHistory' },
-    { path: '/category', name: 'PublicBlogCategoryList' },
-    { path: '/category/9', name: 'PublicBlogCategory' },
-    { path: '/tag', name: 'PublicBlogTagList' },
-    { path: '/tag/3', name: 'PublicBlogTag' },
-    { path: '/author/1', name: 'PublicBlogAuthor' },
-    { path: '/archive', name: 'PublicBlogArchive' },
-    { path: '/guestbook', name: 'PublicBlogGuestbook' },
-    { path: '/page/any-slug', name: 'PublicBlogPage' },
-    { path: '/friend-links/apply', name: 'PublicBlogFriendLinkApply' },
-    { path: '/search', name: 'PublicBlogSearch' },
-    { path: '/bookmarks', name: 'PublicBlogBookmarks' },
-    { path: '/agreement', name: 'PublicBlogUserAgreement' },
-    { path: '/privacy', name: 'PublicBlogPrivacyPolicy' },
-    { path: '/register', name: 'BlogRegister' },
-    { path: '/forgot-password', name: 'BlogForgotPassword' }
+    { path: '/category', name: 'PublicSiteCategoryList' },
+    { path: '/category/9', name: 'PublicSiteCategory' },
+    { path: '/tag', name: 'PublicSiteTagList' },
+    { path: '/tag/3', name: 'PublicSiteTag' },
+    { path: '/author/1', name: 'PublicSiteAuthor' },
+    { path: '/archive', name: 'PublicSiteArchive' },
+    { path: '/guestbook', name: 'PublicSiteGuestbook' },
+    { path: '/page/any-slug', name: 'PublicSitePage' },
+    { path: '/friend-links/apply', name: 'PublicSiteFriendLinkApply' },
+    { path: '/search', name: 'PublicSiteSearch' },
+    { path: '/bookmarks', name: 'PublicSiteBookmarks' },
+    { path: '/agreement', name: 'PublicSiteUserAgreement' },
+    { path: '/privacy', name: 'PublicSitePrivacyPolicy' },
+    { path: '/register', name: 'SiteRegister' },
+    { path: '/forgot-password', name: 'SiteForgotPassword' }
   ]
 
   it.each(publicPages)('匿名访问 $path 放行且解析到 $name', async ({ path, name }) => {

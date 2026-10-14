@@ -302,7 +302,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="BlogFriendLink">
+<script setup lang="ts" name="SiteFriendLink">
 import { ref, reactive, toRefs, getCurrentInstance, onMounted, computed, onUnmounted } from 'vue'
 import {
   listFriendLink,
@@ -311,7 +311,7 @@ import {
   addFriendLink,
   updateFriendLink,
   auditFriendLink
-} from '@/api/admin/blog/friendLink'
+} from '@/api/admin/friendLink'
 import { FRIEND_LINK_STATUS, auditStatusFor, type FriendLinkAuditAction } from './status'
 import { parseTime } from '@/utils/zhi' // 导入时间解析工具
 

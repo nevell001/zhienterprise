@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never" class="blog-setting-card">
+    <el-card shadow="never" class="site-setting-card">
       <template #header>
         <div class="card-header">
           <span class="card-title">{{ tabTitle }}</span>
@@ -13,7 +13,7 @@
         </div>
       </template>
 
-      <el-tabs v-model="activeTab" class="blog-setting-tabs">
+      <el-tabs v-model="activeTab" class="site-setting-tabs">
         <!-- 站点信息 -->
         <el-tab-pane label="站点信息" name="basic">
           <el-form ref="basicForm" :model="settingsMap" label-width="120px">
@@ -606,7 +606,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="BlogSetting">
+<script setup lang="ts" name="SiteSetting">
 import { isSwitchOn } from '@/utils/featureSwitch'
 import { ref, computed, onMounted, getCurrentInstance, watch } from 'vue'
 import { useSettingsStore, type ThemeMode } from '@/stores/settings'
@@ -627,17 +627,17 @@ import {
   getMailConfig,
   saveMailConfig,
   testMailConfig
-} from '@/api/admin/blog/setting'
-import { clearBlogCache } from '@/api/blog/setting'
-import { getPublishedPages } from '@/api/blog/page'
-import { useBlogSettingsStore } from '@/stores/blogSettings'
+} from '@/api/admin/setting'
+import { clearSiteCache } from '@/api/site/setting'
+import { getPublishedPages } from '@/api/site/page'
+import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { SITE_TEMPLATES } from '@/config/siteTemplates'
 
 const siteTemplates = SITE_TEMPLATES
 
 const { proxy } = getCurrentInstance()
 
-const blogSettingsStore = useBlogSettingsStore()
+const siteSettingsStore = useSiteSettingsStore()
 const settingsStore = useSettingsStore()
 
 const loading = ref(false)
@@ -1043,7 +1043,7 @@ async function getAllSettings() {
     })
 
     // 注册开关以 sys_config 的真实生效值为准：站点设置页其余项读 blog_setting，
-    // 而 BlogAuthController / SysRegisterController 拦的是 sys.account.registerUser，
+    // 而 SiteAuthController / SysRegisterController 拦的是 sys.account.registerUser，
     // 只读本地镜像就会出现"卡片显示已开启、注册仍被拒"
     try {
       const res = await getRegistrationSwitch()
@@ -1071,7 +1071,7 @@ async function applySwitch(key: string) {
     if (response?.code === 200) {
       originalSettings.value[key] = storedValue
       ElMessage.success('设置已生效')
-      blogSettingsStore.updateBlogSettings({ [key]: settingsMap.value[key] })
+      siteSettingsStore.updateSiteSettings({ [key]: settingsMap.value[key] })
     } else {
       throw new Error(response?.msg || '保存失败')
     }
@@ -1114,10 +1114,10 @@ async function saveAllSettings() {
     }
 
     // 清除前台缓存并同步全局状态
-    clearBlogCache().catch(() => {})
+    clearSiteCache().catch(() => {})
     const latest = toStoredMap(settingsMap.value)
-    blogSettingsStore.updateBlogSettings(latest)
-    window.dispatchEvent(new CustomEvent('blogSettingsUpdated', { detail: latest }))
+    siteSettingsStore.updateSiteSettings(latest)
+    window.dispatchEvent(new CustomEvent('siteSettingsUpdated', { detail: latest }))
 
     await getAllSettings()
     ElMessage.success(`成功保存 ${modified.length} 项设置`)
@@ -1251,13 +1251,13 @@ html.dark .app-container {
   background-color: var(--el-bg-color-page, #141414);
 }
 
-.blog-setting-card {
+.site-setting-card {
   margin-bottom: 20px;
   background-color: var(--el-bg-color-overlay);
   border: 1px solid var(--el-border-color-light);
 }
 
-html.dark .blog-setting-card {
+html.dark .site-setting-card {
   background-color: var(--el-bg-color-overlay, #1d1e1f);
   border: 1px solid var(--el-border-color-light, #434343);
 }
@@ -1297,7 +1297,7 @@ html.dark .blog-setting-card {
   margin-bottom: 20px;
 }
 
-.blog-setting-tabs {
+.site-setting-tabs {
   margin-top: 20px;
 }
 

@@ -9,7 +9,7 @@ import { resolve } from 'node:path'
  * 找不到组件时只在 console.error 后返回 undefined —— 组件路径写错的表现是
  * 页面白屏/404，单测环境里没有真实菜单数据可比。这里改做静态跨文件比对：
  * 种子里每条 C 类菜单的 component 都必须能找到视图文件，解析顺序与 loadView
- * 一致（views/admin/<component>.vue 优先，回退 views/blog/<component>.vue）。
+ * 一致（views/admin/<component>.vue 优先，回退 views/site/<component>.vue）。
  *
  * 历史：站点管理菜单的 component 曾长期是 blog/xxx/index，视图目录迁到
  * views/admin/* 后只要漏改一条，对应后台菜单就会 404。

@@ -4,7 +4,7 @@ import {
   type RouteRecordRaw,
   type RouterScrollBehavior
 } from 'vue-router'
-import blogRoutes from './blog'
+import siteRoutes from './site'
 
 // 扩展 RouteRecordRaw 类型，添加 hidden 属性
 interface ExtendedRouteRecordRaw extends Omit<RouteRecordRaw, 'children'> {
@@ -19,7 +19,7 @@ const routes: ExtendedRouteRecordRaw[] = [
   {
     // 根路径直接渲染站点首页（导航地址不出现 /blog 前缀）
     path: '/',
-    component: () => import('@/views/blog/index.vue'),
+    component: () => import('@/views/site/index.vue'),
     name: 'PublicRoot'
   },
   {
@@ -138,7 +138,7 @@ const routes: ExtendedRouteRecordRaw[] = [
     ]
   },
   // 站点前台路由
-  ...blogRoutes,
+  ...siteRoutes,
   {
     path: '/404',
     component: () => import('@/views/error/404.vue'),

@@ -34,7 +34,7 @@ function tableInfo(overrides: Record<string, any> = {}) {
     tableId: 9,
     tableName: 'blog_article',
     tableComment: '文章表',
-    className: 'BlogArticle',
+    className: 'SiteArticle',
     tplCategory: 'crud',
     packageName: 'com.zhi.system',
     moduleName: 'system',

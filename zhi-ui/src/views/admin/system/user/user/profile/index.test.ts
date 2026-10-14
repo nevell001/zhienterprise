@@ -37,7 +37,7 @@ describe('Profile 视图组件测试', () => {
     expect(source).toContain('settingsSubTab.value = tab')
   })
 
-  it('个人中心应该使用 Mo Blog 工作台式主题布局', () => {
+  it('个人中心应该使用 Mo Site 工作台式主题布局', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
     expect(source).toContain('class="profile-shell"')

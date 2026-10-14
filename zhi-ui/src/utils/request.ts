@@ -5,7 +5,7 @@ import axios, {
   InternalAxiosRequestConfig
 } from 'axios'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from '@/plugins/element-plus-service'
-import { getToken, getBlogToken, removeToken } from '@/utils/auth'
+import { getToken, getSiteToken, removeToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 import { tansParams, blobValidate } from '@/utils/zhi'
 import cache from '@/plugins/cache'
@@ -48,7 +48,7 @@ service.interceptors.request.use(
     // 是否需要防止数据重复提交
     const isRepeatSubmit = (config.headers as any)?.repeatSubmit === false
     // 优先使用管理员token，如果没有则尝试注册用户token
-    const token = getToken() || getBlogToken()
+    const token = getToken() || getSiteToken()
     if (token && !isToken) {
       ;(config.headers as any).Authorization = 'Bearer ' + token // 让每个请求携带自定义token 请根据实际情况自行修改
     }
@@ -119,7 +119,7 @@ service.interceptors.request.use(
   }
 )
 
-// 站点前台页面路径（与 router/blog.ts、permission.ts 白名单保持一致）：
+// 站点前台页面路径（与 router/site.ts、permission.ts 白名单保持一致）：
 // 这些页面允许匿名访问，401 时降级为空数据而非跳转登录页
 const FRONT_EXACT_PATHS = [
   '/',

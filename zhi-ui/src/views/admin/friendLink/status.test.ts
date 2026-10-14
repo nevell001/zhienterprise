@@ -16,7 +16,7 @@ describe('友链审核状态映射', () => {
     expect(FRIEND_LINK_STATUS.PENDING).toBe('2')
   })
 
-  // 回归护栏：后端 BlogFriendLink.status 是 String，接口返回 "0"/"1"。
+  // 回归护栏：后端 SiteFriendLink.status 是 String，接口返回 "0"/"1"。
   // el-switch 用严格 includes([activeValue, inactiveValue], row.status) 判断初值合法性，
   // 若这里是数字而 status 是字符串，每个开关渲染即误触发 change → 进页面刷一串"状态更新成功"。
   it('状态值必须是字符串，且能被后端返回的字符串 status 严格命中', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import BlogSetting from './index.vue'
+import SiteSetting from './index.vue'
 
 /**
  * 后台站点设置页行为测试（挂载真实组件）。
@@ -14,7 +14,7 @@ const {
   listSetting,
   updateSettingValueByKey,
   getRegistrationSwitch,
-  clearBlogCache,
+  clearSiteCache,
   getMailConfig,
   saveMailConfig,
   testMailConfig,
@@ -24,7 +24,7 @@ const {
   listSetting: vi.fn(),
   updateSettingValueByKey: vi.fn(),
   getRegistrationSwitch: vi.fn(),
-  clearBlogCache: vi.fn(),
+  clearSiteCache: vi.fn(),
   getMailConfig: vi.fn(),
   saveMailConfig: vi.fn(),
   testMailConfig: vi.fn(),
@@ -32,7 +32,7 @@ const {
   ElMessage: { success: vi.fn(), warning: vi.fn(), error: vi.fn() }
 }))
 
-vi.mock('@/api/admin/blog/setting', () => ({
+vi.mock('@/api/admin/setting', () => ({
   listSetting: (...args: unknown[]) => listSetting(...args),
   updateSettingValueByKey: (...args: unknown[]) => updateSettingValueByKey(...args),
   getRegistrationSwitch: (...args: unknown[]) => getRegistrationSwitch(...args),
@@ -41,11 +41,11 @@ vi.mock('@/api/admin/blog/setting', () => ({
   testMailConfig: (...args: unknown[]) => testMailConfig(...args)
 }))
 
-vi.mock('@/api/blog/setting', () => ({
-  clearBlogCache: (...args: unknown[]) => clearBlogCache(...args)
+vi.mock('@/api/site/setting', () => ({
+  clearSiteCache: (...args: unknown[]) => clearSiteCache(...args)
 }))
 
-vi.mock('@/api/blog/page', () => ({
+vi.mock('@/api/site/page', () => ({
   getPublishedPages: (...args: unknown[]) => getPublishedPages(...args)
 }))
 
@@ -62,7 +62,7 @@ const ElRadioGroupStub = {
 }
 
 function mountPage() {
-  return mount(BlogSetting, {
+  return mount(SiteSetting, {
     global: {
       plugins: [createPinia()],
       stubs: {
@@ -101,7 +101,7 @@ function mountPage() {
   })
 }
 
-describe('BlogSetting 视图（行为）', () => {
+describe('SiteSetting 视图（行为）', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
@@ -113,7 +113,7 @@ describe('BlogSetting 视图（行为）', () => {
     })
     updateSettingValueByKey.mockResolvedValue({ code: 200 })
     getRegistrationSwitch.mockResolvedValue({ code: 200, data: false })
-    clearBlogCache.mockResolvedValue({ code: 200 })
+    clearSiteCache.mockResolvedValue({ code: 200 })
     getPublishedPages.mockResolvedValue({ code: 200, data: [] })
     getMailConfig.mockResolvedValue({
       code: 200,
@@ -132,7 +132,7 @@ describe('BlogSetting 视图（行为）', () => {
   })
 
   it('导出组件', () => {
-    expect(BlogSetting).toBeDefined()
+    expect(SiteSetting).toBeDefined()
   })
 
   it('功能设置以分组卡片渲染出各功能开关', async () => {

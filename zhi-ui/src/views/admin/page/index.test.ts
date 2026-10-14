@@ -14,7 +14,7 @@ describe('PageManage 视图组件测试', () => {
   it('应该注册 keep-alive 所需的组件名', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
-    expect(source).toContain('name="BlogPage"')
+    expect(source).toContain('name="SitePage"')
   })
 
   it('应该包含页面管理所需的权限标识', () => {

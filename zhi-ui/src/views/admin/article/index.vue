@@ -620,9 +620,9 @@ import {
   updateArticle,
   updateArticleTopStatus,
   updateArticleRecommendStatus
-} from '@/api/admin/blog/article'
-import { listCategory } from '@/api/admin/blog/category'
-import { listTag } from '@/api/admin/blog/tag'
+} from '@/api/admin/article'
+import { listCategory } from '@/api/admin/category'
+import { listTag } from '@/api/admin/tag'
 import ImageUpload from '@/components/ImageUpload'
 import TagCategorySelector from '@/components/TagCategorySelector.vue'
 import { parseTime } from '@/utils/zhi'

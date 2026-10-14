@@ -21,12 +21,12 @@
                 stroke-linecap="round"
               />
             </svg>
-            {{ blogSettings.blog_name || '知企建站系统' }}
+            {{ siteSettings.blog_name || '知企建站系统' }}
           </div>
-          <p class="fdesc">{{ blogSettings.blog_desc || '' }}</p>
-          <p v-if="isBeianEnabled && blogSettings.blog_beian" class="fbeian">
+          <p class="fdesc">{{ siteSettings.blog_desc || '' }}</p>
+          <p v-if="isBeianEnabled && siteSettings.blog_beian" class="fbeian">
             <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
-              {{ blogSettings.blog_beian }}
+              {{ siteSettings.blog_beian }}
             </a>
           </p>
         </div>
@@ -44,8 +44,8 @@
           <router-link to="/contact">咨询合作</router-link>
           <router-link v-if="isGuestbookEnabled" to="/guestbook">留言板</router-link>
           <a
-            v-if="blogSettings.github_url"
-            :href="formatUrl(blogSettings.github_url)"
+            v-if="siteSettings.github_url"
+            :href="formatUrl(siteSettings.github_url)"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -56,22 +56,22 @@
 
         <div class="fcol">
           <h4>联系我们</h4>
-          <span v-if="blogSettings.contact_address">{{ blogSettings.contact_address }}</span>
+          <span v-if="siteSettings.contact_address">{{ siteSettings.contact_address }}</span>
           <a
-            v-if="blogSettings.contact_phone"
-            :href="`tel:${blogSettings.contact_phone.replace(/\s/g, '')}`"
+            v-if="siteSettings.contact_phone"
+            :href="`tel:${siteSettings.contact_phone.replace(/\s/g, '')}`"
           >
-            {{ blogSettings.contact_phone }}
+            {{ siteSettings.contact_phone }}
           </a>
-          <a v-if="blogSettings.blog_email" :href="`mailto:${blogSettings.blog_email}`">
-            {{ blogSettings.blog_email }}
+          <a v-if="siteSettings.blog_email" :href="`mailto:${siteSettings.blog_email}`">
+            {{ siteSettings.blog_email }}
           </a>
           <span v-if="!hasContactInfo">通过「联系我们」页面获取联系方式</span>
         </div>
       </div>
 
       <div class="fbot">
-        <span>© {{ currentYear }} {{ blogSettings.blog_name || '知企建站系统' }} 保留所有权利</span>
+        <span>© {{ currentYear }} {{ siteSettings.blog_name || '知企建站系统' }} 保留所有权利</span>
         <span class="fbot-links">
           <router-link to="/agreement">法律声明</router-link>
           <router-link to="/privacy">隐私政策</router-link>
@@ -98,22 +98,22 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useBlogSettingsStore } from '@/stores/blogSettings'
+import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getApiBaseUrl } from '@/utils/index'
 
-const blogSettingsStore = useBlogSettingsStore()
-const blogSettings = computed(() => blogSettingsStore.blogSettings)
+const siteSettingsStore = useSiteSettingsStore()
+const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const businessLabel = computed(
-  () => String(blogSettings.value.business_label || '').trim() || '核心业务'
+  () => String(siteSettings.value.business_label || '').trim() || '核心业务'
 )
-const isGuestbookEnabled = computed(() => blogSettingsStore.isFeatureEnabled('guestbook_enabled'))
-const isBeianEnabled = computed(() => blogSettingsStore.isFeatureEnabled('beian_enabled'))
+const isGuestbookEnabled = computed(() => siteSettingsStore.isFeatureEnabled('guestbook_enabled'))
+const isBeianEnabled = computed(() => siteSettingsStore.isFeatureEnabled('beian_enabled'))
 const currentYear = computed(() => new Date().getFullYear())
 const hasContactInfo = computed(
   () =>
-    Boolean(blogSettings.value.contact_address) ||
-    Boolean(blogSettings.value.contact_phone) ||
-    Boolean(blogSettings.value.blog_email)
+    Boolean(siteSettings.value.contact_address) ||
+    Boolean(siteSettings.value.contact_phone) ||
+    Boolean(siteSettings.value.blog_email)
 )
 
 const rssUrl = computed(() => {

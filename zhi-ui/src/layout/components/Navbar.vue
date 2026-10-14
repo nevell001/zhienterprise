@@ -143,8 +143,8 @@ import {
   getNotificationList,
   markAsRead,
   markAllAsRead,
-  type BlogNotification
-} from '@/api/blog/notification'
+  type SiteNotification
+} from '@/api/site/notification'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
@@ -152,7 +152,7 @@ const settingsStore = useSettingsStore()
 const router = useRouter()
 
 const unreadCount = ref(0)
-const notificationList = ref<BlogNotification[]>([])
+const notificationList = ref<SiteNotification[]>([])
 const notificationLoading = ref(false)
 let unreadTimer: ReturnType<typeof setInterval> | null = null
 
@@ -232,7 +232,7 @@ function fetchNotificationList() {
   notificationLoading.value = true
   getNotificationList({ pageNum: 1, pageSize: 10 })
     .then(response => {
-      const data = (response && (response.rows || response.data)) as BlogNotification[] | undefined
+      const data = (response && (response.rows || response.data)) as SiteNotification[] | undefined
       notificationList.value = Array.isArray(data) ? data : []
     })
     .catch(() => {
@@ -249,7 +249,7 @@ function handleDropdownVisible(visible: boolean) {
   }
 }
 
-function handleNotificationClick(item: BlogNotification) {
+function handleNotificationClick(item: SiteNotification) {
   if (item.isRead === 0) {
     markAsRead([item.id])
       .then(() => {

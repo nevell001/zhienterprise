@@ -115,7 +115,7 @@ export function getHotTags(): Promise<any> {
 /**
  * 访问明细记录
  */
-export interface BlogVisitLog {
+export interface SiteVisitLog {
   id: number
   /** 目标类型（article 文章 / page 自定义页面） */
   targetType: 'article' | 'page'
@@ -184,7 +184,7 @@ export interface VisitSummary {
 /**
  * 查询访问明细列表（PV/UV 明细）
  */
-export function getVisitLogList(query?: VisitQueryParams): Promise<QueryResult<BlogVisitLog>> {
+export function getVisitLogList(query?: VisitQueryParams): Promise<QueryResult<SiteVisitLog>> {
   return request({
     url: '/statistics/visit/list',
     method: 'get',

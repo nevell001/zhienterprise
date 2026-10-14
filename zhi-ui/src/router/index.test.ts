@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import router, { constantRoutes, dynamicRoutes } from './index'
-import { blogRoutes } from './blog'
+import { siteRoutes } from './site'
 
 const flattenRoutes = (routes: any[], parentPath = ''): any[] =>
   routes.flatMap(route => {
@@ -30,7 +30,7 @@ describe('Router Index 测试', () => {
 
   it('constantRoutes 应该完整包含前台短路径路由表', () => {
     const paths = constantRoutes.map(route => route.path)
-    const missing = blogRoutes.map(route => route.path).filter(path => !paths.includes(path))
+    const missing = siteRoutes.map(route => route.path).filter(path => !paths.includes(path))
     expect(missing).toEqual([])
   })
 

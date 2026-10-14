@@ -19,7 +19,7 @@
             stroke-linecap="round"
           />
         </svg>
-        {{ blogSettings.blog_name || '知企建站系统' }}
+        {{ siteSettings.blog_name || '知企建站系统' }}
       </router-link>
 
       <ul class="ent-links">
@@ -122,16 +122,16 @@ import { useRoute, useRouter } from 'vue-router'
 import { ArrowDown, Menu, UserFilled } from '@element-plus/icons-vue'
 import { ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
-import { useBlogSettingsStore } from '@/stores/blogSettings'
+import { useSiteSettingsStore } from '@/stores/siteSettings'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
-const blogSettingsStore = useBlogSettingsStore()
+const siteSettingsStore = useSiteSettingsStore()
 
-const blogSettings = computed(() => blogSettingsStore.blogSettings)
+const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const businessLabel = computed(
-  () => String(blogSettings.value.business_label || '').trim() || '核心业务'
+  () => String(siteSettings.value.business_label || '').trim() || '核心业务'
 )
 
 /* ---------- 首页透明 → 滚动实底（方案文档 §1.1） ---------- */

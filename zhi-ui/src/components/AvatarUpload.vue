@@ -66,7 +66,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { ElMessage } from '@/plugins/element-plus-service'
 import { Camera, Warning } from '@element-plus/icons-vue'
-import { uploadAvatar, processAvatarUrl, checkAvatarExists } from '@/api/blog/avatar'
+import { uploadAvatar, processAvatarUrl, checkAvatarExists } from '@/api/site/avatar'
 import { formatFileSize } from '@/utils/imageUtils'
 
 // Props

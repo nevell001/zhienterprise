@@ -105,8 +105,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { listCategory } from '@/api/admin/blog/category'
-import { listTag, addTag } from '@/api/admin/blog/tag'
+import { listCategory } from '@/api/admin/category'
+import { listTag, addTag } from '@/api/admin/tag'
 import { ElMessage } from '@/plugins/element-plus-service'
 
 // Props

@@ -102,13 +102,13 @@ describe('ArticleCard 组件', () => {
     const vueRatios = vue.match(/aspect-ratio:\s*[^;]+/g) ?? []
     expect(vueRatios.every(r => /3\s*\/\s*1/.test(r))).toBe(true)
 
-    const home = readFileSync(resolve(process.cwd(), 'src/views/blog/index.vue'), 'utf-8')
+    const home = readFileSync(resolve(process.cwd(), 'src/views/site/index.vue'), 'utf-8')
     const thumbRule = home.match(/\.article-card \.thumb\s*\{[^}]*\}/)?.[0] ?? ''
     expect(thumbRule).toMatch(/aspect-ratio:\s*3\s*\/\s*1/)
     expect(thumbRule).not.toMatch(/height:\s*\d+px/)
 
     const archive = readFileSync(
-      resolve(process.cwd(), 'src/views/blog/archive/index.vue'),
+      resolve(process.cwd(), 'src/views/site/archive/index.vue'),
       'utf-8'
     )
     const archiveRule = archive.match(/\.article-cover\s*\{[^}]*\}/)?.[0] ?? ''

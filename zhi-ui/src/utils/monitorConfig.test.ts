@@ -3,7 +3,7 @@ import { clearMonitorUrlCache, loadMonitorUrl } from './monitorConfig'
 
 const getConfigByKey = vi.fn()
 
-vi.mock('@/api/admin/blog/setting', () => ({
+vi.mock('@/api/admin/setting', () => ({
   getConfigByKey: (key: string) => getConfigByKey(key)
 }))
 

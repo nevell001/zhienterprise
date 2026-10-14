@@ -4,7 +4,7 @@
  *   1 = 停用 / 拒绝
  *   2 = 待审核（前台提交申请时写入）
  */
-// 与后端 BlogFriendLink.status(String) 对齐：这里必须是**字符串**，
+// 与后端 SiteFriendLink.status(String) 对齐：这里必须是**字符串**，
 // 否则 el-switch 的 [activeValue, inactiveValue].includes(row.status) 严格比较为 false，
 // 每个开关一渲染就误判值非法并 emit change，导致进页面逐行触发"状态更新成功"。
 export const FRIEND_LINK_STATUS = {

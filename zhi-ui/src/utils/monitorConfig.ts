@@ -1,4 +1,4 @@
-import { getConfigByKey } from '@/api/admin/blog/setting'
+import { getConfigByKey } from '@/api/admin/setting'
 import { logger } from './logger'
 import { resolveMonitorUrl, type MonitorTarget } from './monitorUrl'
 

@@ -114,9 +114,9 @@
   </div>
 </template>
 
-<script setup lang="ts" name="BlogTag">
+<script setup lang="ts" name="SiteTag">
 import { ref, reactive, toRefs, getCurrentInstance, onMounted } from 'vue'
-import { listTag, getTag, delTag, addTag, updateTag } from '@/api/admin/blog/tag'
+import { listTag, getTag, delTag, addTag, updateTag } from '@/api/admin/tag'
 
 const { proxy } = getCurrentInstance()
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isSwitchOn } from './featureSwitch'
 
 /**
- * 这些用例与后端 BlogSwitchUtilsTest 一一对应：任何一侧改了口径，
+ * 这些用例与后端 SiteSwitchUtilsTest 一一对应：任何一侧改了口径，
  * 两边都会有一组用例失败。
  */
 describe('功能开关唯一口径', () => {

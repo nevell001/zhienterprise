@@ -230,7 +230,7 @@ html.dark .share-item:hover {
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* 弹层 teleport 到 body，落在 .blog-layout 的深色重映射作用域之外，
+/* 弹层 teleport 到 body，落在 .site-layout 的深色重映射作用域之外，
    所以这里的 --mo-* 取 :root 浅色阶的值：n100 #f5f5f4、n400 #a8a29e。 */
 html.dark .share-label {
   color: var(--mo-n100);

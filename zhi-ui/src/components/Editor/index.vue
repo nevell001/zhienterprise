@@ -326,7 +326,7 @@ watch(
 )
 
 // 上传文件到本站，返回完整访问 URL；失败返回 null
-async function uploadToBlog(file: File): Promise<string | null> {
+async function uploadToSite(file: File): Promise<string | null> {
   const formData = new FormData()
   formData.append('file', file)
   try {
@@ -501,7 +501,7 @@ async function insertImage(file: File) {
       console.warn('图片预压缩失败，使用原始文件上传', e)
     }
   }
-  const url = await uploadToBlog(upload)
+  const url = await uploadToSite(upload)
   if (!url) {
     ;(proxy as any).$modal.msgError('图片上传失败')
     return

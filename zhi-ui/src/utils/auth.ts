@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie'
 
 const TokenKey = 'Admin-Token'
-const BlogTokenKey = 'Blog-Token'
+const SiteTokenKey = 'Site-Token'
 
 /**
  * 记住我 Cookie 过期天数
@@ -37,8 +37,8 @@ export function removeToken(): void {
 /**
  * 获取注册用户 Token
  */
-export function getBlogToken(): string | undefined {
-  return Cookies.get(BlogTokenKey)
+export function getSiteToken(): string | undefined {
+  return Cookies.get(SiteTokenKey)
 }
 
 /**
@@ -46,16 +46,16 @@ export function getBlogToken(): string | undefined {
  * @param token - 令牌
  * @param rememberMe - 是否记住我（持久化 Cookie，默认 session 级别）
  */
-export function setBlogToken(token: string, rememberMe?: boolean): string | undefined {
+export function setSiteToken(token: string, rememberMe?: boolean): string | undefined {
   if (rememberMe) {
-    return Cookies.set(BlogTokenKey, token, { expires: REMEMBER_ME_DAYS })
+    return Cookies.set(SiteTokenKey, token, { expires: REMEMBER_ME_DAYS })
   }
-  return Cookies.set(BlogTokenKey, token)
+  return Cookies.set(SiteTokenKey, token)
 }
 
 /**
  * 移除注册用户 Token
  */
-export function removeBlogToken(): void {
-  Cookies.remove(BlogTokenKey)
+export function removeSiteToken(): void {
+  Cookies.remove(SiteTokenKey)
 }

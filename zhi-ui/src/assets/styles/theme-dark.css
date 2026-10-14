@@ -1,7 +1,7 @@
 /* 全局深色模式主题定义 */
 
 /* 默认主题深色：映射 --mo-n* 到 --el-* 变量（Tech Blue 深蓝） */
-html.dark .blog-layout,
+html.dark .site-layout,
 html.dark .mo-auth-page,
 html.dark .mo-home-page {
   --mo-n900: var(--el-bg-color);
@@ -31,7 +31,7 @@ html.dark .mo-home-page {
    注意：n300/n400 在浅色主题里是「次要文字色」（中灰 #d6d3d1 / #a8a29e），
    深色下必须仍是浅灰；曾误映射为 #57534e / #78716c（比卡片背景还深），
    导致全站导航/页脚/文章摘要/元信息对比度只有 1.99~3.65:1。 */
-html.dark.theme-mo-blog .blog-layout,
+html.dark.theme-mo-blog .site-layout,
 html.dark.theme-mo-blog .mo-auth-page,
 html.dark.theme-mo-blog .mo-home-page {
   --mo-n900: #1c1917;
@@ -174,8 +174,8 @@ html.dark.theme-mo-blog .mo-auth-page a.switch-item.active {
   border-color: transparent !important;
 }
 
-html.dark.theme-mo-blog .blog-login-container.mo-auth-page .auth-tabs .tab.active,
-html.dark.theme-mo-blog .blog-login-container.mo-auth-page .auth-tabs a.tab.active,
+html.dark.theme-mo-blog .site-login-container.mo-auth-page .auth-tabs .tab.active,
+html.dark.theme-mo-blog .site-login-container.mo-auth-page .auth-tabs a.tab.active,
 html.dark.theme-mo-blog .mo-auth-page .auth-switch .switch-item.active,
 html.dark.theme-mo-blog .mo-auth-page .auth-switch a.switch-item.active {
   background: var(--mo-n700, #292524) !important;
@@ -199,8 +199,8 @@ html.dark.theme-mo-blog .mo-auth-page .auth-secondary:hover {
   border-color: var(--mo-n700, #292524) !important;
 }
 
-/* BlogLayout Dark Mode Overrides */
-html.dark .blog-top-nav {
+/* SiteLayout Dark Mode Overrides */
+html.dark .site-top-nav {
   border-bottom-color: var(--mo-n700);
   background: color-mix(in srgb, var(--mo-n900) 92%, transparent);
 }
@@ -213,7 +213,7 @@ html.dark .footer-col h4 {
 
 html.dark .nav-link,
 html.dark .footer-col a,
-html.dark .blog-site-footer,
+html.dark .site-footer,
 html.dark .brand-desc,
 html.dark .footer-bottom {
   color: var(--mo-n300);
@@ -233,7 +233,7 @@ html.dark .theme-btn:hover {
   background: var(--mo-p50);
 }
 
-html.dark .blog-site-footer {
+html.dark .site-footer {
   border-top-color: var(--mo-n700);
   background: var(--mo-n800);
 }

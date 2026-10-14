@@ -212,14 +212,14 @@
   </div>
 </template>
 
-<script setup lang="ts" name="BlogComment">
+<script setup lang="ts" name="SiteComment">
 import {
   listComment,
   getComment,
   delComment,
   auditComment,
   rejectComment
-} from '@/api/admin/blog/comment'
+} from '@/api/admin/comment'
 
 const { proxy } = getCurrentInstance()
 const { comment_status } = proxy.useDict('comment_status')

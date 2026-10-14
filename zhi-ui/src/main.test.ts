@@ -9,11 +9,11 @@ describe('main bootstrap', () => {
   it('应该在应用挂载后立即清理启动遮罩，再异步初始化博客设置', () => {
     const mountIndex = bootstrapSource.indexOf("app.mount('#app')")
     const markLoadedIndex = bootstrapSource.indexOf('markAppLoaded()')
-    const initBlogSettingsIndex = bootstrapSource.indexOf('void initBlogSettings()')
+    const initSiteSettingsIndex = bootstrapSource.indexOf('void initSiteSettings()')
 
     expect(mountIndex).toBeGreaterThan(-1)
     expect(markLoadedIndex).toBeGreaterThan(mountIndex)
-    expect(initBlogSettingsIndex).toBeGreaterThan(markLoadedIndex)
+    expect(initSiteSettingsIndex).toBeGreaterThan(markLoadedIndex)
   })
 
   it('应该用 finally 保护启动遮罩清理，避免初始化异常卡住首屏', () => {

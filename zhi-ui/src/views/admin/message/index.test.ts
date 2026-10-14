@@ -14,7 +14,7 @@ describe('MessageManage 视图组件测试', () => {
   it('应该注册 keep-alive 所需的组件名', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
-    expect(source).toContain('name="BlogMessage"')
+    expect(source).toContain('name="SiteMessage"')
   })
 
   it('应该包含留言管理所需的权限标识', () => {

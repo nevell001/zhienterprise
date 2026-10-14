@@ -12,8 +12,8 @@ describe('mo-blog theme stylesheet', () => {
   })
 
   it('应该为博客首页和布局提供高优先级覆盖以压过 scoped 样式', () => {
-    expect(stylesheet).toContain('.theme-mo-blog .blog-layout .blog-top-nav')
-    expect(stylesheet).toContain('.theme-mo-blog .blog-home-v2 .tag')
+    expect(stylesheet).toContain('.theme-mo-blog .site-layout .site-top-nav')
+    expect(stylesheet).toContain('.theme-mo-blog .site-home-v2 .tag')
     expect(stylesheet).toContain(
       'html.dark.theme-mo-blog .mo-home-page .home-hero .search-box input'
     )

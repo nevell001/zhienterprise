@@ -186,7 +186,7 @@ export interface FriendLink {
 /**
  * 站点设置
  */
-export interface BlogSetting {
+export interface SiteSetting {
   id?: number
   settingKey: string
   settingValue: string

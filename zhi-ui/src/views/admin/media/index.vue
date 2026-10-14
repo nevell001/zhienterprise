@@ -94,10 +94,10 @@
   </div>
 </template>
 
-<script setup lang="ts" name="BlogMedia">
+<script setup lang="ts" name="SiteMedia">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
-import { listMedia, delMedia, type MediaItem } from '@/api/admin/blog/media'
+import { listMedia, delMedia, type MediaItem } from '@/api/admin/media'
 
 const loading = ref(false)
 const list = ref<MediaItem[]>([])

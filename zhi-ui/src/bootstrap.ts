@@ -17,7 +17,7 @@ import App from './App.vue'
 import { createPinia } from 'pinia'
 import router from './router'
 import { useSettingsStore } from '@/stores/settings'
-import { initBlogSettings } from '@/utils/blogSettings'
+import { initSiteSettings } from '@/utils/siteSettings'
 import directive from './directive' // directive
 
 // 导入自定义动画指令
@@ -111,7 +111,7 @@ async function bootstrap(): Promise<void> {
   }
 
   if (mounted) {
-    void initBlogSettings()
+    void initSiteSettings()
   }
 }
 

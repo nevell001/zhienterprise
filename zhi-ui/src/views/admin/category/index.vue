@@ -107,7 +107,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="BlogCategory">
+<script setup lang="ts" name="SiteCategory">
 import { ref, reactive, toRefs, computed, getCurrentInstance, onMounted } from 'vue'
 import {
   listCategory,
@@ -115,7 +115,7 @@ import {
   delCategory,
   addCategory,
   updateCategory
-} from '@/api/admin/blog/category'
+} from '@/api/admin/category'
 
 const { proxy } = getCurrentInstance()
 const { sys_normal_disable } = proxy.useDict('sys_normal_disable')

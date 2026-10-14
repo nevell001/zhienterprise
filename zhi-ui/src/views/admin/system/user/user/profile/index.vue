@@ -290,9 +290,9 @@ import userAvatar from './userAvatar.vue'
 import userInfo from './userInfo.vue'
 import resetPwd from './resetPwd.vue'
 import { getUserProfile } from '@/api/system/user'
-import { getMyArticles } from '@/api/admin/blog/article'
-import { getNotificationList, markAsRead, markAllAsRead } from '@/api/blog/notification'
-import type { BlogNotification } from '@/api/blog/notification'
+import { getMyArticles } from '@/api/admin/article'
+import { getNotificationList, markAsRead, markAllAsRead } from '@/api/site/notification'
+import type { SiteNotification } from '@/api/site/notification'
 import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
@@ -322,7 +322,7 @@ const profileBio = computed(() => {
 })
 
 // 站内信通知
-const notifications = ref<BlogNotification[]>([])
+const notifications = ref<SiteNotification[]>([])
 const notificationsLoading = ref(false)
 const unreadNotificationCount = computed(
   () => notifications.value.filter(n => n.isRead === 0).length

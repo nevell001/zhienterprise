@@ -242,19 +242,19 @@
   </div>
 </template>
 
-<script setup lang="ts" name="BlogMessage">
-import { listMessage, auditMessage, replyMessage, delMessage } from '@/api/admin/blog/message'
+<script setup lang="ts" name="SiteMessage">
+import { listMessage, auditMessage, replyMessage, delMessage } from '@/api/admin/message'
 import type {
-  BlogMessage,
+  SiteMessage,
   MessageAuditStatus,
   MessageQueryParams,
   MessageStatus
-} from '@/api/admin/blog/message'
+} from '@/api/admin/message'
 import { parseTime } from '@/utils/zhi'
 
 const { proxy } = getCurrentInstance()
 
-const messageList = ref<BlogMessage[]>([])
+const messageList = ref<SiteMessage[]>([])
 const open = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
@@ -363,13 +363,13 @@ function resetQuery() {
 }
 
 /** 多选框选中数据 */
-function handleSelectionChange(selection: BlogMessage[]) {
+function handleSelectionChange(selection: SiteMessage[]) {
   ids.value = selection.map(item => item.id)
   multiple.value = !selection.length
 }
 
 /** 审核留言（status：1通过 2拒绝） */
-function handleAudit(row: BlogMessage, status: MessageAuditStatus) {
+function handleAudit(row: SiteMessage, status: MessageAuditStatus) {
   const actionText = status === '1' ? '通过' : '拒绝'
   proxy.$modal
     .confirm(`是否确认${actionText}留言编号为"${row.id}"的数据项？`)
@@ -386,7 +386,7 @@ function handleAudit(row: BlogMessage, status: MessageAuditStatus) {
 }
 
 /** 打开回复弹窗 */
-function handleReply(row: BlogMessage) {
+function handleReply(row: SiteMessage) {
   replyForm.value = {
     id: row.id,
     nickname: row.nickname,
@@ -431,7 +431,7 @@ function submitReply() {
 }
 
 /** 删除按钮操作 */
-function handleDelete(row?: BlogMessage) {
+function handleDelete(row?: SiteMessage) {
   const deleteIds = row?.id || ids.value
   proxy.$modal
     .confirm('是否确认删除留言编号为"' + deleteIds + '"的数据项？')
