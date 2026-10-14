@@ -564,7 +564,7 @@ const applyDefaultSeo = () => {
 }
 
 const goToAdmin = () => {
-  router.push('/admin/blog/article')
+  router.push('/admin/article')
 }
 
 const handleUserCommand = async (command: string) => {

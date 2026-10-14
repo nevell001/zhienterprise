@@ -139,10 +139,10 @@ describe('blog design layout guards', () => {
   })
 
   it('博客用户菜单进入管理后台应直接访问后台路由', () => {
-    expect(blogLayout).toContain("router.push('/admin/blog/article')")
+    expect(blogLayout).toContain("router.push('/admin/article')")
     expect(blogLayout).not.toContain("window.location.href = '/login?redirect=/admin'")
     // 企业导航同款入口：/admin 本身不是页面路由，直达后台列表
-    expect(enterpriseNav).toContain("router.push('/admin/blog/article')")
+    expect(enterpriseNav).toContain("router.push('/admin/article')")
   })
 
   it('企业模板页应挂载 BlogLayout 复用导航与页脚', () => {

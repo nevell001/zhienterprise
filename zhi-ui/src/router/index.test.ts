@@ -77,7 +77,7 @@ describe('Router Index 测试', () => {
   })
 
   it('隐藏子页面路由应该能解析出对应名称', () => {
-    expect(router.resolve('/redirect/admin/blog/article').name).toBe('Redirect')
+    expect(router.resolve('/redirect/admin/article').name).toBe('Redirect')
     expect(router.resolve('/401').name).toBe('Page401')
     expect(router.resolve('/admin/system/user-auth/role/1').name).toBe('AuthRole')
     expect(router.resolve('/admin/system/role-auth/user/1').name).toBe('AuthUser')

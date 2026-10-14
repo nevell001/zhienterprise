@@ -587,7 +587,7 @@ describe('Request 工具函数测试', () => {
     })
 
     it('后台与旧 /blog 前缀路径不应被当成前台页', () => {
-      const adminPaths = ['/admin', '/admin/blog/article', '/blog', '/blog/article/1', '/manage']
+      const adminPaths = ['/admin', '/admin/article', '/blog', '/blog/article/1', '/manage']
       adminPaths.forEach(path => {
         expect(isFrontSitePath(path), path).toBe(false)
       })

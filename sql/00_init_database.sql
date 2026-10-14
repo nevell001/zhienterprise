@@ -1212,7 +1212,10 @@ INSERT IGNORE INTO `blog_friend_link` (`id`, `name`, `url`, `logo`, `description
 
 -- 站点管理主菜单
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2000, '站点管理', 0, 1, 'admin/blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '', NULL, '站点管理目录');
+VALUES (2000, '站点管理', 0, 1, 'admin', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '', NULL, '站点管理目录');
+
+-- 存量升级：一级菜单路径去 blog（admin/blog → admin），幂等，可重复执行
+UPDATE sys_menu SET path = 'admin' WHERE menu_id = 2000 AND path = 'admin/blog';
 
 -- 文章管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)

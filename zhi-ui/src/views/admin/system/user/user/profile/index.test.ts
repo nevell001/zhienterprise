@@ -27,7 +27,7 @@ describe('Profile 视图组件测试', () => {
 
     expect(source).toContain("goArticleManage('create')")
     expect(source).toContain("goArticleManage('list')")
-    expect(source).toContain("router.push('/admin/blog/article')")
+    expect(source).toContain("router.push('/admin/article')")
   })
 
   it('编辑资料入口应该直接打开基本资料设置页签', () => {

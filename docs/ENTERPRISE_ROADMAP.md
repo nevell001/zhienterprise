@@ -57,7 +57,7 @@
    - `blog_article.article_type`（`news`/`business`/`case`）：实体 + Mapper 过滤、
      幂等 ALTER 迁移已有库，前台 `/blog/article/list` 绑定实体即获得类型筛选；
    - 管理端「站点管理 → 核心业务管理」菜单（menu 2010，复用文章管理组件，按路由
-     `/admin/blog/business` 固定 `articleType=business`，权限沿用 `blog:article:*`）；
+     `/admin/business` 固定 `articleType=business`，权限沿用 `blog:article:*`）；
      文章管理页新增类型筛选/类型列/编辑项；
    - 前台 `/blog/business` 列表（卡片网格 + 分页）与 `/blog/business/:id` 详情页；
    - sitemap：business/case 文章写规范入口 `/blog/business/{id}`，

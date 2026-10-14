@@ -410,10 +410,10 @@ function getProfileArticles() {
 
 function goArticleManage(mode: 'create' | 'list') {
   if (mode === 'create') {
-    router.push('/admin/blog/article')
+    router.push('/admin/article')
     return
   }
-  router.push('/admin/blog/article')
+  router.push('/admin/article')
 }
 
 function isPublished(article: any) {

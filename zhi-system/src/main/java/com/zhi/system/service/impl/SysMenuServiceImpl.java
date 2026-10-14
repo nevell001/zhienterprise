@@ -200,8 +200,8 @@ public class SysMenuServiceImpl implements ISysMenuService
                     router.setRedirect("/admin/monitor/online");
                 } else if ("admin/tool".equals(menu.getPath())) {
                     router.setRedirect("/admin/tool/gen");
-                } else if ("admin/blog".equals(menu.getPath())) {
-                    router.setRedirect("/admin/blog/article");
+                } else if ("admin".equals(menu.getPath())) {
+                    router.setRedirect("/admin/article");
                 } else if ("admin/statistics".equals(menu.getPath())) {
                     router.setRedirect("/admin/statistics/overview");
                 } else {

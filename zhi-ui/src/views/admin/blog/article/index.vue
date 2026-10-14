@@ -633,7 +633,7 @@ import { useRoute } from 'vue-router'
 
 const { proxy } = getCurrentInstance()
 const route = useRoute()
-// 核心业务管理菜单（/admin/blog/business）复用本组件，按路由固定 articleType=business
+// 核心业务管理菜单（/admin/business）复用本组件，按路由固定 articleType=business
 const fixedArticleType = route.path.endsWith('/business') ? 'business' : ''
 const articleTypeLabel = (type?: string) =>
   ({ news: '资讯动态', business: '核心业务', case: '客户案例' })[type || 'news'] || '资讯动态'
