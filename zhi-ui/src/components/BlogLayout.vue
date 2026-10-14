@@ -1,7 +1,15 @@
 <template>
-  <div class="blog-layout">
+  <div
+    class="blog-layout"
+    :class="{
+      'tpl-fixed-nav': isBusinessNavEnabled,
+      'tpl-nav-offset': isBusinessNavEnabled && route.path !== '/blog'
+    }"
+  >
+    <!-- 企业官网模板导航（透明→实底，方案文档 §1.1） -->
+    <EnterpriseNav v-if="isBusinessNavEnabled" />
     <!-- 统一顶部导航 -->
-    <nav class="blog-top-nav">
+    <nav v-else class="blog-top-nav">
       <div class="nav-inner">
         <router-link to="/blog" class="nav-left">
           <div class="brand-logo">
@@ -151,8 +159,10 @@
     <!-- 子页面内容 -->
     <slot></slot>
 
+    <!-- 企业官网模板页脚（四栏 + 返回顶部） -->
+    <EnterpriseFooter v-if="isBusinessNavEnabled" />
     <!-- 统一底部 -->
-    <footer v-if="isFooterEnabled" class="blog-site-footer">
+    <footer v-else-if="isFooterEnabled" class="blog-site-footer">
       <div class="footer-wave">
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
           <path
@@ -237,7 +247,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
 import { useSettingsStore } from '@/stores/settings'
@@ -269,6 +279,8 @@ import { getApiBaseUrl } from '@/utils/index'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { buildNavMenus, hasCustomHomePage } from '@/utils/blogNav'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
+import EnterpriseNav from '@/components/enterprise/EnterpriseNav.vue'
+import EnterpriseFooter from '@/components/enterprise/EnterpriseFooter.vue'
 import {
   normalizeSiteTemplate,
   SITE_TEMPLATE_CLASS_NAMES,
@@ -276,6 +288,7 @@ import {
 } from '@/config/siteTemplates'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
 const blogSettingsStore = useBlogSettingsStore()
@@ -1030,5 +1043,11 @@ function fetchPublishedPages() {
   .footer-wave svg {
     height: 40px;
   }
+}
+
+/* 企业官网模板模式：导航 fixed 脱离文档流，非首页内容留出导航高度；
+   首页（/blog）由各首页形态自行消化（hero 大间距 / 自定义页偏移） */
+.blog-layout.tpl-nav-offset {
+  padding-top: 64px;
 }
 </style>

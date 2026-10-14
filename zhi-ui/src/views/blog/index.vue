@@ -3,14 +3,18 @@
     <!-- 首页可能被自定义页面接管：设置未就绪时先给骨架，避免先闪文章列表再整体切换 -->
     <CustomPagePanel v-if="homeMode === 'booting'" loading :page="null" :not-found="false" />
 
-    <CustomPagePanel
+    <div
       v-else-if="homeMode === 'custom'"
-      minimal
-      :page="homePage"
-      :loading="homePageLoading"
-      :not-found="homePageNotFound"
-      @retry="loadHomePage"
-    />
+      :class="{ 'tpl-page-offset': isTplMode }"
+    >
+      <CustomPagePanel
+        minimal
+        :page="homePage"
+        :loading="homePageLoading"
+        :not-found="homePageNotFound"
+        @retry="loadHomePage"
+      />
+    </div>
 
     <!-- 企业官网区块化模板：Hero + 核心业务 + 数据 + 案例 + 动态 + CTA -->
     <EnterpriseHome v-else-if="homeMode === 'business'" />
@@ -246,6 +250,11 @@ const isBusinessHomeLayout = computed(
   () =>
     !isCustomHomePage.value &&
     String(blogSettingsStore.blogSettings.home_layout || '') === 'business'
+)
+
+// 企业官网模板模式（含自定义页接管形态）：用于 fixed 导航偏移等布局联动
+const isTplMode = computed(
+  () => String(blogSettingsStore.blogSettings.home_layout || '') === 'business'
 )
 
 // booting 只出现在首页路由：/blog/articles 明确是列表页，不等设置
@@ -972,5 +981,9 @@ html.dark .mo-home-page .search-result-note button {
 html.dark .mo-home-page .avatar-sm,
 html.dark .mo-home-page .rank.top {
   color: var(--mo-p300);
+}
+/* 企业模板模式：自定义页内容为 fixed 导航留出高度 */
+.tpl-page-offset {
+  padding-top: 64px;
 }
 </style>
