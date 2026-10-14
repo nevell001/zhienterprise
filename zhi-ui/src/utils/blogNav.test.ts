@@ -25,7 +25,8 @@ describe('buildNavMenus', () => {
     categoryEnabled: true,
     tagEnabled: true,
     archiveEnabled: true,
-    businessEnabled: false
+    businessEnabled: false,
+    contactEnabled: false
   }
 
   it('博客模式（首页未接管）保持 首页/分类/标签/归档，不出现「文章」', () => {
@@ -91,6 +92,18 @@ describe('buildNavMenus', () => {
       '/blog',
       '/blog/articles',
       '/blog/business',
+      '/blog/category',
+      '/blog/tag',
+      '/blog/archive'
+    ])
+  })
+
+  it('企业模板模式下核心业务之后跟「联系我们」', () => {
+    const menus = buildNavMenus({ ...blogMode, businessEnabled: true, contactEnabled: true })
+    expect(paths(menus)).toEqual([
+      '/blog',
+      '/blog/business',
+      '/blog/contact',
       '/blog/category',
       '/blog/tag',
       '/blog/archive'

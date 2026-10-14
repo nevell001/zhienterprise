@@ -12,7 +12,7 @@
           <button type="button" class="eh-btn eh-btn-primary" @click="scrollToBusiness">
             查看{{ businessLabel }}
           </button>
-          <button type="button" class="eh-btn eh-btn-ghost" @click="goAbout">联系我们</button>
+          <button type="button" class="eh-btn eh-btn-ghost" @click="goContact">联系我们</button>
         </div>
       </div>
     </header>
@@ -133,7 +133,7 @@
         >
           邮件联系我们
         </a>
-        <button v-else type="button" class="eh-btn eh-btn-light" @click="goAbout">联系我们</button>
+        <button v-else type="button" class="eh-btn eh-btn-light" @click="goContact">联系我们</button>
       </div>
     </section>
   </div>
@@ -207,7 +207,7 @@ const thumbStyle = (id?: number) => ({
 
 const scrollToBusiness = () =>
   document.getElementById('eh-business')?.scrollIntoView({ behavior: 'smooth' })
-const goAbout = () => router.push('/blog/about')
+const goContact = () => router.push('/blog/contact')
 const goBusinessItem = (id?: number) => id && router.push(`/blog/business/${id}`)
 const goNewsItem = (id?: number) => id && router.push(`/blog/article/${id}`)
 </script>

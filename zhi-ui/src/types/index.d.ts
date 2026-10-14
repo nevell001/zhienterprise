@@ -104,6 +104,12 @@ export interface Article {
   authorName?: string
   /** 内容类型：news 资讯（默认）business 核心业务 case 客户案例 */
   articleType?: string
+  /** SEO 标题（留空回退文章标题） */
+  seoTitle?: string
+  /** SEO 关键词（英文逗号分隔） */
+  seoKeywords?: string
+  /** SEO 描述（留空回退文章摘要） */
+  seoDescription?: string
   status?: number
   isTop?: number
   isRecommend?: number

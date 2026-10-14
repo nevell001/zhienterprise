@@ -71,14 +71,22 @@
 
    剩余：独立企业向主题（稳重蓝/青配色，去粉色强调）留待后续批次。
 
-### Phase 2 — 完善批次（v1.2）
+### Phase 2 — 完善批次（✅ 已完成，2026-10-14）
 
-- 「关于我们」页重做（公司介绍/团队/发展历程/荣誉资质，替换 `about.vue` 博主人设）；
-- 「联系我们」页（静态信息 + 地图 + 现有留言板开关，不做表单扩展）；
-- `blog_page` 编辑器升级：复用文章编辑器的 Quill 富文本 + 预置区块模板
-  （hero / 多列卡片 / 图文左右 / 数据条 / CTA 条）；
-- 文章级 TDK 字段（`blog_article` 补 `seo_title/keywords/description`）；
-- JSON-LD 结构化数据（Organization + Article）。
+1. ✅ **文章级 TDK**：`blog_article` 补 `seo_title/seo_keywords/seo_description`
+   （幂等 ALTER 迁移），管理端文章表单新增 SEO 区块，前台文章/业务详情页 SEO
+   优先用文章级字段、回退标题/摘要；
+2. ✅ **JSON-LD 结构化数据**：常驻布局注入 Organization（含联系方式 ContactPoint），
+   文章与业务详情注入 Article（卸载时移除防路由残留），`utils/jsonld.ts` 带单测；
+3. ✅ **「关于我们」企业化重做**：hero 从博主人设（头像/站长头衔）改为企业定位
+   （站点名 + 描述），联系卡片补电话/地址（企业联系方式一等公民化）；
+4. ✅ **「联系我们」页** `/blog/contact`：电话/邮箱/地址卡片 + 留言板入口
+   （受 `guestbook_enabled` 控制），企业模板模式导航注入入口；
+5. ✅ **页面编辑器升级**：预置区块模板（Hero 横幅/三列卡片/图文左右/数据条/CTA 条）
+   一键插入光标处 + 前台同管线实时预览（renderMarkdown + 消毒）。
+
+   备注：编辑器保留 Markdown textarea + 区块模板方案（未换 Quill 富文本），
+   如后续需要所写即所得可再评估。
 
 ### Phase 3 — 竞争力（v2，按需排期）
 

@@ -110,6 +110,7 @@ mysql -u root -p zhienterprise < sql/00_init_database.sql
 - 企业官网模式: `home_page_slug` (首页接管自定义页面), `nav_category_enabled`, `nav_tag_enabled`, `nav_archive_enabled` (导航裁剪)
 - 企业官网模板: `home_layout` (`business`=区块化企业首页, 优先级低于 `home_page_slug`), `business_label` (核心业务栏目名，导航/首页区块共用), `contact_phone`/`contact_address`
 - 文章内容类型: `blog_article.article_type` (`news` 资讯 / `business` 核心业务 / `case` 客户案例)；后两类的规范入口是 `/blog/business`，管理端「核心业务管理」菜单复用文章管理组件并按路由固定类型
+- 文章级 TDK: `blog_article.seo_title/seo_keywords/seo_description`（详情页 SEO 与 JSON-LD 优先使用，回退标题/摘要）；JSON-LD 注入走 `utils/jsonld.ts`（Organization 在 BlogLayout、Article 在详情页，卸载时移除）
 
 **Public vs Admin API Pattern**:
 - `/blog/**` endpoints: Public-facing, use `@Anonymous` annotation for unauthenticated access

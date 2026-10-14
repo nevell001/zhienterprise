@@ -29,6 +29,8 @@ export interface BuildNavMenusOptions {
   businessEnabled?: boolean
   /** 核心业务栏目名称（business_label，缺省「核心业务」） */
   businessLabel?: string
+  /** 企业官网模板模式下补「联系我们」入口 */
+  contactEnabled?: boolean
   pages?: NavPageItem[]
 }
 
@@ -44,6 +46,9 @@ export function buildNavMenus(options: BuildNavMenusOptions): NavMenuItem[] {
   }
   if (options.businessEnabled) {
     items.push({ name: options.businessLabel || '核心业务', path: '/blog/business' })
+  }
+  if (options.contactEnabled) {
+    items.push({ name: '联系我们', path: '/blog/contact' })
   }
   if (options.categoryEnabled) {
     items.push({ name: '分类', path: '/blog/category' })

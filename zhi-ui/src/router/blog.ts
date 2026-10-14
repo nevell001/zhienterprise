@@ -36,6 +36,13 @@ export const blogRoutes: RouteRecordRaw[] = [
     meta: { title: '业务详情' }
   },
   {
+    // 联系我们：企业官网模板模式导航入口，信息来自站点设置
+    path: '/blog/contact',
+    component: () => import('@/views/blog/contact/index.vue'),
+    name: 'PublicContact',
+    meta: { title: '联系我们' }
+  },
+  {
     path: '/blog/category',
     component: () => import('@/views/blog/category/list.vue'),
     name: 'PublicBlogCategoryList',

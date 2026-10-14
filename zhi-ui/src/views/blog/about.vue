@@ -3,25 +3,13 @@
     <div class="about-page mo-about-page">
       <div class="about-shell">
         <header class="about-panel about-hero">
-          <div class="about-avatar-wrap">
-            <img
-              :src="blogAvatarUrl"
-              :alt="blogSettings.blog_author || '站长'"
-              loading="lazy"
-              @error="handleAvatarError"
-            />
-          </div>
-
           <div class="about-hero-copy">
-            <span class="section-label">About</span>
+            <span class="section-label">About Us</span>
             <h1 class="about-name">
-              {{ blogSettings.blog_author || 'Nevell' }}
+              {{ blogSettings.blog_name || '关于我们' }}
             </h1>
-            <p class="about-role">
-              {{ blogSettings.author_title || '全栈开发工程师' }}
-            </p>
             <p class="about-desc">
-              {{ blogSettings.blog_desc || '热爱技术，热爱生活，专注于Web开发和用户体验设计。' }}
+              {{ blogSettings.blog_desc || '以专业的产品与服务，持续为客户创造价值。' }}
             </p>
           </div>
 
@@ -39,8 +27,8 @@
 
         <section class="about-panel about-content-panel">
           <div class="section-head">
-            <span class="section-label">Profile</span>
-            <h2>关于我</h2>
+            <span class="section-label">Company</span>
+            <h2>关于我们</h2>
           </div>
           <div class="about-content" v-html="aboutContentHtml"></div>
         </section>
@@ -48,7 +36,7 @@
         <section class="about-panel contact-section">
           <div class="section-head">
             <span class="section-label">Contact</span>
-            <h2>联系我</h2>
+            <h2>联系我们</h2>
           </div>
 
           <div v-if="contactItems.length" class="contact-grid">
@@ -87,11 +75,17 @@ import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getPublishedPageBySlug } from '@/api/blog/page'
 import { getPublicStatisticsOverview } from '@/api/statistics'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
-import { processAvatarUrl } from '@/api/blog/avatar'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
 import { logger } from '@/utils/logger'
-import { Link as LinkIcon, Location, Message, Platform, Promotion } from '@element-plus/icons-vue'
+import {
+  Link as LinkIcon,
+  Location,
+  Message,
+  Phone,
+  Platform,
+  Promotion
+} from '@element-plus/icons-vue'
 
 const blogSettingsStore = useBlogSettingsStore()
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
@@ -123,19 +117,6 @@ interface ContactItem {
   icon: Component
 }
 
-const blogAvatarUrl = computed(() => {
-  const avatar = blogSettings.value.blog_avatar
-  if (!avatar || !avatar.trim()) return '/default-avatar.svg'
-  const processedUrl = processAvatarUrl(avatar)
-  return processedUrl || '/default-avatar.svg'
-})
-
-const handleAvatarError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  if (img.src.includes('default-avatar.svg')) return
-  img.src = '/default-avatar.svg'
-}
-
 const statItems = computed(() => [
   { label: '篇文章', value: formatNumber(stats.value.articleCount || 0) },
   { label: '个分类', value: formatNumber(stats.value.categoryCount || 0) },
@@ -147,6 +128,17 @@ const statItems = computed(() => [
 const contactItems = computed<ContactItem[]>(() => {
   const items: ContactItem[] = []
 
+  // 企业联系方式是一等公民（contact_phone/contact_address），位置信息回退到 author_location
+  if (blogSettings.value.contact_phone) {
+    items.push({
+      key: 'phone',
+      label: '电话',
+      value: blogSettings.value.contact_phone,
+      href: `tel:${blogSettings.value.contact_phone.replace(/\s/g, '')}`,
+      icon: Phone
+    })
+  }
+
   if (blogSettings.value.blog_email) {
     items.push({
       key: 'email',
@@ -157,11 +149,11 @@ const contactItems = computed<ContactItem[]>(() => {
     })
   }
 
-  if (blogSettings.value.author_location) {
+  if (blogSettings.value.contact_address || blogSettings.value.author_location) {
     items.push({
-      key: 'location',
-      label: '位置',
-      value: blogSettings.value.author_location,
+      key: 'address',
+      label: '地址',
+      value: blogSettings.value.contact_address || blogSettings.value.author_location,
       icon: Location
     })
   }

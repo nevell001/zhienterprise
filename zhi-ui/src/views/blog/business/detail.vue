@@ -24,12 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getArticleDetail, updateArticleViewCount } from '@/api/blog/article'
 import type { Article } from '@/types'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { parseTime } from '@/utils/zhi'
 import { logger } from '@/utils/logger'
@@ -49,6 +50,10 @@ const formatDate = (date?: string) => (date ? parseTime(date, '{y}-{m}-{d}') : '
 
 const goBack = () => router.push('/blog/business')
 
+onBeforeUnmount(() => {
+  removeJsonLd('zh-jsonld-article')
+})
+
 onMounted(async () => {
   const id = Number(router.currentRoute.value.params.id)
   if (!Number.isFinite(id) || id <= 0) {
@@ -61,10 +66,20 @@ onMounted(async () => {
       article.value = response.data.article
       const siteName = settings.value.blog_name || '知企建站系统'
       applySeo({
-        title: article.value.title ? `${article.value.title} - ${siteName}` : siteName,
-        description: article.value.summary || '',
-        keywords: '',
+        title: article.value.seoTitle || (article.value.title ? `${article.value.title} - ${siteName}` : siteName),
+        description: article.value.seoDescription || article.value.summary || '',
+        keywords: article.value.seoKeywords || '',
         canonical: canonicalUrl()
+      })
+      // JSON-LD 结构化数据（Article）
+      setJsonLd('zh-jsonld-article', {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: article.value.title,
+        description: article.value.seoDescription || article.value.summary || undefined,
+        image: article.value.coverUrl || undefined,
+        datePublished: article.value.createTime || undefined,
+        author: { '@type': 'Person', name: article.value.authorName || 'admin' }
       })
       // 浏览计数与文章详情同一开关、同一接口
       if (isViewCountEnabled.value) {

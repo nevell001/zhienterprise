@@ -485,6 +485,36 @@
             </section>
 
             <section class="side-section">
+              <div class="side-title">SEO（可选）</div>
+              <el-form-item prop="seoTitle" class="compact-form-item">
+                <el-input
+                  v-model="form.seoTitle"
+                  placeholder="SEO 标题，留空回退文章标题"
+                  :maxlength="200"
+                  show-word-limit
+                />
+              </el-form-item>
+              <el-form-item prop="seoKeywords" class="compact-form-item">
+                <el-input
+                  v-model="form.seoKeywords"
+                  placeholder="SEO 关键词，英文逗号分隔"
+                  :maxlength="255"
+                  show-word-limit
+                />
+              </el-form-item>
+              <el-form-item prop="seoDescription" class="compact-form-item">
+                <el-input
+                  v-model="form.seoDescription"
+                  type="textarea"
+                  :rows="3"
+                  :maxlength="500"
+                  show-word-limit
+                  placeholder="SEO 描述，留空回退文章摘要"
+                />
+              </el-form-item>
+            </section>
+
+            <section class="side-section">
               <div class="side-title">摘要</div>
               <el-form-item prop="summary" class="compact-form-item">
                 <el-input
@@ -790,6 +820,9 @@ function reset() {
     contentMd: '', // Markdown 源码（format=markdown 时）
     format: 'html', // 内容格式 html|markdown
     articleType: fixedArticleType || 'news', // 内容类型：news 资讯 business 核心业务 case 案例
+    seoTitle: '',
+    seoKeywords: '',
+    seoDescription: '',
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,

@@ -236,8 +236,31 @@
             placeholder="请输入页面摘要"
           />
         </el-form-item>
+        <el-form-item label="预置区块">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+            <el-dropdown trigger="click" @command="insertBlock">
+              <el-button type="primary" plain>
+                插入区块模板<el-icon class="el-icon--right"><arrow-down /></el-icon>
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item
+                    v-for="tpl in blockTemplates"
+                    :key="tpl.name"
+                    :command="tpl.name"
+                  >
+                    {{ tpl.name }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <el-button @click="previewVisible = true">预览</el-button>
+            <span class="slug-tip">区块为 HTML 片段，插入到光标处后可直接修改文字；预览为前台实际渲染效果</span>
+          </div>
+        </el-form-item>
         <el-form-item label="页面内容" prop="content">
           <el-input
+            ref="contentRef"
             v-model="form.content"
             type="textarea"
             :rows="12"
@@ -303,6 +326,11 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 页面内容预览（与前台同一渲染管线：renderMarkdown + 消毒） -->
+    <el-dialog v-model="previewVisible" title="页面内容预览" width="720px" append-to-body>
+      <div class="page-preview" v-html="previewHtml"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -317,6 +345,8 @@ import {
 } from '@/api/admin/blog/page'
 import type { BlogPage, PageQueryParams, PageStatus } from '@/api/admin/blog/page'
 import { parseTime } from '@/utils/zhi'
+import { renderMarkdown } from '@/utils/markdown'
+import { sanitizeArticleContent } from '@/utils/sanitize'
 
 const { proxy } = getCurrentInstance()
 
@@ -458,6 +488,46 @@ function handleAdd() {
   form.value = createDefaultForm()
   open.value = true
   title.value = '新增页面'
+}
+
+/** 预置区块模板：HTML 片段，插入到页面内容光标处（Markdown 内容会透传渲染 HTML，前台统一消毒） */
+const blockTemplates = [
+  {
+    name: 'Hero 横幅',
+    html: '<section style="padding:48px 24px;text-align:center;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#1c1917);color:#ffffff"><h1 style="margin:0 0 12px">主标题文案</h1><p style="margin:0;opacity:.85">在这里输入副标语，一句话说明企业定位与核心价值</p></section>'
+  },
+  {
+    name: '三列卡片',
+    html: '<section style="display:flex;gap:20px;flex-wrap:wrap;margin:24px 0"><div style="flex:1;min-width:220px;padding:20px;border:1px solid #e7e5e4;border-radius:12px"><h3 style="margin:0 0 8px">核心业务一</h3><p style="margin:0">用一句话介绍该项业务的核心优势</p></div><div style="flex:1;min-width:220px;padding:20px;border:1px solid #e7e5e4;border-radius:12px"><h3 style="margin:0 0 8px">核心业务二</h3><p style="margin:0">用一句话介绍该项业务的核心优势</p></div><div style="flex:1;min-width:220px;padding:20px;border:1px solid #e7e5e4;border-radius:12px"><h3 style="margin:0 0 8px">核心业务三</h3><p style="margin:0">用一句话介绍该项业务的核心优势</p></div></section>'
+  },
+  {
+    name: '图文左右',
+    html: '<section style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin:24px 0"><div style="flex:1;min-width:260px"><h2 style="margin:0 0 12px">标题文案</h2><p style="margin:0">在这里输入对该产品或服务的说明，突出核心优势与客户价值，可配合图片使用。</p></div><div style="flex:1;min-width:220px;font-size:64px;text-align:center">🖼️</div></section>'
+  },
+  {
+    name: '数据条',
+    html: '<section style="display:flex;gap:20px;flex-wrap:wrap;text-align:center;margin:24px 0;padding:28px;border-radius:12px;background:#1c1917;color:#ffffff"><div style="flex:1;min-width:140px"><div style="font-size:30px;font-weight:800">100+</div><div style="opacity:.7">服务客户</div></div><div style="flex:1;min-width:140px"><div style="font-size:30px;font-weight:800">10 年</div><div style="opacity:.7">行业经验</div></div><div style="flex:1;min-width:140px"><div style="font-size:30px;font-weight:800">50+</div><div style="opacity:.7">成功案例</div></div><div style="flex:1;min-width:140px"><div style="font-size:30px;font-weight:800">24h</div><div style="opacity:.7">响应服务</div></div></section>'
+  },
+  {
+    name: 'CTA 行动条',
+    html: '<section style="padding:36px 24px;text-align:center;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#ffffff;margin:24px 0"><h2 style="margin:0 0 12px">期待与您的合作</h2><p style="margin:0 0 16px;opacity:.85">欢迎联系我们获取方案与报价</p><a href="/blog/contact" style="display:inline-block;padding:10px 26px;border-radius:8px;background:#ffffff;color:#4f46e5;font-weight:600;text-decoration:none">联系我们</a></section>'
+  }
+]
+
+const contentRef = ref<any>(null)
+const previewVisible = ref(false)
+const previewHtml = computed(() => sanitizeArticleContent(renderMarkdown(form.value.content || '')))
+
+/** 把区块模板插入到页面内容光标处 */
+function insertBlock(name: string) {
+  const tpl = blockTemplates.find(b => b.name === name)
+  if (!tpl) return
+  const current = form.value.content || ''
+  const textarea = contentRef.value?.textarea as HTMLTextAreaElement | undefined
+  const pos = textarea?.selectionStart ?? current.length
+  const snippet = `\n${tpl.html}\n`
+  form.value.content = current.slice(0, pos) + snippet + current.slice(pos)
+  nextTick(() => textarea?.focus())
 }
 
 /** 修改按钮操作 */

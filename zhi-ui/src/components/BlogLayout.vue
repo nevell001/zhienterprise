@@ -268,6 +268,7 @@ import {
 import { getApiBaseUrl } from '@/utils/index'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { buildNavMenus, hasCustomHomePage } from '@/utils/blogNav'
+import { setJsonLd } from '@/utils/jsonld'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -448,11 +449,35 @@ const menus = computed(() =>
     archiveEnabled: isArchiveNavEnabled.value,
     businessEnabled: isBusinessNavEnabled.value,
     businessLabel: businessNavLabel.value,
+    contactEnabled: isBusinessNavEnabled.value,
     pages: customPages.value
   })
 )
 
 const currentYear = computed(() => new Date().getFullYear())
+
+// JSON-LD 结构化数据：Organization 随站点设置注入（详情页各自注入 Article，卸载时移除）
+watch(
+  () => blogSettingsStore.blogSettings,
+  settings => {
+    if (!settings?.blog_name) return
+    const contactPoint: Record<string, unknown> = {
+      '@type': 'ContactPoint',
+      contactType: 'customer service'
+    }
+    if (settings.contact_phone) contactPoint.telephone = settings.contact_phone
+    if (settings.blog_email) contactPoint.email = settings.blog_email
+    setJsonLd('zh-jsonld-organization', {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: settings.blog_name,
+      description: settings.blog_desc || undefined,
+      url: `${window.location.origin}/blog`,
+      contactPoint: settings.contact_phone || settings.blog_email ? contactPoint : undefined
+    })
+  },
+  { immediate: true }
+)
 
 const rssUrl = computed(() => {
   const baseUrl = getApiBaseUrl()

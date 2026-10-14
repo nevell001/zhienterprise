@@ -328,6 +328,12 @@ import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { createRequestGuard } from '@/utils/requestGuard'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
+
+// JSON-LD 结构化数据随路由卸载移除，避免残留到下一页
+onUnmounted(() => {
+  removeJsonLd('zh-jsonld-article')
+})
 import { logger } from '@/utils/logger'
 
 const route = useRoute()
@@ -496,12 +502,23 @@ const loadArticleDetail = async () => {
       // 登录用户：回显文章点赞状态
       fetchArticleLikeStatus()
 
-      // 应用文章级 SEO（标题/描述/canonical）
+      // 应用文章级 SEO（TDK 优先用文章级字段，回退标题/摘要）
       const siteName = (blogSettings.value as any)?.blog_name || '知企建站系统'
       applySeo({
-        title: `${article.value.title} - ${siteName}`,
-        description: article.value.summary || '',
+        title: article.value.seoTitle || `${article.value.title} - ${siteName}`,
+        description: article.value.seoDescription || article.value.summary || '',
+        keywords: article.value.seoKeywords || '',
         canonical: canonicalUrl((blogSettings.value as any)?.seo_canonical_url)
+      })
+      // JSON-LD 结构化数据（Article）
+      setJsonLd('zh-jsonld-article', {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: article.value.title,
+        description: article.value.seoDescription || article.value.summary || undefined,
+        image: article.value.coverUrl || undefined,
+        datePublished: article.value.createTime || undefined,
+        author: { '@type': 'Person', name: article.value.authorName || 'admin' }
       })
     } else {
       logger.error('未找到文章数据，响应数据:', response.data)
