@@ -66,9 +66,19 @@ public class BlogSeoController
         {
             writeUrl(out, baseUrl + "/blog/articles", null);
         }
-        // 企业官网模板模式下，核心业务列表页与联系页入站点地图
+        // 企业官网模板模式：短路径导航页入站点地图（导航地址无 /blog 前缀）；博客形态保持 /blog 前缀
         String homeLayout = readSetting("home_layout");
-        if ("business".equalsIgnoreCase(homeLayout == null ? "" : homeLayout.trim()))
+        boolean tplMode = "business".equalsIgnoreCase(homeLayout == null ? "" : homeLayout.trim());
+        if (tplMode)
+        {
+            writeUrl(out, baseUrl + "/business", null);
+            writeUrl(out, baseUrl + "/news", null);
+            writeUrl(out, baseUrl + "/about", null);
+            writeUrl(out, baseUrl + "/honors", null);
+            writeUrl(out, baseUrl + "/history", null);
+            writeUrl(out, baseUrl + "/contact", null);
+        }
+        else
         {
             writeUrl(out, baseUrl + "/blog/business", null);
             writeUrl(out, baseUrl + "/blog/contact", null);
@@ -111,8 +121,16 @@ public class BlogSeoController
                         lastmod = ModernDateUtils.format(article.getUpdateTime(), ModernDateUtils.YYYY_MM_DD);
                     }
                     String type = article.getArticleType();
-                    String pathPrefix = "business".equals(type) || "case".equals(type)
-                        ? "/blog/business/" : "/blog/article/";
+                    boolean isBiz = "business".equals(type) || "case".equals(type);
+                    String pathPrefix;
+                    if (tplMode)
+                    {
+                        pathPrefix = isBiz ? "/business/" : "/article/";
+                    }
+                    else
+                    {
+                        pathPrefix = isBiz ? "/blog/business/" : "/blog/article/";
+                    }
                     // 伪静态优先：有 slug 用 slug，否则回退数字 ID
                     String seg = article.getSlug() != null && !article.getSlug().trim().isEmpty()
                         ? article.getSlug().trim() : String.valueOf(article.getId());

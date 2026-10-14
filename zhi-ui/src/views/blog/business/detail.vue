@@ -48,7 +48,7 @@ const sanitizedContent = computed(() => sanitizeArticleContent(article.value?.co
 
 const formatDate = (date?: string) => (date ? parseTime(date, '{y}-{m}-{d}') : '')
 
-const goBack = () => router.push('/blog/business')
+const goBack = () => router.push('/business')
 
 onBeforeUnmount(() => {
   removeJsonLd('zh-jsonld-article')

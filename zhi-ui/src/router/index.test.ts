@@ -46,15 +46,17 @@ describe('Router Index 测试', () => {
     expect(routesWithoutPath.length).toBe(0)
   })
 
-  it('所有路由都应该有 component 属性', () => {
+  it('所有路由都应该有 component 或 redirect（纯中转合法）', () => {
     const allRoutes = [...constantRoutes, ...dynamicRoutes]
-    const routesWithoutComponent = allRoutes.filter(route => !route.component)
+    const invalidRoutes = allRoutes.filter(route => !route.component && !route.redirect)
 
-    // 根路由应该没有 component
-    const rootRoute = allRoutes.find(route => route.path === '/')
-    if (rootRoute) {
-      expect(rootRoute.component).toBeUndefined()
-    }
+    expect(invalidRoutes.map(r => r.path)).toEqual([])
+  })
+
+  it('根路径应该直接渲染站点首页（导航地址不出现 /blog 前缀）', () => {
+    const rootRoute = constantRoutes.find(route => route.path === '/')
+    expect(rootRoute?.component).toBeDefined()
+    expect(rootRoute?.name).toBe('PublicRoot')
   })
 
   it('应该包含后台隐藏子页面路由（否则页面内跳转必然 404）', () => {

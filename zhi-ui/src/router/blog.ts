@@ -13,7 +13,9 @@ export const blogRoutes: RouteRecordRaw[] = [
     path: '/blog/articles',
     component: () => import('@/views/blog/index.vue'),
     name: 'PublicBlogArticleList',
-    meta: { title: '文章列表' }
+    meta: { title: '文章列表' },
+    // 企业官网模板导航使用短地址 /news
+    alias: ['/news']
   },
   {
     path: '/blog/article/:id',
@@ -27,20 +29,23 @@ export const blogRoutes: RouteRecordRaw[] = [
     path: '/blog/business',
     component: () => import('@/views/blog/business/index.vue'),
     name: 'PublicBusinessList',
-    meta: { title: '核心业务' }
+    meta: { title: '核心业务' },
+    alias: ['/business']
   },
   {
     path: '/blog/business/:id',
     component: () => import('@/views/blog/business/detail.vue'),
     name: 'PublicBusinessDetail',
-    meta: { title: '业务详情' }
+    meta: { title: '业务详情' },
+    alias: ['/business/:id']
   },
   {
     // 联系我们：企业官网模板模式导航入口，信息来自站点设置
     path: '/blog/contact',
     component: () => import('@/views/blog/contact/index.vue'),
     name: 'PublicContact',
-    meta: { title: '联系我们' }
+    meta: { title: '联系我们' },
+    alias: ['/contact']
   },
   {
     path: '/blog/category',
@@ -95,14 +100,16 @@ export const blogRoutes: RouteRecordRaw[] = [
     path: '/blog/honors',
     component: () => import('@/views/blog/honors.vue'),
     name: 'PublicHonors',
-    meta: { title: '荣誉资质' }
+    meta: { title: '荣誉资质' },
+    alias: ['/honors']
   },
   {
     // 发展历程（关于我们子页，阶段化时间轴）
     path: '/blog/history',
     component: () => import('@/views/blog/history.vue'),
     name: 'PublicHistory',
-    meta: { title: '发展历程' }
+    meta: { title: '发展历程' },
+    alias: ['/history']
   },
   {
     path: '/blog/guestbook',

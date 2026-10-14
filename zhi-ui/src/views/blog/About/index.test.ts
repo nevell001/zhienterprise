@@ -35,7 +35,7 @@ describe('About 页面测试', () => {
   })
 
   it('提供荣誉资质/发展历程入口', () => {
-    expect(source).toContain('to="/blog/honors"')
-    expect(source).toContain('to="/blog/history"')
+    expect(source).toContain('to="/honors"')
+    expect(source).toContain('to="/history"')
   })
 })

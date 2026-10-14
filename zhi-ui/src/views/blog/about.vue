@@ -44,11 +44,11 @@
       <!-- 荣誉与历程入口 -->
       <section class="pad">
         <div class="eh-wrap aph-links rv">
-          <router-link to="/blog/honors" class="aph-link-card">
+          <router-link to="/honors" class="aph-link-card">
             <span class="aph-link-title">荣誉资质</span>
             <span class="aph-link-desc">资质证书 · 行业奖项 · 体系认证</span>
           </router-link>
-          <router-link to="/blog/history" class="aph-link-card">
+          <router-link to="/history" class="aph-link-card">
             <span class="aph-link-title">发展历程</span>
             <span class="aph-link-desc">从初创到生态的每一步</span>
           </router-link>

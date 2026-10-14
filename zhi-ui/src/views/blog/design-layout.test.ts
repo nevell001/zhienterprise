@@ -108,8 +108,8 @@ describe('blog design layout guards', () => {
   it('关于页应为模板化叙事页（tpl 体系 + 企业简介/荣誉/历程结构）', () => {
     expect(aboutView).toContain('class="tpl-site about-page mo-home-page"')
     expect(aboutView).toContain('class="aph"')
-    expect(aboutView).toContain('to="/blog/honors"')
-    expect(aboutView).toContain('to="/blog/history"')
+    expect(aboutView).toContain('to="/honors"')
+    expect(aboutView).toContain('to="/history"')
     // 样式走 --tpl-* 变量层，不再引用 mo 主题组件皮肤 token
     expect(aboutView).toContain('sanitizeArticleContent(renderMarkdown(raw))')
     expect(aboutView).not.toContain('email-icon')

@@ -17,15 +17,15 @@
 
         <div class="fcol">
           <h4>快速导航</h4>
-          <router-link to="/blog">首页</router-link>
-          <router-link to="/blog/business">{{ businessLabel }}</router-link>
-          <router-link to="/blog/articles">新闻动态</router-link>
-          <router-link to="/blog/about">关于我们</router-link>
+          <router-link to="/">首页</router-link>
+          <router-link to="/business">{{ businessLabel }}</router-link>
+          <router-link to="/news">新闻动态</router-link>
+          <router-link to="/about">关于我们</router-link>
         </div>
 
         <div class="fcol">
           <h4>合作</h4>
-          <router-link to="/blog/contact">咨询合作</router-link>
+          <router-link to="/contact">咨询合作</router-link>
           <router-link v-if="isGuestbookEnabled" to="/blog/guestbook">留言板</router-link>
           <a v-if="blogSettings.github_url" :href="formatUrl(blogSettings.github_url)" target="_blank" rel="noopener noreferrer">
             GitHub

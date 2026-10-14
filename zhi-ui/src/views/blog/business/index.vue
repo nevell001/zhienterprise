@@ -115,7 +115,7 @@ const thumbStyle = (id?: number) => ({
       : 'linear-gradient(135deg, var(--mo-p700), var(--mo-n700))'
 })
 
-const goItem = (id?: number) => id && router.push(`/blog/business/${id}`)
+const goItem = (id?: number) => id && router.push(`/business/${id}`)
 </script>
 
 <style scoped>

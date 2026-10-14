@@ -10,11 +10,11 @@
           <h1 class="eh-title" v-html="tpl.hero.titleHtml"></h1>
           <p class="eh-sub">{{ tpl.hero.subtitle }}</p>
           <div class="eh-cta">
-            <router-link class="btn-p" to="/blog/business">
+            <router-link class="btn-p" to="/business">
               了解我们的业务
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
             </router-link>
-            <router-link class="btn-s" to="/blog/contact">预约咨询</router-link>
+            <router-link class="btn-s" to="/contact">预约咨询</router-link>
           </div>
           <div class="metrics">
             <div v-for="m in SITE_METRICS" :key="m.label" class="metric">
@@ -77,7 +77,7 @@
             <div class="num">{{ String(si + 1).padStart(2, '0') }} / 行业</div>
             <h3>{{ item.title }}</h3>
             <p>{{ item.desc }}</p>
-            <router-link class="lnk" to="/blog/business">
+            <router-link class="lnk" to="/business">
               查看方案
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
             </router-link>
@@ -126,7 +126,7 @@
             <div class="sec-tag">新闻动态</div>
             <h2>最近在做什么</h2>
           </div>
-          <router-link class="lnk" to="/blog/articles">
+          <router-link class="lnk" to="/news">
             更多动态
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
           </router-link>
@@ -163,11 +163,11 @@
         <h2 class="rv">把下一步交给我们</h2>
         <p class="rv d1">一个小时的免费诊断，换一份可执行的问题清单。</p>
         <div class="rv d2 eh-cta-btns">
-          <router-link class="btn-p" to="/blog/contact">
+          <router-link class="btn-p" to="/contact">
             预约咨询
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
           </router-link>
-          <router-link class="btn-d" to="/blog/about">了解我们</router-link>
+          <router-link class="btn-d" to="/about">了解我们</router-link>
         </div>
       </div>
     </section>
@@ -266,8 +266,8 @@ onMounted(async () => {
 })
 
 const formatDate = (date?: string) => (date ? parseTime(date, '{y}-{m}-{d}') : '')
-const goBusinessItem = (id?: number) => id && router.push(`/blog/business/${id}`)
-const goNewsItem = (id?: number) => id && router.push(`/blog/article/${id}`)
+const goBusinessItem = (id?: number) => id && router.push(`/business/${id}`)
+const goNewsItem = (id?: number) => id && router.push(`/article/${id}`)
 </script>
 
 <style scoped>

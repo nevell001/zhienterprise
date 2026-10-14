@@ -17,8 +17,10 @@ const Layout = () => import('@/layout/index.vue')
 
 const routes: ExtendedRouteRecordRaw[] = [
   {
+    // 根路径直接渲染站点首页（导航地址不出现 /blog 前缀）
     path: '/',
-    redirect: '/blog'
+    component: () => import('@/views/blog/index.vue'),
+    name: 'PublicRoot'
   },
   {
     path: '/login',
@@ -26,7 +28,7 @@ const routes: ExtendedRouteRecordRaw[] = [
   },
   {
     path: '/index',
-    redirect: '/blog'
+    redirect: '/'
   },
   // 标签页刷新中转站（$tab.refreshPage 依赖该路由）
   {

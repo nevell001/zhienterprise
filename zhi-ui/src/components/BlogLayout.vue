@@ -3,7 +3,8 @@
     class="blog-layout"
     :class="{
       'tpl-fixed-nav': isBusinessNavEnabled,
-      'tpl-nav-offset': isBusinessNavEnabled && route.path !== '/blog'
+      'tpl-nav-offset':
+        isBusinessNavEnabled && route.path !== '/' && route.path !== '/blog'
     }"
   >
     <!-- 企业官网模板导航（透明→实底，方案文档 §1.1） -->

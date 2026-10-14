@@ -1,37 +1,37 @@
 <template>
   <nav class="ent-nav" :class="{ solid: navSolid || !isHome, 'over-hero': isHome && !navSolid }">
     <div class="ent-nav-in">
-      <router-link to="/blog" class="ent-logo">
+      <router-link to="/" class="ent-logo">
         <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="currentColor" stroke-width="1.5" /><path d="M7 13h12M13 7v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
         {{ blogSettings.blog_name || '知企建站系统' }}
       </router-link>
 
       <ul class="ent-links">
         <li>
-          <router-link to="/blog" :class="{ on: isHome }">首页</router-link>
+          <router-link to="/" :class="{ on: isHome }">首页</router-link>
         </li>
         <li>
-          <router-link to="/blog/business" :class="{ on: route.path.startsWith('/blog/business') }">
+          <router-link to="/business" :class="{ on: route.path.startsWith('/business') }">
             {{ businessLabel }}
           </router-link>
         </li>
         <li>
-          <router-link to="/blog/articles" :class="{ on: route.path === '/blog/articles' }">
+          <router-link to="/news" :class="{ on: route.path === '/news' }">
             新闻动态
           </router-link>
         </li>
         <li class="has-drop">
-          <router-link to="/blog/about" class="lv1" :class="{ on: route.path.startsWith('/blog/about') }">
+          <router-link to="/about" class="lv1" :class="{ on: route.path.startsWith('/about') }">
             关于我们
           </router-link>
           <div class="drop">
-            <router-link to="/blog/about">企业简介</router-link>
-            <router-link to="/blog/honors">荣誉资质</router-link>
-            <router-link to="/blog/history">发展历程</router-link>
+            <router-link to="/about">企业简介</router-link>
+            <router-link to="/honors">荣誉资质</router-link>
+            <router-link to="/history">发展历程</router-link>
           </div>
         </li>
         <li>
-          <router-link to="/blog/contact" :class="{ on: route.path === '/blog/contact' }">
+          <router-link to="/contact" :class="{ on: route.path === '/contact' }">
             联系我们
           </router-link>
         </li>
@@ -55,7 +55,7 @@
         </el-dropdown>
         <router-link v-else to="/login" class="ent-login">登录</router-link>
 
-        <router-link class="ent-cta" to="/blog/contact">咨询合作</router-link>
+        <router-link class="ent-cta" to="/contact">咨询合作</router-link>
 
         <button
           class="ent-burger"
@@ -70,23 +70,23 @@
 
     <!-- 移动端全屏抽屉（方案文档 §1.1：导航项纵向排布，底部固定 CTA） -->
     <div v-show="mobileOpen" class="ent-drawer">
-      <router-link to="/blog" class="ent-drawer-link" @click="mobileOpen = false">首页</router-link>
-      <router-link to="/blog/business" class="ent-drawer-link" @click="mobileOpen = false">
+      <router-link to="/" class="ent-drawer-link" @click="mobileOpen = false">首页</router-link>
+      <router-link to="/business" class="ent-drawer-link" @click="mobileOpen = false">
         {{ businessLabel }}
       </router-link>
-      <router-link to="/blog/articles" class="ent-drawer-link" @click="mobileOpen = false">
+      <router-link to="/news" class="ent-drawer-link" @click="mobileOpen = false">
         新闻动态
       </router-link>
-      <router-link to="/blog/about" class="ent-drawer-link" @click="mobileOpen = false">
+      <router-link to="/about" class="ent-drawer-link" @click="mobileOpen = false">
         关于我们
       </router-link>
-      <router-link to="/blog/contact" class="ent-drawer-link" @click="mobileOpen = false">
+      <router-link to="/contact" class="ent-drawer-link" @click="mobileOpen = false">
         联系我们
       </router-link>
       <router-link v-if="!userStore.token" to="/login" class="ent-drawer-link" @click="mobileOpen = false">
         登录
       </router-link>
-      <router-link class="ent-drawer-cta" to="/blog/contact" @click="mobileOpen = false">
+      <router-link class="ent-drawer-cta" to="/contact" @click="mobileOpen = false">
         咨询合作
       </router-link>
     </div>
@@ -112,7 +112,8 @@ const businessLabel = computed(
 )
 
 /* ---------- 首页透明 → 滚动实底（方案文档 §1.1） ---------- */
-const isHome = computed(() => route.path === '/blog')
+// 根路径与 /blog 同为站点首页（企业模板导航使用短地址）
+const isHome = computed(() => route.path === '/' || route.path === '/blog')
 const navSolid = ref(false)
 
 const onScroll = () => {
@@ -149,7 +150,7 @@ const handleUserCommand = async (command: string) => {
         type: 'warning'
       })
       await userStore.logOut()
-      router.push('/blog')
+      router.push('/')
     } catch {
       // 用户取消
     }
