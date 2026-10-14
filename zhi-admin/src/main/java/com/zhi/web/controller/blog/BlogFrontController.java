@@ -508,17 +508,27 @@ public class BlogFrontController extends BaseController
     }
 
     /**
-     * 根据分类获取文章列表（前台用，支持分页）
+     * 根据分类获取文章列表（前台用，支持分页；路由参数兼容数字 ID 与 alias）
      */
     @Anonymous
-    @GetMapping("/article/category/{categoryId}")
-    public TableDataInfo getArticlesByCategory(@PathVariable("categoryId") Long categoryId, BlogArticle blogArticle)
+    @GetMapping("/article/category/{key:[A-Za-z0-9_-]+}")
+    public TableDataInfo getArticlesByCategory(@PathVariable("key") String key, BlogArticle blogArticle)
     {
+        // 兼容数字 ID（历史链接）与 alias 伪静态链接
+        BlogCategory category = resolveFrontCategory(key);
+        if (category == null) {
+            TableDataInfo empty = new TableDataInfo();
+            empty.setCode(200);
+            empty.setRows(new java.util.ArrayList<>());
+            empty.setTotal(0);
+            return empty;
+        }
+
         // 设置查询条件
-        blogArticle.setCategoryId(categoryId);
+        blogArticle.setCategoryId(category.getId());
         blogArticle.setStatus(1L); // 只查询已发布的文章
         blogArticle.setDelFlag(0L); // 只查询未删除的文章
-        
+
         startPage(); // 启用分页
         List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
         return getDataTable(list);
@@ -900,6 +910,23 @@ public class BlogFrontController extends BaseController
     }
 
     /**
+     * 按数字 ID 或 alias 解析前台分类；alias 只命中启用且未删除的分类
+     */
+    private BlogCategory resolveFrontCategory(String key) {
+        if (key == null || key.isEmpty()) {
+            return null;
+        }
+        if (key.chars().allMatch(Character::isDigit)) {
+            try {
+                return blogCategoryService.selectBlogCategoryById(Long.parseLong(key));
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return blogCategoryService.selectBlogCategoryByAlias(key);
+    }
+
+    /**
      * 获取分类详情（前台用）
      */
     @Anonymous
@@ -909,24 +936,10 @@ public class BlogFrontController extends BaseController
         if (idStr == null || "undefined".equals(idStr) || idStr.trim().isEmpty()) {
             return error("分类ID不能为空");
         }
-        
-        Long id;
-        try {
-            id = Long.parseLong(idStr);
-        } catch (NumberFormatException e) {
-            return error("分类ID格式不正确");
-        }
-        
-        BlogCategory category = blogCategoryService.selectBlogCategoryById(id);
+
+        // 兼容数字 ID（历史链接）与 alias 伪静态链接
+        BlogCategory category = resolveFrontCategory(idStr.trim());
         if (category == null) {
-            return error("分类不存在或已删除");
-        }
-        // 安全检查delFlag，避免null值
-        String categoryDelFlag = category.getDelFlag();
-        if (categoryDelFlag == null) {
-            categoryDelFlag = "0";
-        }
-        if (!"0".equals(categoryDelFlag)) {
             return error("分类不存在或已删除");
         }
         return success(category);

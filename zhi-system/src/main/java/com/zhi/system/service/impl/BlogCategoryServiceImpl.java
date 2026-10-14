@@ -43,6 +43,14 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
     }
 
     /**
+     * 按别名查询分类（仅命中启用且未删除的分类）
+     */
+    public BlogCategory selectBlogCategoryByAlias(String alias)
+    {
+        return blogCategoryMapper.selectBlogCategoryByAlias(alias);
+    }
+
+    /**
      * 查询文章分类列表
      * 
      * @param blogCategory 文章分类

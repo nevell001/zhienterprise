@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Anonymous;
 import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.system.domain.BlogArticle;
+import com.zhi.system.domain.BlogCategory;
 import com.zhi.system.domain.BlogPage;
 import com.zhi.system.service.IBlogArticleService;
+import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogPageService;
 import com.zhi.system.service.IBlogSettingService;
 
@@ -35,6 +37,9 @@ public class BlogSeoController
 
     @Autowired
     private IBlogPageService blogPageService;
+
+    @Autowired
+    private IBlogCategoryService blogCategoryService;
 
     /**
      * 站点地图
@@ -61,11 +66,33 @@ public class BlogSeoController
         {
             writeUrl(out, baseUrl + "/blog/articles", null);
         }
-        // 企业官网模板模式下，核心业务列表页入站点地图
+        // 企业官网模板模式下，核心业务列表页与联系页入站点地图
         String homeLayout = readSetting("home_layout");
         if ("business".equalsIgnoreCase(homeLayout == null ? "" : homeLayout.trim()))
         {
             writeUrl(out, baseUrl + "/blog/business", null);
+            writeUrl(out, baseUrl + "/blog/contact", null);
+        }
+        // 启用中的分类（alias 伪静态优先）
+        try
+        {
+            BlogCategory catQuery = new BlogCategory();
+            catQuery.setDelFlag("0");
+            catQuery.setStatus(1);
+            List<BlogCategory> categories = blogCategoryService.selectCategoryListForFront(catQuery);
+            if (categories != null)
+            {
+                for (BlogCategory category : categories)
+                {
+                    String seg = category.getAlias() != null && !category.getAlias().trim().isEmpty()
+                        ? category.getAlias().trim() : String.valueOf(category.getId());
+                    writeUrl(out, baseUrl + "/blog/category/" + seg, null);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // 分类收录失败不影响站点地图其余部分
         }
         // 已发布文章（核心业务/客户案例的规范入口是 /blog/business/{id}）
         try

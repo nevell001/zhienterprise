@@ -60,6 +60,12 @@
         where id = #{id}
     </select>
 
+    <select id="selectBlogCategoryByAlias" parameterType="String" resultMap="BlogCategoryResult">
+        <include refid="selectBlogCategoryVo"/>
+        where alias = #{alias} and del_flag = '0' and status = 1
+        limit 1
+    </select>
+
     <insert id="insertBlogCategory" parameterType="BlogCategory" useGeneratedKeys="true" keyProperty="id">
         insert into blog_category
         <trim prefix="(" suffix=")" suffixOverrides=",">

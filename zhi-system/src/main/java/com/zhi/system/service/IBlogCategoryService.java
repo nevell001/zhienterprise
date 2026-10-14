@@ -20,6 +20,14 @@ public interface IBlogCategoryService
     public BlogCategory selectBlogCategoryById(Long id);
 
     /**
+     * 按别名查询分类（仅命中启用且未删除的分类，alias 伪静态入口用）
+     *
+     * @param alias 分类别名
+     * @return 文章分类
+     */
+    public BlogCategory selectBlogCategoryByAlias(String alias);
+
+    /**
      * 查询文章分类列表
      * 
      * @param blogCategory 文章分类
