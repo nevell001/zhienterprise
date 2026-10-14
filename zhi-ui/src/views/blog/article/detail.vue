@@ -1,5 +1,7 @@
 <template>
-  <div class="article-detail-container">
+  <div class="article-detail-container" :class="{ 'tpl-site': isTplMode }">
+    <!-- 企业官网模板：阅读进度条（方案文档 §3.4） -->
+    <div v-if="isTplMode" class="read-progress" :style="{ width: readProgress + '%' }"></div>
     <!-- 站点导航 -->
     <BlogLayout>
       <!-- 加载状态 -->
@@ -333,6 +335,26 @@ import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 // JSON-LD 结构化数据随路由卸载移除，避免残留到下一页
 onUnmounted(() => {
   removeJsonLd('zh-jsonld-article')
+})
+
+// 企业官网模板模式：阅读进度条 + 模板皮肤开关
+const isTplMode = computed(
+  () => String(blogSettings.value?.home_layout || '') === 'business'
+)
+const readProgress = ref(0)
+
+const updateReadProgress = () => {
+  const doc = document.documentElement
+  const scrollable = doc.scrollHeight - window.innerHeight
+  readProgress.value = scrollable > 0 ? Math.min(100, (window.scrollY / scrollable) * 100) : 0
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', updateReadProgress, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', updateReadProgress)
 })
 import { logger } from '@/utils/logger'
 
@@ -1849,5 +1871,36 @@ html.dark.theme-mo-blog .article-detail-container {
   display: inline-block;
   margin-top: var(--mo-sp-5);
   text-decoration: none;
+}
+
+/* ---------- 企业官网模板模式：阅读进度条 + 模板皮肤微调 ----------
+   颜色引用 --tpl-* 变量层（themes/site-templates.scss），行业模板切换时同步换装 */
+.read-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--tpl-p);
+  z-index: 200;
+  transition: width 0.1s linear;
+}
+
+.article-detail-container.tpl-site .mo-article-header h1 {
+  font-family: var(--tpl-serif);
+  color: var(--tpl-ink-900);
+}
+
+.article-detail-container.tpl-site .cat-badge {
+  background: var(--tpl-p-sub);
+  color: var(--tpl-p-text);
+}
+
+.article-detail-container.tpl-site .a-meta {
+  color: var(--tpl-ink-400);
+}
+
+.article-detail-container.tpl-site .article-content :deep(a),
+.article-detail-container.tpl-site .content-body :deep(a) {
+  color: var(--tpl-p-text);
 }
 </style>

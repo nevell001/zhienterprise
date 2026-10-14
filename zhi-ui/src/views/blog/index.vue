@@ -19,6 +19,9 @@
     <!-- 企业官网区块化模板：Hero + 核心业务 + 数据 + 案例 + 动态 + CTA -->
     <EnterpriseHome v-else-if="homeMode === 'business'" />
 
+    <!-- 企业官网新闻列表（/news）：头条大图 + 次条网格 -->
+    <EnterpriseNewsList v-else-if="isTplMode && isArticleListRoute" />
+
     <div v-else class="blog-home-v2 mo-home-page">
       <header class="home-hero">
         <h1>记录与分享</h1>
@@ -192,6 +195,7 @@ import { useRouter, useRoute } from 'vue-router'
 import BlogLayout from '@/components/BlogLayout.vue'
 import CustomPagePanel from './page/CustomPagePanel.vue'
 import EnterpriseHome from './EnterpriseHome.vue'
+import EnterpriseNewsList from './EnterpriseNewsList.vue'
 import { getArticleList, getBlogSettings, getHotArticles } from '@/api/blog'
 import { getCategoryList } from '@/api/blog/category'
 import { getTagCloud } from '@/api/blog/tag'
