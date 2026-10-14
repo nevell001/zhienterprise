@@ -13,6 +13,7 @@
         <result property="seoTitle"    column="seo_title"    />
         <result property="seoKeywords"    column="seo_keywords"    />
         <result property="seoDescription"    column="seo_description"    />
+        <result property="slug"    column="slug"    />
         <result property="coverUrl"    column="cover_url"    />
         <result property="categoryId"    column="category_id"    />
         <result property="categoryName"    column="category_name"    />
@@ -38,7 +39,7 @@
 
     <!-- 站点地图专用：只取 id/article_type/update_time，避免把 longtext 正文拉进内存；sitemap 规范上限 5 万条 -->
     <select id="selectSitemapArticles" resultMap="BlogArticleResult">
-        select id, article_type, update_time
+        select id, article_type, slug, update_time
         from blog_article
         where status = 1 and del_flag = 0
         order by create_time desc, id desc
@@ -90,9 +91,21 @@
         order by ba.create_time desc, ba.id desc
     </select>
 
+    <select id="selectBlogArticleBySlug" parameterType="String" resultMap="BlogArticleResult">
+        select ba.id, ba.title, ba.summary, ba.content, ba.article_type,
+               ba.seo_title, ba.seo_keywords, ba.seo_description, ba.slug,
+               ba.cover_url, ba.category_id, ba.author_id, ba.author_name, ba.is_top,
+               ba.is_recommend, ba.status, ba.view_count, ba.like_count, ba.comment_count,
+               ba.create_time, ba.update_time, ba.del_flag, bc.name as category_name
+        from blog_article ba
+        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        where ba.slug = #{slug} and ba.del_flag = 0 and ba.status = 1
+        limit 1
+    </select>
+
     <select id="selectBlogArticleById" parameterType="Long" resultMap="BlogArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.content_md, ba.format, ba.article_type,
-               ba.seo_title, ba.seo_keywords, ba.seo_description, ba.cover_url, ba.category_id, ba.author_id,
+               ba.seo_title, ba.seo_keywords, ba.seo_description, ba.slug, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -111,13 +124,13 @@
 
     <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
         insert into blog_article
-        (title, summary, content, content_md, format, article_type, seo_title, seo_keywords, seo_description, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, publish_time, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        (title, summary, content, content_md, format, article_type, seo_title, seo_keywords, seo_description, slug, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, publish_time, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
         (#{title}, #{summary}, #{content}, #{contentMd}, #{format},
         <choose>
             <when test="articleType != null and articleType != ''">#{articleType}</when>
             <otherwise>'news'</otherwise>
-        </choose>, #{seoTitle}, #{seoKeywords}, #{seoDescription}, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{publishTime}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
+        </choose>, #{seoTitle}, #{seoKeywords}, #{seoDescription}, #{slug}, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{publishTime}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
         <choose>
             <when test="delFlag != null">#{delFlag}</when>
             <otherwise>0</otherwise>
@@ -136,6 +149,7 @@
             <if test="seoTitle != null">seo_title = #{seoTitle},</if>
             <if test="seoKeywords != null">seo_keywords = #{seoKeywords},</if>
             <if test="seoDescription != null">seo_description = #{seoDescription},</if>
+            <if test="slug != null and slug != ''">slug = #{slug},</if>
             <if test="coverUrl != null">cover_url = #{coverUrl},</if>
             <if test="categoryId != null">category_id = #{categoryId},</if>
             <if test="authorId != null">author_id = #{authorId},</if>
