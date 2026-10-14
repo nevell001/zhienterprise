@@ -3,6 +3,7 @@ package com.zhi.system.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,9 @@ public class BlogArticleController extends BaseController
     private static final String MSG_SELECT_ARTICLES_TO_UPDATE = "请选择要更新的文章";
     private static final String PARAM_IS_TOP = "isTop";
     private static final String PARAM_IS_RECOMMEND = "isRecommend";
+
+    /** 内容类型白名单（blog_article.article_type）：资讯动态 / 核心业务 / 客户案例 */
+    private static final Set<String> ARTICLE_TYPES = Set.of("news", "business", "case");
 
     @Autowired
     private IBlogArticleService blogArticleService;
@@ -377,6 +381,30 @@ public class BlogArticleController extends BaseController
         }
         if (params.get("authorName") != null) {
             article.setAuthorName(params.get("authorName").toString());
+        }
+        // 内容类型：核心业务管理复用本接口（article_type=business），漏映射会回退成 news
+        if (params.get("articleType") != null) {
+            String articleType = params.get("articleType").toString().trim();
+            if (ARTICLE_TYPES.contains(articleType)) {
+                article.setArticleType(articleType);
+            } else {
+                log.warn("无效的 articleType 参数: {}", articleType);
+            }
+        }
+        if (params.get("slug") != null) {
+            String slug = params.get("slug").toString().trim();
+            if (!slug.isEmpty()) {
+                article.setSlug(slug);
+            }
+        }
+        if (params.get("seoTitle") != null) {
+            article.setSeoTitle(params.get("seoTitle").toString());
+        }
+        if (params.get("seoKeywords") != null) {
+            article.setSeoKeywords(params.get("seoKeywords").toString());
+        }
+        if (params.get("seoDescription") != null) {
+            article.setSeoDescription(params.get("seoDescription").toString());
         }
 
         // Markdown 文章：保存源码并由服务端渲染 HTML 双写
