@@ -34,8 +34,57 @@ export interface BuildNavMenusOptions {
   pages?: NavPageItem[]
 }
 
+/** 自定义页面的前台访问路径（与 router/site.ts 的 /page/:slug 一致） */
+export function pagePath(slug: string): string {
+  return `/page/${slug}`
+}
+
+/** 从站内路径反解自定义页面 slug；非 /page/ 路径返回空串 */
+export function pageSlugFromPath(link: unknown): string {
+  if (typeof link !== 'string') return ''
+  const match = /^\/page\/([A-Za-z0-9_-]+)\/?$/.exec(link.trim())
+  return match ? match[1] : ''
+}
+
+/** 企业官网模式判定：home_page_slug 非空即首页被自定义页面接管 */
 export function hasCustomHomePage(slug: unknown): boolean {
   return typeof slug === 'string' && slug.trim() !== ''
+}
+
+/** 导航树节点（管理侧与联动操作共用的最小形状） */
+export interface NavTreeNode {
+  id?: number
+  parentId?: number
+  label?: string
+  linkType?: string
+  linkValue?: string
+  sort?: number
+  children?: NavTreeNode[]
+}
+
+/** 平铺导航树（含二级项），联动查找用 */
+export function flattenNavTree(items: NavTreeNode[]): NavTreeNode[] {
+  const out: NavTreeNode[] = []
+  const walk = (list: NavTreeNode[]) => {
+    list.forEach(item => {
+      out.push(item)
+      if (item.children?.length) walk(item.children)
+    })
+  }
+  walk(items)
+  return out
+}
+
+/** 导航树中指向该页面的全部项（含二级项与重复项） */
+export function navItemsOfPage(items: NavTreeNode[], slug: string): NavTreeNode[] {
+  if (!slug) return []
+  return flattenNavTree(items).filter(item => pageSlugFromPath(item.linkValue) === slug)
+}
+
+/** 顶级项下一个可用排序号（追加到末尾） */
+export function nextTopSort(items: NavTreeNode[]): number {
+  const tops = items.filter(item => !item.parentId)
+  return Math.max(0, ...tops.map(item => item.sort ?? 0)) + 1
 }
 
 export function buildNavMenus(options: BuildNavMenusOptions): NavMenuItem[] {
@@ -64,7 +113,7 @@ export function buildNavMenus(options: BuildNavMenusOptions): NavMenuItem[] {
   }
   ;(options.pages || []).forEach(page => {
     if (page?.showInNav === '1' && page.slug) {
-      items.push({ name: page.title || page.slug, path: `/page/${page.slug}` })
+      items.push({ name: page.title || page.slug, path: pagePath(page.slug) })
     }
   })
 

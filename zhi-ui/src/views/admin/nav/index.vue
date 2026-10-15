@@ -19,15 +19,15 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          v-if="activeTab === 'header'"
           v-hasPermi="['site:nav:add']"
           type="primary"
           plain
           icon="Plus"
-          :disabled="!parentForChild"
+          :disabled="navTree.length === 0"
+          title="为当前导航项添加二级项，也可直接点击行内「子项」"
           @click="handleAddChild()"
         >
-          添加二级项（关于我们）
+          添加二级项
         </el-button>
       </el-col>
     </el-row>
@@ -39,7 +39,20 @@
       :tree-props="{ children: 'children' }"
       default-expand-all
     >
-      <el-table-column label="标签" prop="label" min-width="180" />
+      <el-table-column label="标签" prop="label" min-width="180">
+        <template #default="scope">
+          <span>{{ scope.row.label }}</span>
+          <el-tag
+            v-if="pageSlugOf(scope.row)"
+            size="small"
+            type="success"
+            effect="plain"
+            class="page-tag"
+          >
+            页面
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="链接类型" align="center" width="110">
         <template #default="scope">
           <el-tag size="small" :type="scope.row.linkType === 'cta' ? 'warning' : 'info'">
@@ -62,7 +75,7 @@
       <el-table-column label="操作" align="center" width="230">
         <template #default="scope">
           <el-button
-            v-if="scope.row.parentId === 0 && activeTab === 'header'"
+            v-if="scope.row.parentId === 0"
             link
             type="primary"
             icon="Plus"
@@ -104,6 +117,30 @@
         <el-form-item label="导航标签" prop="label">
           <el-input v-model="form.label" placeholder="如：关于我们" :maxlength="50" />
         </el-form-item>
+        <el-form-item v-if="form.linkType !== 'url'" label="链接页面">
+          <el-select
+            v-model="selectedPageSlug"
+            placeholder="从已发布页面中选择（可留空手填路径）"
+            clearable
+            filterable
+            style="width: 100%"
+            @change="handlePageSelect"
+          >
+            <el-option
+              v-for="p in pageOptions"
+              :key="p.id"
+              :label="`${p.title || p.slug}（/page/${p.slug}）`"
+              :value="p.slug"
+            />
+          </el-select>
+          <div class="slug-tip">
+            {{
+              pageOptions.length
+                ? '选择页面后自动填入标签与路径；页面列表也能一键加入/移出导航'
+                : '暂无可选页面：请先在「页面管理」新建并发布页面'
+            }}
+          </div>
+        </el-form-item>
         <el-form-item label="链接类型" prop="linkType">
           <el-radio-group v-model="form.linkType">
             <el-radio label="path">站内路径</el-radio>
@@ -134,8 +171,11 @@
 
 <script setup lang="ts" name="SiteNav">
 import { computed, onMounted, ref } from 'vue'
-import { listNav, getNav, addNav, updateNav, delNav } from '@/api/admin/nav'
+import { listNav, addNav, updateNav, delNav } from '@/api/admin/nav'
+import { listPage } from '@/api/admin/page'
+import type { SitePage } from '@/api/admin/page'
 import type { SiteNavItem } from '@/api/site/nav'
+import { pagePath, pageSlugFromPath } from '@/utils/siteNav'
 
 const { proxy } = getCurrentInstance()
 
@@ -144,7 +184,6 @@ const loading = ref(true)
 const navTree = ref<SiteNavItem[]>([])
 const open = ref(false)
 const dialogTitle = ref('')
-const parentForChild = ref<SiteNavItem | null>(null)
 
 const form = ref<Partial<SiteNavItem>>({})
 const editingId = ref<number | null>(null)
@@ -170,7 +209,39 @@ const loadTree = async () => {
   }
 }
 
-onMounted(loadTree)
+/* ---------- 页面选择：导航项与「页面管理」打通 ---------- */
+
+/** 已发布页面（仅它们有可访问的前台地址） */
+const publishedPages = ref<SitePage[]>([])
+const pageOptions = computed(() => publishedPages.value.filter(p => p.slug && p.id))
+
+/** 当前编辑的导航项是否指向自定义页面（供下拉回显/「页面」标记） */
+const pageSlugOf = (row: SiteNavItem) =>
+  row.linkType === 'url' ? '' : pageSlugFromPath(row.linkValue)
+const selectedPageSlug = ref('')
+
+const loadPublishedPages = async () => {
+  try {
+    const response = await listPage({ pageNum: 1, pageSize: 200, status: '1' })
+    publishedPages.value = response?.rows || []
+  } catch {
+    publishedPages.value = []
+  }
+}
+
+/** 选中页面：自动填充标签与路径（标签保持可改） */
+const handlePageSelect = (slug: string) => {
+  if (!slug) return
+  const page = publishedPages.value.find(p => p.slug === slug)
+  if (!page) return
+  if (!form.value.label?.trim()) form.value.label = page.title || slug
+  form.value.linkValue = pagePath(slug)
+}
+
+onMounted(() => {
+  loadTree()
+  loadPublishedPages()
+})
 
 watch(activeTab, () => {
   loadTree()
@@ -226,7 +297,7 @@ const handleVisibleChange = async (row: SiteNavItem, val: any) => {
 
 function handleAdd() {
   editMode.value = 'add'
-  parentForChild.value = null
+  selectedPageSlug.value = ''
   form.value = {
     location: activeTab.value,
     parentId: 0,
@@ -241,10 +312,10 @@ function handleAdd() {
 }
 
 function handleAddChild(parent?: SiteNavItem) {
-  const parentRow = parent || parentForChild.value
+  const parentRow = parent || navTree.value[0]
   if (!parentRow) return
   editMode.value = 'add'
-  parentForChild.value = parentRow
+  selectedPageSlug.value = ''
   form.value = {
     location: activeTab.value,
     parentId: parentRow.id,
@@ -261,6 +332,7 @@ function handleAddChild(parent?: SiteNavItem) {
 function handleEdit(row: SiteNavItem) {
   editMode.value = 'edit'
   editingId.value = row.id ?? null
+  selectedPageSlug.value = pageSlugOf(row)
   form.value = { ...row }
   open.value = true
   dialogTitle.value = '编辑导航项'
@@ -300,8 +372,13 @@ function handleDelete(row: SiteNavItem) {
 </script>
 
 <style scoped>
-.section-hint {
-  font-size: 12px;
+.page-tag {
+  margin-left: 6px;
+}
+
+.slug-tip {
   color: var(--el-text-color-secondary, #909399);
+  font-size: 12px;
+  line-height: 1.5;
 }
 </style>

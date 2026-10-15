@@ -1326,18 +1326,40 @@ CREATE TABLE IF NOT EXISTS `site_nav_item` (
   KEY `idx_nav_loc_sort` (`location`, `sort`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='站点导航项';
 
+-- 幂等保护：清理历史重跑/旧版脚本写入的重复导航项（同位置+父项+标签+链接+排序+显隐 保留最小 id）
+-- 背景：site_nav_item 无自然唯一键，旧版脚本在两处各写了一份种子，单次执行即写入两份菜单
+-- ① 先清重复父项下的二级项（父项存在更小 id 的完全相同副本时，该副本自身随后会被 ② 删除，其子项不能留成孤儿）
+DELETE c FROM `site_nav_item` c
+JOIN `site_nav_item` p  ON p.`id` = c.`parent_id`
+JOIN `site_nav_item` p2 ON p2.`location` <=> p.`location` AND p2.`parent_id` <=> p.`parent_id`
+  AND p2.`label` <=> p.`label` AND p2.`link_type` <=> p.`link_type` AND p2.`link_value` <=> p.`link_value`
+  AND p2.`sort` <=> p.`sort` AND p2.`visible` <=> p.`visible` AND p2.`id` < p.`id`;
+
+-- ② 再删完全相同的重复项，保留最小 id
+DELETE n1 FROM `site_nav_item` n1
+JOIN `site_nav_item` n2
+  ON n1.`location` <=> n2.`location` AND n1.`parent_id` <=> n2.`parent_id` AND n1.`label` <=> n2.`label`
+ AND n1.`link_type` <=> n2.`link_type` AND n1.`link_value` <=> n2.`link_value`
+ AND n1.`sort` <=> n2.`sort` AND n1.`visible` <=> n2.`visible` AND n1.`id` > n2.`id`;
+
+-- ③ 兜底：清孤儿二级项（父项已不存在，导航树不可见却占着数据）
+DELETE o FROM `site_nav_item` o
+LEFT JOIN `site_nav_item` p ON p.`id` = o.`parent_id`
+WHERE o.`parent_id` <> 0 AND p.`id` IS NULL;
+
 -- 头部/页脚导航默认项（设计稿 §1.1；后台「导航管理」可维护）
-INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`) VALUES
-('header', 0, '首页', 'path', '/', 1, 1, 'admin'),
-('header', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
-('header', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
-('header', 0, '关于我们', 'path', '/about', 4, 1, 'admin'),
-('header', 0, '联系我们', 'path', '/contact', 6, 1, 'admin'),
-('header', 0, '咨询合作', 'cta', '/contact', 7, 1, 'admin'),
-('footer', 0, '首页', 'path', '/', 1, 1, 'admin'),
-('footer', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
-('footer', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
-('footer', 0, '关于我们', 'path', '/about', 4, 1, 'admin');
+-- 幂等保护：种子显式指定主键 id（本表无自然唯一键），重跑时 INSERT IGNORE 因主键冲突被忽略
+INSERT IGNORE INTO `site_nav_item` (`id`, `location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`) VALUES
+(1, 'header', 0, '首页', 'path', '/', 1, 1, 'admin'),
+(2, 'header', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
+(3, 'header', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
+(4, 'header', 0, '关于我们', 'path', '/about', 4, 1, 'admin'),
+(5, 'header', 0, '联系我们', 'path', '/contact', 6, 1, 'admin'),
+(6, 'header', 0, '咨询合作', 'cta', '/contact', 7, 1, 'admin'),
+(7, 'footer', 0, '首页', 'path', '/', 1, 1, 'admin'),
+(8, 'footer', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
+(9, 'footer', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
+(10, 'footer', 0, '关于我们', 'path', '/about', 4, 1, 'admin');
 
 -- 关于我们的二级下拉项（按 label 关联父项写入，幂等）
 INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`)
@@ -2520,11 +2542,12 @@ EXECUTE add_message_update_by_stmt;
 DEALLOCATE PREPARE add_message_update_by_stmt;
 
 -- ===============================================================
--- 📌 模块化建站 M3：导航管理（老库升级，幂等）
+-- 📌 模块化建站 M3：导航管理（存量库兜底建表，幂等）
 -- ===============================================================
--- 老库重跑脚本时 CREATE TABLE 段（上文第 1311 行附近）在初始化区，可能不被重放；
--- 这里补一份幂等建表 + 默认导航种子，确保存量库也能建出 site_nav_item，
--- 避免 SiteNavItemMapper 查询抛 Table 'site_nav_item' doesn't exist。
+-- 本文件自顶向下顺序执行，上文初始化区的 CREATE TABLE / 种子对存量库同样会重放，
+-- 这里只保留一份幂等建表兜底（历史上用于规避老库缺表）。
+-- ⚠️ 切勿在此重复写默认导航种子：site_nav_item 没有自然唯一键，
+-- 两处各写一份种子会让单次执行的每条菜单插入两份（历史事故，种子只保留在初始化区一处）。
 CREATE TABLE IF NOT EXISTS `site_nav_item` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `location` varchar(20) NOT NULL DEFAULT 'header' COMMENT '位置：header 头部导航 footer 页脚快速导航',
@@ -2541,29 +2564,6 @@ CREATE TABLE IF NOT EXISTS `site_nav_item` (
   PRIMARY KEY (`id`),
   KEY `idx_nav_loc_sort` (`location`, `sort`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='站点导航项';
-
--- 头部/页脚导航默认项（设计稿 §1.1；后台「导航管理」可维护）
-INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`) VALUES
-('header', 0, '首页', 'path', '/', 1, 1, 'admin'),
-('header', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
-('header', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
-('header', 0, '关于我们', 'path', '/about', 4, 1, 'admin'),
-('header', 0, '联系我们', 'path', '/contact', 6, 1, 'admin'),
-('header', 0, '咨询合作', 'cta', '/contact', 7, 1, 'admin'),
-('footer', 0, '首页', 'path', '/', 1, 1, 'admin'),
-('footer', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
-('footer', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
-('footer', 0, '关于我们', 'path', '/about', 4, 1, 'admin');
-
--- 关于我们的二级下拉项（按 label 关联父项写入，幂等）
-INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`)
-SELECT 'header', p.id, t.label, 'path', t.link_value, t.sort, 1, 'admin'
-FROM `site_nav_item` p JOIN (
-  SELECT '企业简介' AS label, '/about' AS link_value, 1 AS sort
-  UNION ALL SELECT '荣誉资质', '/honors', 2
-  UNION ALL SELECT '发展历程', '/history', 3
-) t ON p.label = '关于我们' AND p.location = 'header'
-WHERE NOT EXISTS (SELECT 1 FROM `site_nav_item` c WHERE c.parent_id = p.id AND c.label = t.label);
 
 -- ===============================================================
 -- 📌 站内信通知表
@@ -2591,10 +2591,14 @@ INSERT IGNORE INTO `zhi_page` (`title`, `slug`, `summary`, `content`, `status`, 
 VALUES ('关于我们', 'about', '企业简介', '<p>XX科技有限公司（占位）面向行业客户提供产品与服务一体化解决方案，覆盖咨询诊断、方案设计、实施交付与长期陪跑。</p><p>我们相信，好的服务来自对企业业务的真实理解。多年来，团队始终专注于把复杂的问题变成清晰可执行的方案，帮助客户实现可量化的业务改进。</p><ul><li>方法论驱动：诊断先行，方案可落地</li><li>全程陪跑：从实施到运营的长期服务</li><li>可量化成果：只交付能被验证的改变</li></ul><p>如需了解详细案例与合作方式，欢迎通过「联系我们」页面与我们取得联系。</p>', '1', '0', 0, 'admin', NOW(), NOW());
 
 -- 品牌化迁移：旧版 about 种子内容（博客风）升级为企业简介占位（仅当内容仍为旧种子时生效，不覆盖站长修改）
-UPDATE `blog_page`
-SET `content` = '<p>XX科技有限公司（占位）面向行业客户提供产品与服务一体化解决方案，覆盖咨询诊断、方案设计、实施交付与长期陪跑。</p><p>我们相信，好的服务来自对企业业务的真实理解。多年来，团队始终专注于把复杂的问题变成清晰可执行的方案，帮助客户实现可量化的业务改进。</p><ul><li>方法论驱动：诊断先行，方案可落地</li><li>全程陪跑：从实施到运营的长期服务</li><li>可量化成果：只交付能被验证的改变</li></ul><p>如需了解详细案例与合作方式，欢迎通过「联系我们」页面与我们取得联系。</p>'
-WHERE `slug` = 'about'
-  AND `content` LIKE '%这是一个基于Spring Boot + Vue.js构建的现代化企业建站系统%';
+-- 幂等保护：仅当存量旧库还保留 blog_page 表时才执行（全新安装走到这里会因 Unknown table 报错，使整脚本以非 0 退出码收尾）
+SET @has_blog_page := (SELECT COUNT(*) FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_page');
+SET @upgrade_blog_about := IF(@has_blog_page = 0, 'SELECT 1',
+    'UPDATE `blog_page` SET `content` = ''<p>XX科技有限公司（占位）面向行业客户提供产品与服务一体化解决方案，覆盖咨询诊断、方案设计、实施交付与长期陪跑。</p><p>我们相信，好的服务来自对企业业务的真实理解。多年来，团队始终专注于把复杂的问题变成清晰可执行的方案，帮助客户实现可量化的业务改进。</p><ul><li>方法论驱动：诊断先行，方案可落地</li><li>全程陪跑：从实施到运营的长期服务</li><li>可量化成果：只交付能被验证的改变</li></ul><p>如需了解详细案例与合作方式，欢迎通过「联系我们」页面与我们取得联系。</p>'' WHERE `slug` = ''about'' AND `content` LIKE ''%这是一个基于Spring Boot + Vue.js构建的现代化企业建站系统%''');
+PREPARE upgrade_blog_about_stmt FROM @upgrade_blog_about;
+EXECUTE upgrade_blog_about_stmt;
+DEALLOCATE PREPARE upgrade_blog_about_stmt;
 
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;

@@ -39,19 +39,25 @@ class FakeIntersectionObserver {
   }
 }
 
-/** 静态 .rv + 条件渲染的异步 .rv（模拟接口返回后出现的卡片）；withStatic=false 模拟挂载时无 .rv */
+/**
+ * 静态 .rv + 条件渲染的异步 .rv（模拟接口返回后出现的卡片）。
+ * - withStatic=false：模拟挂载时无 .rv；
+ * - lateRoot=true：根容器晚于挂载出现（如 /page/:slug 的 builder 页：接口返回后才渲染容器）。
+ */
 const Harness = defineComponent({
   props: {
-    withStatic: { type: Boolean, default: true }
+    withStatic: { type: Boolean, default: true },
+    lateRoot: { type: Boolean, default: false }
   },
-  setup() {
+  setup(props) {
     const rootEl = ref<HTMLElement | null>(null)
+    const showRoot = ref(!props.lateRoot)
     const showAsync = ref(false)
     useScrollReveal(rootEl)
-    return { rootEl, showAsync }
+    return { rootEl, showRoot, showAsync }
   },
   template: `
-    <div ref="rootEl">
+    <div v-if="showRoot" ref="rootEl">
       <div v-if="withStatic" class="rv" data-test="static">静态卡片</div>
       <div v-if="showAsync" class="rv" data-test="async">异步卡片</div>
     </div>
@@ -118,6 +124,58 @@ describe('useScrollReveal（企业官网模板滚动入场）', () => {
 
     io.trigger()
 
+    expect(lateEl.classList.contains('in')).toBe(true)
+  })
+
+  it('root 晚于挂载出现（builder 页接口返回后才渲染容器）时，出现前不启动，出现后容器内 .rv 被接管', async () => {
+    const wrapper = mount(Harness, { props: { lateRoot: true } })
+    expect(FakeIntersectionObserver.instances.length).toBe(0)
+
+    wrapper.vm.showRoot = true
+    await nextTick()
+    await flush()
+
+    const io = FakeIntersectionObserver.instances[0]
+    expect(io).toBeDefined()
+
+    const lateEl = wrapper.get('[data-test="static"]').element
+    expect(io.observed.has(lateEl)).toBe(true)
+
+    io.trigger()
+
+    expect(lateEl.classList.contains('in')).toBe(true)
+  })
+
+  it('root 晚于挂载出现时，容器内后插入的异步 .rv 同样被接管', async () => {
+    const wrapper = mount(Harness, { props: { lateRoot: true } })
+
+    wrapper.vm.showRoot = true
+    await nextTick()
+    await flush()
+
+    const io = FakeIntersectionObserver.instances[0]
+
+    wrapper.vm.showAsync = true
+    await nextTick()
+    await flush()
+
+    const asyncEl = wrapper.get('[data-test="async"]').element
+    expect(io.observed.has(asyncEl)).toBe(true)
+
+    io.trigger()
+
+    expect(asyncEl.classList.contains('in')).toBe(true)
+  })
+
+  it('reduced-motion 场景下 root 晚于挂载出现，容器出现即呈现终态', async () => {
+    stubMatchMedia(true)
+
+    const wrapper = mount(Harness, { props: { lateRoot: true } })
+    wrapper.vm.showRoot = true
+    await nextTick()
+    await flush()
+
+    const lateEl = wrapper.get('[data-test="static"]').element
     expect(lateEl.classList.contains('in')).toBe(true)
   })
 

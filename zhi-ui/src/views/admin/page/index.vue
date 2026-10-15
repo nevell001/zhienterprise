@@ -118,7 +118,14 @@
         prop="title"
         min-width="110"
         :show-overflow-tooltip="true"
-      />
+      >
+        <template #default="scope">
+          <span>{{ scope.row.title }}</span>
+          <el-tag v-if="isHomePage(scope.row)" size="small" type="warning" class="home-tag">
+            首页
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         label="别名"
         align="center"
@@ -149,6 +156,27 @@
           <el-tag :type="String(scope.row.showInNav) === '1' ? 'success' : 'info'" size="small">
             {{ navText(scope.row.showInNav) }}
           </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="顶部导航" align="center" width="150">
+        <template #default="scope">
+          <span v-if="navUnavailable" class="nav-hint">导航数据不可用</span>
+          <template v-else-if="scope.row.slug">
+            <el-tag v-if="isInNav(scope.row)" size="small" type="success">已加入</el-tag>
+            <el-tag v-else size="small" type="info">未加入</el-tag>
+            <el-button
+              v-hasPermi="['site:nav:add', 'site:nav:remove']"
+              link
+              size="small"
+              :type="isInNav(scope.row) ? 'danger' : 'primary'"
+              @click="
+                isInNav(scope.row) ? handleRemoveFromNav(scope.row) : handleAddToNav(scope.row)
+              "
+            >
+              {{ isInNav(scope.row) ? '移出' : '加入' }}
+            </el-button>
+          </template>
+          <span v-else class="nav-hint">无别名</span>
         </template>
       </el-table-column>
       <el-table-column label="排序" align="center" prop="sort" width="70" />
@@ -753,11 +781,16 @@
 <script setup lang="ts" name="SitePage">
 import { listPage, getPage, addPage, updatePage, changePageStatus, delPage } from '@/api/admin/page'
 import type { SitePage, PageQueryParams, PageStatus } from '@/api/admin/page'
+import { listNav, addNav, delNav } from '@/api/admin/nav'
+import type { SiteNavItem } from '@/api/site/nav'
+import { pagePath, navItemsOfPage, nextTopSort } from '@/utils/siteNav'
+import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { parseTime } from '@/utils/zhi'
 import { renderMarkdown } from '@/utils/markdown'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 
 const { proxy } = getCurrentInstance()
+const siteSettingsStore = useSiteSettingsStore()
 
 /** 页面别名只允许字母、数字、下划线、连字符 */
 const SLUG_PATTERN = /^[A-Za-z0-9_-]{1,100}$/
@@ -945,6 +978,71 @@ const dialogWidth = computed(() => {
 /** 页面状态文本 */
 function statusText(status?: PageStatus): string {
   return status === '1' ? '已发布' : '草稿'
+}
+
+/* ---------- 顶部导航联动：与「导航管理」同一数据源（site_nav_item） ---------- */
+
+const headerNav = ref<SiteNavItem[]>([])
+
+/** 导航数据加载失败：隐藏「未加入/加入」这类会失真的操作入口，只提示不可用 */
+const navUnavailable = ref(false)
+
+const loadHeaderNav = async () => {
+  try {
+    const response = await listNav('header', { silent: true })
+    headerNav.value = response?.data || []
+    navUnavailable.value = false
+  } catch {
+    headerNav.value = []
+    navUnavailable.value = true
+  }
+}
+
+/** 页面是否已出现在头部导航（path 指向 /page/{slug}） */
+const navItemsOf = (row: SitePage) => navItemsOfPage(headerNav.value, row.slug || '')
+
+const isInNav = (row: SitePage) => navItemsOf(row).length > 0
+
+/** 当前担任首页的自定义页面（站点设置「首页显示」） */
+const isHomePage = (row: SitePage) =>
+  Boolean(row.slug) && String(siteSettingsStore.siteSettings.home_page_slug || '') === row.slug
+
+/** 快捷加入：作为顶级项追加到头部导航末尾 */
+const handleAddToNav = async (row: SitePage) => {
+  if (!row.slug) return
+  try {
+    await addNav({
+      location: 'header',
+      parentId: 0,
+      label: row.title || row.slug,
+      linkType: 'path',
+      linkValue: pagePath(row.slug),
+      sort: nextTopSort(headerNav.value),
+      visible: 1
+    })
+    proxy.$modal.msgSuccess('已加入头部导航')
+    loadHeaderNav()
+  } catch (error: unknown) {
+    proxy.$modal.msgError(resolveErrorMessage(error, '加入导航失败'))
+  }
+}
+
+/** 快捷移出：删除头部导航中指向该页的全部项（含二级项） */
+const handleRemoveFromNav = async (row: SitePage) => {
+  const targets = navItemsOf(row)
+  if (!targets.length) return
+  try {
+    await proxy.$modal.confirm(`确定将页面「${row.title || row.slug}」移出头部导航吗？`)
+  } catch {
+    return
+  }
+  try {
+    await delNav(targets.map(item => item.id!) as number[])
+    proxy.$modal.msgSuccess('已移出头部导航')
+    loadHeaderNav()
+  } catch (error: unknown) {
+    proxy.$modal.msgError(resolveErrorMessage(error, '移出导航失败'))
+  }
 }
 
 /** 页面状态标签类型 */
@@ -1202,6 +1300,7 @@ function handleResize() {
 
 onMounted(() => {
   getList()
+  loadHeaderNav()
   window.addEventListener('resize', handleResize)
 })
 
@@ -1237,6 +1336,17 @@ onUnmounted(() => {
   color: var(--el-text-color-secondary, #909399);
   font-size: 12px;
   line-height: 1.5;
+}
+
+/* 「首页」标签（标题列） */
+.home-tag {
+  margin-left: 6px;
+}
+
+/* 无别名页面的导航列占位 */
+.nav-hint {
+  color: var(--el-text-color-secondary, #909399);
+  font-size: 12px;
 }
 
 /* 按钮区域样式 */

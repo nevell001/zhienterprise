@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { buildNavMenus, hasCustomHomePage } from './siteNav'
+import {
+  buildNavMenus,
+  hasCustomHomePage,
+  pagePath,
+  pageSlugFromPath,
+  flattenNavTree,
+  navItemsOfPage,
+  nextTopSort
+} from './siteNav'
 
 const paths = (items: { path: string }[]) => items.map(item => item.path)
 
@@ -15,6 +23,72 @@ describe('hasCustomHomePage', () => {
     expect(hasCustomHomePage(null)).toBe(false)
     expect(hasCustomHomePage(undefined)).toBe(false)
     expect(hasCustomHomePage(1)).toBe(false)
+  })
+})
+
+describe('pagePath / pageSlugFromPath', () => {
+  it('slug 与访问路径互转', () => {
+    expect(pagePath('about-us')).toBe('/page/about-us')
+    expect(pageSlugFromPath('/page/about-us')).toBe('about-us')
+    expect(pageSlugFromPath('/page/about-us/')).toBe('about-us')
+    expect(pageSlugFromPath('  /page/honors  ')).toBe('honors')
+  })
+
+  it('非 /page/ 路径与其他入口不误判', () => {
+    expect(pageSlugFromPath('/about')).toBe('')
+    expect(pageSlugFromPath('/business')).toBe('')
+    expect(pageSlugFromPath('https://example.com/page/x')).toBe('')
+    expect(pageSlugFromPath('')).toBe('')
+    expect(pageSlugFromPath(null)).toBe('')
+    expect(pageSlugFromPath(undefined)).toBe('')
+    expect(pageSlugFromPath(42)).toBe('')
+  })
+
+  it('slug 字符集与后端约束一致（字母/数字/下划线/连字符）', () => {
+    expect(pageSlugFromPath('/page/a_b-1')).toBe('a_b-1')
+    expect(pageSlugFromPath('/page/中文')).toBe('')
+    expect(pageSlugFromPath('/page/a b')).toBe('')
+  })
+})
+
+describe('导航树联动（页面管理 ↔ 导航管理）', () => {
+  const tree = [
+    { id: 1, parentId: 0, label: '首页', linkValue: '/', sort: 1 },
+    {
+      id: 4,
+      parentId: 0,
+      label: '关于我们',
+      linkValue: '/page/about',
+      sort: 4,
+      children: [
+        { id: 41, parentId: 4, label: '企业简介', linkValue: '/page/about', sort: 1 },
+        { id: 42, parentId: 4, label: '荣誉资质', linkValue: '/honors', sort: 2 }
+      ]
+    },
+    { id: 5, parentId: 0, label: '服务条款', linkValue: '/page/terms', sort: 5 }
+  ]
+
+  it('flattenNavTree 含二级项且保持顺序', () => {
+    expect(flattenNavTree(tree).map(i => i.label)).toEqual([
+      '首页',
+      '关于我们',
+      '企业简介',
+      '荣誉资质',
+      '服务条款'
+    ])
+  })
+
+  it('navItemsOfPage 找出指向该页面的全部项（含二级项与重复项）', () => {
+    expect(navItemsOfPage(tree, 'about').map(i => i.id)).toEqual([4, 41])
+    expect(navItemsOfPage(tree, 'terms').map(i => i.id)).toEqual([5])
+    expect(navItemsOfPage(tree, 'nope')).toEqual([])
+    expect(navItemsOfPage(tree, '')).toEqual([])
+  })
+
+  it('nextTopSort 取顶级项最大排序号 +1（不受二级项影响）', () => {
+    expect(nextTopSort(tree)).toBe(6)
+    expect(nextTopSort([{ id: 9, parentId: 0, sort: 8 }])).toBe(9)
+    expect(nextTopSort([])).toBe(1)
   })
 })
 
