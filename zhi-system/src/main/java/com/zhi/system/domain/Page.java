@@ -58,6 +58,12 @@ public class Page extends BaseEntity
     /** SEO描述 */
     private String seoDescription;
 
+    /** 页面类型：richtext 富文本页（默认） builder 模块组装页 */
+    private String pageType;
+
+    /** 模块列表（builder 页），JSON 数组字符串：[{type,config,visible}] */
+    private String sections;
+
     /** 删除标志（0代表存在 1代表删除） */
     private String delFlag;
 
@@ -171,7 +177,27 @@ public class Page extends BaseEntity
         return seoKeywords;
     }
 
-    public void setSeoDescription(String seoDescription) 
+    public void setPageType(String pageType)
+    {
+        this.pageType = pageType;
+    }
+
+    public String getPageType()
+    {
+        return pageType;
+    }
+
+    public void setSections(String sections)
+    {
+        this.sections = sections;
+    }
+
+    public String getSections()
+    {
+        return sections;
+    }
+
+    public void setSeoDescription(String seoDescription)
     {
         this.seoDescription = seoDescription;
     }

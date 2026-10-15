@@ -720,7 +720,9 @@ CREATE TABLE IF NOT EXISTS `zhi_page` (
   `title` varchar(100) NOT NULL COMMENT '页面标题',
   `slug` varchar(100) NOT NULL COMMENT '页面别名（用于前台 URL）',
   `summary` varchar(255) DEFAULT NULL COMMENT '页面摘要',
-  `content` longtext COMMENT '页面内容（Markdown）',
+  `content` longtext COMMENT '页面内容（Markdown，richtext 页）',
+  `page_type` varchar(20) NOT NULL DEFAULT 'richtext' COMMENT '页面类型：richtext 富文本页 builder 模块组装页',
+  `sections` json DEFAULT NULL COMMENT '模块列表（builder 页）：[{type,config,visible}]，顺序即渲染顺序',
   `status` tinyint DEFAULT '0' COMMENT '状态 0草稿 1已发布',
   `show_in_nav` tinyint DEFAULT '1' COMMENT '是否在导航显示 0否 1是',
   `sort` int DEFAULT '0' COMMENT '排序',
@@ -2404,6 +2406,34 @@ DEALLOCATE PREPARE add_article_slug_stmt;
 -- 幂等索引：伪静态查询列（slug/alias 的解析查询走点查，早期库重跑补齐索引）
 CALL sp_create_index_if_not_exists('zhi_article', 'idx_slug', 'CREATE INDEX idx_slug ON zhi_article(slug)');
 CALL sp_create_index_if_not_exists('zhi_category', 'idx_alias', 'CREATE INDEX idx_alias ON zhi_category(alias)');
+
+-- 老库升级：补齐 zhi_page.page_type / sections 列（幂等，模块化建站 M1）
+SET @has_page_type := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_page' AND COLUMN_NAME = 'page_type');
+SET @add_page_type := IF(@has_page_type = 0,
+    'ALTER TABLE `zhi_page` ADD COLUMN `page_type` varchar(20) NOT NULL DEFAULT ''richtext'' COMMENT ''页面类型：richtext 富文本页 builder 模块组装页''',
+    'SELECT 1');
+PREPARE add_page_type_stmt FROM @add_page_type;
+EXECUTE add_page_type_stmt;
+DEALLOCATE PREPARE add_page_type_stmt;
+
+SET @has_page_sections := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_page' AND COLUMN_NAME = 'sections');
+SET @add_page_sections := IF(@has_page_sections = 0,
+    'ALTER TABLE `zhi_page` ADD COLUMN `sections` json DEFAULT NULL COMMENT ''模块列表（builder 页）：[{type,config,visible}]，顺序即渲染顺序''',
+    'SELECT 1');
+PREPARE add_page_sections_stmt FROM @add_page_sections;
+EXECUTE add_page_sections_stmt;
+DEALLOCATE PREPARE add_page_sections_stmt;
+
+-- 模块化建站：首页 builder 页（slug=home）。
+-- 幂等：依赖 slug 唯一键；删除后不自动重建（管理员有意为之）。
+-- sections 为首页模块序列（管理后台「页面管理」M2 起可视化维护；
+-- metrics/outcomes/solutions 的 items 留空时前台回退「官网内容」设置与内置占位）。
+INSERT IGNORE INTO `zhi_page` (`title`, `slug`, `summary`, `content`, `page_type`, `sections`, `status`, `show_in_nav`, `sort`, `create_by`, `create_time`, `update_time`)
+VALUES ('首页', 'home', '企业官网首页（模块组装）', NULL, 'builder',
+'[{"type":"hero","visible":true,"config":{"eyebrow":"战略判断 · 15 年咨询经验","titleHtml":"把复杂的问题<br>变成<em>清晰的决策</em>","subtitle":"面向【行业】企业提供战略与运营咨询，从诊断到落地，全程陪跑，让每一次决策都有据可依。","ctaPrimary":{"label":"了解我们的业务","link":"/business"},"ctaSecondary":{"label":"预约咨询","link":"/contact"}}},{"type":"metrics","visible":true,"config":{}},{"type":"biz-cards","visible":true,"config":{}},{"type":"solutions","visible":true,"config":{}},{"type":"outcomes","visible":true,"config":{}},{"type":"logos","visible":true,"config":{"count":8}},{"type":"news","visible":true,"config":{"count":3}},{"type":"cta","visible":true,"config":{"title":"把下一步交给我们","subtitle":"一个小时的免费诊断，换一份可执行的问题清单。","primary":{"label":"预约咨询","link":"/contact"},"secondary":{"label":"了解我们","link":"/about"}}}]',
+'1', '0', 0, 'admin', NOW(), NOW());
 
 -- 老库升级：补齐 zhi_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS

@@ -17,6 +17,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="seoTitle"    column="seo_title"    />
         <result property="seoKeywords"    column="seo_keywords"    />
         <result property="seoDescription"    column="seo_description"    />
+        <result property="pageType"    column="page_type"    />
+        <result property="sections"    column="sections"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -25,7 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPageVo">
-        select id, title, slug, summary, content, status, show_in_nav, sort, view_count,
+        select id, title, slug, summary, content, page_type, sections, status, show_in_nav, sort, view_count,
                seo_title, seo_keywords, seo_description,
                create_by, create_time, update_by, update_time, del_flag
         from zhi_page
@@ -78,6 +80,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="slug != null and slug != ''">slug,</if>
             <if test="summary != null">summary,</if>
             <if test="content != null">content,</if>
+            <if test="pageType != null and pageType != ''">page_type,</if>
+            <if test="sections != null">sections,</if>
             <if test="status != null">status,</if>
             <if test="showInNav != null">show_in_nav,</if>
             <if test="sort != null">sort,</if>
@@ -96,6 +100,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="slug != null and slug != ''">#{slug},</if>
             <if test="summary != null">#{summary},</if>
             <if test="content != null">#{content},</if>
+            <if test="pageType != null and pageType != ''">#{pageType},</if>
+            <if test="sections != null">#{sections},</if>
             <if test="status != null">#{status},</if>
             <if test="showInNav != null">#{showInNav},</if>
             <if test="sort != null">#{sort},</if>
@@ -118,6 +124,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="slug != null and slug != ''">slug = #{slug},</if>
             <if test="summary != null">summary = #{summary},</if>
             <if test="content != null">content = #{content},</if>
+            <if test="pageType != null and pageType != ''">page_type = #{pageType},</if>
+            <if test="sections != null">sections = #{sections},</if>
             <if test="status != null">status = #{status},</if>
             <if test="showInNav != null">show_in_nav = #{showInNav},</if>
             <if test="sort != null">sort = #{sort},</if>

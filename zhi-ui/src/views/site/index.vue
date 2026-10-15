@@ -14,7 +14,8 @@
     </div>
 
     <!-- 企业官网区块化模板：Hero + 核心业务 + 数据 + 案例 + 动态 + CTA -->
-    <EnterpriseHome v-else-if="homeMode === 'business'" />
+    <!-- 企业官网模板首页：builder 页（slug=home）模块化渲染，未迁移老库回退旧版首页 -->
+    <SitePageRenderer v-else-if="homeMode === 'business'" slug="home" />
 
     <!-- 企业官网新闻列表（/news）：头条大图 + 次条网格 -->
     <EnterpriseNewsList v-else-if="isTplMode && isArticleListRoute" />
@@ -191,7 +192,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import SiteLayout from '@/components/SiteLayout.vue'
 import CustomPagePanel from './page/CustomPagePanel.vue'
-import EnterpriseHome from './EnterpriseHome.vue'
+import SitePageRenderer from './sections/PageRenderer.vue'
 import EnterpriseNewsList from './EnterpriseNewsList.vue'
 import { getArticleList, getSiteSettings, getHotArticles } from '@/api/site'
 import { getCategoryList } from '@/api/site/category'
