@@ -163,6 +163,30 @@ describe('blog design layout guards', () => {
     })
   })
 
+  it('详情页应输出面包屑（方案文档 §3.4 头部顺序 + §6.2 BreadcrumbList）', () => {
+    // 跨文件契约：BreadcrumbList 注入行为由 SiteBreadcrumb.test.ts 覆盖，
+    // 这里只锁定「详情页确实接入了该组件」这一页面级集成点
+    expect(articleDetailView).toContain('<SiteBreadcrumb')
+    expect(articleDetailView).toContain(
+      "import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'"
+    )
+    expect(businessDetailView).toContain('<SiteBreadcrumb')
+    // 头部顺序：面包屑 → 分类标签 → 标题（§3.4），面包屑必须先于 cat-badge
+    const headerStart = articleDetailView.indexOf('class="mo-article-header"')
+    const crumbAt = articleDetailView.indexOf('<SiteBreadcrumb', headerStart)
+    const badgeAt = articleDetailView.indexOf('class="cat-badge"', headerStart)
+    expect(headerStart).toBeGreaterThan(-1)
+    expect(crumbAt).toBeGreaterThan(headerStart)
+    expect(badgeAt).toBeGreaterThan(crumbAt)
+  })
+
+  it('站点级结构化数据应含 WebSite + SearchAction（方案文档 §6.2 首页）', () => {
+    // 跨文件契约：SiteLayout 挂载需整套 store/路由/接口桩，行为测试成本高于收益
+    expect(siteLayout).toContain("setJsonLd('zh-jsonld-organization'")
+    expect(siteLayout).toContain("setJsonLd('zh-jsonld-website'")
+    expect(siteLayout).toContain('/search?q={search_term_string}')
+  })
+
   it('列表型页面头部和封面标记应保持低饱和', () => {
     const heavyHeaderGradient = 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'
     const heavyBadgeGradient =

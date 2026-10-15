@@ -433,3 +433,17 @@ html.dark .register-form {
   background: var(--el-bg-color-overlay);
   color: var(--el-text-color-primary);
 }
+
+/* 站点前台 · 移动端表单输入字号 ≥16px：
+   iOS Safari 对 font-size <16px 的输入框聚焦时会自动放大页面（方案文档 §5.3）。
+   站内匿名表单（评论 / 留言板 / 联系表单 / 登录注册）统一收敛到这条规则。 */
+@media (max-width: 767px) {
+  .site-layout .el-input__inner,
+  .site-layout .el-textarea__inner,
+  .mo-auth-page .el-input__inner,
+  .mo-auth-page .el-textarea__inner,
+  .mo-home-page .el-input__inner,
+  .mo-home-page .el-textarea__inner {
+    font-size: 16px;
+  }
+}

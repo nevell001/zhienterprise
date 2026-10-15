@@ -50,12 +50,19 @@
 
       <div v-else class="mo-article-page">
         <header class="mo-article-header">
+          <!-- 面包屑（方案文档 §3.4 详情页顶部：面包屑 → 分类标签 → 标题） -->
+          <SiteBreadcrumb class="article-crumb" :items="breadcrumbItems" />
           <span v-if="article.categoryName" class="cat-badge">{{ article.categoryName }}</span>
           <h1>{{ article.title }}</h1>
           <div class="a-meta">
             <span class="author">{{ article.authorName || article.author || '匿名作者' }}</span>
             <span>·</span>
             <time :datetime="article.createTime">{{ formatDate(article.createTime) }}</time>
+            <!-- 方案文档 §6.2：发布日期与更新时间均在页面可见（两者相同则不重复展示） -->
+            <template v-if="article.updateTime && article.updateTime !== article.createTime">
+              <span>·</span>
+              <span>更新于 {{ formatDate(article.updateTime) }}</span>
+            </template>
             <span v-if="isFeatureEnabled('view_count_enabled')">·</span>
             <span v-if="isFeatureEnabled('view_count_enabled')">
               👁 {{ article.viewCount || 0 }} 阅读
@@ -307,6 +314,7 @@ import { useUserStore } from '@/stores/user'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import SiteLayout from '@/components/SiteLayout.vue'
+import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
 import ShareButton from '@/components/ShareButton.vue'
 import SitePager from '@/components/SitePager.vue'
@@ -419,6 +427,19 @@ const authorInitial = computed(() => {
   return name.charAt(0)
 })
 
+// 面包屑链路（≤3 级）：首页 → 分类 → 当前文章；分类优先数字 ID（路由兼容别名）
+const breadcrumbItems = computed(() => {
+  const items: Array<{ label: string; to?: string }> = [{ label: '首页', to: '/' }]
+  if (article.value?.categoryName) {
+    items.push({
+      label: article.value.categoryName,
+      to: article.value.categoryId ? `/category/${article.value.categoryId}` : '/news'
+    })
+  }
+  items.push({ label: article.value?.title || '文章' })
+  return items
+})
+
 // 评论总数（含回复的已发布数）：以文章详情/评论增删改返回的 commentCount 为准
 const articleCommentCount = computed(() => {
   const count = Number(article.value?.commentCount)
@@ -523,15 +544,24 @@ const loadArticleDetail = async () => {
         keywords: article.value.seoKeywords || '',
         canonical: canonicalUrl((siteSettings.value as any)?.seo_canonical_url)
       })
-      // JSON-LD 结构化数据（Article）
+      // JSON-LD 结构化数据（方案文档 §6.2「新闻详情」：NewsArticle/BlogPosting，
+      // 关键字段 标题、发布日期、作者、图片、publisher；案例类内容按 Article 输出）
       setJsonLd('zh-jsonld-article', {
         '@context': 'https://schema.org',
-        '@type': 'Article',
+        '@type': article.value.articleType === 'case' ? 'Article' : 'NewsArticle',
         headline: article.value.title,
         description: article.value.seoDescription || article.value.summary || undefined,
         image: article.value.coverUrl || undefined,
         datePublished: article.value.createTime || undefined,
-        author: { '@type': 'Person', name: article.value.authorName || 'admin' }
+        dateModified: article.value.updateTime || undefined,
+        author: { '@type': 'Person', name: article.value.authorName || 'admin' },
+        publisher: {
+          '@type': 'Organization',
+          name: siteName,
+          logo: siteSettings.value.blog_avatar
+            ? { '@type': 'ImageObject', url: siteSettings.value.blog_avatar }
+            : undefined
+        }
       })
     } else {
       logger.error('未找到文章数据，响应数据:', response.data)
@@ -1127,6 +1157,12 @@ html.dark .mo-article-page .content-body :deep(li) {
   margin: 0 auto;
   padding: var(--mo-sp-8) var(--mo-sp-7) var(--mo-sp-6);
   text-align: center;
+}
+
+/* 面包屑锚在标题区左上（标题/元信息居中的版式下提供层级导航） */
+.mo-article-page .article-crumb {
+  text-align: left;
+  margin-bottom: var(--mo-sp-5);
 }
 
 .mo-article-page .cat-badge {

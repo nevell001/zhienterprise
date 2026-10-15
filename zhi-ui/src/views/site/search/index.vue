@@ -221,6 +221,12 @@ watch(
 .search-form input:focus {
   border-color: var(--el-color-primary, #409eff);
 }
+/* 移动端输入字号 ≥16px：iOS Safari 聚焦时否则自动放大页面（方案文档 §5.3） */
+@media (max-width: 767px) {
+  .search-form input {
+    font-size: 16px;
+  }
+}
 .search-form button {
   padding: 0 var(--mo-sp-5);
   border: none;

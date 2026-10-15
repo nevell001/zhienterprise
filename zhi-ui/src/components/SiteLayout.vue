@@ -474,11 +474,13 @@ const menus = computed(() =>
 
 const currentYear = computed(() => new Date().getFullYear())
 
-// JSON-LD 结构化数据：Organization 随站点设置注入（详情页各自注入 Article，卸载时移除）
+// JSON-LD 结构化数据：Organization + WebSite 随站点设置注入
+//（详情页各自注入 Article，面包屑由 SiteBreadcrumb 注入 BreadcrumbList，均随组件卸载移除）
 watch(
   () => siteSettingsStore.siteSettings,
   settings => {
     if (!settings?.blog_name) return
+    const origin = window.location.origin
     const contactPoint: Record<string, unknown> = {
       '@type': 'ContactPoint',
       contactType: 'customer service'
@@ -490,8 +492,29 @@ watch(
       '@type': 'Organization',
       name: settings.blog_name,
       description: settings.blog_desc || undefined,
-      url: `${window.location.origin}/`,
+      url: `${origin}/`,
+      logo: settings.blog_avatar || undefined,
+      address: settings.contact_address
+        ? { '@type': 'PostalAddress', streetAddress: settings.contact_address }
+        : undefined,
       contactPoint: settings.contact_phone || settings.blog_email ? contactPoint : undefined
+    })
+    // WebSite + potentialAction 搜索（方案文档 §6.2 首页），搜索关闭时不输出 SearchAction
+    setJsonLd('zh-jsonld-website', {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: settings.blog_name,
+      url: `${origin}/`,
+      potentialAction: siteSettingsStore.isFeatureEnabled('search_enabled')
+        ? {
+            '@type': 'SearchAction',
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: `${origin}/search?q={search_term_string}`
+            },
+            'query-input': 'required name=search_term_string'
+          }
+        : undefined
     })
   },
   { immediate: true }
@@ -518,6 +541,7 @@ onBeforeUnmount(() => {
   root.remove('theme-enterprise', 'tpl-site')
   SITE_TEMPLATE_CLASS_NAMES.forEach(cn => root.remove(cn))
   removeJsonLd('zh-jsonld-organization')
+  removeJsonLd('zh-jsonld-website')
 })
 
 const rssUrl = computed(() => {

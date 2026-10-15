@@ -523,6 +523,35 @@
   border-radius: 999px;
 }
 
+/* 过滤器芯片（button 形态）：选中态实底主色+反白（与 .btn-p 同约定），
+   触控目标 ≥44px（方案文档 §5.3）用透明内边距扩展，视觉尺寸不变 */
+.tpl-site button.tag {
+  position: relative;
+  font-family: inherit;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.tpl-site button.tag::after {
+  content: '';
+  position: absolute;
+  inset: -7px -4px;
+}
+
+.tpl-site button.tag:hover {
+  border-color: var(--tpl-p);
+}
+
+.tpl-site button.tag.on {
+  background: var(--tpl-p);
+  color: var(--tpl-white);
+  border-color: var(--tpl-p);
+}
+
 .tpl-site .eh-empty {
   text-align: center;
   color: var(--tpl-ink-400);

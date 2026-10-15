@@ -69,11 +69,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { getPublishedPageBySlug } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 import { getSiteHonors, DEFAULT_PAGE_COPY, getPageCopy } from '@/utils/siteContent'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
@@ -100,6 +101,30 @@ const customContentHtml = computed(() => {
 
 /* 荣誉数据：管理后台「官网内容」页签维护（缺失回退设计稿附录 A 占位） */
 const honorItems = computed(() => getSiteHonors(siteSettings.value?.site_honors))
+
+// JSON-LD 结构化数据（方案文档 §6.2「企业与荣誉」：Organization + Award；
+// 颁发方/时间并入 description，Award 无独立字段承载）
+watch(
+  honorItems,
+  items => {
+    if (!items.length) {
+      removeJsonLd('zh-jsonld-awards')
+      return
+    }
+    setJsonLd('zh-jsonld-awards', {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: siteSettings.value.blog_name || '知企建站系统',
+      url: `${window.location.origin}/`,
+      award: items.map(item => ({
+        '@type': 'Award',
+        name: item.name,
+        description: [item.issuer, item.year].filter(Boolean).join(' · ') || undefined
+      }))
+    })
+  },
+  { immediate: true }
+)
 const categories = computed(() => {
   const cats = Array.from(new Set(honorItems.value.map(item => item.cat).filter(Boolean)))
   return ['全部', ...cats]
@@ -146,6 +171,10 @@ watch(heroTitle, applyPageSeo, { immediate: true })
 onMounted(() => {
   loadCustomContent()
 })
+
+onBeforeUnmount(() => {
+  removeJsonLd('zh-jsonld-awards')
+})
 </script>
 
 <style scoped>
@@ -161,6 +190,43 @@ onMounted(() => {
   gap: var(--mo-sp-3);
   flex-wrap: wrap;
   margin-bottom: var(--mo-sp-8);
+}
+
+/* 分类 Tab：芯片式过滤器（sections.css 仅在 builder 页加载，本页独立实现）
+   选中态=实底主色+反白（与 .bd-cta-btn 同约定）；触控目标 ≥44px（方案文档 §5.3）用透明内边距扩展 */
+.honor-tabs .tag {
+  position: relative;
+  display: inline-block;
+  font-family: inherit;
+  font-size: var(--mo-fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--tpl-p-text);
+  background: var(--tpl-p-sub);
+  padding: var(--mo-sp-2) var(--mo-sp-4);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.honor-tabs .tag::after {
+  content: '';
+  position: absolute;
+  inset: -7px -4px;
+}
+
+.honor-tabs .tag:hover {
+  border-color: var(--tpl-p);
+}
+
+.honor-tabs .tag.on {
+  background: var(--tpl-p);
+  color: var(--tpl-white);
+  border-color: var(--tpl-p);
 }
 
 /* 证书墙 */

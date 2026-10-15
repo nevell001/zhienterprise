@@ -1,16 +1,8 @@
 <template>
   <SiteLayout>
     <div ref="rootEl" class="tpl-site business-detail mo-home-page">
-      <!-- 面包屑（方案文档 §3.2 详情页） -->
-      <nav class="bd-crumb" aria-label="面包屑">
-        <div class="eh-wrap">
-          <router-link to="/">首页</router-link>
-          <i>/</i>
-          <router-link to="/business">{{ businessLabel }}</router-link>
-          <i>/</i>
-          <span>{{ article?.title || '详情' }}</span>
-        </div>
-      </nav>
+      <!-- 面包屑（方案文档 §3.2 详情页；组件同出 BreadcrumbList JSON-LD） -->
+      <SiteBreadcrumb class="bd-crumb" :items="breadcrumbItems" />
 
       <main class="bd-main eh-wrap">
         <template v-if="article">
@@ -83,6 +75,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import SiteLayout from '@/components/SiteLayout.vue'
+import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
 import { getArticleDetail, getArticleList, updateArticleViewCount } from '@/api/site/article'
 import type { Article } from '@/types'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
@@ -115,6 +108,13 @@ const goItem = (id?: number) => id && router.push(`/business/${id}`)
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
 
+// 面包屑链路（≤3 级）：首页 → 业务栏目 → 当前条目
+const breadcrumbItems = computed(() => [
+  { label: '首页', to: '/' },
+  { label: businessLabel.value, to: '/business' },
+  { label: article.value?.title || '详情' }
+])
+
 onMounted(async () => {
   // 路由参数兼容数字 ID（历史链接）与 slug 伪静态链接，由后端统一解析
   const key = String(router.currentRoute.value.params.id || '')
@@ -135,15 +135,18 @@ onMounted(async () => {
         keywords: article.value.seoKeywords || '',
         canonical: canonicalUrl()
       })
-      // JSON-LD 结构化数据（Article）
-      setJsonLd('zh-jsonld-article', {
+      // JSON-LD 结构化数据（方案文档 §6.2「产品/服务详情」：Service + 名称/描述/图片/所属企业）
+      setJsonLd('zh-jsonld-service', {
         '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: article.value.title,
+        '@type': 'Service',
+        name: article.value.title,
         description: article.value.seoDescription || article.value.summary || undefined,
         image: article.value.coverUrl || undefined,
-        datePublished: article.value.createTime || undefined,
-        author: { '@type': 'Person', name: article.value.authorName || 'admin' }
+        provider: {
+          '@type': 'Organization',
+          name: siteName,
+          url: `${window.location.origin}/`
+        }
       })
       // 浏览计数与文章详情同一开关、同一接口；slug 入口时用响应里的真实 ID
       const articleId = article.value.id
@@ -172,43 +175,25 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  removeJsonLd('zh-jsonld-article')
+  removeJsonLd('zh-jsonld-service')
 })
 </script>
 
 <style scoped>
 @import '../about-shared.css';
 
-/* ---------- 面包屑 ---------- */
+/* ---------- 面包屑（样式在 SiteBreadcrumb，组件根继承页面作用域） ---------- */
 .bd-crumb {
-  padding: calc(64px + var(--mo-sp-5)) 0 0;
-  font-size: var(--mo-fs-sm);
-  color: var(--tpl-ink-400);
+  padding: calc(64px + var(--mo-sp-5)) var(--mo-sp-7) 0;
+  max-width: 820px;
+  margin: 0 auto;
 }
 
-.bd-crumb a {
-  color: var(--tpl-ink-400);
-  text-decoration: none;
-}
-
-.bd-crumb a:hover {
-  color: var(--tpl-p-text);
-}
-
-.bd-crumb i {
-  font-style: normal;
-  margin: 0 var(--mo-sp-2);
-  opacity: 0.5;
-}
-
-.bd-crumb span {
-  color: var(--tpl-ink-700);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-  max-width: 50%;
-  vertical-align: bottom;
+@media (max-width: 639px) {
+  .bd-crumb {
+    padding-left: var(--mo-sp-5);
+    padding-right: var(--mo-sp-5);
+  }
 }
 
 /* ---------- 正文区 ---------- */

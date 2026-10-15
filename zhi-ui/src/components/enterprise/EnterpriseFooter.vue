@@ -254,11 +254,11 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   color: var(--tpl-white);
 }
 
-/* 返回顶部 */
+/* 返回顶部（固定底部元素需预留 iOS 安全区，方案文档 §5.3） */
 .to-top {
   position: fixed;
   right: var(--mo-sp-6);
-  bottom: var(--mo-sp-6);
+  bottom: calc(var(--mo-sp-6) + env(safe-area-inset-bottom, 0px));
   width: 44px;
   height: 44px;
   border: 1px solid var(--tpl-border);

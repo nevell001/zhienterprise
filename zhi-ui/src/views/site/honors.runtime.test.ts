@@ -74,3 +74,47 @@ describe('荣誉页页头文案（site_page_copy 行为）', () => {
     expect(wrapper.get('.aph-sub').text()).toBe('资质证书、行业奖项与体系认证，是客户信任的注脚。')
   })
 })
+
+/**
+ * 方案文档 §6.2「企业与荣誉」：Organization + Award（荣誉名称、颁发方、时间）。
+ */
+describe('荣誉页结构化数据（Organization + Award）', () => {
+  it('按官网内容输出 Award 数组，颁发方与时间并入描述', async () => {
+    document.getElementById('zh-jsonld-awards')?.remove()
+    const { pinia } = mountHonors()
+    await flushPromises()
+
+    const store = useSiteSettingsStore(pinia)
+    store.updateSiteSettings({
+      site_honors: JSON.stringify([
+        {
+          name: 'ISO 27001 信息安全管理体系认证',
+          issuer: '中国质量认证中心',
+          year: '2024',
+          cat: '体系认证'
+        }
+      ])
+    })
+    await nextTick()
+
+    const el = document.getElementById('zh-jsonld-awards')
+    expect(el).toBeTruthy()
+    const ld = JSON.parse(el?.textContent || '{}')
+    expect(ld['@type']).toBe('Organization')
+    expect(ld.award).toHaveLength(1)
+    expect(ld.award[0]).toMatchObject({
+      '@type': 'Award',
+      name: 'ISO 27001 信息安全管理体系认证',
+      description: '中国质量认证中心 · 2024'
+    })
+  })
+
+  it('卸载时移除注入的 Award（避免残留到下一页）', async () => {
+    const { wrapper } = mountHonors()
+    await flushPromises()
+    expect(document.getElementById('zh-jsonld-awards')).toBeTruthy()
+
+    wrapper.unmount()
+    expect(document.getElementById('zh-jsonld-awards')).toBeNull()
+  })
+})

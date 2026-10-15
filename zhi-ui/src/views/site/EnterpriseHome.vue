@@ -26,7 +26,7 @@
           </div>
           <div class="metrics">
             <div v-for="m in siteMetrics" :key="m.label" class="metric">
-              <b>{{ m.value }}</b>
+              <b :data-count-up="m.value">{{ m.value }}</b>
               <span>{{ m.label }}</span>
             </div>
           </div>
@@ -147,7 +147,7 @@
         <div class="numgrid rv d1">
           <div v-for="o in outcomes" :key="o.label" class="numcell">
             <b>
-              <i>{{ o.mark }}</i>
+              <i :data-count-up="o.mark">{{ o.mark }}</i>
               {{ o.suffix }}
             </b>
             <span>{{ o.label }}</span>
@@ -287,6 +287,7 @@ import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteTemplate } from '@/config/siteTemplates'
 import { getHomeSolutions, getSiteMetrics, getSiteOutcomes } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
+import { useCountUp } from '@/composables/useCountUp'
 import { parseTime } from '@/utils/zhi'
 import { logger } from '@/utils/logger'
 
@@ -305,6 +306,8 @@ const motifSvg = computed(() => tpl.value.motif(tpl.value.color))
 
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
+// 信任指标条与数据成果：进入视口后数字从 0 滚动到目标值（方案文档 §2.3/§3.1）
+useCountUp(rootEl)
 
 /* ---------- 数据：核心业务 / 新闻动态 / 合作伙伴 ---------- */
 
