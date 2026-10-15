@@ -12,6 +12,8 @@ export interface SitePage {
   slug: string
   summary?: string | null
   content?: string | null
+  pageType?: string
+  sections?: string | null
   status?: string
   showInNav?: string
   sort?: number | null

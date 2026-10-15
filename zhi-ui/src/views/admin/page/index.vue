@@ -105,6 +105,13 @@
     >
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="页面ID" align="center" prop="id" width="70" />
+      <el-table-column label="类型" align="center" width="100">
+        <template #default="scope">
+          <el-tag :type="scope.row.pageType === 'builder' ? 'primary' : 'info'" size="small">
+            {{ scope.row.pageType === 'builder' ? '模块组装' : '富文本' }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         label="标题"
         align="left"
@@ -226,6 +233,16 @@
             别名只允许字母、数字、下划线、连字符（1-100个字符），保存后用于前台访问地址
           </div>
         </el-form-item>
+        <el-form-item label="页面类型" prop="pageType">
+          <el-radio-group v-model="form.pageType" :disabled="!!form.id">
+            <el-radio-button label="richtext">富文本页</el-radio-button>
+            <el-radio-button label="builder">模块组装页</el-radio-button>
+          </el-radio-group>
+          <div class="slug-tip">
+            富文本页：单篇 Markdown 内容（如关于我们）；模块组装页：由模块拼装的结构化页面
+            （如企业官网首页）。创建后不可切换类型
+          </div>
+        </el-form-item>
         <el-form-item label="摘要" prop="summary">
           <el-input
             v-model="form.summary"
@@ -236,40 +253,224 @@
             placeholder="请输入页面摘要"
           />
         </el-form-item>
-        <el-form-item label="预置区块">
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
-            <el-dropdown trigger="click" @command="insertBlock">
-              <el-button type="primary" plain>
-                插入区块模板
-                <el-icon class="el-icon--right"><arrow-down /></el-icon>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item
-                    v-for="tpl in blockTemplates"
-                    :key="tpl.name"
-                    :command="tpl.name"
+        <!-- 模块组装页：模块列表编辑（排序 / 开关 / 展开配置） -->
+        <el-form-item v-if="form.pageType === 'builder'" label="页面模块">
+          <div class="section-editor">
+            <div
+              v-for="(sec, si) in sectionList"
+              :key="`${sec.type}-${si}`"
+              class="section-card"
+            >
+              <div class="section-card-head">
+                <span class="section-name">
+                  {{ sectionMeta[sec.type]?.label || sec.type }}
+                  <el-tag v-if="sec.visible === false" type="info" size="small">已隐藏</el-tag>
+                </span>
+                <div class="section-ops">
+                  <el-button link :disabled="si === 0" @click="moveSection(si, -1)">上移</el-button>
+                  <el-button
+                    link
+                    :disabled="si === sectionList.length - 1"
+                    @click="moveSection(si, 1)"
                   >
-                    {{ tpl.name }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-            <el-button @click="previewVisible = true">预览</el-button>
-            <span class="slug-tip">
-              区块为 HTML 片段，插入到光标处后可直接修改文字；预览为前台实际渲染效果
-            </span>
+                    下移
+                  </el-button>
+                  <el-switch
+                    v-model="sec.visible"
+                    active-text="显示"
+                    inactive-text="隐藏"
+                    inline-prompt
+                    size="small"
+                  />
+                  <el-button
+                    link
+                    type="primary"
+                    @click="toggleExpand(si, sectionList[si])"
+                  >
+                    {{ expandedIndex === si ? '收起' : '编辑' }}
+                  </el-button>
+                  <el-button link type="danger" @click="removeSection(si)">删除</el-button>
+                </div>
+              </div>
+              <div v-show="expandedIndex === si" class="section-config">
+                <!-- Hero -->
+                <template v-if="sec.type === 'hero'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.eyebrow" placeholder="眉标（Eyebrow）" style="flex: 1" />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.titleHtml"
+                      type="textarea"
+                      :rows="2"
+                      placeholder="主标题（支持 <br> 换行与 <em> 强调）"
+                    />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.subtitle" type="textarea" :rows="2" placeholder="副标题" />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.ctaPrimary.label" placeholder="主按钮文字" style="width: 160px" />
+                    <el-input v-model="sec.config.ctaPrimary.link" placeholder="主按钮链接" style="width: 180px" />
+                    <el-input v-model="sec.config.ctaSecondary.label" placeholder="次按钮文字" style="width: 160px" />
+                    <el-input v-model="sec.config.ctaSecondary.link" placeholder="次按钮链接" style="width: 180px" />
+                  </div>
+                </template>
+
+                <!-- 信任指标条 -->
+                <template v-else-if="sec.type === 'metrics'">
+                  <div v-for="(m, mi) in sec.config.items" :key="mi" class="cfg-row">
+                    <el-input v-model="m.value" placeholder="数值" style="width: 140px" />
+                    <el-input v-model="m.label" placeholder="说明" style="flex: 1" />
+                    <el-button type="danger" link @click="removeItem(sec, 'items', mi)">删除</el-button>
+                  </div>
+                  <el-button link type="primary" @click="addItem(sec, 'items', { value: '', label: '' })">
+                    + 添加指标
+                  </el-button>
+                  <div class="cfg-hint">清空全部行时前台显示内置示例</div>
+                </template>
+
+                <!-- 核心业务两卡 -->
+                <template v-else-if="sec.type === 'biz-cards'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.subtitle" placeholder="区块副题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div class="cfg-hint">两卡列表项来自「核心业务」文章，无需在此维护</div>
+                </template>
+
+                <!-- 解决方案精选 -->
+                <template v-else-if="sec.type === 'solutions'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空随行业模板）" style="flex: 1" />
+                  </div>
+                  <div v-for="(it, ii) in sec.config.items" :key="ii" class="cfg-row">
+                    <el-input v-model="it.title" placeholder="方案名称" style="width: 220px" />
+                    <el-input v-model="it.desc" placeholder="一句话说明" style="flex: 1" />
+                    <el-button type="danger" link @click="removeItem(sec, 'items', ii)">删除</el-button>
+                  </div>
+                  <el-button
+                    link
+                    type="primary"
+                    @click="addItem(sec, 'items', { title: '', desc: '' })"
+                  >
+                    + 添加方案
+                  </el-button>
+                </template>
+
+                <!-- 数据成果 -->
+                <template v-else-if="sec.type === 'outcomes'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div v-for="(it, ii) in sec.config.items" :key="ii" class="cfg-row">
+                    <el-input v-model="it.mark" placeholder="数字，如 ↓38" style="width: 120px" />
+                    <el-input v-model="it.suffix" placeholder="单位" style="width: 80px" />
+                    <el-input v-model="it.label" placeholder="说明" style="flex: 1" />
+                    <el-button type="danger" link @click="removeItem(sec, 'items', ii)">删除</el-button>
+                  </div>
+                  <el-button
+                    link
+                    type="primary"
+                    @click="addItem(sec, 'items', { mark: '', suffix: '', label: '' })"
+                  >
+                    + 添加成果
+                  </el-button>
+                </template>
+
+                <!-- Logo 墙 -->
+                <template v-else-if="sec.type === 'logos'">
+                  <div class="cfg-row">
+                    <span class="cfg-label">展示格数</span>
+                    <el-input-number v-model="sec.config.count" :min="4" :max="12" />
+                    <span class="cfg-hint">数据来自友链，不足回退占位</span>
+                  </div>
+                </template>
+
+                <!-- 新闻动态 -->
+                <template v-else-if="sec.type === 'news'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div class="cfg-row">
+                    <span class="cfg-label">展示条数</span>
+                    <el-input-number v-model="sec.config.count" :min="1" :max="9" />
+                  </div>
+                </template>
+
+                <!-- 转化区块 -->
+                <template v-else-if="sec.type === 'cta'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="主标题" style="flex: 1" />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.subtitle" placeholder="副题" style="flex: 1" />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.primary.label" placeholder="主按钮文字" style="width: 160px" />
+                    <el-input v-model="sec.config.primary.link" placeholder="主按钮链接" style="width: 180px" />
+                    <el-input v-model="sec.config.secondary.label" placeholder="次按钮文字" style="width: 160px" />
+                    <el-input v-model="sec.config.secondary.link" placeholder="次按钮链接" style="width: 180px" />
+                  </div>
+                </template>
+
+                <div v-else class="cfg-hint">该模块无独立配置</div>
+              </div>
+            </div>
+            <el-select
+              placeholder="+ 添加模块"
+              style="width: 220px"
+              value-key="type"
+              @change="addSection"
+            >
+              <el-option
+                v-for="(meta, type) in sectionMeta"
+                :key="type"
+                :label="`+ ${meta.label}`"
+                :value="type"
+              />
+            </el-select>
           </div>
         </el-form-item>
-        <el-form-item label="页面内容" prop="content">
-          <el-input
-            ref="contentRef"
-            v-model="form.content"
-            type="textarea"
-            :rows="12"
-            placeholder="请输入 Markdown 内容"
-          />
-        </el-form-item>
+
+        <template v-else>
+          <el-form-item label="预置区块">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+              <el-dropdown trigger="click" @command="insertBlock">
+                <el-button type="primary" plain>
+                  插入区块模板
+                  <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item
+                      v-for="tpl in blockTemplates"
+                      :key="tpl.name"
+                      :command="tpl.name"
+                    >
+                      {{ tpl.name }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+              <el-button @click="previewVisible = true">预览</el-button>
+              <span class="slug-tip">
+                区块为 HTML 片段，插入到光标处后可直接修改文字；预览为前台实际渲染效果
+              </span>
+            </div>
+          </el-form-item>
+          <el-form-item label="页面内容" prop="content">
+            <el-input
+              ref="contentRef"
+              v-model="form.content"
+              type="textarea"
+              :rows="12"
+              placeholder="请输入 Markdown 内容"
+            />
+          </el-form-item>
+        </template>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio label="0">草稿</el-radio>
@@ -368,6 +569,7 @@ function createDefaultForm(): SitePage {
     slug: '',
     summary: '',
     content: '',
+    pageType: 'richtext',
     status: '0',
     showInNav: '1',
     sort: 0,
@@ -379,6 +581,86 @@ function createDefaultForm(): SitePage {
 }
 
 const form = ref<SitePage>(createDefaultForm())
+
+/* ---------- 模块组装页（builder）：模块列表编辑 ---------- */
+
+const SECTION_META: Record<string, { label: string; make: () => Record<string, any> }> = {
+  hero: {
+    label: '首屏 Hero',
+    make: () => ({
+      eyebrow: '',
+      titleHtml: '',
+      subtitle: '',
+      ctaPrimary: { label: '了解我们的业务', link: '/business' },
+      ctaSecondary: { label: '预约咨询', link: '/contact' }
+    })
+  },
+  metrics: { label: '信任指标条', make: () => ({ items: [] }) },
+  'biz-cards': { label: '核心业务两卡', make: () => ({ title: '', subtitle: '' }) },
+  solutions: { label: '解决方案精选', make: () => ({ title: '', subtitle: '', items: [] }) },
+  outcomes: { label: '数据成果', make: () => ({ title: '', subtitle: '', items: [] }) },
+  logos: { label: '客户 Logo 墙', make: () => ({ count: 8 }) },
+  news: { label: '新闻动态', make: () => ({ count: 3 }) },
+  cta: {
+    label: '转化区块',
+    make: () => ({
+      title: '',
+      subtitle: '',
+      primary: { label: '预约咨询', link: '/contact' },
+      secondary: { label: '了解我们', link: '/about' }
+    })
+  }
+}
+
+const sectionList = ref<Record<string, any>[]>([])
+const expandedIndex = ref(-1)
+const sectionMeta = SECTION_META
+
+function addSection(type: string) {
+  const meta = SECTION_META[type]
+  if (!meta) return
+  sectionList.value = [...sectionList.value, { type, visible: true, config: meta.make() }]
+  expandedIndex.value = sectionList.value.length - 1
+}
+
+function removeSection(index: number | string) {
+  const idx = Number(index)
+  sectionList.value = sectionList.value.filter((_, i) => i !== idx)
+  if (expandedIndex.value === idx) expandedIndex.value = -1
+}
+
+function moveSection(index: number | string, delta: number) {
+  const idx = Number(index)
+  const target = idx + delta
+  if (target < 0 || target >= sectionList.value.length) return
+  const list = [...sectionList.value]
+  ;[list[idx], list[target]] = [list[target], list[idx]]
+  sectionList.value = list
+  if (expandedIndex.value === idx) expandedIndex.value = target
+}
+
+/** 展开编辑时保证 config 及其子结构存在（历史数据可能为空对象） */
+function toggleExpand(index: number, sec: Record<string, any>) {
+  expandedIndex.value = expandedIndex.value === index ? -1 : index
+  if (expandedIndex.value !== index) return
+  sec.config = sec.config && typeof sec.config === 'object' ? sec.config : {}
+  const meta = SECTION_META[sec.type]
+  if (meta) {
+    const proto = meta.make()
+    Object.keys(proto).forEach(k => {
+      if (sec.config[k] === undefined) sec.config[k] = proto[k]
+    })
+  }
+}
+
+function addItem(sec: Record<string, any>, field: string, tpl: Record<string, any>) {
+  sec.config[field] = [...(sec.config[field] || []), { ...tpl }]
+}
+
+function removeItem(sec: Record<string, any>, field: string, index: number | string) {
+  const rmIdx = Number(index)
+  sec.config[field] = (sec.config[field] || []).filter((_: any, i: number) => i !== rmIdx)
+}
 
 const queryParams = ref<PageQueryParams>({
   pageNum: 1,
@@ -543,6 +825,7 @@ function handleUpdate(row?: SitePage) {
         slug: data.slug || '',
         summary: data.summary || '',
         content: data.content || '',
+        pageType: data.pageType === 'builder' ? 'builder' : 'richtext',
         status: String(data.status) === '1' ? '1' : '0',
         showInNav: String(data.showInNav) === '0' ? '0' : '1',
         sort: Number(data.sort) || 0,
@@ -550,6 +833,18 @@ function handleUpdate(row?: SitePage) {
         seoKeywords: data.seoKeywords || '',
         seoDescription: data.seoDescription || ''
       }
+      // builder 页：sections 存储为 JSON 字符串，编辑态还原为结构化数组
+      if (form.value.pageType === 'builder' && data.sections) {
+        try {
+          const parsed = JSON.parse(data.sections)
+          sectionList.value = Array.isArray(parsed) ? parsed : []
+        } catch {
+          sectionList.value = []
+        }
+      } else {
+        sectionList.value = []
+      }
+      expandedIndex.value = -1
       open.value = true
       title.value = '修改页面'
     })
@@ -575,12 +870,15 @@ function submitForm() {
     if (!valid) return
 
     const isEdit = !!form.value.id
+    const isBuilder = form.value.pageType === 'builder'
     const payload: SitePage = {
       ...form.value,
       title: (form.value.title || '').trim(),
       slug: (form.value.slug || '').trim(),
       summary: (form.value.summary || '').trim(),
-      content: form.value.content || '',
+      content: isBuilder ? '' : form.value.content || '',
+      pageType: isBuilder ? 'builder' : 'richtext',
+      sections: isBuilder ? JSON.stringify(sectionList.value) : null,
       status: form.value.status === '1' ? '1' : '0',
       showInNav: form.value.showInNav === '0' ? '0' : '1',
       sort: Number(form.value.sort) || 0,
@@ -704,5 +1002,76 @@ onUnmounted(() => {
   .status-select {
     width: 100%;
   }
+}
+
+/* ---------- 模块组装页编辑器 ---------- */
+.content-stage {
+  border: 1px solid var(--el-border-color-light, #e4e7ed);
+  border-radius: 8px;
+  padding: 8px 8px 0;
+  margin-bottom: 8px;
+}
+
+.section-editor {
+  width: 100%;
+}
+
+.section-card {
+  border: 1px solid var(--el-border-color-light, #e4e7ed);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.section-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--el-fill-color-light, #f5f7fa);
+}
+
+.section-name {
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-ops {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.section-config {
+  padding: 12px;
+}
+
+.cfg-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.cfg-label {
+  font-size: 13px;
+  color: var(--el-text-color-secondary, #909399);
+  flex: none;
+}
+
+.cfg-hint {
+  font-size: 12px;
+  color: var(--el-text-color-secondary, #909399);
+  margin: 4px 0 8px;
+}
+
+.content-col {
+  margin-bottom: 8px;
 }
 </style>

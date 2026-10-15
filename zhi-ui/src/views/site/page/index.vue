@@ -1,14 +1,35 @@
 <template>
   <SiteLayout>
-    <CustomPagePanel :page="page" :loading="loading" :not-found="notFound" @retry="loadPage" />
+    <!-- builder 页：模块化渲染（sections 顺序即渲染顺序） -->
+    <div
+      v-if="!loading && page && page.pageType === 'builder'"
+      ref="builderRoot"
+      class="tpl-site site-page-builder mo-home-page"
+    >
+      <template v-for="(section, i) in builderSections" :key="`${section.type}-${i}`">
+        <component :is="section.component" :config="section.config || {}" />
+      </template>
+    </div>
+
+    <!-- 富文本页（现状）：CustomPagePanel 统一渲染 -->
+    <CustomPagePanel
+      v-else
+      :page="page"
+      :loading="loading"
+      :not-found="notFound"
+      @retry="loadPage"
+    />
   </SiteLayout>
 </template>
 
 <script setup lang="ts" name="PublicSitePage">
+import { computed, ref, watch } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
 import CustomPagePanel from './CustomPagePanel.vue'
+import { parseSections } from '@/views/site/sections/registry'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getPublishedPageBySlug, type SitePage } from '@/api/site/page'
+import { useScrollReveal } from '@/composables/useScrollReveal'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { logger } from '@/utils/logger'
 
@@ -19,6 +40,14 @@ const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const loading = ref(true)
 const notFound = ref(false)
 const page = ref<SitePage | null>(null)
+
+const builderRoot = ref<HTMLElement | null>(null)
+useScrollReveal(builderRoot)
+
+const builderSections = computed(() => {
+  if (page.value?.pageType !== 'builder') return []
+  return parseSections(page.value.sections)
+})
 
 const slug = computed(() => {
   const raw = route.params.slug
