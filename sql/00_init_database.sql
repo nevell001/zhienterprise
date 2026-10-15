@@ -1308,6 +1308,59 @@ VALUES (2010, '核心业务管理', 2000, 2, 'business', 'article/index', '', ''
 
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2010), (2, 2010);
 
+-- ========== 模块化建站 M3：导航管理 ==========
+CREATE TABLE IF NOT EXISTS `site_nav_item` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `location` varchar(20) NOT NULL DEFAULT 'header' COMMENT '位置：header 头部导航 footer 页脚快速导航',
+  `parent_id` bigint DEFAULT 0 COMMENT '父项ID，0=顶级',
+  `label` varchar(50) NOT NULL COMMENT '导航标签',
+  `link_type` varchar(20) NOT NULL DEFAULT 'path' COMMENT '链接类型：path 站内路径 url 外链 cta 咨询按钮',
+  `link_value` varchar(255) NOT NULL COMMENT '链接值',
+  `sort` int DEFAULT 0 COMMENT '排序',
+  `visible` tinyint DEFAULT 1 COMMENT '是否显示 0否 1是',
+  `create_by` varchar(64) DEFAULT '' COMMENT '创建者',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_nav_loc_sort` (`location`, `sort`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='站点导航项';
+
+-- 头部/页脚导航默认项（设计稿 §1.1；后台「导航管理」可维护）
+INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`) VALUES
+('header', 0, '首页', 'path', '/', 1, 1, 'admin'),
+('header', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
+('header', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
+('header', 0, '关于我们', 'path', '/about', 4, 1, 'admin'),
+('header', 0, '联系我们', 'path', '/contact', 6, 1, 'admin'),
+('header', 0, '咨询合作', 'cta', '/contact', 7, 1, 'admin'),
+('footer', 0, '首页', 'path', '/', 1, 1, 'admin'),
+('footer', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
+('footer', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
+('footer', 0, '关于我们', 'path', '/about', 4, 1, 'admin');
+
+-- 关于我们的二级下拉项（按 label 关联父项写入，幂等）
+INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`)
+SELECT 'header', p.id, t.label, 'path', t.link_value, t.sort, 1, 'admin'
+FROM `site_nav_item` p JOIN (
+  SELECT '企业简介' AS label, '/about' AS link_value, 1 AS sort
+  UNION ALL SELECT '荣誉资质', '/honors', 2
+  UNION ALL SELECT '发展历程', '/history', 3
+) t ON p.label = '关于我们' AND p.location = 'header'
+WHERE NOT EXISTS (SELECT 1 FROM `site_nav_item` c WHERE c.parent_id = p.id AND c.label = t.label);
+
+-- 导航管理菜单与权限
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (2011, '导航管理', 2000, 3, 'nav', 'nav/index', '', '', 1, 0, 'C', '0', '0', 'site:nav:list', 'guide', 'admin', NOW(), '', NULL, '站点导航管理菜单（头部/页脚）');
+
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(20110, '导航查询', 2011, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'site:nav:query', '#', 'admin', NOW(), '', NULL, ''),
+(20111, '导航新增', 2011, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'site:nav:add', '#', 'admin', NOW(), '', NULL, ''),
+(20112, '导航修改', 2011, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'site:nav:edit', '#', 'admin', NOW(), '', NULL, ''),
+(20113, '导航删除', 2011, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'site:nav:remove', '#', 'admin', NOW(), '', NULL, '');
+
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2011), (1, 20110), (1, 20111), (1, 20112), (1, 20113), (2, 2011);
+
 
 -- ========== 配置站点管理按钮权限 ==========
 

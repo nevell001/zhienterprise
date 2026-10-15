@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.SiteNavItemMapper">
+
+    <resultMap type="SiteNavItem" id="SiteNavItemResult">
+        <result property="id"        column="id"          />
+        <result property="location"  column="location"    />
+        <result property="parentId"  column="parent_id"   />
+        <result property="label"     column="label"       />
+        <result property="linkType"  column="link_type"   />
+        <result property="linkValue" column="link_value"  />
+        <result property="sort"      column="sort"        />
+        <result property="visible"   column="visible"     />
+        <result property="createBy"  column="create_by"   />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy"  column="update_by"   />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="selectVo">
+        select id, location, parent_id, label, link_type, link_value, sort, visible,
+               create_by, create_time, update_by, update_time
+        from site_nav_item
+    </sql>
+
+    <select id="selectVisibleByLocation" parameterType="String" resultMap="SiteNavItemResult">
+        <include refid="selectVo"/>
+        where location = #{location} and visible = 1
+        order by sort, id
+    </select>
+
+    <select id="selectAllByLocation" parameterType="String" resultMap="SiteNavItemResult">
+        <include refid="selectVo"/>
+        where location = #{location}
+        order by sort, id
+    </select>
+
+    <select id="selectSiteNavItemById" parameterType="Long" resultMap="SiteNavItemResult">
+        <include refid="selectVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSiteNavItem" parameterType="SiteNavItem" useGeneratedKeys="true" keyProperty="id">
+        insert into site_nav_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="location != null">location,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="label != null and label != ''">label,</if>
+            <if test="linkType != null and linkType != ''">link_type,</if>
+            <if test="linkValue != null and linkValue != ''">link_value,</if>
+            <if test="sort != null">sort,</if>
+            <if test="visible != null">visible,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="location != null">#{location},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="label != null and label != ''">#{label},</if>
+            <if test="linkType != null and linkType != ''">#{linkType},</if>
+            <if test="linkValue != null and linkValue != ''">#{linkValue},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="visible != null">#{visible},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSiteNavItem" parameterType="SiteNavItem">
+        update site_nav_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="location != null">location = #{location},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="label != null and label != ''">label = #{label},</if>
+            <if test="linkType != null and linkType != ''">link_type = #{linkType},</if>
+            <if test="linkValue != null and linkValue != ''">link_value = #{linkValue},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="visible != null">visible = #{visible},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSiteNavItemByIds" parameterType="Long">
+        delete from site_nav_item where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        or parent_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

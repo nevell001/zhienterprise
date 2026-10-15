@@ -2,61 +2,32 @@
   <nav class="ent-nav" :class="{ solid: navSolid || !isHome, 'over-hero': isHome && !navSolid }">
     <div class="ent-nav-in">
       <router-link to="/" class="ent-logo">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-          <rect
-            x="1.5"
-            y="1.5"
-            width="23"
-            height="23"
-            rx="6"
-            stroke="currentColor"
-            stroke-width="1.5"
-          />
-          <path
-            d="M7 13h12M13 7v12"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          />
-        </svg>
-        {{ siteSettings.blog_name || '知企建站系统' }}
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="currentColor" stroke-width="1.5" /><path d="M7 13h12M13 7v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        {{ blogSettings.blog_name || '知企建站系统' }}
       </router-link>
 
       <ul class="ent-links">
-        <li>
-          <router-link to="/" :class="{ on: isHome }">首页</router-link>
-        </li>
-        <li>
-          <router-link to="/business" :class="{ on: route.path.startsWith('/business') }">
-            {{ businessLabel }}
+        <li v-for="item in menuItems" :key="item.linkValue" class="has-drop-slot">
+          <router-link
+            :to="item.linkValue || '/'"
+            :class="{ on: isActive(item.linkValue) }"
+          >
+            {{ item.label }}
           </router-link>
-        </li>
-        <li>
-          <router-link to="/news" :class="{ on: route.path === '/news' }">新闻动态</router-link>
-        </li>
-        <li class="has-drop">
-          <router-link to="/about" class="lv1" :class="{ on: route.path.startsWith('/about') }">
-            关于我们
-          </router-link>
-          <div class="drop">
-            <router-link to="/about">企业简介</router-link>
-            <router-link to="/honors">荣誉资质</router-link>
-            <router-link to="/history">发展历程</router-link>
+          <div v-if="item.children && item.children.length" class="drop">
+            <router-link
+              v-for="child in item.children"
+              :key="child.linkValue"
+              :to="child.linkValue || '/'"
+            >
+              {{ child.label }}
+            </router-link>
           </div>
-        </li>
-        <li>
-          <router-link to="/contact" :class="{ on: route.path === '/contact' }">
-            联系我们
-          </router-link>
         </li>
       </ul>
 
       <div class="ent-nav-right">
-        <el-dropdown
-          v-if="userStore.token && userStore.name"
-          trigger="click"
-          @command="handleUserCommand"
-        >
+        <el-dropdown v-if="userStore.token && userStore.name" trigger="click" @command="handleUserCommand">
           <span class="ent-user">
             <el-icon :size="16"><UserFilled /></el-icon>
             <span class="ent-user-name">{{ userStore.name }}</span>
@@ -73,7 +44,9 @@
         </el-dropdown>
         <router-link v-else to="/login" class="ent-login">登录</router-link>
 
-        <router-link class="ent-cta" to="/contact">咨询合作</router-link>
+        <router-link v-if="ctaItem" class="ent-cta" :to="ctaItem.linkValue || '/contact'">
+          {{ ctaItem.label }}
+        </router-link>
 
         <button
           class="ent-burger"
@@ -88,18 +61,14 @@
 
     <!-- 移动端全屏抽屉（方案文档 §1.1：导航项纵向排布，底部固定 CTA） -->
     <div v-show="mobileOpen" class="ent-drawer">
-      <router-link to="/" class="ent-drawer-link" @click="mobileOpen = false">首页</router-link>
-      <router-link to="/business" class="ent-drawer-link" @click="mobileOpen = false">
-        {{ businessLabel }}
-      </router-link>
-      <router-link to="/news" class="ent-drawer-link" @click="mobileOpen = false">
-        新闻动态
-      </router-link>
-      <router-link to="/about" class="ent-drawer-link" @click="mobileOpen = false">
-        关于我们
-      </router-link>
-      <router-link to="/contact" class="ent-drawer-link" @click="mobileOpen = false">
-        联系我们
+      <router-link
+        v-for="item in menuItems"
+        :key="item.linkValue"
+        :to="item.linkValue || '/'"
+        class="ent-drawer-link"
+        @click="mobileOpen = false"
+      >
+        {{ item.label }}
       </router-link>
       <router-link
         v-if="!userStore.token"
@@ -109,8 +78,13 @@
       >
         登录
       </router-link>
-      <router-link class="ent-drawer-cta" to="/contact" @click="mobileOpen = false">
-        咨询合作
+      <router-link
+        v-if="ctaItem"
+        class="ent-drawer-cta"
+        :to="ctaItem.linkValue || '/contact'"
+        @click="mobileOpen = false"
+      >
+        {{ ctaItem.label }}
       </router-link>
     </div>
   </nav>
@@ -123,19 +97,49 @@ import { ArrowDown, Menu, UserFilled } from '@element-plus/icons-vue'
 import { ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { getSiteNav, type SiteNavItem } from '@/api/site/nav'
+import { DEFAULT_HEADER_NAV } from '@/config/siteNav'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const siteSettingsStore = useSiteSettingsStore()
 
-const siteSettings = computed(() => siteSettingsStore.siteSettings)
+const blogSettings = computed(() => siteSettingsStore.siteSettings)
 const businessLabel = computed(
-  () => String(siteSettings.value.business_label || '').trim() || '核心业务'
+  () => String(blogSettings.value.business_label || '').trim() || '核心业务'
 )
 
+/* ---------- 导航数据：site_nav_item 表驱动（后台「导航管理」维护） ---------- */
+const navItems = ref<SiteNavItem[]>(DEFAULT_HEADER_NAV)
+
+onMounted(async () => {
+  try {
+    const response = await getSiteNav('header')
+    const tree = (response as { data?: SiteNavItem[] })?.data
+    if (Array.isArray(tree) && tree.length > 0) {
+      // 业务标签动态替换（business_label 设置），CTA 项单列渲染
+      navItems.value = tree.map(item =>
+        item.linkValue === '/business' ? { ...item, label: businessLabel.value } : item
+      )
+    }
+  } catch {
+    // 接口异常：保留内置默认导航
+  }
+})
+
+watch(businessLabel, label => {
+  navItems.value = navItems.value.map(item =>
+    item.linkValue === '/business' ? { ...item, label } : item
+  )
+})
+
+const menuItems = computed(() => navItems.value.filter(item => item.linkType !== 'cta'))
+const ctaItem = computed(() => navItems.value.find(item => item.linkType === 'cta'))
+
 /* ---------- 首页透明 → 滚动实底（方案文档 §1.1） ---------- */
-const isHome = computed(() => route.path === '/')
+// 根路径与 /blog 同为站点首页（企业模板导航使用短地址）
+const isHome = computed(() => route.path === '/' || route.path === '/blog')
 const navSolid = ref(false)
 
 const onScroll = () => {
@@ -160,6 +164,8 @@ watch(
     mobileOpen.value = false
   }
 )
+
+const isActive = (link?: string) => Boolean(link) && route.path === link
 
 const goToAdmin = () => router.push('/admin/article')
 
@@ -271,7 +277,7 @@ const handleUserCommand = async (command: string) => {
 }
 
 /* 二级下拉 */
-.ent-links .has-drop:hover .drop {
+.ent-links .has-drop-slot:hover .drop {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -348,7 +354,7 @@ const handleUserCommand = async (command: string) => {
   padding: 0 var(--mo-sp-4);
   border-radius: var(--tpl-r-md);
   background: var(--tpl-p);
-  color: var(--tpl-white);
+  color: var(--tpl-on-hero);
   font-size: var(--mo-fs-sm);
   font-weight: 600;
   text-decoration: none;
@@ -373,8 +379,23 @@ const handleUserCommand = async (command: string) => {
   padding: var(--mo-sp-1);
 }
 
-/* 首页透明态只去掉背景与描边；文字沿用常规配色 —— Hero 底下是页面底色，
-   深浅两种模式下 ink-900/ink-500 都保持可读，不再反白。 */
+/* 首页透明态：文字/图标反白 */
+.ent-nav.over-hero .ent-logo,
+.ent-nav.over-hero .ent-links a,
+.ent-nav.over-hero .ent-user,
+.ent-nav.over-hero .ent-login,
+.ent-nav.over-hero .ent-burger {
+  color: var(--tpl-on-hero);
+}
+
+.ent-nav.over-hero .ent-links a.on,
+.ent-nav.over-hero .ent-links a:hover {
+  color: var(--tpl-on-hero);
+}
+
+.ent-nav.over-hero .ent-links a.lv1::after {
+  background: var(--tpl-white);
+}
 
 /* ---------- 移动端抽屉 ---------- */
 .ent-drawer {
@@ -401,7 +422,7 @@ const handleUserCommand = async (command: string) => {
   min-height: 48px;
   border-radius: var(--tpl-r-md);
   background: var(--tpl-p);
-  color: var(--tpl-white);
+  color: var(--tpl-on-hero);
   font-weight: 600;
   text-decoration: none;
 }

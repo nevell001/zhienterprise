@@ -33,10 +33,12 @@
 
         <div class="fcol">
           <h4>快速导航</h4>
-          <router-link to="/">首页</router-link>
-          <router-link to="/business">{{ businessLabel }}</router-link>
-          <router-link to="/news">新闻动态</router-link>
-          <router-link to="/about">关于我们</router-link>
+          <template v-for="item in footerNavItems" :key="`${item.linkValue}-${item.label}`">
+            <router-link v-if="item.linkValue === '/business'" :to="item.linkValue || '/'">
+              {{ businessLabel }}
+            </router-link>
+            <router-link v-else :to="item.linkValue || '/'">{{ item.label }}</router-link>
+          </template>
         </div>
 
         <div class="fcol">
@@ -99,6 +101,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { getSiteNav, type SiteNavItem } from '@/api/site/nav'
+import { DEFAULT_FOOTER_NAV } from '@/config/siteNav'
 import { getApiBaseUrl } from '@/utils/index'
 
 const siteSettingsStore = useSiteSettingsStore()
@@ -119,6 +123,21 @@ const hasContactInfo = computed(
 const rssUrl = computed(() => {
   const base = getApiBaseUrl().replace(/\/$/, '')
   return `${base}/api/rss`
+})
+
+/* ---------- 快速导航：site_nav_item 表驱动（后台「导航管理」维护） ---------- */
+const footerNavItems = ref<SiteNavItem[]>(DEFAULT_FOOTER_NAV)
+
+onMounted(async () => {
+  try {
+    const response = await getSiteNav('footer')
+    const tree = (response as { data?: SiteNavItem[] })?.data
+    if (Array.isArray(tree) && tree.length > 0) {
+      footerNavItems.value = tree
+    }
+  } catch {
+    // 接口异常：保留内置默认
+  }
 })
 
 const formatUrl = (url?: string) => {

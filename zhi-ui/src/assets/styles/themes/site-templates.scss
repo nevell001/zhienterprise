@@ -25,6 +25,9 @@
   --tpl-dark: #0b0f19;
   --tpl-dark-2: #141b2a;
   --tpl-dark-dim: #9ca3af;
+  /* 透明导航（over-hero）浮于深色 Hero 之上的文字色：独立令牌，
+     禁止直接用 --tpl-white（深浅模式约定见 dark-mode-tokens 测试） */
+  --tpl-on-hero: #ffffff;
   --tpl-grid: 1280px;
   --tpl-r-sm: 6px;
   --tpl-r-md: 10px;
