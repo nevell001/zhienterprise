@@ -319,6 +319,20 @@
                 企业官网的行业形态：主色 / 圆角 / 母题主视觉 / 文案随模板整体切换（管理咨询 /
                 信息技术 / 制造业 / 商贸 / 数码产品），保存后前台即时生效
               </div>
+              <div class="cfg-row" style="margin-top: 8px">
+                <el-button
+                  v-hasPermi="['site:nav:edit']"
+                  type="primary"
+                  plain
+                  :loading="packApplying"
+                  @click="applyTemplatePack"
+                >
+                  应用模板包（覆盖首页内容与导航）
+                </el-button>
+                <span class="setting-tip" style="margin: 0">
+                  将把该行业的首页模块内容、头部/页脚导航与栏目名称导入为站点数据（覆盖当前值）
+                </span>
+              </div>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -717,7 +731,7 @@ import { isSwitchOn } from '@/utils/featureSwitch'
 import { ref, computed, onMounted, getCurrentInstance, watch } from 'vue'
 import { useSettingsStore, type ThemeMode } from '@/stores/settings'
 import { handleThemeStyle } from '@/utils/theme'
-import { ElMessage } from '@/plugins/element-plus-service'
+import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import {
   Link as LinkIcon,
   ChatDotRound,
@@ -738,6 +752,9 @@ import { clearSiteCache } from '@/api/site/setting'
 import { getPublishedPages } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { SITE_TEMPLATES, SITE_METRICS, SITE_OUTCOMES, SOLUTION_SHOWCASE } from '@/config/siteTemplates'
+import { getTemplatePack } from '@/config/templatePacks'
+import { listPage, updatePage } from '@/api/admin/page'
+import { importNav } from '@/api/admin/nav'
 import {
   DEFAULT_CHANNELS,
   DEFAULT_FAQS,
@@ -746,6 +763,53 @@ import {
 } from '@/utils/siteContent'
 
 const siteTemplates = SITE_TEMPLATES
+const packApplying = ref(false)
+
+/** 应用行业模板包：覆盖首页模块内容 + 头部/页脚导航 + 栏目名（确认后执行） */
+async function applyTemplatePack() {
+  const pack = getTemplatePack(settingsMap.value.site_template)
+  try {
+    await ElMessageBox.confirm(
+      `应用「${pack.name}」模板包将覆盖首页模块内容、头部/页脚导航与栏目名称（当前内容不保留），确定继续？`,
+      '应用模板包',
+      { confirmButtonText: '应用', cancelButtonText: '取消', type: 'warning' }
+    )
+  } catch {
+    return
+  }
+
+  packApplying.value = true
+  try {
+    // 1. 首页 builder 页：覆盖 sections
+    const res = await listPage({ pageNum: 1, pageSize: 50, slug: 'home' })
+    const homeRow = (res.rows || res.data || []).find((p: any) => p.slug === 'home')
+    if (homeRow?.id) {
+      await updatePage({
+        ...homeRow,
+        sections: JSON.stringify(pack.homeSections),
+        pageType: 'builder',
+        status: '1'
+      } as any)
+    } else {
+      proxy?.$modal?.msgWarning('未找到首页（slug=home），请先重跑初始化脚本')
+      return
+    }
+    // 2. 导航（头部/页脚，事务内重建）
+    await Promise.all([
+      importNav('header', pack.headerNav),
+      importNav('footer', pack.footerNav)
+    ])
+    // 3. 栏目名称
+    await updateSettingValueByKey('business_label', pack.settings.business_label)
+
+    siteSettingsStore.updateSiteSettings({
+      business_label: pack.settings.business_label
+    })
+    proxy?.$modal?.msgSuccess(`已应用「${pack.name}」模板包`)
+  } finally {
+    packApplying.value = false
+  }
+}
 
 /** 官网内容各键的默认结构化数据（JSON 键损坏/缺失时的还原源） */
 const defaultSiteContent: Record<string, any[]> = {

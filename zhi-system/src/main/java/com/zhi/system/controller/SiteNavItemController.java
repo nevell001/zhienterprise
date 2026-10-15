@@ -86,4 +86,43 @@ public class SiteNavItemController extends BaseController
         navItemService.deleteSiteNavItemByIds(ids);
         return success();
     }
+
+    /**
+     * 导入模板包导航（清空指定位置后重建，事务内）
+     */
+    @PreAuthorize("@ss.hasPermi('site:nav:edit')")
+    @Log(title = "站点导航项", businessType = BusinessType.UPDATE)
+    @PostMapping("/import")
+    public AjaxResult importNav(@RequestBody SiteNavItemImportBody body)
+    {
+        navItemService.importNav(body.getLocation(), body.getItems());
+        return success();
+    }
+
+    /** 模板包导航导入请求体 */
+    public static class SiteNavItemImportBody
+    {
+        private String location;
+        private List<SiteNavItem> items;
+
+        public String getLocation()
+        {
+            return location;
+        }
+
+        public void setLocation(String location)
+        {
+            this.location = location;
+        }
+
+        public List<SiteNavItem> getItems()
+        {
+            return items;
+        }
+
+        public void setItems(List<SiteNavItem> items)
+        {
+            this.items = items;
+        }
+    }
 }

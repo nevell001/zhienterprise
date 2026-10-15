@@ -39,3 +39,15 @@ export function delNav(ids: number | number[]): Promise<{ code: number }> {
     method: 'delete'
   })
 }
+
+/** 模板包导航导入：清空指定位置后按包数据重建（事务内） */
+export function importNav(
+  location: 'header' | 'footer',
+  items: Partial<SiteNavItem>[]
+): Promise<{ code: number }> {
+  return request({
+    url: '/system/nav/import',
+    method: 'post',
+    data: { location, items }
+  })
+}

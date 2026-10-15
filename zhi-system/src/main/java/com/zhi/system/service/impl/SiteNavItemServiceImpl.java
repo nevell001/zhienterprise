@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.zhi.common.exception.ServiceException;
 import com.zhi.system.domain.SiteNavItem;
 import com.zhi.system.mapper.SiteNavItemMapper;
@@ -66,6 +67,37 @@ public class SiteNavItemServiceImpl implements ISiteNavItemService
     public void deleteSiteNavItemByIds(Long[] ids)
     {
         siteNavItemMapper.deleteSiteNavItemByIds(ids);
+    }
+
+    @Override
+    @Transactional
+    public void importNav(String location, List<SiteNavItem> items)
+    {
+        if (location == null || location.isBlank())
+        {
+            throw new ServiceException("导航位置不能为空");
+        }
+        siteNavItemMapper.deleteByLocation(location);
+        int sort = 1;
+        for (SiteNavItem item : items)
+        {
+            item.setLocation(location);
+            item.setSort(item.getSort() == null ? sort : item.getSort());
+            item.setVisible(item.getVisible() == null ? 1 : item.getVisible());
+            List<SiteNavItem> children = item.getChildren();
+            item.setChildren(null);
+            siteNavItemMapper.insertSiteNavItem(item);
+            if (children != null)
+            {
+                for (SiteNavItem child : children)
+                {
+                    child.setParentId(item.getId());
+                    child.setLocation(location);
+                    siteNavItemMapper.insertSiteNavItem(child);
+                }
+            }
+            sort++;
+        }
     }
 
     /** 顶级项挂子项（两级导航） */

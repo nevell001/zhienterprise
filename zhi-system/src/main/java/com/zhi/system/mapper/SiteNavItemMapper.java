@@ -27,4 +27,7 @@ public interface SiteNavItemMapper
 
     /** 批量删除（级联删除其子项） */
     public int deleteSiteNavItemByIds(Long[] ids);
+
+    /** 按位置清空（模板包导入用） */
+    public int deleteByLocation(String location);
 }

@@ -92,4 +92,8 @@
             #{id}
         </foreach>
     </delete>
+
+    <delete id="deleteByLocation" parameterType="String">
+        delete from site_nav_item where location = #{location}
+    </delete>
 </mapper>

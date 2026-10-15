@@ -27,4 +27,7 @@ public interface ISiteNavItemService
 
     /** 批量删除（级联子项） */
     public void deleteSiteNavItemByIds(Long[] ids);
+
+    /** 导入模板包导航：清空指定位置后按包数据重建（事务内） */
+    public void importNav(String location, List<SiteNavItem> items);
 }
