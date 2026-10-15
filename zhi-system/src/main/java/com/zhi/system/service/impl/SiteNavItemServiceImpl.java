@@ -2,7 +2,10 @@ package com.zhi.system.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.zhi.common.exception.ServiceException;
@@ -18,13 +21,44 @@ import com.zhi.system.service.ISiteNavItemService;
 @Service
 public class SiteNavItemServiceImpl implements ISiteNavItemService
 {
+    private static final Logger log = LoggerFactory.getLogger(SiteNavItemServiceImpl.class);
+
     @Autowired
     private SiteNavItemMapper siteNavItemMapper;
 
     @Override
     public List<SiteNavItem> selectVisibleNavTree(String location)
     {
-        return buildTree(siteNavItemMapper.selectVisibleByLocation(location));
+        try
+        {
+            return buildTree(siteNavItemMapper.selectVisibleByLocation(location));
+        }
+        catch (DataAccessException e)
+        {
+            // 仅当 site_nav_item 表缺失（老库未重跑 sql/00_init_database.sql 的幂等升级块）时降级：
+            // 返回空树，前台回退内置默认导航；其余数据库故障如实抛出，避免掩盖真实问题。
+            if (!isMissingNavTable(e))
+            {
+                throw e;
+            }
+            log.warn("site_nav_item 表不存在（请重跑 sql/00_init_database.sql），返回空导航: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private boolean isMissingNavTable(DataAccessException e)
+    {
+        Throwable cause = e;
+        while (cause != null)
+        {
+            String message = cause.getMessage();
+            if (message != null && message.contains("site_nav_item") && message.contains("doesn't exist"))
+            {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     @Override
