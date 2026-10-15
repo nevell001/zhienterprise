@@ -2,15 +2,21 @@ import { describe, expect, it } from 'vitest'
 import { parseSections, SECTION_REGISTRY } from './registry'
 
 describe('sections registry（模块注册表与解析）', () => {
-  it('注册表包含首页 8 个模块类型', () => {
+  it('注册表包含全部 14 个模块类型', () => {
     expect(Object.keys(SECTION_REGISTRY).sort()).toEqual([
       'biz-cards',
+      'channels',
+      'contact-info',
       'cta',
+      'faq',
       'hero',
+      'history',
+      'honors',
       'logos',
       'metrics',
       'news',
       'outcomes',
+      'rich-text',
       'solutions'
     ])
   })

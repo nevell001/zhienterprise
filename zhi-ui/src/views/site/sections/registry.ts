@@ -7,6 +7,12 @@ import OutcomesSection from './OutcomesSection.vue'
 import LogosWallSection from './LogosWallSection.vue'
 import NewsSection from './NewsSection.vue'
 import CtaSection from './CtaSection.vue'
+import RichTextSection from './RichTextSection.vue'
+import FaqSection from './FaqSection.vue'
+import ChannelsSection from './ChannelsSection.vue'
+import HonorsSection from './HonorsSection.vue'
+import HistorySection from './HistorySection.vue'
+import ContactInfoSection from './ContactInfoSection.vue'
 
 /**
  * 模块组件注册表：section.type → 组件。
@@ -22,7 +28,13 @@ export const SECTION_REGISTRY: Record<string, Component> = {
   outcomes: OutcomesSection,
   logos: LogosWallSection,
   news: NewsSection,
-  cta: CtaSection
+  cta: CtaSection,
+  'rich-text': RichTextSection,
+  faq: FaqSection,
+  channels: ChannelsSection,
+  honors: HonorsSection,
+  history: HistorySection,
+  'contact-info': ContactInfoSection
 }
 
 export interface SiteSection {

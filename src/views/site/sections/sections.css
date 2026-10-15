@@ -1,0 +1,299 @@
+
+/* ---------- 模块：rich-text ---------- */
+.tpl-site .rich-wrap {
+  max-width: 760px;
+}
+
+.tpl-site .rich-content {
+  color: var(--tpl-ink-700);
+  font-size: var(--mo-fs-md);
+  line-height: 1.85;
+  word-break: break-word;
+}
+
+.tpl-site .rich-content :deep(h1),
+.tpl-site .rich-content :deep(h2),
+.tpl-site .rich-content :deep(h3) {
+  color: var(--tpl-ink-900);
+  margin: var(--mo-sp-7) 0 var(--mo-sp-3);
+}
+
+.tpl-site .rich-content :deep(img) {
+  max-width: 100%;
+  border-radius: var(--tpl-r-lg);
+}
+
+.tpl-site .rich-content :deep(a) {
+  color: var(--tpl-p-text);
+}
+
+/* ---------- 模块：faq（手风琴） ---------- */
+.tpl-site .faq-wrap {
+  max-width: 760px;
+}
+
+.tpl-site .ct-faq {
+  border-top: 1px solid var(--tpl-border);
+}
+
+.tpl-site .ct-faq-item {
+  border-bottom: 1px solid var(--tpl-border);
+}
+
+.tpl-site .ct-faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mo-sp-4);
+  padding: var(--mo-sp-5) 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--mo-fs-md);
+  font-weight: 600;
+  color: var(--tpl-ink-900);
+  font-family: inherit;
+}
+
+.tpl-site .ct-faq-q svg {
+  flex: none;
+  color: var(--tpl-ink-400);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tpl-site .ct-faq-a {
+  margin: 0 0 var(--mo-sp-5);
+  font-size: var(--mo-fs-md);
+  color: var(--tpl-ink-500);
+  line-height: 1.75;
+}
+
+/* ---------- 模块：channels / contact-info（联系卡） ---------- */
+.tpl-site .ct-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--mo-sp-6);
+}
+
+.tpl-site .ct-card {
+  padding: var(--mo-sp-7);
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  background: var(--tpl-bg);
+}
+
+.tpl-site .ct-type {
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-400);
+  margin-bottom: var(--mo-sp-3);
+}
+
+.tpl-site .ct-value {
+  color: var(--tpl-ink-900);
+  font-size: var(--mo-fs-md);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.tpl-site .ct-link:hover {
+  color: var(--tpl-p-text);
+}
+
+.tpl-site .ct-desc {
+  margin: 0;
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-500);
+  line-height: 1.7;
+}
+
+.tpl-site .ct-empty {
+  text-align: center;
+  color: var(--tpl-ink-400);
+  font-size: var(--mo-fs-sm);
+}
+
+/* ---------- 模块：honors（证书墙 + 分类 Tab） ---------- */
+.tpl-site .honor-tabs {
+  display: flex;
+  gap: var(--mo-sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--mo-sp-8);
+}
+
+.tpl-site .honor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mo-sp-6);
+}
+
+.tpl-site .honor-card {
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  background: var(--tpl-bg);
+  padding: var(--mo-sp-7);
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s,
+    border-color 0.3s;
+}
+
+.tpl-site .honor-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--tpl-sh-md);
+  border-color: var(--tpl-p);
+}
+
+.tpl-site .honor-seal {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--tpl-r-md);
+  background: var(--tpl-p-sub);
+  color: var(--tpl-p-text);
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--mo-sp-5);
+}
+
+.tpl-site .honor-card h3 {
+  font-size: var(--mo-fs-lg);
+  margin: 0 0 var(--mo-sp-2);
+  color: var(--tpl-ink-900);
+}
+
+.tpl-site .honor-issuer {
+  margin: 0 0 var(--mo-sp-4);
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-400);
+}
+
+.tpl-site .honor-year {
+  display: inline-block;
+  font-size: var(--mo-fs-xs);
+  font-weight: 500;
+  color: var(--tpl-p-text);
+  background: var(--tpl-p-sub);
+  padding: var(--mo-sp-1) var(--mo-sp-3);
+  border-radius: 999px;
+}
+
+/* ---------- 模块：history（时间轴） ---------- */
+.tpl-site .tl {
+  max-width: 880px;
+}
+
+.tpl-site .tl-stage-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mo-sp-5);
+  flex-wrap: wrap;
+  margin: var(--mo-sp-9) 0 var(--mo-sp-6);
+}
+
+.tpl-site .tl-stage-head:first-child {
+  margin-top: 0;
+}
+
+.tpl-site .tl-range {
+  font-size: var(--mo-fs-sm);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--tpl-p-text);
+  background: var(--tpl-p-sub);
+  padding: var(--mo-sp-1) var(--mo-sp-3);
+  border-radius: 999px;
+}
+
+.tpl-site .tl-stage-name {
+  margin: 0;
+  font-size: var(--mo-fs-2xl);
+  color: var(--tpl-ink-900);
+}
+
+.tpl-site .tl-stage-head p {
+  margin: 0;
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-400);
+}
+
+.tpl-site .tl-events {
+  border-left: 2px solid var(--tpl-border);
+  margin-left: 7px;
+  padding-left: var(--mo-sp-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mo-sp-7);
+}
+
+.tpl-site .tl-event {
+  position: relative;
+  display: flex;
+  gap: var(--mo-sp-5);
+  align-items: flex-start;
+}
+
+.tpl-site .tl-node {
+  position: absolute;
+  left: calc(-1 * var(--mo-sp-7) - 8px);
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--tpl-p);
+  box-shadow: 0 0 0 3px var(--tpl-bg);
+}
+
+.tpl-site .tl-node.square {
+  border-radius: 3px;
+}
+
+.tpl-site .tl-year {
+  font-size: var(--mo-fs-sm);
+  font-weight: 500;
+  color: var(--tpl-p-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-site .tl-body h3 {
+  margin: var(--mo-sp-1) 0 var(--mo-sp-2);
+  font-size: var(--mo-fs-lg);
+  color: var(--tpl-ink-900);
+  display: flex;
+  align-items: center;
+  gap: var(--mo-sp-3);
+}
+
+.tpl-site .tl-body p {
+  margin: 0;
+  font-size: var(--mo-fs-md);
+  color: var(--tpl-ink-500);
+  line-height: 1.75;
+  max-width: 620px;
+}
+
+/* ---------- 响应式（新增模块） ---------- */
+@media (max-width: 991px) {
+  .tpl-site .honor-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tpl-site .ct-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 639px) {
+  .tpl-site .honor-grid,
+  .tpl-site .ct-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tpl-site .tl-events {
+    padding-left: var(--mo-sp-5);
+  }
+
+  .tpl-site .tl-node {
+    left: calc(-1 * var(--mo-sp-5) - 8px);
+  }
+}

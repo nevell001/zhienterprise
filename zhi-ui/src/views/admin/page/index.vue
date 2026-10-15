@@ -416,6 +416,114 @@
                   </div>
                 </template>
 
+                <!-- 富文本区块 -->
+                <template v-else-if="sec.type === 'rich-text'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.tag" placeholder="区块标签，如 关于我们" style="width: 200px" />
+                    <el-input v-model="sec.config.title" placeholder="区块标题" style="flex: 1" />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.content" type="textarea" :rows="6" placeholder="HTML 或 Markdown 内容（前台统一消毒渲染）" />
+                  </div>
+                </template>
+
+                <!-- FAQ -->
+                <template v-else-if="sec.type === 'faq'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div v-for="(f, fi) in sec.config.items" :key="fi" class="content-col">
+                    <div class="cfg-row">
+                      <el-input v-model="f.q" placeholder="问题" style="flex: 1" />
+                      <el-button type="danger" link @click="removeItem(sec, 'items', fi)">删除</el-button>
+                    </div>
+                    <el-input v-model="f.a" type="textarea" :rows="2" placeholder="答案" />
+                  </div>
+                  <el-button link type="primary" @click="addItem(sec, 'items', { q: '', a: '' })">
+                    + 添加问题
+                  </el-button>
+                </template>
+
+                <!-- 分渠道咨询 -->
+                <template v-else-if="sec.type === 'channels'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div v-for="(c, ci) in sec.config.items" :key="ci" class="cfg-row">
+                    <el-input v-model="c.name" placeholder="渠道名称" style="width: 200px" />
+                    <el-input v-model="c.desc" placeholder="说明" style="flex: 1" />
+                    <el-button type="danger" link @click="removeItem(sec, 'items', ci)">删除</el-button>
+                  </div>
+                  <el-button
+                    link
+                    type="primary"
+                    @click="addItem(sec, 'items', { name: '', desc: '' })"
+                  >
+                    + 添加渠道
+                  </el-button>
+                </template>
+
+                <!-- 荣誉资质墙 -->
+                <template v-else-if="sec.type === 'honors'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div v-for="(h, hi) in sec.config.items" :key="hi" class="cfg-row">
+                    <el-input v-model="h.name" placeholder="名称" style="width: 200px" />
+                    <el-input v-model="h.issuer" placeholder="颁发方" style="width: 160px" />
+                    <el-input v-model="h.year" placeholder="年份" style="width: 80px" />
+                    <el-input v-model="h.cat" placeholder="分类" style="width: 110px" />
+                    <el-button type="danger" link @click="removeItem(sec, 'items', hi)">删除</el-button>
+                  </div>
+                  <el-button
+                    link
+                    type="primary"
+                    @click="addItem(sec, 'items', { name: '', issuer: '', year: '', cat: '资质证书' })"
+                  >
+                    + 添加荣誉
+                  </el-button>
+                </template>
+
+                <!-- 发展历程时间轴 -->
+                <template v-else-if="sec.type === 'history'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div v-for="(st, sti) in sec.config.stages" :key="sti" class="content-stage">
+                    <div class="cfg-row">
+                      <el-input v-model="st.range" placeholder="年份区间" style="width: 160px" />
+                      <el-input v-model="st.name" placeholder="阶段名" style="width: 140px" />
+                      <el-input v-model="st.theme" placeholder="阶段主题" style="flex: 1" />
+                      <el-button type="danger" link @click="removeItem(sec, 'stages', sti)">删除阶段</el-button>
+                    </div>
+                    <div v-for="(ev, eii) in st.events" :key="eii" class="cfg-row cfg-row-indent">
+                      <el-input v-model="ev.year" placeholder="年份" style="width: 80px" />
+                      <el-input v-model="ev.title" placeholder="事件标题" style="width: 200px" />
+                      <el-input v-model="ev.desc" placeholder="描述" style="flex: 1" />
+                      <el-checkbox v-model="ev.honor">荣誉</el-checkbox>
+                      <el-button type="danger" link @click="removeStageEvent(sec, sti, eii)">删除</el-button>
+                    </div>
+                    <el-button link type="primary" @click="addStageEvent(sec, sti)">+ 添加事件</el-button>
+                  </div>
+                  <el-button
+                    link
+                    type="primary"
+                    @click="
+                      addItem(sec, 'stages', { range: '', name: '', theme: '', events: [] })
+                    "
+                  >
+                    + 添加阶段
+                  </el-button>
+                </template>
+
+                <!-- 联系信息卡 -->
+                <template v-else-if="sec.type === 'contact-info'">
+                  <div class="cfg-row">
+                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                  </div>
+                  <div class="cfg-hint">电话/邮箱/地址来自「站点设置」，无需在此维护</div>
+                </template>
+
                 <div v-else class="cfg-hint">该模块无独立配置</div>
               </div>
             </div>
@@ -609,7 +717,13 @@ const SECTION_META: Record<string, { label: string; make: () => Record<string, a
       primary: { label: '预约咨询', link: '/contact' },
       secondary: { label: '了解我们', link: '/about' }
     })
-  }
+  },
+  'rich-text': { label: '富文本区块', make: () => ({ tag: '', title: '', subtitle: '', content: '' }) },
+  faq: { label: 'FAQ 手风琴', make: () => ({ title: '', items: [] }) },
+  channels: { label: '分渠道咨询', make: () => ({ title: '', subtitle: '', items: [] }) },
+  honors: { label: '荣誉资质墙', make: () => ({ title: '', items: [] }) },
+  history: { label: '发展历程时间轴', make: () => ({ title: '', stages: [] }) },
+  'contact-info': { label: '联系信息卡', make: () => ({ title: '' }) }
 }
 
 const sectionList = ref<Record<string, any>[]>([])
@@ -660,6 +774,29 @@ function addItem(sec: Record<string, any>, field: string, tpl: Record<string, an
 function removeItem(sec: Record<string, any>, field: string, index: number | string) {
   const rmIdx = Number(index)
   sec.config[field] = (sec.config[field] || []).filter((_: any, i: number) => i !== rmIdx)
+}
+
+/** 历程两级结构：向指定阶段追加事件 */
+function addStageEvent(sec: Record<string, any>, stageIndex: number | string) {
+  const si = Number(stageIndex)
+  const stages = sec.config.stages || []
+  if (!stages[si]) return
+  stages[si].events = [...(stages[si].events || []), { year: '', title: '', desc: '', honor: false }]
+  sec.config.stages = stages
+}
+
+/** 历程两级结构：删除指定阶段的事件 */
+function removeStageEvent(
+  sec: Record<string, any>,
+  stageIndex: number | string,
+  eventIndex: number | string
+) {
+  const si = Number(stageIndex)
+  const ei = Number(eventIndex)
+  const stages = sec.config.stages || []
+  if (!stages[si]) return
+  stages[si].events = (stages[si].events || []).filter((_: any, i: number) => i !== ei)
+  sec.config.stages = stages
 }
 
 const queryParams = ref<PageQueryParams>({
