@@ -474,6 +474,34 @@
             <el-button size="small" @click="addContentRow('site_faq', { q: '', a: '' })">
               添加问题
             </el-button>
+
+            <el-divider content-position="left">
+              模板页头文案（各页面眉题 / 标题 / 副题）
+            </el-divider>
+            <el-alert
+              title="留空跟随默认：核心业务页跟随「核心业务栏目名称」，关于页跟随站点名称/描述，其余页面使用内置文案。"
+              type="info"
+              :closable="false"
+              class="tab-alert"
+            />
+            <div v-for="(pc, pk) in settingsMap.site_page_copy" :key="pk" class="content-row">
+              <span class="content-row-label">{{ PAGE_COPY_LABELS[pk] || pk }}</span>
+              <el-input
+                v-model="pc.eyebrow"
+                :placeholder="`眉题（默认：${DEFAULT_PAGE_COPY[pk]?.eyebrow}）`"
+                style="width: 170px"
+              />
+              <el-input
+                v-model="pc.title"
+                :placeholder="`标题（默认：${DEFAULT_PAGE_COPY[pk]?.title}）`"
+                style="width: 220px"
+              />
+              <el-input
+                v-model="pc.subtitle"
+                placeholder="副题（留空用默认文案）"
+                style="flex: 1"
+              />
+            </div>
           </el-form>
         </el-tab-pane>
 
@@ -744,7 +772,13 @@ import {
 import { getTemplatePack } from '@/config/templatePacks'
 import { listPage, updatePage } from '@/api/admin/page'
 import { importNav } from '@/api/admin/nav'
-import { DEFAULT_CHANNELS, DEFAULT_FAQS, DEFAULT_HONORS, DEFAULT_STAGES } from '@/utils/siteContent'
+import {
+  DEFAULT_PAGE_COPY,
+  DEFAULT_CHANNELS,
+  DEFAULT_FAQS,
+  DEFAULT_HONORS,
+  DEFAULT_STAGES
+} from '@/utils/siteContent'
 
 const siteTemplates = SITE_TEMPLATES
 const packApplying = ref(false)
@@ -801,6 +835,25 @@ const defaultSiteContent: Record<string, any[]> = {
   site_faq: DEFAULT_FAQS.map(f => ({ ...f })),
   site_honors: DEFAULT_HONORS.map(h => ({ ...h })),
   site_history: DEFAULT_STAGES.map(s => ({ ...s, events: s.events.map(e => ({ ...e })) }))
+}
+
+/** 页面文案编辑态结构：空串 = 未设置（前台跟随站点设置与内置文案） */
+function defaultSitePageCopy(): Record<
+  string,
+  { eyebrow: string; title: string; subtitle: string }
+> {
+  return Object.fromEntries(
+    Object.keys(DEFAULT_PAGE_COPY).map(key => [key, { eyebrow: '', title: '', subtitle: '' }])
+  )
+}
+
+/** 页面文案编辑器各页中文名 */
+const PAGE_COPY_LABELS: Record<string, string> = {
+  business: '核心业务页',
+  contact: '联系页',
+  about: '关于页',
+  history: '历程页',
+  honors: '荣誉页'
 }
 
 const { proxy } = getCurrentInstance()
@@ -991,6 +1044,7 @@ const defaultSettings: Record<string, any> = {
   site_faq: structuredClone(defaultSiteContent.site_faq),
   site_honors: structuredClone(defaultSiteContent.site_honors),
   site_history: structuredClone(defaultSiteContent.site_history),
+  site_page_copy: defaultSitePageCopy(),
   business_label: '核心业务',
   contact_phone: '',
   contact_address: '',
@@ -1064,6 +1118,7 @@ const managedKeys = [
   'site_faq',
   'site_honors',
   'site_history',
+  'site_page_copy',
   'prometheus_url',
   'grafana_url',
   'actuator_url',
@@ -1233,6 +1288,28 @@ function coerceValue(key: string, raw: any): any {
       return structuredClone(fallback)
     }
   }
+  // 页面文案：对象键（页面 → eyebrow/title/subtitle），字段缺失/损坏时归为空串（跟随回退）
+  if (key === 'site_page_copy') {
+    const empty = defaultSitePageCopy()
+    if (typeof raw !== 'string' || !raw.trim()) return empty
+    try {
+      const parsed = JSON.parse(raw)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return empty
+      Object.keys(empty).forEach(pageKey => {
+        const page = (parsed as Record<string, any>)[pageKey]
+        if (page && typeof page === 'object') {
+          empty[pageKey] = {
+            eyebrow: typeof page.eyebrow === 'string' ? page.eyebrow : '',
+            title: typeof page.title === 'string' ? page.title : '',
+            subtitle: typeof page.subtitle === 'string' ? page.subtitle : ''
+          }
+        }
+      })
+      return empty
+    } catch {
+      return defaultSitePageCopy()
+    }
+  }
   if (raw === 'true') return true
   if (raw === 'false') return false
   return raw
@@ -1261,7 +1338,7 @@ async function getAllSettings() {
       }
     })
 
-    const merged: Record<string, any> = { ...defaultSettings }
+    const merged: Record<string, any> = structuredClone(defaultSettings)
     Object.keys(loaded).forEach(key => {
       if ((managedKeySet.has(key) || sysConfigKeySet.has(key)) && loaded[key] !== undefined) {
         merged[key] = loaded[key]
@@ -1281,8 +1358,8 @@ async function getAllSettings() {
     settingsMap.value = merged
     originalSettings.value = toStoredMap(merged)
   } catch (error) {
-    settingsMap.value = { ...defaultSettings }
-    originalSettings.value = toStoredMap(defaultSettings)
+    settingsMap.value = structuredClone(defaultSettings)
+    originalSettings.value = toStoredMap(settingsMap.value)
     ElMessage.warning('获取设置失败，已使用默认设置')
   } finally {
     loading.value = false
@@ -1725,6 +1802,13 @@ html.dark .feature-group__icon {
   align-items: center;
   gap: var(--el-border-radius-base, 8px);
   margin-bottom: var(--el-border-radius-base, 8px);
+}
+
+.content-row-label {
+  flex: none;
+  width: 84px;
+  color: var(--el-text-color-regular, #606266);
+  font-size: 13px;
 }
 
 .content-row-indent {

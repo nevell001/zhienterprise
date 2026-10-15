@@ -25,6 +25,8 @@ public final class FrontConfigKeys
         // 官网内容（JSON 数组，管理后台「官网内容」页签维护，前端解析带回退占位）
         "site_metrics", "site_outcomes", "home_solutions",
         "site_channels", "site_faq", "site_honors", "site_history",
+        // 模板页面页头文案（JSON 对象：页面 → eyebrow/title/subtitle）
+        "site_page_copy",
         "friend_link_enabled", "friend_link_apply_enabled", "guestbook_enabled",
         "user_agreement_content", "privacy_policy_content",
         "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website",

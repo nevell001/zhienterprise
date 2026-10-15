@@ -1,12 +1,12 @@
 <template>
   <SiteLayout>
     <div ref="rootEl" class="tpl-site business-page mo-home-page">
-      <!-- 页头（与关于页同构：eyebrow + 标题 + 副题） -->
+      <!-- 页头（与关于页同构：eyebrow + 标题 + 副题；文案可在后台「官网内容」页签调整） -->
       <header class="aph">
         <div class="eh-wrap">
-          <span class="eyebrow rv">{{ businessLabel }}</span>
-          <h1 class="aph-title rv">{{ businessLabel }}</h1>
-          <p class="aph-sub rv d1">了解我们的主要业务与产品</p>
+          <span class="eyebrow rv">{{ heroEyebrow }}</span>
+          <h1 class="aph-title rv">{{ heroTitle }}</h1>
+          <p class="aph-sub rv d1">{{ heroSubtitle }}</p>
         </div>
       </header>
 
@@ -106,6 +106,7 @@ import { getArticleList } from '@/api/site'
 import type { Article } from '@/types'
 import { getCategoryList } from '@/api/site/category'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { DEFAULT_PAGE_COPY, getPageCopy } from '@/utils/siteContent'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { parseTime } from '@/utils/zhi'
 import { logger } from '@/utils/logger'
@@ -117,6 +118,12 @@ const settings = computed(() => siteSettingsStore.siteSettings)
 const businessLabel = computed(
   () => String(settings.value.business_label || '').trim() || '核心业务'
 )
+
+/* 页头文案：「官网内容」页签的页面文案 → 核心业务栏目名称 → 内置文案 */
+const pageCopy = computed(() => getPageCopy(settings.value?.site_page_copy, 'business'))
+const heroEyebrow = computed(() => pageCopy.value.eyebrow || businessLabel.value)
+const heroTitle = computed(() => pageCopy.value.title || businessLabel.value)
+const heroSubtitle = computed(() => pageCopy.value.subtitle || DEFAULT_PAGE_COPY.business.subtitle)
 
 interface CatTab {
   id: number | null

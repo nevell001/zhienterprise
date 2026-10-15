@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  DEFAULT_PAGE_COPY,
   getHomeSolutions,
+  getPageCopy,
   getSiteChannels,
   getSiteFaqs,
   getSiteHistoryStages,
@@ -64,5 +66,43 @@ describe('siteContent（官网内容 JSON 设置解析）', () => {
     expect(getSiteChannels(undefined).length).toBe(4)
     expect(getSiteFaqs(undefined).length).toBe(4)
     expect(getHomeSolutions(undefined).length).toBe(4)
+  })
+})
+
+describe('siteContent（页面文案 site_page_copy 解析）', () => {
+  it('缺失/损坏/形状不对时全字段为空串（页面据此回退内置文案）', () => {
+    const empty = { eyebrow: '', title: '', subtitle: '' }
+    expect(getPageCopy(undefined, 'contact')).toEqual(empty)
+    expect(getPageCopy('', 'contact')).toEqual(empty)
+    expect(getPageCopy('{broken', 'contact')).toEqual(empty)
+    // 数组是旧的数组型 JSON 键形状，不能当成页面文案对象
+    expect(getPageCopy('[{"title":"x"}]', 'contact')).toEqual(empty)
+    expect(getPageCopy('"text"', 'contact')).toEqual(empty)
+  })
+
+  it('取指定页面并保留已填字段，未填字段为未设置（空串）', () => {
+    const raw = JSON.stringify({
+      business: { eyebrow: 'Business', title: '业务中心', subtitle: '' },
+      contact: { title: '快速联系' }
+    })
+    expect(getPageCopy(raw, 'business')).toEqual({
+      eyebrow: 'Business',
+      title: '业务中心',
+      subtitle: ''
+    })
+    expect(getPageCopy(raw, 'contact')).toEqual({ eyebrow: '', title: '快速联系', subtitle: '' })
+    // 未配置的页面同样落在回退态
+    expect(getPageCopy(raw, 'honors')).toEqual({ eyebrow: '', title: '', subtitle: '' })
+  })
+
+  it('空白与非法字段类型按未设置处理', () => {
+    const raw = JSON.stringify({ honors: { eyebrow: '  ', title: 123, subtitle: ' 已填 ' } })
+    expect(getPageCopy(raw, 'honors')).toEqual({ eyebrow: '', title: '', subtitle: '已填' })
+  })
+
+  it('内置文案覆盖五个模板页面且字段齐全', () => {
+    for (const key of ['business', 'contact', 'about', 'history', 'honors']) {
+      expect(DEFAULT_PAGE_COPY[key]?.title, `缺少 ${key} 的内置标题`).toBeTruthy()
+    }
   })
 })

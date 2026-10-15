@@ -1,12 +1,12 @@
 <template>
   <SiteLayout>
     <div ref="rootEl" class="tpl-site honors-page mo-home-page">
-      <!-- 页头 -->
+      <!-- 页头（文案可在后台「官网内容」页签调整） -->
       <header class="aph">
         <div class="eh-wrap">
-          <span class="eyebrow rv">Honor</span>
-          <h1 class="aph-title rv">荣誉资质</h1>
-          <p class="aph-sub rv d1">资质证书、行业奖项与体系认证，是客户信任的注脚。</p>
+          <span class="eyebrow rv">{{ heroEyebrow }}</span>
+          <h1 class="aph-title rv">{{ heroTitle }}</h1>
+          <p class="aph-sub rv d1">{{ heroSubtitle }}</p>
         </div>
       </header>
 
@@ -74,7 +74,7 @@ import SiteLayout from '@/components/SiteLayout.vue'
 import { getPublishedPageBySlug } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
-import { getSiteHonors } from '@/utils/siteContent'
+import { getSiteHonors, DEFAULT_PAGE_COPY, getPageCopy } from '@/utils/siteContent'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
 import { logger } from '@/utils/logger'
@@ -82,6 +82,12 @@ import { useScrollReveal } from '@/composables/useScrollReveal'
 
 const siteSettingsStore = useSiteSettingsStore()
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
+
+/* 页头文案：「官网内容」页签的页面文案 → 内置文案 */
+const pageCopy = computed(() => getPageCopy(siteSettings.value?.site_page_copy, 'honors'))
+const heroEyebrow = computed(() => pageCopy.value.eyebrow || DEFAULT_PAGE_COPY.honors.eyebrow)
+const heroTitle = computed(() => pageCopy.value.title || DEFAULT_PAGE_COPY.honors.title)
+const heroSubtitle = computed(() => pageCopy.value.subtitle || DEFAULT_PAGE_COPY.honors.subtitle)
 
 // 可选的自定义说明（页面管理 slug=honors），证书墙数据为占位
 const customContent = ref('')
@@ -125,14 +131,19 @@ const loadCustomContent = async () => {
   }
 }
 
-onMounted(() => {
+const applyPageSeo = () => {
   const siteName = siteSettings.value.blog_name || '知企建站系统'
   applySeo({
-    title: `荣誉资质 - ${siteName}`,
+    title: `${heroTitle.value} - ${siteName}`,
     description: siteSettings.value.blog_desc || '',
     keywords: '',
     canonical: canonicalUrl()
   })
+}
+
+watch(heroTitle, applyPageSeo, { immediate: true })
+
+onMounted(() => {
   loadCustomContent()
 })
 </script>

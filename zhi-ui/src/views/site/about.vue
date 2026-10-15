@@ -1,14 +1,12 @@
 <template>
   <SiteLayout>
     <div ref="rootEl" class="tpl-site about-page mo-home-page">
-      <!-- 页头 -->
+      <!-- 页头（文案可在后台「官网内容」页签调整，留空跟随站点名称/描述） -->
       <header class="aph">
         <div class="eh-wrap">
-          <span class="eyebrow rv">About Us</span>
-          <h1 class="aph-title rv">{{ siteSettings.blog_name || '关于我们' }}</h1>
-          <p class="aph-sub rv d1">
-            {{ siteSettings.blog_desc || '以专业的产品与服务，持续为客户创造价值。' }}
-          </p>
+          <span class="eyebrow rv">{{ heroEyebrow }}</span>
+          <h1 class="aph-title rv">{{ heroTitle }}</h1>
+          <p class="aph-sub rv d1">{{ heroSubtitle }}</p>
         </div>
       </header>
 
@@ -61,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { getPublishedPageBySlug } from '@/api/site/page'
 import { getPublicStatisticsOverview } from '@/api/statistics'
@@ -69,11 +67,22 @@ import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
+import { DEFAULT_PAGE_COPY, getPageCopy } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import { logger } from '@/utils/logger'
 
 const siteSettingsStore = useSiteSettingsStore()
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
+
+/* 页头文案：「官网内容」页签的页面文案 → 站点名称/描述 → 内置文案 */
+const pageCopy = computed(() => getPageCopy(siteSettings.value?.site_page_copy, 'about'))
+const heroEyebrow = computed(() => pageCopy.value.eyebrow || DEFAULT_PAGE_COPY.about.eyebrow)
+const heroTitle = computed(
+  () => pageCopy.value.title || siteSettings.value.blog_name || DEFAULT_PAGE_COPY.about.title
+)
+const heroSubtitle = computed(
+  () => pageCopy.value.subtitle || siteSettings.value.blog_desc || DEFAULT_PAGE_COPY.about.subtitle
+)
 
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
@@ -137,14 +146,19 @@ const loadStats = async () => {
   }
 }
 
-onMounted(() => {
+const applyPageSeo = () => {
   const siteName = siteSettings.value.blog_name || '知企建站系统'
   applySeo({
-    title: `关于我们 - ${siteName}`,
+    title: `${heroTitle.value} - ${siteName}`,
     description: siteSettings.value.blog_desc || '',
     keywords: '',
     canonical: canonicalUrl()
   })
+}
+
+watch(heroTitle, applyPageSeo, { immediate: true })
+
+onMounted(() => {
   loadCustomAbout()
   loadStats()
 })

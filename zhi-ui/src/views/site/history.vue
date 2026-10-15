@@ -1,12 +1,12 @@
 <template>
   <SiteLayout>
     <div ref="rootEl" class="tpl-site history-page mo-home-page">
-      <!-- 页头 -->
+      <!-- 页头（文案可在后台「官网内容」页签调整） -->
       <header class="aph">
         <div class="eh-wrap">
-          <span class="eyebrow rv">Milestones</span>
-          <h1 class="aph-title rv">发展历程</h1>
-          <p class="aph-sub rv d1">从初创到生态，每一步都算数。</p>
+          <span class="eyebrow rv">{{ heroEyebrow }}</span>
+          <h1 class="aph-title rv">{{ heroTitle }}</h1>
+          <p class="aph-sub rv d1">{{ heroSubtitle }}</p>
         </div>
       </header>
 
@@ -52,30 +52,39 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
-import { getSiteHistoryStages } from '@/utils/siteContent'
+import { DEFAULT_PAGE_COPY, getPageCopy, getSiteHistoryStages } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
 const siteSettingsStore = useSiteSettingsStore()
+const siteSettings = computed(() => siteSettingsStore.siteSettings)
+
+/* 页头文案：「官网内容」页签的页面文案 → 内置文案 */
+const pageCopy = computed(() => getPageCopy(siteSettings.value?.site_page_copy, 'history'))
+const heroEyebrow = computed(() => pageCopy.value.eyebrow || DEFAULT_PAGE_COPY.history.eyebrow)
+const heroTitle = computed(() => pageCopy.value.title || DEFAULT_PAGE_COPY.history.title)
+const heroSubtitle = computed(() => pageCopy.value.subtitle || DEFAULT_PAGE_COPY.history.subtitle)
 
 /* 历程数据：管理后台「官网内容」页签维护（缺失回退设计稿附录 A 占位） */
-const stages = computed(() => getSiteHistoryStages(siteSettingsStore.siteSettings?.site_history))
+const stages = computed(() => getSiteHistoryStages(siteSettings.value?.site_history))
 
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
 
-onMounted(() => {
-  const siteName = siteSettingsStore.siteSettings?.blog_name || '知企建站系统'
+const applyPageSeo = () => {
+  const siteName = siteSettings.value.blog_name || '知企建站系统'
   applySeo({
-    title: `发展历程 - ${siteName}`,
-    description: siteSettingsStore.siteSettings?.blog_desc || '',
+    title: `${heroTitle.value} - ${siteName}`,
+    description: siteSettings.value.blog_desc || '',
     keywords: '',
     canonical: canonicalUrl()
   })
-})
+}
+
+watch(heroTitle, applyPageSeo, { immediate: true })
 </script>
 
 <style scoped>

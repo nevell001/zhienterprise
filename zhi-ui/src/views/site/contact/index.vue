@@ -1,12 +1,12 @@
 <template>
   <SiteLayout>
     <div ref="rootEl" class="tpl-site contact-page mo-home-page">
-      <!-- 页头 -->
+      <!-- 页头（文案可在后台「官网内容」页签调整） -->
       <header class="aph">
         <div class="eh-wrap">
-          <span class="eyebrow rv">Contact</span>
-          <h1 class="aph-title rv">联系我们</h1>
-          <p class="aph-sub rv d1">期待与您的沟通与合作，我们将尽快响应每一份咨询。</p>
+          <span class="eyebrow rv">{{ heroEyebrow }}</span>
+          <h1 class="aph-title rv">{{ heroTitle }}</h1>
+          <p class="aph-sub rv d1">{{ heroSubtitle }}</p>
         </div>
       </header>
 
@@ -159,7 +159,7 @@ import SiteLayout from '@/components/SiteLayout.vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { setJsonLd } from '@/utils/jsonld'
-import { getSiteChannels, getSiteFaqs } from '@/utils/siteContent'
+import { getSiteChannels, getSiteFaqs, DEFAULT_PAGE_COPY, getPageCopy } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
 interface ContactItem {
@@ -172,6 +172,12 @@ interface ContactItem {
 const siteSettingsStore = useSiteSettingsStore()
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const isGuestbookEnabled = computed(() => siteSettingsStore.isFeatureEnabled('guestbook_enabled'))
+
+/* 页头文案：「官网内容」页签的页面文案 → 内置文案 */
+const pageCopy = computed(() => getPageCopy(siteSettings.value?.site_page_copy, 'contact'))
+const heroEyebrow = computed(() => pageCopy.value.eyebrow || DEFAULT_PAGE_COPY.contact.eyebrow)
+const heroTitle = computed(() => pageCopy.value.title || DEFAULT_PAGE_COPY.contact.title)
+const heroSubtitle = computed(() => pageCopy.value.subtitle || DEFAULT_PAGE_COPY.contact.subtitle)
 
 /* 分渠道与 FAQ：管理后台「官网内容」页签维护（缺失回退内置占位） */
 const channels = computed(() => getSiteChannels(siteSettings.value?.site_channels))
@@ -230,14 +236,19 @@ const updateFaqJsonLd = () => {
 
 watch(faqs, updateFaqJsonLd)
 
-onMounted(() => {
+const applyPageSeo = () => {
   const siteName = siteSettings.value.blog_name || '知企建站系统'
   applySeo({
-    title: `联系我们 - ${siteName}`,
+    title: `${heroTitle.value} - ${siteName}`,
     description: siteSettings.value.blog_desc || '',
     keywords: '',
     canonical: canonicalUrl()
   })
+}
+
+watch(heroTitle, applyPageSeo, { immediate: true })
+
+onMounted(() => {
   updateFaqJsonLd()
 })
 </script>

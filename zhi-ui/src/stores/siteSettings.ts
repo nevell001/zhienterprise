@@ -39,6 +39,7 @@ interface SiteSettingsState {
   site_faq: string
   site_honors: string
   site_history: string
+  site_page_copy: string
   user_agreement_content: string
   privacy_policy_content: string
   author_title: string
@@ -99,6 +100,7 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       site_faq: '',
       site_honors: '',
       site_history: '',
+      site_page_copy: '',
 
       // 其他设置
       user_agreement_content: '',

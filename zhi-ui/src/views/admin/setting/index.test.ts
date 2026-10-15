@@ -353,4 +353,43 @@ describe('SiteSetting 视图（行为）', () => {
     expect(updateSettingValueByKey).toHaveBeenCalledWith('sys.account.registerUser', 'false')
     expect(ElMessage.success).toHaveBeenCalled()
   })
+
+  it('官网内容页签渲染模板页头文案编辑器（五个模板页面）', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const text = wrapper.text()
+    for (const label of ['核心业务页', '联系页', '关于页', '历程页', '荣誉页']) {
+      expect(text).toContain(label)
+    }
+  })
+
+  it('模板页头文案编辑后保存按 JSON 落库，未填写字段保持未设置（前台回退）', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const vm = wrapper.vm as unknown as {
+      settingsMap: Record<string, any>
+      saveAllSettings: () => Promise<void>
+    }
+    vm.settingsMap.site_page_copy.contact.title = '快速联系'
+    await vm.saveAllSettings()
+    await flushPromises()
+
+    const call = updateSettingValueByKey.mock.calls.find(
+      (c: unknown[]) => c[0] === 'site_page_copy'
+    )
+    expect(call).toBeTruthy()
+    const stored = JSON.parse(String(call![1]))
+    expect(stored.contact.title).toBe('快速联系')
+    // 未填写的页面与字段保持空串：前台据此回退站点设置与内置文案
+    expect(stored.business).toEqual({ eyebrow: '', title: '', subtitle: '' })
+    expect(Object.keys(stored).sort()).toEqual([
+      'about',
+      'business',
+      'contact',
+      'history',
+      'honors'
+    ])
+  })
 })

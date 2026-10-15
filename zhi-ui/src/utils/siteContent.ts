@@ -54,7 +54,38 @@ export interface SiteHistoryStage {
   events: SiteHistoryEvent[]
 }
 
+export interface SitePageCopy {
+  eyebrow: string
+  title: string
+  subtitle: string
+}
+
 /* ---------- 内置占位（设计稿附录 A；JSON 键缺失/损坏时的回退） ---------- */
+
+/** 模板页面页头内置文案（设置留空时回退；business 另有「核心业务栏目名称」优先） */
+export const DEFAULT_PAGE_COPY: Record<string, SitePageCopy> = {
+  business: { eyebrow: '核心业务', title: '核心业务', subtitle: '了解我们的主要业务与产品' },
+  contact: {
+    eyebrow: 'Contact',
+    title: '联系我们',
+    subtitle: '期待与您的沟通与合作，我们将尽快响应每一份咨询。'
+  },
+  about: {
+    eyebrow: 'About Us',
+    title: '关于我们',
+    subtitle: '以专业的产品与服务，持续为客户创造价值。'
+  },
+  history: {
+    eyebrow: 'Milestones',
+    title: '发展历程',
+    subtitle: '从初创到生态，每一步都算数。'
+  },
+  honors: {
+    eyebrow: 'Honor',
+    title: '荣誉资质',
+    subtitle: '资质证书、行业奖项与体系认证，是客户信任的注脚。'
+  }
+}
 
 export const DEFAULT_CHANNELS: SiteChannel[] = [
   { name: '商务合作', desc: '产品采购、方案报价与商务洽谈，请备注「商务合作」。' },
@@ -259,4 +290,26 @@ export function getSiteHistoryStages(raw: unknown): SiteHistoryStage[] {
       stage.events.length > 0 &&
       stage.events.every(e => Boolean(str(e?.title)))
   )
+}
+
+const EMPTY_PAGE_COPY: SitePageCopy = { eyebrow: '', title: '', subtitle: '' }
+
+/**
+ * 读取某页页头文案（site_page_copy JSON 对象键）。
+ * 字段为空串表示未设置：页面按「设置值 → 站点信息（如站点名称）→ 内置文案」逐级回退。
+ */
+export function getPageCopy(raw: unknown, key: string): SitePageCopy {
+  if (typeof raw !== 'string' || !raw.trim()) return { ...EMPTY_PAGE_COPY }
+  try {
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { ...EMPTY_PAGE_COPY }
+    }
+    const page = (parsed as Record<string, unknown>)[key]
+    if (!page || typeof page !== 'object') return { ...EMPTY_PAGE_COPY }
+    const copy = page as Record<string, unknown>
+    return { eyebrow: str(copy.eyebrow), title: str(copy.title), subtitle: str(copy.subtitle) }
+  } catch {
+    return { ...EMPTY_PAGE_COPY }
+  }
 }
