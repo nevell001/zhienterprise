@@ -14,7 +14,7 @@
   padding: var(--mo-sp-12) 0;
 }
 
-.tpl-site .pad.tpl-site .surface {
+.tpl-site .pad.surface {
   background: var(--tpl-surface);
 }
 
@@ -71,10 +71,10 @@
   text-decoration: none;
   white-space: nowrap;
   transition:
-    transform 0tpl-site 0.2s cubic-bezier(0tpl-site 0.16, 1, 0tpl-site 0.3, 1),
-    background 0tpl-site 0.2s,
-    box-shadow 0tpl-site 0.2s,
-    border-color 0tpl-site 0.2s,
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s,
     color 0.2s;
 }
 
@@ -226,8 +226,8 @@
   padding: var(--mo-sp-8);
   background: var(--tpl-bg);
   transition:
-    transform 0tpl-site 0.3s cubic-bezier(0tpl-site 0.16, 1, 0tpl-site 0.3, 1),
-    box-shadow 0tpl-site 0.3s,
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s,
     border-color 0.3s;
 }
 
@@ -237,7 +237,7 @@
   border-color: var(--tpl-p);
 }
 
-.tpl-site .biz-card .tpl-site .ico {
+.tpl-site .biz-card .ico {
   width: 44px;
   height: 44px;
   border-radius: var(--tpl-r-md);
@@ -278,7 +278,7 @@
   transition: color 0.2s;
 }
 
-.tpl-site .biz-list li.tpl-site .clickable {
+.tpl-site .biz-list li.clickable {
   cursor: pointer;
 }
 
@@ -314,7 +314,7 @@
   flex-direction: column;
   overflow: hidden;
   transition:
-    transform 0tpl-site 0.3s cubic-bezier(0tpl-site 0.16, 1, 0tpl-site 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.3s;
 }
 
@@ -323,7 +323,7 @@
   box-shadow: var(--tpl-sh-md);
 }
 
-.tpl-site .sol-card .tpl-site .num {
+.tpl-site .sol-card .num {
   font-size: var(--mo-fs-sm);
   font-weight: 500;
   color: var(--tpl-p-text);
@@ -346,7 +346,7 @@
   margin: 0;
 }
 
-.tpl-site .sol-card .tpl-site .lnk {
+.tpl-site .sol-card .lnk {
   margin-top: var(--mo-sp-5);
 }
 
@@ -361,24 +361,24 @@
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.tpl-site .sol-card:hover .tpl-site .sol-art {
+.tpl-site .sol-card:hover .sol-art {
   transform: scale(1.06);
 }
 
 /* ---------- ④ 数据成果（深色区块） ---------- */
-.tpl-site .pad.tpl-site .dark {
+.tpl-site .pad.dark {
   background: var(--tpl-dark);
 }
 
-.tpl-site .pad.tpl-site .dark .tpl-site .sec-tag {
+.tpl-site .pad.dark .sec-tag {
   color: var(--tpl-p-d);
 }
 
-.tpl-site .pad.tpl-site .dark h2 {
+.tpl-site .pad.dark h2 {
   color: var(--tpl-white);
 }
 
-.tpl-site .pad.tpl-site .dark p {
+.tpl-site .pad.dark p {
   color: var(--tpl-dark-dim);
 }
 
@@ -438,8 +438,8 @@
   filter: grayscale(1);
   opacity: 0.6;
   transition:
-    opacity 0tpl-site 0.4s cubic-bezier(0tpl-site 0.16, 1, 0tpl-site 0.3, 1),
-    color 0tpl-site 0.4s,
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.4s,
     filter 0.4s;
 }
 
@@ -463,7 +463,7 @@
   background: var(--tpl-bg);
   cursor: pointer;
   transition:
-    transform 0tpl-site 0.3s cubic-bezier(0tpl-site 0.16, 1, 0tpl-site 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.3s;
 }
 
