@@ -397,7 +397,33 @@
                       style="flex: 1"
                     />
                   </div>
-                  <div class="cfg-hint">两卡列表项来自「核心业务」文章，无需在此维护</div>
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.cardOne.title"
+                      placeholder="左卡标题（留空随行业模板）"
+                      style="width: 220px"
+                    />
+                    <el-input
+                      v-model="sec.config.cardOne.desc"
+                      placeholder="左卡说明（留空随行业模板）"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.cardTwo.title"
+                      placeholder="右卡标题（留空随行业模板）"
+                      style="width: 220px"
+                    />
+                    <el-input
+                      v-model="sec.config.cardTwo.desc"
+                      placeholder="右卡说明（留空随行业模板）"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div class="cfg-hint">
+                    两卡列表项来自「核心业务」文章；卡片标题/说明留空时随行业模板
+                  </div>
                 </template>
 
                 <!-- 解决方案精选 -->
@@ -406,6 +432,13 @@
                     <el-input
                       v-model="sec.config.title"
                       placeholder="区块标题（留空随行业模板）"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.subtitle"
+                      placeholder="区块副题（留空随行业模板）"
                       style="flex: 1"
                     />
                   </div>
@@ -434,6 +467,13 @@
                       style="flex: 1"
                     />
                   </div>
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.subtitle"
+                      placeholder="区块副题（留空用默认）"
+                      style="flex: 1"
+                    />
+                  </div>
                   <div v-for="(it, ii) in sec.config.items" :key="ii" class="cfg-row">
                     <el-input v-model="it.mark" placeholder="数字，如 ↓38" style="width: 120px" />
                     <el-input v-model="it.suffix" placeholder="单位" style="width: 80px" />
@@ -453,6 +493,13 @@
 
                 <!-- Logo 墙 -->
                 <template v-else-if="sec.type === 'logos'">
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
+                  </div>
                   <div class="cfg-row">
                     <span class="cfg-label">展示格数</span>
                     <el-input-number v-model="sec.config.count" :min="4" :max="12" />
@@ -519,6 +566,13 @@
                   </div>
                   <div class="cfg-row">
                     <el-input
+                      v-model="sec.config.subtitle"
+                      placeholder="区块副题（留空不显示）"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input
                       v-model="sec.config.content"
                       type="textarea"
                       :rows="6"
@@ -556,6 +610,13 @@
                     <el-input
                       v-model="sec.config.title"
                       placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.subtitle"
+                      placeholder="区块副题（留空用默认）"
                       style="flex: 1"
                     />
                   </div>
@@ -653,7 +714,28 @@
                       style="flex: 1"
                     />
                   </div>
-                  <div class="cfg-hint">电话/邮箱/地址来自「站点设置」，无需在此维护</div>
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.contact_phone"
+                      placeholder="联系电话（留空用站点设置）"
+                      style="width: 220px"
+                    />
+                    <el-input
+                      v-model="sec.config.contact_email"
+                      placeholder="联系邮箱（留空用站点设置）"
+                      style="width: 220px"
+                    />
+                  </div>
+                  <div class="cfg-row">
+                    <el-input
+                      v-model="sec.config.contact_address"
+                      placeholder="办公地址（留空用站点设置）"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div class="cfg-hint">
+                    留空时电话/邮箱/地址回退「站点设置」中的联系方式，可为不同页面配置独立联系方式
+                  </div>
                 </template>
 
                 <div v-else class="cfg-hint">该模块无独立配置</div>
@@ -841,10 +923,18 @@ const SECTION_META: Record<string, { label: string; make: () => Record<string, a
     })
   },
   metrics: { label: '信任指标条', make: () => ({ items: [] }) },
-  'biz-cards': { label: '核心业务两卡', make: () => ({ title: '', subtitle: '' }) },
+  'biz-cards': {
+    label: '核心业务两卡',
+    make: () => ({
+      title: '',
+      subtitle: '',
+      cardOne: { title: '', desc: '' },
+      cardTwo: { title: '', desc: '' }
+    })
+  },
   solutions: { label: '解决方案精选', make: () => ({ title: '', subtitle: '', items: [] }) },
   outcomes: { label: '数据成果', make: () => ({ title: '', subtitle: '', items: [] }) },
-  logos: { label: '客户 Logo 墙', make: () => ({ count: 8 }) },
+  logos: { label: '客户 Logo 墙', make: () => ({ title: '', count: 8 }) },
   news: { label: '新闻动态', make: () => ({ count: 3 }) },
   cta: {
     label: '转化区块',
@@ -863,7 +953,10 @@ const SECTION_META: Record<string, { label: string; make: () => Record<string, a
   channels: { label: '分渠道咨询', make: () => ({ title: '', subtitle: '', items: [] }) },
   honors: { label: '荣誉资质墙', make: () => ({ title: '', items: [] }) },
   history: { label: '发展历程时间轴', make: () => ({ title: '', stages: [] }) },
-  'contact-info': { label: '联系信息卡', make: () => ({ title: '' }) }
+  'contact-info': {
+    label: '联系信息卡',
+    make: () => ({ title: '', contact_phone: '', contact_email: '', contact_address: '' })
+  }
 }
 
 const sectionList = ref<Record<string, any>[]>([])
@@ -893,18 +986,25 @@ function moveSection(index: number | string, delta: number) {
   if (expandedIndex.value === idx) expandedIndex.value = target
 }
 
-/** 展开编辑时保证 config 及其子结构存在（历史数据可能为空对象） */
+/**
+ * 补齐模块 config 顶层键（历史数据可能缺少后加的字段）。
+ * 编辑器用 v-show 预渲染全部模块的绑定（如 sec.config.cardOne.title），
+ * 缺对象键会在渲染期直接抛错，所以加载时就要全部补齐，不能只在展开时补。
+ */
+function ensureSectionConfig(sec: Record<string, any>) {
+  sec.config = sec.config && typeof sec.config === 'object' ? sec.config : {}
+  const meta = SECTION_META[sec.type]
+  if (!meta) return
+  const proto = meta.make()
+  Object.keys(proto).forEach(k => {
+    if (sec.config[k] === undefined) sec.config[k] = proto[k]
+  })
+}
+
 function toggleExpand(index: number, sec: Record<string, any>) {
   expandedIndex.value = expandedIndex.value === index ? -1 : index
   if (expandedIndex.value !== index) return
-  sec.config = sec.config && typeof sec.config === 'object' ? sec.config : {}
-  const meta = SECTION_META[sec.type]
-  if (meta) {
-    const proto = meta.make()
-    Object.keys(proto).forEach(k => {
-      if (sec.config[k] === undefined) sec.config[k] = proto[k]
-    })
-  }
+  ensureSectionConfig(sec)
 }
 
 function addItem(sec: Record<string, any>, field: string, tpl: Record<string, any>) {
@@ -1182,7 +1282,9 @@ function handleUpdate(row?: SitePage) {
       if (form.value.pageType === 'builder' && data.sections) {
         try {
           const parsed = JSON.parse(data.sections)
-          sectionList.value = Array.isArray(parsed) ? parsed : []
+          const list = Array.isArray(parsed) ? parsed : []
+          list.forEach(ensureSectionConfig)
+          sectionList.value = list
         } catch {
           sectionList.value = []
         }

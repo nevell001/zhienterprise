@@ -96,13 +96,16 @@ type PageVm = {
   isHomePage: (row: { slug?: string }) => boolean
   handleAddToNav: (row: { slug?: string; title?: string }) => Promise<void>
   handleRemoveFromNav: (row: { slug?: string; title?: string }) => Promise<void>
+  handleUpdate: (row?: { id: number }) => void
+  sectionList: Array<{ type: string; config: Record<string, any> }>
   rules: { slug: { required?: boolean; pattern?: RegExp }[] }
 }
 
-function mountView() {
+function mountView(options?: { onError?: (err: unknown) => void }) {
   const pinia = createPinia()
   const wrapper = mount(PageManage, {
     global: {
+      config: options?.onError ? { errorHandler: options.onError } : {},
       plugins: [pinia, globalPropertiesPlugin],
       directives: {
         hasPermi: {},
@@ -269,5 +272,69 @@ describe('PageManage 页面管理（导航联动）', () => {
     expect(slugRule!.pattern!.test('about_us2')).toBe(true)
     expect(slugRule!.pattern!.test('about us')).toBe(false)
     expect(slugRule!.pattern!.test('关于我们')).toBe(false)
+  })
+
+  it('builder 旧数据打开编辑器：缺键配置被补齐且预渲染全部绑定不报错', async () => {
+    // 历史页面可能保存于早期模块版本：hero 缺 ctaPrimary、biz-cards 缺 cardOne/cardTwo 等
+    getPage.mockResolvedValue({
+      code: 200,
+      data: {
+        id: 21,
+        title: '企业首页',
+        slug: 'home',
+        pageType: 'builder',
+        status: '1',
+        sections: JSON.stringify([
+          { type: 'hero', visible: true, config: { eyebrow: '旧眉标' } },
+          { type: 'biz-cards', visible: true, config: {} },
+          { type: 'contact-info', visible: true, config: {} }
+        ])
+      }
+    })
+    const errors: unknown[] = []
+    const { wrapper } = mountView({ onError: err => errors.push(err) })
+    await flushPromises()
+
+    const vm = wrapper.vm as unknown as PageVm
+    vm.handleUpdate({ id: 21 })
+    await flushPromises()
+
+    // 编辑器为 v-show 预渲染：任何未补齐的对象键（如 sec.config.cardOne.title）都会在渲染期抛错
+    expect(errors).toEqual([])
+    expect(vm.sectionList[0].config.eyebrow).toBe('旧眉标')
+    expect(vm.sectionList[0].config.ctaPrimary).toEqual({
+      label: '了解我们的业务',
+      link: '/business'
+    })
+    expect(vm.sectionList[1].config.cardOne).toEqual({ title: '', desc: '' })
+    expect(vm.sectionList[1].config.cardTwo).toEqual({ title: '', desc: '' })
+    expect(vm.sectionList[2].config.contact_email).toBe('')
+  })
+
+  it('builder 数据缺 cardOne 子字段时同样安全（已存在对象不整体覆盖）', async () => {
+    getPage.mockResolvedValue({
+      code: 200,
+      data: {
+        id: 22,
+        title: '企业首页',
+        slug: 'home',
+        pageType: 'builder',
+        status: '1',
+        sections: JSON.stringify([
+          { type: 'biz-cards', visible: true, config: { cardOne: { title: '仅标题' } } }
+        ])
+      }
+    })
+    const errors: unknown[] = []
+    const { wrapper } = mountView({ onError: err => errors.push(err) })
+    await flushPromises()
+
+    const vm = wrapper.vm as unknown as PageVm
+    vm.handleUpdate({ id: 22 })
+    await flushPromises()
+
+    expect(errors).toEqual([])
+    // 已有的 title 保留，缺失的 desc 允许 undefined（绑定安全，保存后前台回退模板）
+    expect(vm.sectionList[0].config.cardOne.title).toBe('仅标题')
   })
 })
