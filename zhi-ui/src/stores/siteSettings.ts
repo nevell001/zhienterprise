@@ -31,6 +31,14 @@ interface SiteSettingsState {
   contact_phone: string
   contact_address: string
   site_template: string
+  // 官网内容（JSON 数组字符串，「官网内容」页签维护，解析与回退见 utils/siteContent.ts）
+  site_metrics: string
+  site_outcomes: string
+  home_solutions: string
+  site_channels: string
+  site_faq: string
+  site_honors: string
+  site_history: string
   user_agreement_content: string
   privacy_policy_content: string
   author_title: string
@@ -84,6 +92,13 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       contact_phone: '',
       contact_address: '',
       site_template: 'consult',
+      site_metrics: '',
+      site_outcomes: '',
+      home_solutions: '',
+      site_channels: '',
+      site_faq: '',
+      site_honors: '',
+      site_history: '',
 
       // 其他设置
       user_agreement_content: '',

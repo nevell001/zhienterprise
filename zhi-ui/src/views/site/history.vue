@@ -15,7 +15,7 @@
           <!-- 时间轴：阶段分组，荣誉节点用方形区分（方案文档 §3.5）。
                事件数据为设计稿附录 A 占位，接入内容模型后替换。 -->
           <div class="tl">
-            <div v-for="stage in STAGES" :key="stage.name" class="tl-stage">
+            <div v-for="stage in stages" :key="stage.name" class="tl-stage">
               <div class="tl-stage-head rv">
                 <span class="tl-range">{{ stage.range }}</span>
                 <h2>{{ stage.name }}</h2>
@@ -52,112 +52,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { getSiteHistoryStages } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
 const siteSettingsStore = useSiteSettingsStore()
 
-/* 历程数据：设计稿附录 A 占位（初创/成长/领先/生态四阶段），
-   接入内容模型后由后端数据替换 */
-const STAGES = [
-  {
-    range: '2011 - 2014',
-    name: '初创期',
-    theme: '找准方向，活下来',
-    events: [
-      {
-        year: '2011',
-        title: '公司成立',
-        desc: '核心团队组建，确立深耕行业信息化的发展方向。',
-        honor: false
-      },
-      {
-        year: '2012',
-        title: '首个标杆客户',
-        desc: '签约第一家行业头部客户，产品完成从 0 到 1 的验证。',
-        honor: false
-      },
-      {
-        year: '2014',
-        title: '获得高新技术企业认定',
-        desc: '研发投入与自主知识产权获得官方认可。',
-        honor: true
-      }
-    ]
-  },
-  {
-    range: '2015 - 2019',
-    name: '成长期',
-    theme: '打磨产品，规模复制',
-    events: [
-      {
-        year: '2015',
-        title: '产品线成型',
-        desc: '三大产品线发布，完成从项目交付到标准产品的转型。',
-        honor: false
-      },
-      {
-        year: '2017',
-        title: '服务客户突破 500 家',
-        desc: '建立全国服务网络，交付与售后体系全面标准化。',
-        honor: false
-      },
-      {
-        year: '2019',
-        title: '通过 ISO 9001 认证',
-        desc: '质量管理体系与国际标准接轨。',
-        honor: true
-      }
-    ]
-  },
-  {
-    range: '2020 - 2023',
-    name: '领先期',
-    theme: '行业头部，方案引领',
-    events: [
-      {
-        year: '2020',
-        title: '行业解决方案体系发布',
-        desc: '覆盖制造、金融、零售、医疗四大行业的方案矩阵成型。',
-        honor: false
-      },
-      {
-        year: '2022',
-        title: '服务客户突破 1200 家',
-        desc: '续约率与客户满意度连续三年提升。',
-        honor: false
-      },
-      {
-        year: '2023',
-        title: '斩获行业年度解决方案奖',
-        desc: '头部客户的联合实践获得行业认可。',
-        honor: true
-      }
-    ]
-  },
-  {
-    range: '2024 -',
-    name: '生态期',
-    theme: '开放共建，长期主义',
-    events: [
-      {
-        year: '2024',
-        title: '通过 ISO 27001 认证',
-        desc: '信息安全管理体系升级，为数据类业务护航。',
-        honor: true
-      },
-      {
-        year: '2025',
-        title: '合作伙伴计划启动',
-        desc: '与上下游厂商共建交付与培训生态。',
-        honor: false
-      }
-    ]
-  }
-]
+/* 历程数据：管理后台「官网内容」页签维护（缺失回退设计稿附录 A 占位） */
+const stages = computed(() => getSiteHistoryStages(siteSettingsStore.siteSettings?.site_history))
 
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)

@@ -323,6 +323,162 @@
           </el-form>
         </el-tab-pane>
 
+        <!-- 官网内容（结构化维护企业官网各页面的展示数据） -->
+        <el-tab-pane label="官网内容" name="content">
+          <el-form :model="settingsMap" label-width="90px">
+            <el-alert
+              title="以下内容维护企业官网各页面的展示数据。修改后请保存；清空全部行时前台显示内置示例。"
+              type="info"
+              :closable="false"
+              class="tab-alert"
+            />
+
+            <el-divider content-position="left">首页 · 信任指标条</el-divider>
+            <div
+              v-for="(m, i) in settingsMap.site_metrics"
+              :key="`m${i}`"
+              class="content-row"
+            >
+              <el-input v-model="m.value" placeholder="数值，如 15" style="width: 140px" />
+              <el-input v-model="m.label" placeholder="说明，如 年行业深耕" style="flex: 1" />
+              <el-button type="danger" link @click="removeContentRow('site_metrics', i)">
+                删除
+              </el-button>
+            </div>
+            <el-button size="small" @click="addContentRow('site_metrics', { value: '', label: '' })">
+              添加指标
+            </el-button>
+
+            <el-divider content-position="left">首页 · 数据成果（深色区块）</el-divider>
+            <div
+              v-for="(o, i) in settingsMap.site_outcomes"
+              :key="`o${i}`"
+              class="content-row"
+            >
+              <el-input v-model="o.mark" placeholder="数字，如 ↓38" style="width: 120px" />
+              <el-input v-model="o.suffix" placeholder="单位，如 %" style="width: 80px" />
+              <el-input v-model="o.label" placeholder="说明" style="flex: 1" />
+              <el-button type="danger" link @click="removeContentRow('site_outcomes', i)">
+                删除
+              </el-button>
+            </div>
+            <el-button
+              size="small"
+              @click="addContentRow('site_outcomes', { mark: '', suffix: '', label: '' })"
+            >
+              添加成果
+            </el-button>
+
+            <el-divider content-position="left">首页 · 解决方案精选</el-divider>
+            <div
+              v-for="(s, i) in settingsMap.home_solutions"
+              :key="`s${i}`"
+              class="content-row"
+            >
+              <el-input v-model="s.title" placeholder="方案名称" style="width: 220px" />
+              <el-input v-model="s.desc" placeholder="一句话说明" style="flex: 1" />
+              <el-button type="danger" link @click="removeContentRow('home_solutions', i)">
+                删除
+              </el-button>
+            </div>
+            <el-button
+              size="small"
+              @click="addContentRow('home_solutions', { title: '', desc: '' })"
+            >
+              添加方案
+            </el-button>
+
+            <el-divider content-position="left">荣誉资质墙</el-divider>
+            <div
+              v-for="(h, i) in settingsMap.site_honors"
+              :key="`h${i}`"
+              class="content-row"
+            >
+              <el-input v-model="h.name" placeholder="证书/奖项名称" style="width: 240px" />
+              <el-input v-model="h.issuer" placeholder="颁发方" style="width: 180px" />
+              <el-input v-model="h.year" placeholder="年份" style="width: 90px" />
+              <el-input v-model="h.cat" placeholder="分类" style="width: 120px" />
+              <el-button type="danger" link @click="removeContentRow('site_honors', i)">
+                删除
+              </el-button>
+            </div>
+            <el-button
+              size="small"
+              @click="
+                addContentRow('site_honors', { name: '', issuer: '', year: '', cat: '资质证书' })
+              "
+            >
+              添加荣誉
+            </el-button>
+
+            <el-divider content-position="left">发展历程时间轴</el-divider>
+            <div
+              v-for="(st, si) in settingsMap.site_history"
+              :key="`st${si}`"
+              class="content-stage"
+            >
+              <div class="content-row">
+                <el-input v-model="st.range" placeholder="年份区间，如 2011 - 2014" style="width: 180px" />
+                <el-input v-model="st.name" placeholder="阶段名，如 初创期" style="width: 160px" />
+                <el-input v-model="st.theme" placeholder="阶段主题" style="flex: 1" />
+                <el-button type="danger" link @click="removeContentRow('site_history', si)">
+                  删除阶段
+                </el-button>
+              </div>
+              <div
+                v-for="(ev, ei) in st.events"
+                :key="`e${si}-${ei}`"
+                class="content-row content-row-indent"
+              >
+                <el-input v-model="ev.year" placeholder="年份" style="width: 90px" />
+                <el-input v-model="ev.title" placeholder="事件标题" style="width: 220px" />
+                <el-input v-model="ev.desc" placeholder="事件描述" style="flex: 1" />
+                <el-checkbox v-model="ev.honor">荣誉节点</el-checkbox>
+                <el-button type="danger" link @click="removeHistoryEvent(si, ei)">删除</el-button>
+              </div>
+              <el-button size="small" text type="primary" @click="addHistoryEvent(si)">
+                添加事件
+              </el-button>
+            </div>
+            <el-button
+              size="small"
+              @click="addHistoryStage()"
+            >
+              添加阶段
+            </el-button>
+
+            <el-divider content-position="left">联系我们 · 分渠道咨询</el-divider>
+            <div
+              v-for="(c, i) in settingsMap.site_channels"
+              :key="`c${i}`"
+              class="content-row"
+            >
+              <el-input v-model="c.name" placeholder="渠道名称" style="width: 200px" />
+              <el-input v-model="c.desc" placeholder="说明（提示客户备注渠道）" style="flex: 1" />
+              <el-button type="danger" link @click="removeContentRow('site_channels', i)">
+                删除
+              </el-button>
+            </div>
+            <el-button size="small" @click="addContentRow('site_channels', { name: '', desc: '' })">
+              添加渠道
+            </el-button>
+
+            <el-divider content-position="left">联系我们 · FAQ（同步 FAQPage 结构化数据）</el-divider>
+            <div v-for="(f, i) in settingsMap.site_faq" :key="`f${i}`" class="content-col">
+              <div class="content-row">
+                <el-input v-model="f.q" placeholder="问题" style="flex: 1" />
+                <el-button type="danger" link @click="removeContentRow('site_faq', i)">
+                  删除
+                </el-button>
+              </div>
+              <el-input v-model="f.a" type="textarea" :rows="2" placeholder="答案" />
+            </div>
+            <el-button size="small" @click="addContentRow('site_faq', { q: '', a: '' })">
+              添加问题
+            </el-button>
+          </el-form>
+        </el-tab-pane>
+
         <!-- 功能设置 -->
         <el-tab-pane label="功能设置" name="features">
           <div class="feature-groups">
@@ -581,9 +737,26 @@ import {
 import { clearSiteCache } from '@/api/site/setting'
 import { getPublishedPages } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
-import { SITE_TEMPLATES } from '@/config/siteTemplates'
+import { SITE_TEMPLATES, SITE_METRICS, SITE_OUTCOMES, SOLUTION_SHOWCASE } from '@/config/siteTemplates'
+import {
+  DEFAULT_CHANNELS,
+  DEFAULT_FAQS,
+  DEFAULT_HONORS,
+  DEFAULT_STAGES
+} from '@/utils/siteContent'
 
 const siteTemplates = SITE_TEMPLATES
+
+/** 官网内容各键的默认结构化数据（JSON 键损坏/缺失时的还原源） */
+const defaultSiteContent: Record<string, any[]> = {
+  site_metrics: SITE_METRICS.map(m => ({ ...m })),
+  site_outcomes: SITE_OUTCOMES.map(o => ({ ...o })),
+  home_solutions: SOLUTION_SHOWCASE.map(s => ({ ...s })),
+  site_channels: DEFAULT_CHANNELS.map(c => ({ ...c })),
+  site_faq: DEFAULT_FAQS.map(f => ({ ...f })),
+  site_honors: DEFAULT_HONORS.map(h => ({ ...h })),
+  site_history: DEFAULT_STAGES.map(s => ({ ...s, events: s.events.map(e => ({ ...e })) }))
+}
 
 const { proxy } = getCurrentInstance()
 
@@ -766,6 +939,13 @@ const defaultSettings: Record<string, any> = {
   blog_url: '',
   home_page_slug: '',
   home_layout: 'business',
+  site_metrics: structuredClone(defaultSiteContent.site_metrics),
+  site_outcomes: structuredClone(defaultSiteContent.site_outcomes),
+  home_solutions: structuredClone(defaultSiteContent.home_solutions),
+  site_channels: structuredClone(defaultSiteContent.site_channels),
+  site_faq: structuredClone(defaultSiteContent.site_faq),
+  site_honors: structuredClone(defaultSiteContent.site_honors),
+  site_history: structuredClone(defaultSiteContent.site_history),
   business_label: '核心业务',
   contact_phone: '',
   contact_address: '',
@@ -832,6 +1012,13 @@ const managedKeys = [
   'contact_phone',
   'contact_address',
   'site_template',
+  'site_metrics',
+  'site_outcomes',
+  'home_solutions',
+  'site_channels',
+  'site_faq',
+  'site_honors',
+  'site_history',
   'prometheus_url',
   'grafana_url',
   'actuator_url',
@@ -913,6 +1100,45 @@ function handleThemeModeChange(mode: unknown) {
   settingsStore.setThemeMode(nextMode)
 }
 
+/** 官网内容行操作：添加/删除（清空全部行时前台回退内置示例） */
+function addContentRow(key: string, tpl: Record<string, any>) {
+  const list = Array.isArray(settingsMap.value[key]) ? [...settingsMap.value[key]] : []
+  list.push({ ...tpl })
+  settingsMap.value[key] = list
+}
+
+function removeContentRow(key: string, index: number | string) {
+  const idx = Number(index)
+  settingsMap.value[key] = (settingsMap.value[key] || []).filter(
+    (_: any, i: number) => i !== idx
+  )
+}
+
+function addHistoryStage() {
+  addContentRow('site_history', { range: '', name: '', theme: '', events: [] })
+}
+
+function addHistoryEvent(si: number | string) {
+  const stageIdx = Number(si)
+  const stages = [...settingsMap.value.site_history]
+  stages[stageIdx] = {
+    ...stages[stageIdx],
+    events: [...(stages[stageIdx].events || []), { year: '', title: '', desc: '', honor: false }]
+  }
+  settingsMap.value.site_history = stages
+}
+
+function removeHistoryEvent(si: number | string, ei: number | string) {
+  const stageIdx = Number(si)
+  const eventIdx = Number(ei)
+  const stages = [...settingsMap.value.site_history]
+  stages[stageIdx] = {
+    ...stages[stageIdx],
+    events: (stages[stageIdx].events || []).filter((_: any, i: number) => i !== eventIdx)
+  }
+  settingsMap.value.site_history = stages
+}
+
 /** 将设置值转换为数据库存储用的字符串形式 */
 function toStoredValue(value: any): string {
   if (value instanceof Date) {
@@ -923,6 +1149,10 @@ function toStoredValue(value: any): string {
   }
   if (value === null || value === undefined) {
     return ''
+  }
+  // 官网内容结构化数组（site_metrics 等）序列化为 JSON 存储
+  if (Array.isArray(value) || typeof value === 'object') {
+    return JSON.stringify(value)
   }
   return String(value)
 }
@@ -936,7 +1166,30 @@ function toStoredMap(source: Record<string, any>): Record<string, string> {
 }
 
 /** 将数据库字符串还原为表单需要的类型 */
+/** 官网内容 JSON 键（编辑态为结构化数组，存储态为 JSON 字符串） */
+const CONTENT_JSON_KEYS = new Set([
+  'site_metrics',
+  'site_outcomes',
+  'home_solutions',
+  'site_channels',
+  'site_faq',
+  'site_honors',
+  'site_history'
+])
+
 function coerceValue(key: string, raw: any): any {
+  if (CONTENT_JSON_KEYS.has(key)) {
+    const fallback = defaultSiteContent[key] ?? []
+    if (typeof raw !== 'string' || !raw.trim()) {
+      return structuredClone(fallback)
+    }
+    try {
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? parsed : structuredClone(fallback)
+    } catch {
+      return structuredClone(fallback)
+    }
+  }
   if (raw === 'true') return true
   if (raw === 'false') return false
   return raw
@@ -1421,5 +1674,28 @@ html.dark .feature-group__icon {
   .feature-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ---------- 官网内容编辑器 ---------- */
+.content-row {
+  display: flex;
+  align-items: center;
+  gap: var(--el-border-radius-base, 8px);
+  margin-bottom: var(--el-border-radius-base, 8px);
+}
+
+.content-row-indent {
+  margin-left: var(--el-border-radius-large, 16px);
+}
+
+.content-col {
+  margin-bottom: var(--el-border-radius-base, 8px);
+}
+
+.content-stage {
+  border: 1px solid var(--el-border-color-light, #e4e7ed);
+  border-radius: 8px;
+  padding: var(--el-border-radius-base, 8px) var(--el-border-radius-base, 8px) 0;
+  margin-bottom: var(--el-border-radius-base, 8px);
 }
 </style>

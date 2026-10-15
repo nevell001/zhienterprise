@@ -69,11 +69,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { getPublishedPageBySlug } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { getSiteHonors } from '@/utils/siteContent'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
 import { logger } from '@/utils/logger'
@@ -91,25 +92,24 @@ const customContentHtml = computed(() => {
   return sanitizeArticleContent(renderMarkdown(raw))
 })
 
-/* 荣誉数据：设计稿附录 A 占位（资质证书/行业奖项/体系认证），
-   接入内容模型后由后端数据替换 */
-const categories = ['全部', '资质证书', '行业奖项', '体系认证'] as const
-
-const HONOR_ITEMS = [
-  { name: '高新技术企业证书', issuer: '省科学技术厅', year: '2023', cat: '资质证书' },
-  { name: '软件企业认定证书', issuer: '省工业和信息化厅', year: '2022', cat: '资质证书' },
-  { name: '行业年度解决方案奖', issuer: '行业峰会组委会', year: '2024', cat: '行业奖项' },
-  { name: '客户满意度金奖', issuer: '行业协会', year: '2023', cat: '行业奖项' },
-  { name: 'ISO 9001 质量管理体系', issuer: '认证机构', year: '2021', cat: '体系认证' },
-  { name: 'ISO 27001 信息安全管理体系', issuer: '认证机构', year: '2024', cat: '体系认证' }
-]
+/* 荣誉数据：管理后台「官网内容」页签维护（缺失回退设计稿附录 A 占位） */
+const honorItems = computed(() => getSiteHonors(siteSettings.value?.site_honors))
+const categories = computed(() => {
+  const cats = Array.from(new Set(honorItems.value.map(item => item.cat).filter(Boolean)))
+  return ['全部', ...cats]
+})
 
 const activeCat = ref<string>('全部')
 const filteredItems = computed(() =>
   activeCat.value === '全部'
-    ? HONOR_ITEMS
-    : HONOR_ITEMS.filter(item => item.cat === activeCat.value)
+    ? honorItems.value
+    : honorItems.value.filter(item => item.cat === activeCat.value)
 )
+
+// 数据变化（设置异步加载）后分类可能新增，当前选中项不存在时回退「全部」
+watch(categories, cats => {
+  if (!cats.includes(activeCat.value)) activeCat.value = '全部'
+})
 
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)

@@ -25,7 +25,7 @@
             <router-link class="btn-s" to="/contact">预约咨询</router-link>
           </div>
           <div class="metrics">
-            <div v-for="m in SITE_METRICS" :key="m.label" class="metric">
+            <div v-for="m in siteMetrics" :key="m.label" class="metric">
               <b>{{ m.value }}</b>
               <span>{{ m.label }}</span>
             </div>
@@ -103,7 +103,7 @@
         </div>
         <div class="sol">
           <div
-            v-for="(item, si) in SOLUTION_SHOWCASE"
+            v-for="(item, si) in solutions"
             :key="item.title"
             class="sol-card rv"
             :class="`d${si % 4}`"
@@ -145,7 +145,7 @@
           <p>我们只把能被验证的数字写进这里。</p>
         </div>
         <div class="numgrid rv d1">
-          <div v-for="o in SITE_OUTCOMES" :key="o.label" class="numcell">
+          <div v-for="o in outcomes" :key="o.label" class="numcell">
             <b>
               <i>{{ o.mark }}</i>
               {{ o.suffix }}
@@ -284,12 +284,12 @@ import { getArticleList } from '@/api/site'
 import type { Article } from '@/types'
 import { getFrontFriendLinkList } from '@/api/site/friendLink'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { getSiteTemplate } from '@/config/siteTemplates'
 import {
-  getSiteTemplate,
-  SITE_METRICS,
-  SITE_OUTCOMES,
-  SOLUTION_SHOWCASE
-} from '@/config/siteTemplates'
+  getHomeSolutions,
+  getSiteMetrics,
+  getSiteOutcomes
+} from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import { parseTime } from '@/utils/zhi'
 import { logger } from '@/utils/logger'
@@ -297,6 +297,11 @@ import { logger } from '@/utils/logger'
 const router = useRouter()
 const siteSettingsStore = useSiteSettingsStore()
 const settings = computed(() => siteSettingsStore.siteSettings)
+
+// 官网内容（管理后台「官网内容」页签维护；缺失/损坏回退内置占位）
+const siteMetrics = computed(() => getSiteMetrics(settings.value?.site_metrics))
+const outcomes = computed(() => getSiteOutcomes(settings.value?.site_outcomes))
+const solutions = computed(() => getHomeSolutions(settings.value?.home_solutions))
 
 /** 当前行业模板（站点设置 site_template，非法值回退默认） */
 const tpl = computed(() => getSiteTemplate(settings.value.site_template))

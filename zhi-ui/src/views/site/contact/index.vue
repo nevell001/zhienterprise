@@ -38,7 +38,7 @@
               <p>以下渠道均可通过页面底部电话与邮箱联系，备注对应渠道即可精准触达。</p>
             </div>
             <div class="ct-grid ct-four rv d1">
-              <div v-for="ch in CHANNELS" :key="ch.name" class="ct-card">
+              <div v-for="ch in channels" :key="ch.name" class="ct-card">
                 <div class="ct-type">{{ ch.name }}</div>
                 <p class="ct-desc">{{ ch.desc }}</p>
               </div>
@@ -154,11 +154,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { setJsonLd } from '@/utils/jsonld'
+import { getSiteChannels, getSiteFaqs } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
 interface ContactItem {
@@ -172,33 +173,9 @@ const siteSettingsStore = useSiteSettingsStore()
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const isGuestbookEnabled = computed(() => siteSettingsStore.isFeatureEnabled('guestbook_enabled'))
 
-/* 分渠道（渠道专属联系方式为占位，接入后替换；附录 A 口径） */
-const CHANNELS = [
-  { name: '商务合作', desc: '产品采购、方案报价与商务洽谈，请备注「商务合作」。' },
-  { name: '技术支持', desc: '已交付项目的部署、运维与故障响应，请备注「技术支持」。' },
-  { name: '渠道加盟', desc: '代理商与生态伙伴计划，请备注「渠道加盟」。' },
-  { name: '媒体采访', desc: '品牌活动、采访与内容合作，请备注「媒体采访」。' }
-] as const
-
-/* FAQ：通用占位（接入内容模型后可后台维护） */
-const faqs = [
-  {
-    q: '咨询后多久能得到回复？',
-    a: '工作时间内我们将在 1 个工作日内与您联系；紧急事项建议直接电话联系。'
-  },
-  {
-    q: '是否支持上门调研与定制方案？',
-    a: '支持。我们会先进行线上初诊，再根据情况安排上门调研并输出可执行的方案与报价。'
-  },
-  {
-    q: '合作流程是怎样的？',
-    a: '需求沟通 → 方案与报价 → 合同签订 → 实施交付 → 验收与长期陪跑，全程有专属对接人。'
-  },
-  {
-    q: '如何验证贵司的资质与案例？',
-    a: '可在「关于我们 → 荣誉资质」查看证书与奖项，「核心业务」中查看典型客户案例。'
-  }
-] as const
+/* 分渠道与 FAQ：管理后台「官网内容」页签维护（缺失回退内置占位） */
+const channels = computed(() => getSiteChannels(siteSettings.value?.site_channels))
+const faqs = computed(() => getSiteFaqs(siteSettings.value?.site_faq))
 
 const openFaq = ref(-1)
 
@@ -238,6 +215,21 @@ const mapLink = computed(() => {
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
 
+// FAQ 结构化数据（方案文档 §6.2）：设置异步加载完成后同步刷新
+const updateFaqJsonLd = () => {
+  setJsonLd('zh-jsonld-faqpage', {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.value.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a }
+    }))
+  })
+}
+
+watch(faqs, updateFaqJsonLd)
+
 onMounted(() => {
   const siteName = siteSettings.value.blog_name || '知企建站系统'
   applySeo({
@@ -246,16 +238,7 @@ onMounted(() => {
     keywords: '',
     canonical: canonicalUrl()
   })
-  // FAQ 结构化数据（方案文档 §6.2），随组件卸载移除由路由切换自然覆盖
-  setJsonLd('zh-jsonld-faqpage', {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map(f => ({
-      '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a }
-    }))
-  })
+  updateFaqJsonLd()
 })
 </script>
 
