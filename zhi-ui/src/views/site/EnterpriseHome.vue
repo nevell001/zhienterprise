@@ -507,8 +507,8 @@ const goNewsItem = (id?: number) => id && router.push(`/article/${id}`)
 
 /* ---------- ① Hero ---------- */
 .eh-hero {
-  /* 顶部补偿 fixed 导航高度（64px）：透明导航浮于 Hero 之上 */
-  padding: calc(var(--mo-sp-12) + 64px) 0 var(--mo-sp-10);
+  /* 顶部补偿 fixed 导航高度（透明态 88px，滚动后收拢至 64px）：透明导航浮于 Hero 之上 */
+  padding: calc(var(--mo-sp-12) + 88px) 0 var(--mo-sp-10);
   overflow: hidden;
 }
 

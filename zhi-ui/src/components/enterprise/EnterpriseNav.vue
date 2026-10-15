@@ -235,6 +235,12 @@ const handleUserCommand = async (command: string) => {
   display: flex;
   align-items: center;
   gap: var(--mo-sp-9);
+  transition: height 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 透明态高于实底态（方案文档 §1.1：滚动 80px 后 88px 收拢至 64px） */
+.ent-nav.over-hero .ent-nav-in {
+  height: 88px;
 }
 
 .ent-logo {
@@ -442,6 +448,12 @@ const handleUserCommand = async (command: string) => {
   color: var(--tpl-on-hero);
   font-weight: 600;
   text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ent-nav-in {
+    transition: none;
+  }
 }
 
 @media (max-width: 991px) {
