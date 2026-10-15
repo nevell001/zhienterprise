@@ -1,5 +1,5 @@
 <template>
-  <section class="pad dark">
+  <section ref="rootEl" class="pad dark">
     <div class="eh-wrap">
       <div class="tpl-sec-head rv">
         <div class="sec-tag">数据成果</div>
@@ -9,7 +9,7 @@
       <div class="numgrid rv d1">
         <div v-for="o in items" :key="o.label" class="numcell">
           <b>
-            <i>{{ o.mark }}</i>
+            <i :data-count-up="o.mark">{{ o.mark }}</i>
             {{ o.suffix }}
           </b>
           <span>{{ o.label }}</span>
@@ -20,9 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteOutcomes } from '@/utils/siteContent'
+import { useCountUp } from '@/composables/useCountUp'
 
 const props = defineProps<{ config?: Record<string, any> }>()
 
@@ -36,4 +37,7 @@ const items = computed(() => {
     ? fromConfig
     : getSiteOutcomes(settings.value?.site_outcomes)
 })
+
+const rootEl = ref<HTMLElement | null>(null)
+useCountUp(rootEl)
 </script>
