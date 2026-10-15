@@ -955,6 +955,12 @@ SET `config_value` = '企业官网,建站系统,企业网站建设,数字化转�
 WHERE `config_key` = 'blog_keywords'
   AND `config_value` = '企业官网,建站系统,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发';
 
+-- 企业建站收敛迁移：首页默认企业官网模板（仅当值仍为旧默认空值时生效，不影响已显式配置的站点）
+UPDATE `zhi_setting`
+SET `config_value` = 'business'
+WHERE `config_key` = 'home_layout'
+  AND (`config_value` = '' OR `config_value` IS NULL);
+
 -- 防盗链/域名管理设置（默认关闭，开关与白名单可在后台“站点设置-站点信息”管理）
 INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('referer_enabled', 'false', '防盗链开关（true/false）', NOW(), NOW()),
@@ -967,7 +973,7 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 -- 企业建站：核心业务栏目、企业首页模板与联系信息（已有库重跑自动补齐）
 INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 ('business_label', '核心业务', '核心业务栏目名称（可改为：产品中心/服务项目/解决方案）', NOW(), NOW()),
-('home_layout', '', '首页模板：留空=文章列表（默认）；business=企业官网区块化模板（home_page_slug 已设置时自定义页面优先）', NOW(), NOW()),
+('home_layout', 'business', '首页模板：business=企业官网区块化模板（默认，home_page_slug 已设置时自定义页面优先）', NOW(), NOW()),
 ('site_template', 'consult', '企业官网行业模板：consult 管理咨询 / tech 信息技术 / mfg 制造业 / trade 商贸 / digital 数码产品', NOW(), NOW()),
 ('contact_phone', '', '联系电话（官网联系信息展示）', NOW(), NOW()),
 ('contact_address', '', '联系地址（官网联系信息展示）', NOW(), NOW());
@@ -2443,7 +2449,13 @@ CREATE TABLE IF NOT EXISTS zhi_notification (
 -- 「关于」内置页面（slug=about）：页面管理列表中直接管理，前台 /blog/about 仅渲染此页（无其他兜底来源）；
 -- 幂等：INSERT IGNORE 依赖 slug 唯一键，重跑不覆盖站长在页面管理里的修改；被逻辑删除的行也会阻止重新插入（删除即删除）
 INSERT IGNORE INTO `zhi_page` (`title`, `slug`, `summary`, `content`, `status`, `show_in_nav`, `sort`, `create_by`, `create_time`, `update_time`)
-VALUES ('关于', 'about', '', '<p>这是一个基于Spring Boot + Vue.js构建的现代化企业建站系统。</p><p>主要功能包括：</p><ul><li>文章管理</li><li>分类标签</li><li>评论系统</li><li>搜索功能</li></ul>', '1', '0', 0, 'admin', NOW(), NOW());
+VALUES ('关于我们', 'about', '企业简介', '<p>XX科技有限公司（占位）面向行业客户提供产品与服务一体化解决方案，覆盖咨询诊断、方案设计、实施交付与长期陪跑。</p><p>我们相信，好的服务来自对企业业务的真实理解。多年来，团队始终专注于把复杂的问题变成清晰可执行的方案，帮助客户实现可量化的业务改进。</p><ul><li>方法论驱动：诊断先行，方案可落地</li><li>全程陪跑：从实施到运营的长期服务</li><li>可量化成果：只交付能被验证的改变</li></ul><p>如需了解详细案例与合作方式，欢迎通过「联系我们」页面与我们取得联系。</p>', '1', '0', 0, 'admin', NOW(), NOW());
+
+-- 品牌化迁移：旧版 about 种子内容（博客风）升级为企业简介占位（仅当内容仍为旧种子时生效，不覆盖站长修改）
+UPDATE `blog_page`
+SET `content` = '<p>XX科技有限公司（占位）面向行业客户提供产品与服务一体化解决方案，覆盖咨询诊断、方案设计、实施交付与长期陪跑。</p><p>我们相信，好的服务来自对企业业务的真实理解。多年来，团队始终专注于把复杂的问题变成清晰可执行的方案，帮助客户实现可量化的业务改进。</p><ul><li>方法论驱动：诊断先行，方案可落地</li><li>全程陪跑：从实施到运营的长期服务</li><li>可量化成果：只交付能被验证的改变</li></ul><p>如需了解详细案例与合作方式，欢迎通过「联系我们」页面与我们取得联系。</p>'
+WHERE `slug` = 'about'
+  AND `content` LIKE '%这是一个基于Spring Boot + Vue.js构建的现代化企业建站系统%';
 
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;

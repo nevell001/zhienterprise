@@ -65,51 +65,6 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="首页显示" prop="home_page_slug">
-              <el-select
-                v-model="settingsMap.home_page_slug"
-                clearable
-                placeholder="文章列表（默认）"
-                style="width: 260px"
-              >
-                <el-option label="文章列表（默认）" value="" />
-                <el-option
-                  v-for="opt in homePageOptions"
-                  :key="opt.value"
-                  :label="opt.label"
-                  :value="opt.value"
-                />
-              </el-select>
-              <div class="setting-tip">
-                选择自定义页面后首页展示该页面（企业官网模式），文章列表移到 /news，
-                导航出现「文章」入口；留空则首页为文章列表
-              </div>
-            </el-form-item>
-            <el-form-item label="首页模板" prop="home_layout">
-              <el-select v-model="settingsMap.home_layout" style="width: 260px">
-                <el-option label="文章列表（默认）" value="" />
-                <el-option label="企业官网模板" value="business" />
-              </el-select>
-              <div class="setting-tip">
-                企业官网模板提供
-                Hero、核心业务、数据、案例、动态与联系区块，导航出现「核心业务」入口；
-                已设置「首页显示」自定义页面时以自定义页面优先
-              </div>
-            </el-form-item>
-            <el-form-item label="栏目名称" prop="business_label">
-              <el-input
-                v-model="settingsMap.business_label"
-                placeholder="核心业务"
-                maxlength="20"
-                show-word-limit
-                style="max-width: 260px"
-              />
-              <div class="setting-tip">
-                企业官网模板下导航与首页区块的栏目名称，可按企业形态改为：产品中心 / 服务项目 /
-                解决方案
-              </div>
-            </el-form-item>
-
             <el-divider content-position="left">联系信息（企业官网模板展示）</el-divider>
             <el-form-item label="联系电话" prop="contact_phone">
               <el-input
@@ -267,7 +222,7 @@
         <el-tab-pane label="界面主题" name="theme">
           <el-form ref="themeForm" :model="settingsMap" label-width="120px">
             <el-alert
-              title="外观模式与布局主题记忆在当前浏览器；主题色保存后写入站点设置并作用于管理后台。"
+              title="外观模式记忆在当前浏览器；主题色与官网首页设置保存后写入站点设置并全站生效。"
               type="info"
               :closable="false"
               class="tab-alert"
@@ -291,20 +246,6 @@
               <span class="setting-tip">「跟随系统」会随操作系统的深/浅色偏好自动切换</span>
             </el-form-item>
 
-            <el-form-item label="应用主题">
-              <el-radio-group :model-value="settingsStore.appTheme" @change="handleAppThemeChange">
-                <el-radio-button
-                  v-for="option in appThemeOptions"
-                  :key="option.value"
-                  :data-app-theme="option.value"
-                  :label="option.value"
-                >
-                  {{ option.label }}
-                </el-radio-button>
-              </el-radio-group>
-              <span class="setting-tip">切换后自动记住当前浏览器的后台布局主题</span>
-            </el-form-item>
-
             <el-form-item label="主题颜色" prop="theme_color">
               <div class="theme-color-control">
                 <el-color-picker
@@ -323,29 +264,39 @@
               </div>
             </el-form-item>
 
-            <div class="theme-preview-grid">
-              <button
-                v-for="option in appThemeOptions"
-                :key="option.value"
-                type="button"
-                class="theme-preview-card"
-                :class="[{ active: settingsStore.appTheme === option.value }, option.value]"
-                @click="handleAppThemeChange(option.value)"
+            <el-divider content-position="left">官网首页（企业官网模板）</el-divider>
+            <el-form-item label="首页显示" prop="home_page_slug">
+              <el-select
+                v-model="settingsMap.home_page_slug"
+                clearable
+                placeholder="企业官网模板首页（默认）"
+                style="width: 260px"
               >
-                <span class="theme-preview-title">{{ option.label }}</span>
-                <span class="theme-preview-desc">{{ option.description }}</span>
-                <span class="theme-preview-surface">
-                  <span class="theme-preview-sidebar"></span>
-                  <span class="theme-preview-content">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </span>
-                </span>
-              </button>
-            </div>
-
-            <el-divider content-position="left">官网行业模板（前台企业官网首页皮肤）</el-divider>
+                <el-option label="企业官网模板首页（默认）" value="" />
+                <el-option
+                  v-for="opt in homePageOptions"
+                  :key="opt.value"
+                  :label="opt.label"
+                  :value="opt.value"
+                />
+              </el-select>
+              <div class="setting-tip">
+                选择自定义页面后首页整体展示该页面（如落地页/活动页）；留空则首页为企业官网
+                区块化模板（Hero / 核心业务 / 新闻动态等区块）
+              </div>
+            </el-form-item>
+            <el-form-item label="栏目名称" prop="business_label">
+              <el-input
+                v-model="settingsMap.business_label"
+                placeholder="核心业务"
+                maxlength="20"
+                show-word-limit
+                style="max-width: 260px"
+              />
+              <div class="setting-tip">
+                导航与首页区块的核心业务栏目名称，可按企业形态改为：产品中心 / 服务项目 / 解决方案
+              </div>
+            </el-form-item>
             <el-form-item label="行业模板" prop="site_template">
               <el-select v-model="settingsMap.site_template" style="width: 320px">
                 <el-option v-for="t in siteTemplates" :key="t.id" :value="t.id" :label="t.name">
@@ -366,8 +317,7 @@
               </el-select>
               <div class="setting-tip">
                 企业官网的行业形态：主色 / 圆角 / 母题主视觉 / 文案随模板整体切换（管理咨询 /
-                信息技术 / 制造业 / 商贸 / 数码产品）。仅在「站点信息 → 首页模板 =
-                企业官网模板」时作用于前台首页，保存后即时生效
+                信息技术 / 制造业 / 商贸 / 数码产品），保存后前台即时生效
               </div>
             </el-form-item>
           </el-form>
@@ -610,7 +560,7 @@
 import { isSwitchOn } from '@/utils/featureSwitch'
 import { ref, computed, onMounted, getCurrentInstance, watch } from 'vue'
 import { useSettingsStore, type ThemeMode } from '@/stores/settings'
-import { handleThemeStyle, type AppTheme } from '@/utils/theme'
+import { handleThemeStyle } from '@/utils/theme'
 import { ElMessage } from '@/plugins/element-plus-service'
 import {
   Link as LinkIcon,
@@ -659,11 +609,6 @@ const mailForm = ref({
 })
 const mailSaving = ref(false)
 const mailTesting = ref(false)
-
-const appThemeOptions: { label: string; value: AppTheme; description: string }[] = [
-  { label: '默认主题', value: 'default', description: '保留管理后台的默认布局和交互习惯' },
-  { label: 'Mo-Blog', value: 'mo-blog', description: '与前台站点一致的低饱和靛蓝、石色背景风格' }
-]
 
 const themeModeOptions: { label: string; value: ThemeMode }[] = [
   { label: '跟随系统', value: 'system' },
@@ -820,7 +765,7 @@ const defaultSettings: Record<string, any> = {
   blog_beian: '',
   blog_url: '',
   home_page_slug: '',
-  home_layout: '',
+  home_layout: 'business',
   business_label: '核心业务',
   contact_phone: '',
   contact_address: '',
@@ -952,7 +897,8 @@ function normalizeThemeColor(value: unknown): string {
   if (typeof value === 'string' && value.trim()) {
     return value.trim()
   }
-  return settingsStore.appTheme === 'mo-blog' ? '#4f46e5' : '#409EFF'
+  // Mo-Blog 已移除，默认主题回退 Element 默认蓝
+  return '#409EFF'
 }
 
 function handleThemeColorChange(value: unknown) {
@@ -960,22 +906,6 @@ function handleThemeColorChange(value: unknown) {
   settingsMap.value.theme_color = nextColor
   settingsStore.changeSetting({ key: 'theme', value: nextColor })
   handleThemeStyle(nextColor)
-}
-
-function handleAppThemeChange(value: unknown) {
-  const nextTheme: AppTheme = value === 'mo-blog' ? 'mo-blog' : 'default'
-  settingsStore.setAppTheme(nextTheme)
-
-  if (
-    nextTheme === 'mo-blog' &&
-    (!settingsMap.value.theme_color ||
-      settingsMap.value.theme_color === '#409EFF' ||
-      settingsMap.value.theme_color === '#409eff')
-  ) {
-    settingsMap.value.theme_color = '#4f46e5'
-  }
-
-  handleThemeColorChange(settingsMap.value.theme_color)
 }
 
 function handleThemeModeChange(mode: unknown) {
@@ -1468,171 +1398,6 @@ html.dark .site-setting-card {
   font-size: 12px;
   line-height: 1.5;
 }
-
-.theme-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-top: 8px;
-}
-
-.theme-preview-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  padding: 16px;
-  text-align: left;
-  cursor: pointer;
-  background: var(--el-bg-color-overlay, #ffffff);
-  border: 1px solid var(--el-border-color-light, #e5e7eb);
-  border-radius: 8px;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-}
-
-.theme-preview-card:hover,
-.theme-preview-card.active {
-  border-color: var(--el-color-primary, #409eff);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-  transform: translateY(-1px);
-}
-
-.theme-preview-title {
-  color: var(--el-text-color-primary, #303133);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.theme-preview-desc {
-  min-height: 36px;
-  color: var(--el-text-color-secondary, #606266);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.theme-preview-surface {
-  display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 10px;
-  height: 86px;
-  padding: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-}
-
-.theme-preview-sidebar {
-  background: #1f2937;
-  border-radius: 4px;
-}
-
-.theme-preview-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.theme-preview-content span {
-  display: block;
-  height: 12px;
-  background: #e2e8f0;
-  border-radius: 4px;
-}
-
-.theme-preview-content span:first-child {
-  width: 64%;
-  background: var(--el-color-primary-light-7, #c7d2fe);
-}
-
-.theme-preview-card.mo-blog .theme-preview-surface {
-  background: #f8f7f4;
-  border-color: #dedbd2;
-}
-
-.theme-preview-card.mo-blog .theme-preview-sidebar {
-  background: #2f3a4a;
-}
-
-.theme-preview-card.mo-blog .theme-preview-content span:first-child {
-  background: #c7d2fe;
-}
-
-/* 表单 */
-.el-form {
-  padding: 0;
-  background-color: transparent;
-}
-
-:deep(.el-form-item__label) {
-  color: var(--el-text-color-primary, #303133);
-  font-weight: 700;
-}
-
-.el-form-item {
-  margin-bottom: 20px;
-}
-
-/* 暗色主题 */
-html.dark .theme-preview-card {
-  background: var(--el-bg-color-overlay, #1d1e1f);
-  border-color: var(--el-border-color-light, #3f3f46);
-}
-
-html.dark .theme-preview-card:hover,
-html.dark .theme-preview-card.active {
-  border-color: var(--el-color-primary, #4f46e5);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-html.dark .theme-preview-title {
-  color: var(--el-text-color-primary, #e5e8eb);
-}
-
-html.dark .theme-preview-desc {
-  color: var(--el-text-color-secondary, #a3a8ad);
-}
-
-/* 默认深色主题预览：zinc 色阶不在 --mo-* 色板内，保留字面量 */
-html.dark .theme-preview-surface {
-  background: #27272a;
-  border-color: #3f3f46;
-}
-
-/* 默认深色侧边栏预览 */
-html.dark .theme-preview-sidebar {
-  background: #1f2937;
-}
-
-/* 默认深色内容条预览 */
-html.dark .theme-preview-content span {
-  background: #3f3f46;
-}
-
-html.dark .theme-preview-content span:first-child {
-  background: rgba(79, 70, 229, 0.3);
-}
-
-/* Mo-Blog 深色主题预览：用 --mo-n* 令牌（:root 作用域下解析为棕色色阶原值） */
-html.dark .theme-preview-card.mo-blog .theme-preview-surface {
-  background: var(--mo-n800);
-  border-color: var(--mo-n700);
-}
-
-html.dark .theme-preview-card.mo-blog .theme-preview-sidebar {
-  background: var(--mo-n900);
-}
-
-html.dark .theme-preview-card.mo-blog .theme-preview-content span {
-  background: var(--mo-n700);
-}
-
-html.dark .theme-preview-card.mo-blog .theme-preview-content span:first-child {
-  background: rgba(99, 102, 241, 0.3);
-}
-
 html.dark .feature-card {
   background: var(--el-bg-color-overlay, #1d1e1f);
   border-color: var(--el-border-color-light, #434346);

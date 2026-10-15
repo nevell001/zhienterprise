@@ -49,6 +49,6 @@ describe('App 博客路由运行时渲染', () => {
     await flushPromises()
 
     expect(wrapper.find('.mo-home-page').exists()).toBe(true)
-    expect(wrapper.text()).toContain('记录与分享')
+    expect(wrapper.text()).toContain('核心业务')
   })
 })

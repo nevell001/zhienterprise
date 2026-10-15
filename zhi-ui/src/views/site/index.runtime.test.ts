@@ -67,8 +67,9 @@ describe('博客首页运行时渲染', () => {
     await flushPromises()
 
     expect(wrapper.find('.mo-home-page').exists()).toBe(true)
-    expect(wrapper.find('.home-hero h1').text()).toBe('记录与分享')
-    expect(wrapper.find('.site-top-nav').exists()).toBe(true)
+    expect(wrapper.find('.eh-hero').exists()).toBe(true)
+    expect(wrapper.text()).toContain('核心业务')
+    expect(wrapper.find('.ent-nav').exists()).toBe(true)
   })
 
   it('存在旧 token 时也应该渲染首屏，不应被用户下拉菜单阻断', async () => {
@@ -90,7 +91,8 @@ describe('博客首页运行时渲染', () => {
     await flushPromises()
 
     expect(wrapper.find('.mo-home-page').exists()).toBe(true)
-    expect(wrapper.find('.home-hero h1').text()).toBe('记录与分享')
+    expect(wrapper.find('.eh-hero').exists()).toBe(true)
+    expect(wrapper.text()).toContain('核心业务')
     expect(consoleErrorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('Vue运行时错误:'),
       expect.anything()
@@ -129,7 +131,7 @@ describe('博客首页运行时渲染', () => {
     expect(wrapper.find('a[href="/news"]').exists()).toBe(true)
   })
 
-  it('home_page_slug 对应页面不存在时降级回文章列表', async () => {
+  it('home_page_slug 对应页面不存在时降级回企业官网模板首页', async () => {
     vi.mocked(getSiteSettings).mockResolvedValueOnce({
       data: { home_page_slug: 'missing' }
     } as any)
@@ -142,7 +144,8 @@ describe('博客首页运行时渲染', () => {
     await flushPromises()
 
     expect(wrapper.find('.mo-home-page').exists()).toBe(true)
-    expect(wrapper.find('.home-hero h1').text()).toBe('记录与分享')
+    expect(wrapper.find('.eh-hero').exists()).toBe(true)
+    expect(wrapper.text()).toContain('核心业务')
   })
 
   it('设置未加载完成时不先渲染文章列表（避免闪动）', async () => {

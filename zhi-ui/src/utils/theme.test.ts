@@ -200,22 +200,22 @@ describe('theme 工具测试', () => {
   })
 
   describe('app theme helpers', () => {
-    it('应该把未知主题归一化为 default', () => {
-      expect(normalizeAppTheme('mo-blog')).toBe('mo-blog')
+    it('已移除的 mo-blog 主题应归一化为 default', () => {
+      expect(normalizeAppTheme('mo-blog')).toBe('default')
       expect(normalizeAppTheme('default')).toBe('default')
       expect(normalizeAppTheme('unknown')).toBe('default')
       expect(normalizeAppTheme(undefined)).toBe('default')
     })
 
-    it('应该在根节点挂载 mo-blog class 并持久化', () => {
+    it('申请 mo-blog 也保持 default 且不挂皮肤类（主题已下线）', () => {
       const root = createRootStub()
       const storage = window.localStorage
       storage.clear()
 
       applyAppTheme('mo-blog', root, storage)
 
-      expect(root.classList.contains('theme-mo-blog')).toBe(true)
-      expect(storage.getItem(APP_THEME_STORAGE_KEY)).toBe('mo-blog')
+      expect(root.classList.contains('theme-mo-blog')).toBe(false)
+      expect(storage.getItem(APP_THEME_STORAGE_KEY)).toBe('default')
     })
 
     it('应该切回 default 并移除 mo-blog class', () => {

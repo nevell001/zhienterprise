@@ -1,8 +1,12 @@
-export type AppTheme = 'default' | 'mo-blog'
+/**
+ * 应用主题：Mo-Blog 主题已移除，仅保留默认主题。
+ * 保留类型与函数签名以兼容既有调用（设置存储里的历史偏好经 normalize 归一为 default）。
+ */
+export type AppTheme = 'default'
 
 export const APP_THEME_STORAGE_KEY = 'app-theme'
 
-const APP_THEMES: AppTheme[] = ['default', 'mo-blog']
+const APP_THEMES: AppTheme[] = ['default']
 const MO_BLOG_CLASS = 'theme-mo-blog'
 
 export function normalizeAppTheme(value: unknown): AppTheme {
@@ -23,11 +27,8 @@ export function applyAppTheme(
   storage: Storage | undefined = localStorage
 ): void {
   const nextTheme = normalizeAppTheme(theme)
+  // Mo-Blog 已下线：无论存储的历史偏好是什么，都摘除其皮肤类
   root.classList.remove(MO_BLOG_CLASS)
-
-  if (nextTheme === 'mo-blog') {
-    root.classList.add(MO_BLOG_CLASS)
-  }
 
   try {
     storage?.setItem(APP_THEME_STORAGE_KEY, nextTheme)

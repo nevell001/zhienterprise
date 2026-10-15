@@ -79,7 +79,7 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       nav_category_enabled: true,
       nav_tag_enabled: true,
       nav_archive_enabled: true,
-      home_layout: '',
+      home_layout: 'business',
       business_label: '核心业务',
       contact_phone: '',
       contact_address: '',

@@ -175,7 +175,7 @@ describe('SiteSetting 视图（行为）', () => {
 
     const text = wrapper.text()
     expect(text).toContain('首页显示')
-    expect(text).toContain('文章列表（默认）')
+    expect(text).toContain('企业官网模板首页（默认）')
     expect(text).toContain('关于我们')
   })
 
@@ -215,18 +215,6 @@ describe('SiteSetting 视图（行为）', () => {
     await flushPromises()
 
     expect(document.documentElement.classList.contains('dark')).toBe(true)
-  })
-
-  it('选择 Mo-Blog 应用主题会给 <html> 加上 theme-mo-blog 类', async () => {
-    const wrapper = mountPage()
-    await flushPromises()
-
-    const groups = wrapper.findAllComponents(ElRadioGroupStub)
-    // 第二个 el-radio-group 是应用主题
-    groups[1].vm.$emit('change', 'mo-blog')
-    await flushPromises()
-
-    expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
   })
 
   it('挂载时读取邮件服务配置', async () => {

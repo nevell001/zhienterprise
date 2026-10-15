@@ -45,24 +45,24 @@ describe('Settings Store 测试', () => {
       expect(store.theme).toBe('#FF0000')
     })
 
-    it('应该初始化应用主题为持久化值', () => {
+    it('历史 mo-blog 偏好应归一化为 default（主题已移除）', () => {
       localStorage.setItem('app-theme', 'mo-blog')
       const store = useSettingsStore()
-      expect(store.appTheme).toBe('mo-blog')
+      expect(store.appTheme).toBe('default')
     })
 
-    it('应该优先从布局设置中恢复应用主题', () => {
+    it('布局设置中的历史 mo-blog 偏好同样归一化且不挂皮肤类', () => {
       localStorage.setItem('layout-setting', JSON.stringify({ appTheme: 'mo-blog' }))
       const store = useSettingsStore()
-      expect(store.appTheme).toBe('mo-blog')
-      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
+      expect(store.appTheme).toBe('default')
+      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(false)
     })
 
-    it('应该设置应用主题并同步根节点 class', () => {
+    it('设置应用主题时历史值归一化为 default', () => {
       const store = useSettingsStore()
       store.setAppTheme('mo-blog')
-      expect(store.appTheme).toBe('mo-blog')
-      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
+      expect(store.appTheme).toBe('default')
+      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(false)
     })
 
     it('切换主题后应同步 layout-setting，刷新不再回退', () => {

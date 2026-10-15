@@ -246,14 +246,8 @@ const loadedHomeSlug = ref('')
 
 const showCustomHome = computed(() => !isArticleListRoute.value && isCustomHomePage.value)
 
-// 企业官网区块化模板：home_layout=business 且未被自定义页面接管时启用
-const isBusinessHomeLayout = computed(
-  () =>
-    !isCustomHomePage.value &&
-    String(siteSettingsStore.siteSettings.home_layout || '') === 'business'
-)
-
-// 企业官网模板模式（含自定义页接管形态）：用于 fixed 导航偏移等布局联动
+// 企业官网模板模式（home_layout=business）：首页默认形态，也承接自定义页
+// 接管失败（slug 写错/页面被删）时的降级——不再降级回博客文章列表
 const isTplMode = computed(
   () => String(siteSettingsStore.siteSettings.home_layout || '') === 'business'
 )
@@ -263,7 +257,7 @@ const homeMode = computed<'booting' | 'custom' | 'business' | 'list'>(() => {
   if (isArticleListRoute.value) return 'list'
   if (!settingsReady.value) return 'booting'
   if (showCustomHome.value && !homePageNotFound.value) return 'custom'
-  if (isBusinessHomeLayout.value) return 'business'
+  if (isTplMode.value) return 'business'
   return 'list'
 })
 
