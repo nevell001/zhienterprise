@@ -4,7 +4,12 @@
       <div class="tpl-sec-head rv">
         <div class="sec-tag">解决方案</div>
         <h2>{{ cfg.title || tpl.solutionsTitle }}</h2>
-        <p>{{ cfg.subtitle || '每个方案都基于真实业务场景，包含客户挑战、方案架构、实施路径与可量化成果。' }}</p>
+        <p>
+          {{
+            cfg.subtitle ||
+            '每个方案都基于真实业务场景，包含客户挑战、方案架构、实施路径与可量化成果。'
+          }}
+        </p>
       </div>
       <div class="sol">
         <div
@@ -18,10 +23,24 @@
           <p>{{ item.desc }}</p>
           <router-link class="lnk" to="/business">
             查看方案
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M3 8h10M9 4l4 4-4 4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
           </router-link>
           <!-- eslint-disable-next-line vue/no-v-html -->
-          <svg class="sol-art" viewBox="0 0 200 200" fill="none" aria-hidden="true" v-html="tpl.art" />
+          <svg
+            class="sol-art"
+            viewBox="0 0 200 200"
+            fill="none"
+            aria-hidden="true"
+            v-html="tpl.art"
+          />
         </div>
       </div>
     </div>

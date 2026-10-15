@@ -287,7 +287,9 @@ function submitForm() {
 
 function handleDelete(row: SiteNavItem) {
   proxy?.$modal
-    ?.confirm(`确定删除导航项「${row.label}」吗？${row.children?.length ? '其子项将一并删除。' : ''}`)
+    ?.confirm(
+      `确定删除导航项「${row.label}」吗？${row.children?.length ? '其子项将一并删除。' : ''}`
+    )
     .then(async () => {
       await delNav(row.id!)
       proxy?.$modal?.msgSuccess('删除成功')

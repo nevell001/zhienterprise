@@ -24,8 +24,14 @@ const cfg = computed(() => props.config ?? {})
 const partnerNames = ref<string[]>([])
 
 const FALLBACK_PARTNERS = [
-  '客户 A', '客户 B', '客户 C', '客户 D',
-  '客户 E', '客户 F', '客户 G', '客户 H'
+  '客户 A',
+  '客户 B',
+  '客户 C',
+  '客户 D',
+  '客户 E',
+  '客户 F',
+  '客户 G',
+  '客户 H'
 ]
 
 onMounted(async () => {
@@ -40,9 +46,10 @@ onMounted(async () => {
       .map((item: unknown) => String((item as { name?: unknown })?.name ?? '').trim())
       .filter(Boolean)
       .slice(0, count.value)
-    partnerNames.value = names.length > 0
-      ? [...names, ...FALLBACK_PARTNERS.slice(names.length)].slice(0, count.value)
-      : FALLBACK_PARTNERS.slice(0, count.value)
+    partnerNames.value =
+      names.length > 0
+        ? [...names, ...FALLBACK_PARTNERS.slice(names.length)].slice(0, count.value)
+        : FALLBACK_PARTNERS.slice(0, count.value)
   } catch {
     partnerNames.value = FALLBACK_PARTNERS.slice(0, count.value)
   }

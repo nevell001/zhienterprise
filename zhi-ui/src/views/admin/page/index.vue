@@ -256,11 +256,7 @@
         <!-- 模块组装页：模块列表编辑（排序 / 开关 / 展开配置） -->
         <el-form-item v-if="form.pageType === 'builder'" label="页面模块">
           <div class="section-editor">
-            <div
-              v-for="(sec, si) in sectionList"
-              :key="`${sec.type}-${si}`"
-              class="section-card"
-            >
+            <div v-for="(sec, si) in sectionList" :key="`${sec.type}-${si}`" class="section-card">
               <div class="section-card-head">
                 <span class="section-name">
                   {{ sectionMeta[sec.type]?.label || sec.type }}
@@ -282,11 +278,7 @@
                     inline-prompt
                     size="small"
                   />
-                  <el-button
-                    link
-                    type="primary"
-                    @click="toggleExpand(si, sectionList[si])"
-                  >
+                  <el-button link type="primary" @click="toggleExpand(si, sectionList[si])">
                     {{ expandedIndex === si ? '收起' : '编辑' }}
                   </el-button>
                   <el-button link type="danger" @click="removeSection(si)">删除</el-button>
@@ -296,7 +288,11 @@
                 <!-- Hero -->
                 <template v-if="sec.type === 'hero'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.eyebrow" placeholder="眉标（Eyebrow）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.eyebrow"
+                      placeholder="眉标（Eyebrow）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div class="cfg-row">
                     <el-input
@@ -307,13 +303,34 @@
                     />
                   </div>
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.subtitle" type="textarea" :rows="2" placeholder="副标题" />
+                    <el-input
+                      v-model="sec.config.subtitle"
+                      type="textarea"
+                      :rows="2"
+                      placeholder="副标题"
+                    />
                   </div>
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.ctaPrimary.label" placeholder="主按钮文字" style="width: 160px" />
-                    <el-input v-model="sec.config.ctaPrimary.link" placeholder="主按钮链接" style="width: 180px" />
-                    <el-input v-model="sec.config.ctaSecondary.label" placeholder="次按钮文字" style="width: 160px" />
-                    <el-input v-model="sec.config.ctaSecondary.link" placeholder="次按钮链接" style="width: 180px" />
+                    <el-input
+                      v-model="sec.config.ctaPrimary.label"
+                      placeholder="主按钮文字"
+                      style="width: 160px"
+                    />
+                    <el-input
+                      v-model="sec.config.ctaPrimary.link"
+                      placeholder="主按钮链接"
+                      style="width: 180px"
+                    />
+                    <el-input
+                      v-model="sec.config.ctaSecondary.label"
+                      placeholder="次按钮文字"
+                      style="width: 160px"
+                    />
+                    <el-input
+                      v-model="sec.config.ctaSecondary.link"
+                      placeholder="次按钮链接"
+                      style="width: 180px"
+                    />
                   </div>
                 </template>
 
@@ -322,9 +339,15 @@
                   <div v-for="(m, mi) in sec.config.items" :key="mi" class="cfg-row">
                     <el-input v-model="m.value" placeholder="数值" style="width: 140px" />
                     <el-input v-model="m.label" placeholder="说明" style="flex: 1" />
-                    <el-button type="danger" link @click="removeItem(sec, 'items', mi)">删除</el-button>
+                    <el-button type="danger" link @click="removeItem(sec, 'items', mi)">
+                      删除
+                    </el-button>
                   </div>
-                  <el-button link type="primary" @click="addItem(sec, 'items', { value: '', label: '' })">
+                  <el-button
+                    link
+                    type="primary"
+                    @click="addItem(sec, 'items', { value: '', label: '' })"
+                  >
                     + 添加指标
                   </el-button>
                   <div class="cfg-hint">清空全部行时前台显示内置示例</div>
@@ -333,10 +356,18 @@
                 <!-- 核心业务两卡 -->
                 <template v-else-if="sec.type === 'biz-cards'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.subtitle" placeholder="区块副题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.subtitle"
+                      placeholder="区块副题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div class="cfg-hint">两卡列表项来自「核心业务」文章，无需在此维护</div>
                 </template>
@@ -344,12 +375,18 @@
                 <!-- 解决方案精选 -->
                 <template v-else-if="sec.type === 'solutions'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空随行业模板）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空随行业模板）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div v-for="(it, ii) in sec.config.items" :key="ii" class="cfg-row">
                     <el-input v-model="it.title" placeholder="方案名称" style="width: 220px" />
                     <el-input v-model="it.desc" placeholder="一句话说明" style="flex: 1" />
-                    <el-button type="danger" link @click="removeItem(sec, 'items', ii)">删除</el-button>
+                    <el-button type="danger" link @click="removeItem(sec, 'items', ii)">
+                      删除
+                    </el-button>
                   </div>
                   <el-button
                     link
@@ -363,13 +400,19 @@
                 <!-- 数据成果 -->
                 <template v-else-if="sec.type === 'outcomes'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div v-for="(it, ii) in sec.config.items" :key="ii" class="cfg-row">
                     <el-input v-model="it.mark" placeholder="数字，如 ↓38" style="width: 120px" />
                     <el-input v-model="it.suffix" placeholder="单位" style="width: 80px" />
                     <el-input v-model="it.label" placeholder="说明" style="flex: 1" />
-                    <el-button type="danger" link @click="removeItem(sec, 'items', ii)">删除</el-button>
+                    <el-button type="danger" link @click="removeItem(sec, 'items', ii)">
+                      删除
+                    </el-button>
                   </div>
                   <el-button
                     link
@@ -392,7 +435,11 @@
                 <!-- 新闻动态 -->
                 <template v-else-if="sec.type === 'news'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div class="cfg-row">
                     <span class="cfg-label">展示条数</span>
@@ -409,33 +456,64 @@
                     <el-input v-model="sec.config.subtitle" placeholder="副题" style="flex: 1" />
                   </div>
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.primary.label" placeholder="主按钮文字" style="width: 160px" />
-                    <el-input v-model="sec.config.primary.link" placeholder="主按钮链接" style="width: 180px" />
-                    <el-input v-model="sec.config.secondary.label" placeholder="次按钮文字" style="width: 160px" />
-                    <el-input v-model="sec.config.secondary.link" placeholder="次按钮链接" style="width: 180px" />
+                    <el-input
+                      v-model="sec.config.primary.label"
+                      placeholder="主按钮文字"
+                      style="width: 160px"
+                    />
+                    <el-input
+                      v-model="sec.config.primary.link"
+                      placeholder="主按钮链接"
+                      style="width: 180px"
+                    />
+                    <el-input
+                      v-model="sec.config.secondary.label"
+                      placeholder="次按钮文字"
+                      style="width: 160px"
+                    />
+                    <el-input
+                      v-model="sec.config.secondary.link"
+                      placeholder="次按钮链接"
+                      style="width: 180px"
+                    />
                   </div>
                 </template>
 
                 <!-- 富文本区块 -->
                 <template v-else-if="sec.type === 'rich-text'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.tag" placeholder="区块标签，如 关于我们" style="width: 200px" />
+                    <el-input
+                      v-model="sec.config.tag"
+                      placeholder="区块标签，如 关于我们"
+                      style="width: 200px"
+                    />
                     <el-input v-model="sec.config.title" placeholder="区块标题" style="flex: 1" />
                   </div>
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.content" type="textarea" :rows="6" placeholder="HTML 或 Markdown 内容（前台统一消毒渲染）" />
+                    <el-input
+                      v-model="sec.config.content"
+                      type="textarea"
+                      :rows="6"
+                      placeholder="HTML 或 Markdown 内容（前台统一消毒渲染）"
+                    />
                   </div>
                 </template>
 
                 <!-- FAQ -->
                 <template v-else-if="sec.type === 'faq'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div v-for="(f, fi) in sec.config.items" :key="fi" class="content-col">
                     <div class="cfg-row">
                       <el-input v-model="f.q" placeholder="问题" style="flex: 1" />
-                      <el-button type="danger" link @click="removeItem(sec, 'items', fi)">删除</el-button>
+                      <el-button type="danger" link @click="removeItem(sec, 'items', fi)">
+                        删除
+                      </el-button>
                     </div>
                     <el-input v-model="f.a" type="textarea" :rows="2" placeholder="答案" />
                   </div>
@@ -447,12 +525,18 @@
                 <!-- 分渠道咨询 -->
                 <template v-else-if="sec.type === 'channels'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div v-for="(c, ci) in sec.config.items" :key="ci" class="cfg-row">
                     <el-input v-model="c.name" placeholder="渠道名称" style="width: 200px" />
                     <el-input v-model="c.desc" placeholder="说明" style="flex: 1" />
-                    <el-button type="danger" link @click="removeItem(sec, 'items', ci)">删除</el-button>
+                    <el-button type="danger" link @click="removeItem(sec, 'items', ci)">
+                      删除
+                    </el-button>
                   </div>
                   <el-button
                     link
@@ -466,19 +550,27 @@
                 <!-- 荣誉资质墙 -->
                 <template v-else-if="sec.type === 'honors'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div v-for="(h, hi) in sec.config.items" :key="hi" class="cfg-row">
                     <el-input v-model="h.name" placeholder="名称" style="width: 200px" />
                     <el-input v-model="h.issuer" placeholder="颁发方" style="width: 160px" />
                     <el-input v-model="h.year" placeholder="年份" style="width: 80px" />
                     <el-input v-model="h.cat" placeholder="分类" style="width: 110px" />
-                    <el-button type="danger" link @click="removeItem(sec, 'items', hi)">删除</el-button>
+                    <el-button type="danger" link @click="removeItem(sec, 'items', hi)">
+                      删除
+                    </el-button>
                   </div>
                   <el-button
                     link
                     type="primary"
-                    @click="addItem(sec, 'items', { name: '', issuer: '', year: '', cat: '资质证书' })"
+                    @click="
+                      addItem(sec, 'items', { name: '', issuer: '', year: '', cat: '资质证书' })
+                    "
                   >
                     + 添加荣誉
                   </el-button>
@@ -487,30 +579,38 @@
                 <!-- 发展历程时间轴 -->
                 <template v-else-if="sec.type === 'history'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div v-for="(st, sti) in sec.config.stages" :key="sti" class="content-stage">
                     <div class="cfg-row">
                       <el-input v-model="st.range" placeholder="年份区间" style="width: 160px" />
                       <el-input v-model="st.name" placeholder="阶段名" style="width: 140px" />
                       <el-input v-model="st.theme" placeholder="阶段主题" style="flex: 1" />
-                      <el-button type="danger" link @click="removeItem(sec, 'stages', sti)">删除阶段</el-button>
+                      <el-button type="danger" link @click="removeItem(sec, 'stages', sti)">
+                        删除阶段
+                      </el-button>
                     </div>
                     <div v-for="(ev, eii) in st.events" :key="eii" class="cfg-row cfg-row-indent">
                       <el-input v-model="ev.year" placeholder="年份" style="width: 80px" />
                       <el-input v-model="ev.title" placeholder="事件标题" style="width: 200px" />
                       <el-input v-model="ev.desc" placeholder="描述" style="flex: 1" />
                       <el-checkbox v-model="ev.honor">荣誉</el-checkbox>
-                      <el-button type="danger" link @click="removeStageEvent(sec, sti, eii)">删除</el-button>
+                      <el-button type="danger" link @click="removeStageEvent(sec, sti, eii)">
+                        删除
+                      </el-button>
                     </div>
-                    <el-button link type="primary" @click="addStageEvent(sec, sti)">+ 添加事件</el-button>
+                    <el-button link type="primary" @click="addStageEvent(sec, sti)">
+                      + 添加事件
+                    </el-button>
                   </div>
                   <el-button
                     link
                     type="primary"
-                    @click="
-                      addItem(sec, 'stages', { range: '', name: '', theme: '', events: [] })
-                    "
+                    @click="addItem(sec, 'stages', { range: '', name: '', theme: '', events: [] })"
                   >
                     + 添加阶段
                   </el-button>
@@ -519,7 +619,11 @@
                 <!-- 联系信息卡 -->
                 <template v-else-if="sec.type === 'contact-info'">
                   <div class="cfg-row">
-                    <el-input v-model="sec.config.title" placeholder="区块标题（留空用默认）" style="flex: 1" />
+                    <el-input
+                      v-model="sec.config.title"
+                      placeholder="区块标题（留空用默认）"
+                      style="flex: 1"
+                    />
                   </div>
                   <div class="cfg-hint">电话/邮箱/地址来自「站点设置」，无需在此维护</div>
                 </template>
@@ -718,7 +822,10 @@ const SECTION_META: Record<string, { label: string; make: () => Record<string, a
       secondary: { label: '了解我们', link: '/about' }
     })
   },
-  'rich-text': { label: '富文本区块', make: () => ({ tag: '', title: '', subtitle: '', content: '' }) },
+  'rich-text': {
+    label: '富文本区块',
+    make: () => ({ tag: '', title: '', subtitle: '', content: '' })
+  },
   faq: { label: 'FAQ 手风琴', make: () => ({ title: '', items: [] }) },
   channels: { label: '分渠道咨询', make: () => ({ title: '', subtitle: '', items: [] }) },
   honors: { label: '荣誉资质墙', make: () => ({ title: '', items: [] }) },
@@ -781,7 +888,10 @@ function addStageEvent(sec: Record<string, any>, stageIndex: number | string) {
   const si = Number(stageIndex)
   const stages = sec.config.stages || []
   if (!stages[si]) return
-  stages[si].events = [...(stages[si].events || []), { year: '', title: '', desc: '', honor: false }]
+  stages[si].events = [
+    ...(stages[si].events || []),
+    { year: '', title: '', desc: '', honor: false }
+  ]
   sec.config.stages = stages
 }
 

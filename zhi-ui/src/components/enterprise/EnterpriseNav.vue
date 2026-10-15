@@ -2,16 +2,29 @@
   <nav class="ent-nav" :class="{ solid: navSolid || !isHome, 'over-hero': isHome && !navSolid }">
     <div class="ent-nav-in">
       <router-link to="/" class="ent-logo">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="6" stroke="currentColor" stroke-width="1.5" /><path d="M7 13h12M13 7v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+          <rect
+            x="1.5"
+            y="1.5"
+            width="23"
+            height="23"
+            rx="6"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            d="M7 13h12M13 7v12"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
         {{ blogSettings.blog_name || '知企建站系统' }}
       </router-link>
 
       <ul class="ent-links">
         <li v-for="item in menuItems" :key="item.linkValue" class="has-drop-slot">
-          <router-link
-            :to="item.linkValue || '/'"
-            :class="{ on: isActive(item.linkValue) }"
-          >
+          <router-link :to="item.linkValue || '/'" :class="{ on: isActive(item.linkValue) }">
             {{ item.label }}
           </router-link>
           <div v-if="item.children && item.children.length" class="drop">
@@ -27,7 +40,11 @@
       </ul>
 
       <div class="ent-nav-right">
-        <el-dropdown v-if="userStore.token && userStore.name" trigger="click" @command="handleUserCommand">
+        <el-dropdown
+          v-if="userStore.token && userStore.name"
+          trigger="click"
+          @command="handleUserCommand"
+        >
           <span class="ent-user">
             <el-icon :size="16"><UserFilled /></el-icon>
             <span class="ent-user-name">{{ userStore.name }}</span>

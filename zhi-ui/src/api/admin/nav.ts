@@ -2,7 +2,9 @@ import request from '@/utils/request'
 import type { SiteNavItem } from '@/api/site/nav'
 
 /** 导航树（含隐藏项，管理侧） */
-export function listNav(location: 'header' | 'footer'): Promise<{ code: number; data: SiteNavItem[] }> {
+export function listNav(
+  location: 'header' | 'footer'
+): Promise<{ code: number; data: SiteNavItem[] }> {
   return request({
     url: '/system/nav/list',
     method: 'get',

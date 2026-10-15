@@ -33,7 +33,12 @@ const basicItems = computed(() => {
   const email = str(cfg.value.contact_email) || str(blogSettings.value.blog_email)
   const address = str(cfg.value.contact_address) || str(blogSettings.value.contact_address)
   if (phone) {
-    items.push({ key: 'phone', label: '联系电话', value: phone, href: `tel:${phone.replace(/\s/g, '')}` })
+    items.push({
+      key: 'phone',
+      label: '联系电话',
+      value: phone,
+      href: `tel:${phone.replace(/\s/g, '')}`
+    })
   }
   if (email) {
     items.push({ key: 'email', label: '联系邮箱', value: email, href: `mailto:${email}` })

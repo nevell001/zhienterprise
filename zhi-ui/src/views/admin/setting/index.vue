@@ -348,27 +348,22 @@
             />
 
             <el-divider content-position="left">首页 · 信任指标条</el-divider>
-            <div
-              v-for="(m, i) in settingsMap.site_metrics"
-              :key="`m${i}`"
-              class="content-row"
-            >
+            <div v-for="(m, i) in settingsMap.site_metrics" :key="`m${i}`" class="content-row">
               <el-input v-model="m.value" placeholder="数值，如 15" style="width: 140px" />
               <el-input v-model="m.label" placeholder="说明，如 年行业深耕" style="flex: 1" />
               <el-button type="danger" link @click="removeContentRow('site_metrics', i)">
                 删除
               </el-button>
             </div>
-            <el-button size="small" @click="addContentRow('site_metrics', { value: '', label: '' })">
+            <el-button
+              size="small"
+              @click="addContentRow('site_metrics', { value: '', label: '' })"
+            >
               添加指标
             </el-button>
 
             <el-divider content-position="left">首页 · 数据成果（深色区块）</el-divider>
-            <div
-              v-for="(o, i) in settingsMap.site_outcomes"
-              :key="`o${i}`"
-              class="content-row"
-            >
+            <div v-for="(o, i) in settingsMap.site_outcomes" :key="`o${i}`" class="content-row">
               <el-input v-model="o.mark" placeholder="数字，如 ↓38" style="width: 120px" />
               <el-input v-model="o.suffix" placeholder="单位，如 %" style="width: 80px" />
               <el-input v-model="o.label" placeholder="说明" style="flex: 1" />
@@ -384,11 +379,7 @@
             </el-button>
 
             <el-divider content-position="left">首页 · 解决方案精选</el-divider>
-            <div
-              v-for="(s, i) in settingsMap.home_solutions"
-              :key="`s${i}`"
-              class="content-row"
-            >
+            <div v-for="(s, i) in settingsMap.home_solutions" :key="`s${i}`" class="content-row">
               <el-input v-model="s.title" placeholder="方案名称" style="width: 220px" />
               <el-input v-model="s.desc" placeholder="一句话说明" style="flex: 1" />
               <el-button type="danger" link @click="removeContentRow('home_solutions', i)">
@@ -403,11 +394,7 @@
             </el-button>
 
             <el-divider content-position="left">荣誉资质墙</el-divider>
-            <div
-              v-for="(h, i) in settingsMap.site_honors"
-              :key="`h${i}`"
-              class="content-row"
-            >
+            <div v-for="(h, i) in settingsMap.site_honors" :key="`h${i}`" class="content-row">
               <el-input v-model="h.name" placeholder="证书/奖项名称" style="width: 240px" />
               <el-input v-model="h.issuer" placeholder="颁发方" style="width: 180px" />
               <el-input v-model="h.year" placeholder="年份" style="width: 90px" />
@@ -432,7 +419,11 @@
               class="content-stage"
             >
               <div class="content-row">
-                <el-input v-model="st.range" placeholder="年份区间，如 2011 - 2014" style="width: 180px" />
+                <el-input
+                  v-model="st.range"
+                  placeholder="年份区间，如 2011 - 2014"
+                  style="width: 180px"
+                />
                 <el-input v-model="st.name" placeholder="阶段名，如 初创期" style="width: 160px" />
                 <el-input v-model="st.theme" placeholder="阶段主题" style="flex: 1" />
                 <el-button type="danger" link @click="removeContentRow('site_history', si)">
@@ -454,19 +445,10 @@
                 添加事件
               </el-button>
             </div>
-            <el-button
-              size="small"
-              @click="addHistoryStage()"
-            >
-              添加阶段
-            </el-button>
+            <el-button size="small" @click="addHistoryStage()">添加阶段</el-button>
 
             <el-divider content-position="left">联系我们 · 分渠道咨询</el-divider>
-            <div
-              v-for="(c, i) in settingsMap.site_channels"
-              :key="`c${i}`"
-              class="content-row"
-            >
+            <div v-for="(c, i) in settingsMap.site_channels" :key="`c${i}`" class="content-row">
               <el-input v-model="c.name" placeholder="渠道名称" style="width: 200px" />
               <el-input v-model="c.desc" placeholder="说明（提示客户备注渠道）" style="flex: 1" />
               <el-button type="danger" link @click="removeContentRow('site_channels', i)">
@@ -477,7 +459,9 @@
               添加渠道
             </el-button>
 
-            <el-divider content-position="left">联系我们 · FAQ（同步 FAQPage 结构化数据）</el-divider>
+            <el-divider content-position="left">
+              联系我们 · FAQ（同步 FAQPage 结构化数据）
+            </el-divider>
             <div v-for="(f, i) in settingsMap.site_faq" :key="`f${i}`" class="content-col">
               <div class="content-row">
                 <el-input v-model="f.q" placeholder="问题" style="flex: 1" />
@@ -751,16 +735,16 @@ import {
 import { clearSiteCache } from '@/api/site/setting'
 import { getPublishedPages } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
-import { SITE_TEMPLATES, SITE_METRICS, SITE_OUTCOMES, SOLUTION_SHOWCASE } from '@/config/siteTemplates'
+import {
+  SITE_TEMPLATES,
+  SITE_METRICS,
+  SITE_OUTCOMES,
+  SOLUTION_SHOWCASE
+} from '@/config/siteTemplates'
 import { getTemplatePack } from '@/config/templatePacks'
 import { listPage, updatePage } from '@/api/admin/page'
 import { importNav } from '@/api/admin/nav'
-import {
-  DEFAULT_CHANNELS,
-  DEFAULT_FAQS,
-  DEFAULT_HONORS,
-  DEFAULT_STAGES
-} from '@/utils/siteContent'
+import { DEFAULT_CHANNELS, DEFAULT_FAQS, DEFAULT_HONORS, DEFAULT_STAGES } from '@/utils/siteContent'
 
 const siteTemplates = SITE_TEMPLATES
 const packApplying = ref(false)
@@ -795,10 +779,7 @@ async function applyTemplatePack() {
       return
     }
     // 2. 导航（头部/页脚，事务内重建）
-    await Promise.all([
-      importNav('header', pack.headerNav),
-      importNav('footer', pack.footerNav)
-    ])
+    await Promise.all([importNav('header', pack.headerNav), importNav('footer', pack.footerNav)])
     // 3. 栏目名称
     await updateSettingValueByKey('business_label', pack.settings.business_label)
 
@@ -1173,9 +1154,7 @@ function addContentRow(key: string, tpl: Record<string, any>) {
 
 function removeContentRow(key: string, index: number | string) {
   const idx = Number(index)
-  settingsMap.value[key] = (settingsMap.value[key] || []).filter(
-    (_: any, i: number) => i !== idx
-  )
+  settingsMap.value[key] = (settingsMap.value[key] || []).filter((_: any, i: number) => i !== idx)
 }
 
 function addHistoryStage() {

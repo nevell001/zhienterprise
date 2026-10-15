@@ -33,17 +33,19 @@ describe('siteContent（官网内容 JSON 设置解析）', () => {
   })
 
   it('元素缺关键字段被过滤；全不合法时回退占位', () => {
-    const half = JSON.stringify([
-      { value: '10', label: '年' },
-      { label: '缺 value' }
-    ])
+    const half = JSON.stringify([{ value: '10', label: '年' }, { label: '缺 value' }])
     expect(getSiteMetrics(half)).toHaveLength(1)
     expect(getSiteMetrics('[{"value":""},{"label":"x"}]')).toEqual(getSiteMetrics(undefined))
   })
 
   it('历程阶段：无事件或缺名的阶段整体不合法', () => {
     const ok = JSON.stringify([
-      { range: '2020 -', name: '生态期', theme: 't', events: [{ year: '2024', title: '认证', desc: 'd', honor: true }] },
+      {
+        range: '2020 -',
+        name: '生态期',
+        theme: 't',
+        events: [{ year: '2024', title: '认证', desc: 'd', honor: true }]
+      },
       { name: '缺事件阶段', events: [] }
     ])
     const stages = getSiteHistoryStages(ok)

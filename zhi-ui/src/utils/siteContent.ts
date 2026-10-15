@@ -1,9 +1,5 @@
 import type { SiteTemplateShowcase } from '@/config/siteTemplates'
-import {
-  SITE_METRICS,
-  SITE_OUTCOMES,
-  SOLUTION_SHOWCASE
-} from '@/config/siteTemplates'
+import { SITE_METRICS, SITE_OUTCOMES, SOLUTION_SHOWCASE } from '@/config/siteTemplates'
 
 /**
  * 官网内容设置（JSON 设置键）的安全解析层。
@@ -68,10 +64,22 @@ export const DEFAULT_CHANNELS: SiteChannel[] = [
 ]
 
 export const DEFAULT_FAQS: SiteFaq[] = [
-  { q: '咨询后多久能得到回复？', a: '工作时间内我们将在 1 个工作日内与您联系；紧急事项建议直接电话联系。' },
-  { q: '是否支持上门调研与定制方案？', a: '支持。我们会先进行线上初诊，再根据情况安排上门调研并输出可执行的方案与报价。' },
-  { q: '合作流程是怎样的？', a: '需求沟通 → 方案与报价 → 合同签订 → 实施交付 → 验收与长期陪跑，全程有专属对接人。' },
-  { q: '如何验证贵司的资质与案例？', a: '可在「关于我们 → 荣誉资质」查看证书与奖项，「核心业务」中查看典型客户案例。' }
+  {
+    q: '咨询后多久能得到回复？',
+    a: '工作时间内我们将在 1 个工作日内与您联系；紧急事项建议直接电话联系。'
+  },
+  {
+    q: '是否支持上门调研与定制方案？',
+    a: '支持。我们会先进行线上初诊，再根据情况安排上门调研并输出可执行的方案与报价。'
+  },
+  {
+    q: '合作流程是怎样的？',
+    a: '需求沟通 → 方案与报价 → 合同签订 → 实施交付 → 验收与长期陪跑，全程有专属对接人。'
+  },
+  {
+    q: '如何验证贵司的资质与案例？',
+    a: '可在「关于我们 → 荣誉资质」查看证书与奖项，「核心业务」中查看典型客户案例。'
+  }
 ]
 
 export const DEFAULT_HONORS: SiteHonor[] = [
@@ -89,9 +97,24 @@ export const DEFAULT_STAGES: SiteHistoryStage[] = [
     name: '初创期',
     theme: '找准方向，活下来',
     events: [
-      { year: '2011', title: '公司成立', desc: '核心团队组建，确立深耕行业信息化的发展方向。', honor: false },
-      { year: '2012', title: '首个标杆客户', desc: '签约第一家行业头部客户，产品完成从 0 到 1 的验证。', honor: false },
-      { year: '2014', title: '获得高新技术企业认定', desc: '研发投入与自主知识产权获得官方认可。', honor: true }
+      {
+        year: '2011',
+        title: '公司成立',
+        desc: '核心团队组建，确立深耕行业信息化的发展方向。',
+        honor: false
+      },
+      {
+        year: '2012',
+        title: '首个标杆客户',
+        desc: '签约第一家行业头部客户，产品完成从 0 到 1 的验证。',
+        honor: false
+      },
+      {
+        year: '2014',
+        title: '获得高新技术企业认定',
+        desc: '研发投入与自主知识产权获得官方认可。',
+        honor: true
+      }
     ]
   },
   {
@@ -99,9 +122,24 @@ export const DEFAULT_STAGES: SiteHistoryStage[] = [
     name: '成长期',
     theme: '打磨产品，规模复制',
     events: [
-      { year: '2015', title: '产品线成型', desc: '三大产品线发布，完成从项目交付到标准产品的转型。', honor: false },
-      { year: '2017', title: '服务客户突破 500 家', desc: '建立全国服务网络，交付与售后体系全面标准化。', honor: false },
-      { year: '2019', title: '通过 ISO 9001 认证', desc: '质量管理体系与国际标准接轨。', honor: true }
+      {
+        year: '2015',
+        title: '产品线成型',
+        desc: '三大产品线发布，完成从项目交付到标准产品的转型。',
+        honor: false
+      },
+      {
+        year: '2017',
+        title: '服务客户突破 500 家',
+        desc: '建立全国服务网络，交付与售后体系全面标准化。',
+        honor: false
+      },
+      {
+        year: '2019',
+        title: '通过 ISO 9001 认证',
+        desc: '质量管理体系与国际标准接轨。',
+        honor: true
+      }
     ]
   },
   {
@@ -109,9 +147,24 @@ export const DEFAULT_STAGES: SiteHistoryStage[] = [
     name: '领先期',
     theme: '行业头部，方案引领',
     events: [
-      { year: '2020', title: '行业解决方案体系发布', desc: '覆盖制造、金融、零售、医疗四大行业的方案矩阵成型。', honor: false },
-      { year: '2022', title: '服务客户突破 1200 家', desc: '续约率与客户满意度连续三年提升。', honor: false },
-      { year: '2023', title: '斩获行业年度解决方案奖', desc: '头部客户的联合实践获得行业认可。', honor: true }
+      {
+        year: '2020',
+        title: '行业解决方案体系发布',
+        desc: '覆盖制造、金融、零售、医疗四大行业的方案矩阵成型。',
+        honor: false
+      },
+      {
+        year: '2022',
+        title: '服务客户突破 1200 家',
+        desc: '续约率与客户满意度连续三年提升。',
+        honor: false
+      },
+      {
+        year: '2023',
+        title: '斩获行业年度解决方案奖',
+        desc: '头部客户的联合实践获得行业认可。',
+        honor: true
+      }
     ]
   },
   {
@@ -119,8 +172,18 @@ export const DEFAULT_STAGES: SiteHistoryStage[] = [
     name: '生态期',
     theme: '开放共建，长期主义',
     events: [
-      { year: '2024', title: '通过 ISO 27001 认证', desc: '信息安全管理体系升级，为数据类业务护航。', honor: true },
-      { year: '2025', title: '合作伙伴计划启动', desc: '与上下游厂商共建交付与培训生态。', honor: false }
+      {
+        year: '2024',
+        title: '通过 ISO 27001 认证',
+        desc: '信息安全管理体系升级，为数据类业务护航。',
+        honor: true
+      },
+      {
+        year: '2025',
+        title: '合作伙伴计划启动',
+        desc: '与上下游厂商共建交付与培训生态。',
+        honor: false
+      }
     ]
   }
 ]

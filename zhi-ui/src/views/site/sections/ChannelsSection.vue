@@ -4,7 +4,9 @@
       <div class="tpl-sec-head rv">
         <div class="sec-tag">分渠道咨询</div>
         <h2>{{ cfg.title || '按需求选择对接渠道' }}</h2>
-        <p>{{ cfg.subtitle || '以下渠道均可通过页脚电话与邮箱联系，备注对应渠道即可精准触达。' }}</p>
+        <p>
+          {{ cfg.subtitle || '以下渠道均可通过页脚电话与邮箱联系，备注对应渠道即可精准触达。' }}
+        </p>
       </div>
       <div class="ct-grid ct-four rv d1">
         <div v-for="ch in items" :key="ch.name" class="ct-card">

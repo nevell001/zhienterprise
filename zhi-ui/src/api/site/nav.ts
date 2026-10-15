@@ -13,7 +13,9 @@ export interface SiteNavItem {
 }
 
 /** 导航树（仅可见项，公开接口） */
-export function getSiteNav(location: 'header' | 'footer'): Promise<{ code: number; data: SiteNavItem[] }> {
+export function getSiteNav(
+  location: 'header' | 'footer'
+): Promise<{ code: number; data: SiteNavItem[] }> {
   return request({
     url: '/api/nav',
     method: 'get',

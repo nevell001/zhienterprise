@@ -22,7 +22,15 @@
       <div class="honor-grid rv d1">
         <div v-for="item in filteredItems" :key="item.name" class="honor-card">
           <div class="honor-seal" aria-hidden="true">
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="13" r="8" stroke="currentColor" stroke-width="1.5" /><path d="M13 20l-2 10 6-3.5L23 30l-2-10" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <circle cx="17" cy="13" r="8" stroke="currentColor" stroke-width="1.5" />
+              <path
+                d="M13 20l-2 10 6-3.5L23 30l-2-10"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              />
+            </svg>
           </div>
           <h3>{{ item.name }}</h3>
           <p class="honor-issuer">{{ item.issuer }}</p>

@@ -285,11 +285,7 @@ import type { Article } from '@/types'
 import { getFrontFriendLinkList } from '@/api/site/friendLink'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteTemplate } from '@/config/siteTemplates'
-import {
-  getHomeSolutions,
-  getSiteMetrics,
-  getSiteOutcomes
-} from '@/utils/siteContent'
+import { getHomeSolutions, getSiteMetrics, getSiteOutcomes } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import { parseTime } from '@/utils/zhi'
 import { logger } from '@/utils/logger'

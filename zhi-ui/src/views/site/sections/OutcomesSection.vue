@@ -8,7 +8,10 @@
       </div>
       <div class="numgrid rv d1">
         <div v-for="o in items" :key="o.label" class="numcell">
-          <b><i>{{ o.mark }}</i> {{ o.suffix }}</b>
+          <b>
+            <i>{{ o.mark }}</i>
+            {{ o.suffix }}
+          </b>
           <span>{{ o.label }}</span>
         </div>
       </div>

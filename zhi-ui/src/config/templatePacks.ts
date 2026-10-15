@@ -70,7 +70,10 @@ function homeSectionsOf(id: SiteTemplateId): TemplatePackSection[] {
     {
       type: 'cta',
       visible: true,
-      config: { title: '把下一步交给我们', subtitle: '一个小时的免费诊断，换一份可执行的问题清单。' }
+      config: {
+        title: '把下一步交给我们',
+        subtitle: '一个小时的免费诊断，换一份可执行的问题清单。'
+      }
     }
   ]
 }
@@ -82,21 +85,25 @@ function headerNavOf(id: SiteTemplateId): SiteNavItem[] {
     navItem('首页', '/'),
     bizNav(bizLabel, '/business'),
     navItem('新闻动态', '/news'),
-    navItem('关于我们', '/about', 'path', [navItem('企业简介', '/about'), navItem('荣誉资质', '/honors'), navItem('发展历程', '/history')]),
+    navItem('关于我们', '/about', 'path', [
+      navItem('企业简介', '/about'),
+      navItem('荣誉资质', '/honors'),
+      navItem('发展历程', '/history')
+    ]),
     navItem('联系我们', '/contact'),
     navItem('咨询合作', '/contact', 'cta')
   ]
 }
 
 function aboutChildren(): SiteNavItem[] {
-  return [navItem('企业简介', '/about'), navItem('荣誉资质', '/honors'), navItem('发展历程', '/history')]
+  return [
+    navItem('企业简介', '/about'),
+    navItem('荣誉资质', '/honors'),
+    navItem('发展历程', '/history')
+  ]
 }
 
-function pack(
-  id: SiteTemplateId,
-  name: string,
-  bizNavLabel: string
-): TemplatePack {
+function pack(id: SiteTemplateId, name: string, bizNavLabel: string): TemplatePack {
   const tpl = SITE_TEMPLATES.find(t => t.id === id)
   const header = headerNavOf(id)
   const about = header.find(i => i.linkValue === '/about')

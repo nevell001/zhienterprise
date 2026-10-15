@@ -8,7 +8,15 @@
         </div>
         <router-link class="lnk" to="/news">
           更多动态
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M3 8h10M9 4l4 4-4 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </router-link>
       </div>
       <div v-if="newsItems.length" class="news">
@@ -27,7 +35,26 @@
               loading="lazy"
               decoding="async"
             />
-            <svg v-else width="56" height="56" viewBox="0 0 56 56" fill="none" opacity=".5" aria-hidden="true"><rect x="14" y="14" width="28" height="28" rx="8" stroke="currentColor" stroke-width="1.5" /><path d="M20 28h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+            <svg
+              v-else
+              width="56"
+              height="56"
+              viewBox="0 0 56 56"
+              fill="none"
+              opacity=".5"
+              aria-hidden="true"
+            >
+              <rect
+                x="14"
+                y="14"
+                width="28"
+                height="28"
+                rx="8"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path d="M20 28h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
           </div>
           <div class="n-body">
             <h3>{{ item.title }}</h3>
