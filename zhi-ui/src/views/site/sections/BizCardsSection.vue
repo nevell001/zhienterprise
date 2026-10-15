@@ -62,7 +62,7 @@ import { useRouter } from 'vue-router'
 import { getArticleList } from '@/api/site'
 import type { Article } from '@/types'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
-import { getSiteTemplate } from '@/config/siteTemplates'
+import { getSiteTemplate, type SiteTemplateShowcase } from '@/config/siteTemplates'
 import { logger } from '@/utils/logger'
 
 /** config.cardOne/cardTwo 可覆盖行业模板的两卡文案 */
@@ -79,9 +79,17 @@ const cfg = computed(() => props.config ?? {})
 
 const businessItems = ref<Article[]>([])
 
+const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
+
 const bizCards = computed(() => {
-  const one = { ...tpl.value.biz.one, ...(props.config?.cardOne || {}) }
-  const two = { ...tpl.value.biz.two, ...(props.config?.cardTwo || {}) }
+  // 空串视为未填写：编辑器里清空卡片文案时回退行业模板，而不是渲染空标题
+  const card = (base: SiteTemplateShowcase, patch?: Record<string, any>) => ({
+    ...base,
+    title: str(patch?.title) || base.title,
+    desc: str(patch?.desc) || base.desc
+  })
+  const one = card(tpl.value.biz.one, props.config?.cardOne)
+  const two = card(tpl.value.biz.two, props.config?.cardTwo)
   const half = Math.ceil(businessItems.value.length / 2) || 3
   const toItems = (list: Article[], fallback: string[]) => {
     const items = list.map(a => ({ id: a.id, label: a.title || '' })).filter(i => i.label)
