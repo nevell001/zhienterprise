@@ -53,8 +53,8 @@ public class ArticleController extends BaseController
     private static final String PARAM_IS_TOP = "isTop";
     private static final String PARAM_IS_RECOMMEND = "isRecommend";
 
-    /** 内容类型白名单（zhi_article.article_type）：资讯动态 / 核心业务 / 客户案例 */
-    private static final Set<String> ARTICLE_TYPES = Set.of("news", "business", "case");
+    /** 内容类型白名单（zhi_article.article_type）：资讯动态 / 核心业务 / 客户案例 / 解决方案 */
+    private static final Set<String> ARTICLE_TYPES = Set.of("news", "business", "case", "solution");
 
     @Autowired
     private IArticleService articleService;
@@ -397,6 +397,12 @@ public class ArticleController extends BaseController
                 article.setSlug(slug);
             }
         }
+        if (params.get("industry") != null) {
+            article.setIndustry(params.get("industry").toString());
+        }
+        if (params.get("scenario") != null) {
+            article.setScenario(params.get("scenario").toString());
+        }
         if (params.get("seoTitle") != null) {
             article.setSeoTitle(params.get("seoTitle").toString());
         }
@@ -405,6 +411,19 @@ public class ArticleController extends BaseController
         }
         if (params.get("seoDescription") != null) {
             article.setSeoDescription(params.get("seoDescription").toString());
+        }
+        // 业务详情结构化字段（business/case/solution）：同为逐字段白名单，漏映射会静默丢失
+        if (params.get("sellingPoints") != null) {
+            article.setSellingPoints(params.get("sellingPoints").toString());
+        }
+        if (params.get("specTable") != null) {
+            article.setSpecTable(params.get("specTable").toString());
+        }
+        if (params.get("gallery") != null) {
+            article.setGallery(params.get("gallery").toString());
+        }
+        if (params.get("processSteps") != null) {
+            article.setProcessSteps(params.get("processSteps").toString());
         }
 
         // Markdown 文章：保存源码并由服务端渲染 HTML 双写

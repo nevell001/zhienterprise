@@ -452,13 +452,43 @@
                   <el-radio-button v-if="!fixedArticleType" label="news">资讯动态</el-radio-button>
                   <el-radio-button label="business">核心业务</el-radio-button>
                   <el-radio-button label="case">客户案例</el-radio-button>
-                  <el-radio-button v-if="!fixedArticleType" label="solution">
+                  <el-radio-button
+                    v-if="!fixedArticleType || fixedArticleType === 'solution'"
+                    label="solution"
+                  >
                     解决方案
                   </el-radio-button>
                 </el-radio-group>
               </el-form-item>
               <div class="schedule-tip">
                 核心业务与客户案例展示在企业官网首页对应区块；资讯动态展示在文章列表
+              </div>
+            </section>
+
+            <section v-if="form.articleType === 'solution'" class="side-section">
+              <div class="side-title">方案筛选维度</div>
+              <el-form-item prop="industry" class="compact-form-item">
+                <el-select
+                  v-model="form.industry"
+                  placeholder="所属行业（可直接输入新行业）"
+                  filterable
+                  allow-create
+                  default-first-option
+                  clearable
+                >
+                  <el-option v-for="ind in industryOptions" :key="ind" :label="ind" :value="ind" />
+                </el-select>
+              </el-form-item>
+              <el-form-item prop="scenario" class="compact-form-item">
+                <el-input
+                  v-model="form.scenario"
+                  placeholder="能力场景，逗号分隔（如：数字化转型,降本增效）"
+                  :maxlength="255"
+                  show-word-limit
+                />
+              </el-form-item>
+              <div class="schedule-tip">
+                方案页按行业 Tab（精确匹配）与能力场景（多选标签）筛选，决定方案出现在哪些筛选下
               </div>
             </section>
 
@@ -718,6 +748,8 @@ const processStepsList = ref<{ title: string; desc: string }[]>([])
 const isBizDetailType = computed(() =>
   ['business', 'case'].includes(String(form.value.articleType || ''))
 )
+// 行业预设与建表注释同源（制造业/金融/零售/医疗/教育/政务），可创建新行业
+const industryOptions = ['制造业', '金融', '零售', '医疗', '教育', '政务']
 
 function syncDetailListsFromForm() {
   function parseList<T>(raw: unknown): T[] {
@@ -935,7 +967,9 @@ function reset() {
     content: '', // 直接使用空字符串
     contentMd: '', // Markdown 源码（format=markdown 时）
     format: 'html', // 内容格式 html|markdown
-    articleType: fixedArticleType || 'news', // 内容类型：news 资讯 business 核心业务 case 案例
+    articleType: fixedArticleType || 'news', // 内容类型：news 资讯 business 核心业务 case 案例 solution 解决方案
+    industry: '', // 方案筛选维度：所属行业（solution）
+    scenario: '', // 方案筛选维度：能力场景，逗号分隔（solution）
     seoTitle: '',
     seoKeywords: '',
     seoDescription: '',

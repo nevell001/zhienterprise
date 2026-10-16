@@ -724,4 +724,46 @@ class ArticleControllerTest {
         }
         return current;
     }
+
+    /**
+     * 解决方案筛选维度与业务详情结构化字段必须随保存落库：
+     * parseArticleFromParams 是逐字段白名单，漏映射的字段会被静默丢弃。
+     */
+    @Test
+    void add_mapsSolutionDimensionsAndStructuredFields() throws Exception {
+        when(articleService.insertArticle(any(Article.class))).thenReturn(1);
+
+        String sellingPoints = "[{\"title\":\"开箱即用\",\"desc\":\"快速部署\"}]";
+        String specTable = "[{\"name\":\"并发\",\"value\":\"1000\"}]";
+        String gallery = "[\"/profile/a.jpg\"]";
+        String processSteps = "[{\"title\":\"诊断\",\"desc\":\"现状诊断\"}]";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("title", "解决方案发布测试");
+        params.put("content", "测试文章内容足够长");
+        params.put("status", 1L);
+        params.put("articleType", "solution");
+        params.put("industry", "制造业");
+        params.put("scenario", "数字化转型,降本增效");
+        params.put("sellingPoints", sellingPoints);
+        params.put("specTable", specTable);
+        params.put("gallery", gallery);
+        params.put("processSteps", processSteps);
+
+        mockMvc.perform(post("/system/article")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Article> captor = ArgumentCaptor.forClass(Article.class);
+        verify(articleService).insertArticle(captor.capture());
+        Article saved = captor.getValue();
+        assertThat(saved.getArticleType()).isEqualTo("solution");
+        assertThat(saved.getIndustry()).isEqualTo("制造业");
+        assertThat(saved.getScenario()).isEqualTo("数字化转型,降本增效");
+        assertThat(saved.getSellingPoints()).isEqualTo(sellingPoints);
+        assertThat(saved.getSpecTable()).isEqualTo(specTable);
+        assertThat(saved.getGallery()).isEqualTo(gallery);
+        assertThat(saved.getProcessSteps()).isEqualTo(processSteps);
+    }
 }
