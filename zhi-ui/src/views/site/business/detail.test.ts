@@ -111,6 +111,15 @@ describe('详情页相关推荐与返回行为', () => {
     })
   })
 
+  it('浏览量由详情接口内部计数，页面不重复提交计数请求（曾致 PV 翻倍）', async () => {
+    getArticleDetail.mockResolvedValue({ code: 200, data: { article: articleOf() } })
+    getArticleList.mockResolvedValue({ code: 200, rows: [] })
+    await mountDetail('/solutions/7')
+
+    expect(getArticleDetail).toHaveBeenCalled()
+    expect(updateArticleViewCount).not.toHaveBeenCalled()
+  })
+
   it('相关卡点击进入同类型详情并携带筛选 query（键盘可达）', async () => {
     getArticleDetail.mockResolvedValue({ code: 200, data: { article: articleOf() } })
     getArticleList.mockResolvedValue({

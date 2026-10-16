@@ -131,7 +131,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SiteLayout from '@/components/SiteLayout.vue'
 import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
-import { getArticleDetail, getArticleList, updateArticleViewCount } from '@/api/site/article'
+import { getArticleDetail, getArticleList } from '@/api/site/article'
 import type { Article } from '@/types'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
@@ -233,13 +233,9 @@ onMounted(async () => {
           url: `${window.location.origin}/`
         }
       })
-      // 浏览计数与文章详情同一开关、同一接口；slug 入口时用响应里的真实 ID
       const articleId = article.value.id
-      if (isViewCountEnabled.value && articleId) {
-        updateArticleViewCount(articleId).catch(() => {
-          // 计数失败不打扰用户
-        })
-      }
+
+      // 浏览量计数已由详情接口（getArticleDetail）内部完成，与文章详情同口径；本页不得再提交第二个计数请求
       // 相关推荐：同类型最新（排除自身）；方案详情推荐方案、业务详情推荐业务
       try {
         const relRes = await getArticleList({
