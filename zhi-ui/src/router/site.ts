@@ -30,6 +30,19 @@ export const siteRoutes: RouteRecordRaw[] = [
     meta: { title: '业务详情' }
   },
   {
+    // 解决方案板块（article_type=solution 的文章，行业/场景筛选）
+    path: '/solutions',
+    component: () => import('@/views/site/solutions/index.vue'),
+    name: 'PublicSolutionList',
+    meta: { title: '解决方案' }
+  },
+  {
+    path: '/solutions/:id',
+    component: () => import('@/views/site/business/detail.vue'),
+    name: 'PublicSolutionDetail',
+    meta: { title: '方案详情' }
+  },
+  {
     // 联系我们：企业官网模板模式导航入口，信息来自站点设置
     path: '/contact',
     component: () => import('@/views/site/contact/index.vue'),

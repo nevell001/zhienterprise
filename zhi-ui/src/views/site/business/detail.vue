@@ -97,10 +97,10 @@
 
           <!-- 底部转化条（方案文档 §3.2：滚动至页尾的固定转化区块） -->
           <section class="bd-cta rv">
-            <h2>对该{{ businessLabel }}感兴趣？</h2>
+            <h2>对该{{ sectionLabel }}感兴趣？</h2>
             <p>联系我们获取方案与报价。</p>
             <router-link class="bd-cta-btn" to="/contact">
-              咨询该{{ businessLabel }}
+              咨询该{{ sectionLabel }}
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path
                   d="M3 8h10M9 4l4 4-4 4"
@@ -116,7 +116,7 @@
         <el-empty v-else-if="!loading" description="内容不存在或未发布" />
 
         <div class="bd-back-wrap">
-          <button type="button" class="bd-back" @click="goBack">← 返回{{ businessLabel }}</button>
+          <button type="button" class="bd-back" @click="goBack">← 返回{{ sectionLabel }}</button>
         </div>
       </main>
     </div>
@@ -143,6 +143,10 @@ const siteSettingsStore = useSiteSettingsStore()
 const settings = computed(() => siteSettingsStore.siteSettings)
 const businessLabel = computed(
   () => String(settings.value.business_label || '').trim() || '核心业务'
+)
+/** 板块标签：solution 文章显示「解决方案」，其余（business）显示核心业务栏目名 */
+const sectionLabel = computed(() =>
+  article.value?.articleType === 'solution' ? '解决方案' : businessLabel.value
 )
 const isViewCountEnabled = computed(() => siteSettingsStore.isFeatureEnabled('view_count_enabled'))
 
@@ -176,7 +180,8 @@ const processSteps = computed(() =>
 
 const formatDate = (date?: string) => (date ? parseTime(date, '{y}-{m}-{d}') : '')
 
-const goBack = () => router.push('/business')
+const goBack = () =>
+  router.push(article.value?.articleType === 'solution' ? '/solutions' : '/business')
 const goItem = (id?: number) => id && router.push(`/business/${id}`)
 
 const rootEl = ref<HTMLElement | null>(null)
@@ -185,7 +190,10 @@ useScrollReveal(rootEl)
 // 面包屑链路（≤3 级）：首页 → 业务栏目 → 当前条目
 const breadcrumbItems = computed(() => [
   { label: '首页', to: '/' },
-  { label: businessLabel.value, to: '/business' },
+  {
+    label: sectionLabel.value,
+    to: article.value?.articleType === 'solution' ? '/solutions' : '/business'
+  },
   { label: article.value?.title || '详情' }
 ])
 

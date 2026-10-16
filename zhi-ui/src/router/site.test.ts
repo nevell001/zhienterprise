@@ -148,8 +148,17 @@ describe('Site Routes 详细测试', () => {
     expect(route?.meta?.title).toBe('我的收藏')
   })
 
-  it('路由总数应该为 23 个', () => {
-    expect(siteRoutes.length).toBe(23)
+  it('解决方案路由应该有正确的路径与标题（板块列表 + 详情复用）', () => {
+    const list = siteRoutes.find(r => r.path === '/solutions')
+    expect(list?.name).toBe('PublicSolutionList')
+    expect(list?.meta?.title).toBe('解决方案')
+    const detail = siteRoutes.find(r => r.path === '/solutions/:id')
+    expect(detail?.name).toBe('PublicSolutionDetail')
+    expect(detail?.meta?.title).toBe('方案详情')
+  })
+
+  it('路由总数应该为 25 个', () => {
+    expect(siteRoutes.length).toBe(25)
   })
 
   it('不再存在任何 /blog 前缀的页面路由（短路径为唯一规范）', () => {
