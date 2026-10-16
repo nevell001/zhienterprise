@@ -82,12 +82,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { getPublishedPageBySlug } from '@/api/site/page'
 import { getPublicStatisticsOverview } from '@/api/statistics'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
 import { DEFAULT_PAGE_COPY, getPageCopy } from '@/utils/siteContent'
@@ -118,6 +119,30 @@ const authorHeadline = computed(() =>
 )
 const hasAuthorProfile = computed(() =>
   Boolean(authorBio.value || authorLocation.value || authorWebsite.value)
+)
+
+/* 负责人结构化数据：与负责人区块同门槛出现；Person 的 name 取站点信息「站长」，
+   站长留空时不注入（无 name 的 Person 对搜索引擎无效） */
+const authorProfileLd = computed(() => {
+  const name = String(siteSettings.value.blog_author || '').trim()
+  if (!hasAuthorProfile.value || !name) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name,
+    jobTitle: authorTitle.value || undefined,
+    description: authorBio.value || undefined,
+    url: authorWebsite.value || undefined,
+    address: authorLocation.value
+      ? { '@type': 'PostalAddress', addressLocality: authorLocation.value }
+      : undefined
+  }
+})
+
+watch(
+  authorProfileLd,
+  ld => (ld ? setJsonLd('zh-jsonld-person', ld) : removeJsonLd('zh-jsonld-person')),
+  { immediate: true }
 )
 
 const rootEl = ref<HTMLElement | null>(null)
@@ -197,6 +222,10 @@ watch(heroTitle, applyPageSeo, { immediate: true })
 onMounted(() => {
   loadCustomAbout()
   loadStats()
+})
+
+onBeforeUnmount(() => {
+  removeJsonLd('zh-jsonld-person')
 })
 </script>
 

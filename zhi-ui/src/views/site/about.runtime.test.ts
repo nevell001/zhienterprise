@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { nextTick } from 'vue'
@@ -120,5 +120,65 @@ describe('关于页负责人区块（站点设置「个人信息」行为）', (
     expect(profile.get('.aph-profile-head').text()).toBe('技术负责人')
     expect(profile.find('.aph-profile-bio').exists()).toBe(false)
     expect(profile.get('.aph-profile-link').attributes('href')).toBe('https://team.example.com')
+  })
+})
+
+describe('关于页负责人结构化数据（Person JSON-LD）', () => {
+  const PERSON_LD_ID = 'zh-jsonld-person'
+
+  const readPersonLd = (): Record<string, unknown> | null => {
+    const el = document.getElementById(PERSON_LD_ID)
+    return el ? JSON.parse(el.textContent || 'null') : null
+  }
+
+  // 组件挂载测试之间共用同一个 document，先清掉上一例注入的脚本
+  beforeEach(() => {
+    document.getElementById(PERSON_LD_ID)?.remove()
+  })
+
+  it('负责人区块出现时注入 Person，字段取站长/职位/简介/网站/位置', async () => {
+    const { wrapper, pinia } = mountAbout()
+    useSiteSettingsStore(pinia).updateSiteSettings({
+      blog_author: '张三',
+      author_title: '技术负责人',
+      author_bio: '十二年工业软件与数字化交付经验。',
+      author_location: '中国·杭州',
+      personal_website: 'https://team.example.com'
+    })
+    await nextTick()
+
+    expect(readPersonLd()).toMatchObject({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: '张三',
+      jobTitle: '技术负责人',
+      description: '十二年工业软件与数字化交付经验。',
+      url: 'https://team.example.com',
+      address: { '@type': 'PostalAddress', addressLocality: '中国·杭州' }
+    })
+
+    wrapper.unmount()
+    expect(readPersonLd()).toBeNull()
+  })
+
+  it('三项内容全空（负责人区块不渲染）时不注入', async () => {
+    const { wrapper } = mountAbout()
+    await nextTick()
+
+    expect(readPersonLd()).toBeNull()
+    wrapper.unmount()
+  })
+
+  it('站长留空时不注入：无 name 的 Person 对搜索引擎无意义', async () => {
+    const { wrapper, pinia } = mountAbout()
+    useSiteSettingsStore(pinia).updateSiteSettings({
+      blog_author: '  ',
+      author_bio: '十二年工业软件与数字化交付经验。'
+    })
+    await nextTick()
+
+    expect(wrapper.find('.aph-profile').exists()).toBe(true)
+    expect(readPersonLd()).toBeNull()
+    wrapper.unmount()
   })
 })
