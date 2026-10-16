@@ -129,6 +129,7 @@ const FRONT_EXACT_PATHS = [
   '/forgot-password',
   '/news',
   '/business',
+  '/solutions',
   '/contact',
   '/about',
   '/honors',
@@ -145,6 +146,7 @@ const FRONT_EXACT_PATHS = [
 const FRONT_PREFIX_PATHS = [
   '/article/',
   '/business/',
+  '/solutions/',
   '/category/',
   '/tag/',
   '/author/',

@@ -559,6 +559,8 @@ describe('Request 工具函数测试', () => {
         '/article/2',
         '/business',
         '/business/1',
+        '/solutions',
+        '/solutions/1',
         '/contact',
         '/about',
         '/honors',

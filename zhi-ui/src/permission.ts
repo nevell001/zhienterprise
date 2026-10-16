@@ -11,7 +11,7 @@ import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 // 确保 NProgress 配置
 NProgress.configure({ showSpinner: false })
 
-// 站点前台一律使用短路径（不带 /blog 前缀），与路由表 router/blog.ts 保持一致
+// 站点前台一律使用短路径（不带 /blog 前缀），与路由表 router/site.ts 保持一致
 const whiteList = [
   '/login',
   '/register',
@@ -22,6 +22,8 @@ const whiteList = [
   '/article/*',
   '/business',
   '/business/*',
+  '/solutions',
+  '/solutions/*',
   '/contact',
   '/about',
   '/honors',

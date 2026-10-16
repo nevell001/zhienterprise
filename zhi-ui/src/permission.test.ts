@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { createPinia, setActivePinia } from 'pinia'
 import router from '@/router/index'
+import { siteRoutes } from '@/router/site'
 import '@/permission'
 import { useUserStore } from '@/stores/user'
 import { usePermissionStore } from '@/stores/permission'
@@ -51,32 +52,15 @@ describe('匿名访问站点前台（白名单行为）', () => {
     setActivePinia(createPinia())
   })
 
-  // 白名单与路由表必须一一对应：一旦缺项，匿名访问会被重定向到 /login
+  // 白名单与路由表必须一一对应：一旦缺项，匿名访问会被重定向到 /login。
+  // 从 siteRoutes 派生而非手维护清单——新增前台页面漏加白名单会直接在此跑红
+  // （/solutions 曾因手维护表漏项而整板块匿名不可达）；路由表之外的根路径另列
   const publicPages: Array<{ path: string; name: string }> = [
     { path: '/', name: 'PublicRoot' },
-    { path: '/news', name: 'PublicSiteArticleList' },
-    { path: '/article/2', name: 'PublicSiteArticleDetail' },
-    { path: '/business', name: 'PublicBusinessList' },
-    { path: '/business/1', name: 'PublicBusinessDetail' },
-    { path: '/contact', name: 'PublicContact' },
-    { path: '/about', name: 'PublicAbout' },
-    { path: '/honors', name: 'PublicHonors' },
-    { path: '/history', name: 'PublicHistory' },
-    { path: '/category', name: 'PublicSiteCategoryList' },
-    { path: '/category/9', name: 'PublicSiteCategory' },
-    { path: '/tag', name: 'PublicSiteTagList' },
-    { path: '/tag/3', name: 'PublicSiteTag' },
-    { path: '/author/1', name: 'PublicSiteAuthor' },
-    { path: '/archive', name: 'PublicSiteArchive' },
-    { path: '/guestbook', name: 'PublicSiteGuestbook' },
-    { path: '/page/any-slug', name: 'PublicSitePage' },
-    { path: '/friend-links/apply', name: 'PublicSiteFriendLinkApply' },
-    { path: '/search', name: 'PublicSiteSearch' },
-    { path: '/bookmarks', name: 'PublicSiteBookmarks' },
-    { path: '/agreement', name: 'PublicSiteUserAgreement' },
-    { path: '/privacy', name: 'PublicSitePrivacyPolicy' },
-    { path: '/register', name: 'SiteRegister' },
-    { path: '/forgot-password', name: 'SiteForgotPassword' }
+    ...siteRoutes.map(route => ({
+      path: route.path.replace(/:\w+/g, '1'),
+      name: route.name as string
+    }))
   ]
 
   it.each(publicPages)('匿名访问 $path 放行且解析到 $name', async ({ path, name }) => {
