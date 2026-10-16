@@ -70,7 +70,11 @@ function mountPage() {
         'el-tabs': { template: '<div><slot /></div>' },
         'el-tab-pane': { template: '<div class="pane"><slot /></div>' },
         'el-form': { template: '<form><slot /></form>' },
-        'el-form-item': { template: '<div class="fi"><slot /></div>' },
+        // label 走属性而非插槽，桩要渲染出来才能按字段名断言存在/不存在
+        'el-form-item': {
+          props: ['label'],
+          template: '<div class="fi"><span class="fi-label">{{ label }}</span><slot /></div>'
+        },
         'el-input': { props: ['modelValue'], template: '<input />' },
         'el-input-number': { props: ['modelValue'], template: '<input type="number" />' },
         'el-button': { template: '<button><slot /></button>' },
@@ -176,6 +180,33 @@ describe('SiteSetting 视图（行为）', () => {
     expect(wrapper.find('[data-feature="nav_category_enabled"]').exists()).toBe(true)
     expect(wrapper.find('[data-feature="nav_tag_enabled"]').exists()).toBe(true)
     expect(wrapper.find('[data-feature="nav_archive_enabled"]').exists()).toBe(true)
+  })
+
+  it('企业官网模式下个人信息页签隐藏只有经典页脚消费的「微博地址」', async () => {
+    // 默认 home_layout=business：企业页脚没有微博位，留着就是个填了不生效的字段
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const labels = wrapper.findAll('.fi-label').map(el => el.text())
+    expect(labels).not.toContain('微博地址')
+    // 企业模式下仍然生效的字段保留
+    expect(labels).toContain('作者职位')
+    expect(labels).toContain('个人简介')
+    expect(labels).toContain('位置信息')
+    expect(labels).toContain('联系邮箱')
+    expect(labels).toContain('GitHub地址')
+    expect(labels).toContain('个人网站')
+  })
+
+  it('经典模式下保留「微博地址」字段', async () => {
+    listSetting.mockResolvedValue({
+      code: 200,
+      rows: [{ configKey: 'home_layout', configValue: 'article' }]
+    })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    expect(wrapper.findAll('.fi-label').map(el => el.text())).toContain('微博地址')
   })
 
   it('「首页显示」下拉列出已发布的自定义页面', async () => {

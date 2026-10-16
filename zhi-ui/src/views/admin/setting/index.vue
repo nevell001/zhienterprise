@@ -544,7 +544,7 @@
         <el-tab-pane label="个人信息" name="author">
           <el-form ref="authorForm" :model="settingsMap" label-width="120px">
             <el-alert
-              title="个人信息将在关于页面和站点侧边栏显示"
+              title="简介、位置、个人网站显示在关于页「负责人」区块（至少填一项才出现，作者职位作为抬头）；联系邮箱与 GitHub 显示在页脚和联系我们页面"
               type="info"
               :closable="false"
               class="tab-alert"
@@ -600,7 +600,8 @@
                 </template>
               </el-input>
             </el-form-item>
-            <el-form-item label="微博地址" prop="weibo_url">
+            <!-- 微博只有经典模式的页脚有社交位，企业官网模式的页脚没有它 -->
+            <el-form-item v-if="!isEnterpriseMode" label="微博地址" prop="weibo_url">
               <el-input
                 v-model="settingsMap.weibo_url"
                 placeholder="请输入微博地址"
