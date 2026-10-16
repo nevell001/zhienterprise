@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
  * 设置页读写的每个 blog_setting 键都必须在 `sql/00_init_database.sql` 里有种子，
  * 否则全新安装时该字段会缺失（保存时才由 upsert 补建），而 `docs`/README 又宣称
  * SQL 是唯一的初始化来源。审计发现 `author_bio` / `author_location` /
- * `personal_website` / `wechat_qr` 就漏了种子。
+ * `personal_website` 就漏了种子。
  *
  * 注：这里刻意做"跨文件一致性"校验（两个产物都是文本），不是行为断言 ——
  * 行为断言请用组件挂载测试。

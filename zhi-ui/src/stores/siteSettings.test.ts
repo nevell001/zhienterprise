@@ -169,7 +169,6 @@ describe('SiteSettings Store 测试', () => {
         author_bio: '简介',
         github_url: 'https://github.com',
         weibo_url: 'https://weibo.com',
-        wechat_qr: 'qr',
         author_location: '北京',
         personal_website: 'https://example.com'
       }
@@ -267,7 +266,6 @@ describe('SiteSettings Store 测试', () => {
       expect(store.siteSettings.author_bio).toBeDefined()
       expect(store.siteSettings.github_url).toBeDefined()
       expect(store.siteSettings.weibo_url).toBeDefined()
-      expect(store.siteSettings.wechat_qr).toBeDefined()
       expect(store.siteSettings.author_location).toBeDefined()
       expect(store.siteSettings.personal_website).toBeDefined()
     })

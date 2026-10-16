@@ -178,9 +178,6 @@ public class FrontSettingController extends BaseController {
             case "personal_website":
                 settings.put(configKey, "");
                 break;
-            case "wechat_qr":
-                settings.put(configKey, "");
-                break;
             case "comment_enabled":
                 settings.put(configKey, "true");
                 break;

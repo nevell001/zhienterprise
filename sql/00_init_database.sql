@@ -909,11 +909,10 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('github_url', 'https://github.com/nevell', 'GitHub链接', NOW(), NOW()),
 ('weibo_url', '', '微博链接', NOW(), NOW()),
 ('zhihu_url', '', '知乎链接', NOW(), NOW()),
--- 后台「个人信息」页签里的四项（此前只存在于设置页，未进种子，全新库保存后才会生成）
+-- 后台「个人信息」页签里的三项（此前只存在于设置页，未进种子，全新安装保存后才会生成）
 ('author_bio', '', '个人简介', NOW(), NOW()),
 ('author_location', '', '位置信息', NOW(), NOW()),
 ('personal_website', '', '个人网站', NOW(), NOW()),
-('wechat_qr', '', '微信二维码', NOW(), NOW()),
 
 
 -- 功能开关设置

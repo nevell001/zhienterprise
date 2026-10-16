@@ -46,7 +46,6 @@ interface SiteSettingsState {
   author_bio: string
   github_url: string
   weibo_url: string
-  wechat_qr: string
   author_location: string
   personal_website: string
   skills?: string[]
@@ -111,7 +110,6 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       author_bio: '',
       github_url: '',
       weibo_url: '',
-      wechat_qr: '',
       author_location: '',
       personal_website: ''
     },
