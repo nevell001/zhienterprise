@@ -163,9 +163,6 @@ public class FrontSettingController extends BaseController {
             case "blog_beian":
                 settings.put(configKey, "");
                 break;
-            case "author_title":
-                settings.put(configKey, "全栈开发工程师");
-                break;
             case "blog_email":
                 settings.put(configKey, "");
                 break;

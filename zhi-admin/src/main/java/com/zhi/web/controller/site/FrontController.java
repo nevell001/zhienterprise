@@ -252,7 +252,6 @@ public class FrontController extends BaseController
         setDefaultSetting(settingsMap, "blog_author", "nevell");
         setDefaultSetting(settingsMap, "blog_name", "知企建站系统");
         setDefaultSetting(settingsMap, "blog_desc", "欢迎来到我的站点");
-        setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
         setDefaultSetting(settingsMap, "blog_email", "");
     }
 

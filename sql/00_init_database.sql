@@ -903,7 +903,8 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('blog_start_time', '2025-01-01', '站点创建时间', NOW(), NOW()),
 
 -- 社交媒体设置
-('author_title', '网站管理员', '站长头衔', NOW(), NOW()),
+-- 负责人信息（关于页「负责人」区块）：职位只作抬头，留空则抬头不显示
+('author_title', '', '负责人职位', NOW(), NOW()),
 ('author_description', '这个人很懒，什么都没留下', '站长描述', NOW(), NOW()),
 ('github_url', 'https://github.com/nevell', 'GitHub链接', NOW(), NOW()),
 ('weibo_url', '', '微博链接', NOW(), NOW()),

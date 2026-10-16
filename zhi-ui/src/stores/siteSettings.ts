@@ -106,8 +106,8 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       user_agreement_content: '',
       privacy_policy_content: '',
 
-      // 站长信息
-      author_title: '全栈开发工程师',
+      // 站长信息（关于页「负责人」区块；职位留空则抬头不显示，故不给演示默认值）
+      author_title: '',
       author_bio: '',
       github_url: '',
       weibo_url: '',
