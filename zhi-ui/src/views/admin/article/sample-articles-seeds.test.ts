@@ -76,17 +76,29 @@ function seededIds(table: string): Set<number> {
   return ids
 }
 
-/** 标签关联块里引用的 article_id / tag_id 对 */
-function articleTagLinks(): { articleId: number; tagId: number }[] {
+/** 取 zhi_tag 种子块里种下的标签名集合 */
+function seededTagNames(): Set<string> {
+  const start = lines.findIndex(l => l.startsWith('INSERT IGNORE INTO `zhi_tag`'))
+  expect(start, '找不到 zhi_tag 的种子').toBeGreaterThanOrEqual(0)
+  const names = new Set<string>()
+  for (let i = start; i < lines.length; i++) {
+    const m = /^\((\d+), '([^']+)'/.exec(lines[i])
+    if (m) names.add(m[2])
+    if (lines[i].trim().endsWith(';')) break
+  }
+  return names
+}
+
+/** 标签关联块：返回 (文章 slug, 标签名) 对（收敛式写法按业务键解析 id，老库自增漂移安全） */
+function articleTagLinks(): { slug: string; tagName: string }[] {
   const start = lines.findIndex(l =>
-    l.startsWith('INSERT IGNORE INTO `zhi_article_tag` (`article_id`, `tag_id`) VALUES')
+    l.startsWith('INSERT IGNORE INTO `zhi_article_tag` (`article_id`, `tag_id`)')
   )
   expect(start, '找不到标签关联块').toBeGreaterThanOrEqual(0)
-  const links: { articleId: number; tagId: number }[] = []
+  const links: { slug: string; tagName: string }[] = []
   for (let i = start; i < lines.length; i++) {
-    for (const m of lines[i].matchAll(/\((\d+),\s*(\d+)\)/g)) {
-      links.push({ articleId: Number(m[1]), tagId: Number(m[2]) })
-    }
+    const m = /SELECT '([a-z0-9-]+)'(?: AS `slug`)?, '([^']+)'/.exec(lines[i])
+    if (m) links.push({ slug: m[1], tagName: m[2] })
     if (lines[i].trim().endsWith(';')) break
   }
   return links
@@ -138,24 +150,25 @@ describe('示例文章种子', () => {
     expect(new Set(slugs).size).toBe(slugs.length)
   })
 
-  it('标签关联只能引用真实存在的标签', () => {
-    const tags = seededIds('zhi_tag')
+  it('标签关联只能引用真实存在的标签与示例文章', () => {
+    const tagNames = seededTagNames()
+    const slugSet = new Set(articles.map(a => a.slug))
     const links = articleTagLinks()
     expect(links.length).toBeGreaterThan(10)
     for (const l of links) {
-      expect(tags.has(l.tagId), `幽灵关联 article_id=${l.articleId} tag_id=${l.tagId}`).toBe(true)
+      expect(slugSet.has(l.slug), `关联了未知文章 slug=${l.slug}`).toBe(true)
+      expect(tagNames.has(l.tagName), `幽灵关联 slug=${l.slug} tag=${l.tagName}`).toBe(true)
     }
   })
 
   it('每篇示例文章都至少有一个标签，且主题相关', () => {
     const links = articleTagLinks()
-    for (const [i, a] of articles.entries()) {
-      const ids = links.filter(l => l.articleId === i + 1).map(l => l.tagId)
-      expect(ids.length, `${a.title} 没有标签`).toBeGreaterThan(0)
+    const tagsOf = (slug: string) => links.filter(l => l.slug === slug).map(l => l.tagName)
+    for (const a of articles) {
+      expect(tagsOf(a.slug).length, `${a.title} 没有标签`).toBeGreaterThan(0)
     }
-    const idsOf = (n: number) => links.filter(l => l.articleId === n).map(l => l.tagId)
-    expect(idsOf(6), '《加入我们》应挂 招聘信息(18)').toContain(18) // 招聘信息
-    expect(idsOf(5), '《运维托管》应挂 技术服务(16)').toContain(16)
-    expect(idsOf(3), '《客户案例》应挂 客户案例(4)').toContain(4)
+    expect(tagsOf('join-zhiqi'), '《加入我们》应挂 招聘信息').toContain('招聘信息')
+    expect(tagsOf('ops-hosting-service'), '《运维托管》应挂 技术服务').toContain('技术服务')
+    expect(tagsOf('manufacturing-website-case'), '《客户案例》应挂 客户案例').toContain('客户案例')
   })
 })

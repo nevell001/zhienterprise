@@ -1169,29 +1169,46 @@ CALL sp_insert_sample_articles();
 DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 
 -- 插入文章标签关联数据（建立文章与标签的多对多关系）
-INSERT IGNORE INTO `zhi_article_tag` (`article_id`, `tag_id`) VALUES
--- 文章1：知企建站系统 v1.0 正式发布（公司动态 / 产品发布 / 企业官网）
-(1, 1), (1, 2), (1, 6),
-
--- 文章2：2026 企业数字化转型趋势观察（行业洞察 / 数字化转型 / 人工智能）
-(2, 3), (2, 5), (2, 8),
-
--- 文章3：客户案例：某制造企业官网升级实践（客户案例 / 数字化转型 / 智能制造）
-(3, 4), (3, 5), (3, 11),
-
--- 文章4：企业官网 SEO 优化实用指南（企业官网 / 市场营销）
-(4, 6), (4, 15),
-
--- 文章5：站点运维托管服务正式上线（产品发布 / 技术服务 / 云计算）
-(5, 2), (5, 16), (5, 7),
-
--- 文章6：加入我们：与知企一起成长（团队文化 / 招聘信息）
-(6, 17), (6, 18),
-
--- 文章7-9：解决方案（行业洞察 / 数字化转型 / 市场营销等）
-(7, 3), (7, 5), (7, 11),
-(8, 10), (8, 9), (8, 14),
-(9, 15), (9, 12), (9, 3);
+-- 收敛式写法：按「文章 slug + 标签名」解析 id 后插入；老库自增 id 漂移时
+-- 不会把标签挂到别的文章上（旧版固定 (1,1)..(9,3) 在 id 偏移的库里会串行污染）
+INSERT IGNORE INTO `zhi_article_tag` (`article_id`, `tag_id`)
+SELECT `a`.`id`, `t`.`id`
+FROM (
+  -- 文章1：知企建站系统 v1.0 正式发布（公司动态 / 产品发布 / 企业官网）
+  SELECT 'zhi-v1-release' AS `slug`, '公司动态' AS `tag_name`
+  UNION ALL SELECT 'zhi-v1-release', '产品发布'
+  UNION ALL SELECT 'zhi-v1-release', '企业官网'
+  -- 文章2：2026 企业数字化转型趋势观察（行业洞察 / 数字化转型 / 人工智能）
+  UNION ALL SELECT 'digital-2026-trends', '行业洞察'
+  UNION ALL SELECT 'digital-2026-trends', '数字化转型'
+  UNION ALL SELECT 'digital-2026-trends', '人工智能'
+  -- 文章3：客户案例：某制造企业官网升级实践（客户案例 / 数字化转型 / 智能制造）
+  UNION ALL SELECT 'manufacturing-website-case', '客户案例'
+  UNION ALL SELECT 'manufacturing-website-case', '数字化转型'
+  UNION ALL SELECT 'manufacturing-website-case', '智能制造'
+  -- 文章4：企业官网 SEO 优化实用指南（企业官网 / 市场营销）
+  UNION ALL SELECT 'enterprise-seo-guide', '企业官网'
+  UNION ALL SELECT 'enterprise-seo-guide', '市场营销'
+  -- 文章5：站点运维托管服务正式上线（产品发布 / 技术服务 / 云计算）
+  UNION ALL SELECT 'ops-hosting-service', '产品发布'
+  UNION ALL SELECT 'ops-hosting-service', '技术服务'
+  UNION ALL SELECT 'ops-hosting-service', '云计算'
+  -- 文章6：加入我们：与知企一起成长（团队文化 / 招聘信息）
+  UNION ALL SELECT 'join-zhiqi', '团队文化'
+  UNION ALL SELECT 'join-zhiqi', '招聘信息'
+  -- 文章7-9：解决方案（行业洞察 / 数字化转型 / 市场营销等）
+  UNION ALL SELECT 'solution-manufacturing', '行业洞察'
+  UNION ALL SELECT 'solution-manufacturing', '数字化转型'
+  UNION ALL SELECT 'solution-manufacturing', '智能制造'
+  UNION ALL SELECT 'solution-finance', '网络安全'
+  UNION ALL SELECT 'solution-finance', '大数据'
+  UNION ALL SELECT 'solution-finance', '企业管理'
+  UNION ALL SELECT 'solution-retail', '市场营销'
+  UNION ALL SELECT 'solution-retail', '物联网'
+  UNION ALL SELECT 'solution-retail', '行业洞察'
+) `seed`
+JOIN `zhi_article` `a` ON `a`.`slug` = `seed`.`slug` AND `a`.`del_flag` = 0
+JOIN `zhi_tag` `t` ON `t`.`name` = `seed`.`tag_name`;
 
 -- ========== 更新分类文章数量 ==========
 
