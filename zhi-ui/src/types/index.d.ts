@@ -112,6 +112,14 @@ export interface Article {
   seoDescription?: string
   /** URL 别名（伪静态 /article/{slug}，留空用数字 ID） */
   slug?: string
+  /** 卖点宫格（business/case）：JSON 字符串或解析后数组 */
+  sellingPoints?: string | { title: string; desc: string }[] | null
+  /** 规格参数表（business/case） */
+  specTable?: string | { name: string; value: string }[] | null
+  /** 图集（business/case）：图片地址数组 */
+  gallery?: string | string[] | null
+  /** 服务/实施流程步骤条 */
+  processSteps?: string | { title: string; desc: string }[] | null
   status?: number
   isTop?: number
   isRecommend?: number

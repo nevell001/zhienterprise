@@ -789,3 +789,147 @@ html.motion-off .tpl-site .eh-title .line {
     transform: none;
   }
 }
+
+/* ---------- 业务详情：图集 / 卖点宫格 / 规格表 / 流程步骤条（§1.3/§3.2/§5.2） ---------- */
+.tpl-site .bd-gallery {
+  display: flex;
+  gap: var(--mo-sp-5);
+  overflow-x: auto;
+  padding-bottom: var(--mo-sp-3);
+  margin-bottom: var(--mo-sp-7);
+  scrollbar-width: thin;
+}
+
+.tpl-site .bd-gallery-item {
+  flex: none;
+  width: 320px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--tpl-r-lg);
+  overflow: hidden;
+  background: var(--tpl-surface);
+}
+
+.tpl-site .bd-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tpl-site .bd-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mo-sp-6);
+  margin: var(--mo-sp-9) 0;
+}
+
+.tpl-site .bd-point-card {
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  padding: var(--mo-sp-6);
+  background: var(--tpl-surface);
+}
+
+.tpl-site .bd-point-card h3 {
+  margin: 0 0 var(--mo-sp-2);
+  font-size: var(--mo-fs-lg);
+  color: var(--tpl-p-text);
+}
+
+.tpl-site .bd-point-card p {
+  margin: 0;
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-500);
+  line-height: 1.7;
+}
+
+.tpl-site .bd-spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  overflow: hidden;
+}
+
+.tpl-site .bd-spec-table th,
+.tpl-site .bd-spec-table td {
+  padding: var(--mo-sp-4) var(--mo-sp-5);
+  border-bottom: 1px solid var(--tpl-border);
+  text-align: left;
+  font-size: var(--mo-fs-sm);
+}
+
+.tpl-site .bd-spec-table th {
+  width: 32%;
+  background: var(--tpl-surface);
+  color: var(--tpl-ink-700);
+  font-weight: 500;
+}
+
+.tpl-site .bd-spec-table tr:last-child th,
+.tpl-site .bd-spec-table tr:last-child td {
+  border-bottom: none;
+}
+
+.tpl-site .bd-steps {
+  margin: var(--mo-sp-9) 0;
+}
+
+.tpl-site .bd-step-bar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--mo-sp-5);
+  counter-reset: step;
+}
+
+.tpl-site .bd-step {
+  position: relative;
+  padding: var(--mo-sp-5);
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  background: var(--tpl-surface);
+}
+
+.tpl-site .bd-step-no {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--tpl-p);
+  color: var(--tpl-white);
+  font-weight: 600;
+  font-size: var(--mo-fs-sm);
+  margin-bottom: var(--mo-sp-3);
+}
+
+.tpl-site .bd-step h3 {
+  margin: 0 0 var(--mo-sp-2);
+  font-size: var(--mo-fs-md);
+  color: var(--tpl-ink-900);
+}
+
+.tpl-site .bd-step p {
+  margin: 0;
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-500);
+  line-height: 1.7;
+}
+
+@media (max-width: 991px) {
+  .tpl-site .bd-points {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tpl-site .bd-step-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 639px) {
+  .tpl-site .bd-points {
+    grid-template-columns: 1fr;
+  }
+}

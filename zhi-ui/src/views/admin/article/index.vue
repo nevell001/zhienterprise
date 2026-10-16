@@ -529,6 +529,73 @@
               </el-form-item>
             </section>
 
+            <!-- 业务详情结构化（business/case 专属；前台详情页分区渲染） -->
+            <template v-if="isBizDetailType">
+              <section class="side-section">
+                <div class="side-title">卖点宫格（可选）</div>
+                <div v-for="(p, pi) in sellingPointsList" :key="`sp${pi}`" class="cfg-row">
+                  <el-input v-model="p.title" placeholder="卖点" style="width: 140px" />
+                  <el-input v-model="p.desc" placeholder="一句话说明" style="flex: 1" />
+                  <el-button type="danger" link @click="sellingPointsList.splice(pi, 1)">
+                    删除
+                  </el-button>
+                </div>
+                <el-button
+                  link
+                  type="primary"
+                  @click="sellingPointsList.push({ title: '', desc: '' })"
+                >
+                  + 添加卖点
+                </el-button>
+              </section>
+
+              <section class="side-section">
+                <div class="side-title">规格参数表（可选）</div>
+                <div v-for="(s, si) in specTableList" :key="`sp${si}`" class="cfg-row">
+                  <el-input v-model="s.name" placeholder="参数名" style="width: 140px" />
+                  <el-input v-model="s.value" placeholder="参数值" style="flex: 1" />
+                  <el-button type="danger" link @click="specTableList.splice(si, 1)">
+                    删除
+                  </el-button>
+                </div>
+                <el-button link type="primary" @click="specTableList.push({ name: '', value: '' })">
+                  + 添加参数
+                </el-button>
+              </section>
+
+              <section class="side-section">
+                <div class="side-title">图集（可选）</div>
+                <div v-for="(g, gi) in galleryList" :key="`g${gi}`" class="cfg-row">
+                  <el-input
+                    :model-value="g"
+                    placeholder="图片地址"
+                    style="flex: 1"
+                    @update:model-value="galleryList.splice(gi, 1, $event)"
+                  />
+                  <el-button type="danger" link @click="galleryList.splice(gi, 1)">删除</el-button>
+                </div>
+                <el-button link type="primary" @click="galleryList.push('')">+ 添加图片</el-button>
+              </section>
+
+              <section class="side-section">
+                <div class="side-title">服务/实施流程（可选）</div>
+                <div v-for="(s, fi) in processStepsList" :key="`f${fi}`" class="cfg-row">
+                  <el-input v-model="s.title" placeholder="步骤名" style="width: 140px" />
+                  <el-input v-model="s.desc" placeholder="步骤说明" style="flex: 1" />
+                  <el-button type="danger" link @click="processStepsList.splice(fi, 1)">
+                    删除
+                  </el-button>
+                </div>
+                <el-button
+                  link
+                  type="primary"
+                  @click="processStepsList.push({ title: '', desc: '' })"
+                >
+                  + 添加步骤
+                </el-button>
+              </section>
+            </template>
+
             <section class="side-section">
               <div class="side-title">摘要</div>
               <el-form-item prop="summary" class="compact-form-item">
@@ -635,6 +702,29 @@ const { proxy } = getCurrentInstance()
 const route = useRoute()
 // 核心业务管理菜单（/admin/business）复用本组件，按路由固定 articleType=business
 const fixedArticleType = route.path.endsWith('/business') ? 'business' : ''
+/** 业务详情结构化（business/case）：编辑态数组，提交时序列化为 JSON */
+const sellingPointsList = ref<{ title: string; desc: string }[]>([])
+const specTableList = ref<{ name: string; value: string }[]>([])
+const galleryList = ref<string[]>([])
+const processStepsList = ref<{ title: string; desc: string }[]>([])
+const isBizDetailType = computed(() =>
+  ['business', 'case'].includes(String(form.value.articleType || ''))
+)
+
+function syncDetailListsFromForm() {
+  function parseList<T>(raw: unknown): T[] {
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+  sellingPointsList.value = parseList(form.value.sellingPoints)
+  specTableList.value = parseList(form.value.specTable)
+  galleryList.value = parseList(form.value.gallery)
+  processStepsList.value = parseList(form.value.processSteps)
+}
 const articleTypeLabel = (type?: string) =>
   ({ news: '资讯动态', business: '核心业务', case: '客户案例' })[type || 'news'] || '资讯动态'
 const articleTypeTag = (type?: string) =>
@@ -856,6 +946,9 @@ function reset() {
     delFlag: 0
   }
 
+  // 业务详情结构化列表同步清空
+  syncDetailListsFromForm()
+
   // 清空表单验证状态
   if (articleRef.value) {
     articleRef.value.clearValidate()
@@ -958,8 +1051,10 @@ async function handleUpdate(row) {
         : ''
 
       form.value = articleData
+      syncDetailListsFromForm()
     } else {
       form.value = {}
+      syncDetailListsFromForm()
     }
 
     open.value = true
@@ -1101,6 +1196,13 @@ const submitForm = async (targetStatus?: 0 | 1 | 2) => {
         // 设置默认值，确保数据类型正确
         apiData.isTop = apiData.isTop ? 1 : 0
         apiData.isRecommend = apiData.isRecommend ? 1 : 0
+
+        // 业务详情结构化（数组 → JSON 字符串；空数组存 '[]' 表示管理员已清空）
+        const stringifyList = (list: unknown[]) => JSON.stringify(list ?? [])
+        apiData.sellingPoints = stringifyList(sellingPointsList.value)
+        apiData.specTable = stringifyList(specTableList.value)
+        apiData.gallery = stringifyList(galleryList.value)
+        apiData.processSteps = stringifyList(processStepsList.value)
 
         // 确保所有数值字段都是Number类型
         apiData.isTop = Number(apiData.isTop)

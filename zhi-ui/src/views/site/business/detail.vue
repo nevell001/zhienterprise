@@ -19,9 +19,61 @@
             class="bd-cover rv"
             :alt="article.title"
           />
+
+          <!-- 图集（方案文档 §1.3/§5.2：横向滑动 + 滚动指示） -->
+          <div v-if="gallery.length" class="bd-gallery rv" aria-label="图集">
+            <div v-for="(url, gi) in gallery" :key="`${url}-${gi}`" class="bd-gallery-item">
+              <img
+                :src="url"
+                :alt="`${article.title} 图集 ${gi + 1}`"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+
+          <!-- 卖点宫格（方案文档 §1.3：核心卖点 3–4 宫格） -->
+          <section v-if="sellingPoints.length" class="bd-points rv">
+            <div v-for="p in sellingPoints" :key="p.title" class="bd-point-card">
+              <h3>{{ p.title }}</h3>
+              <p>{{ p.desc }}</p>
+            </div>
+          </section>
+
           <!-- 正文契约与文章详情一致：HTML 经消毒后渲染，不做 Markdown 渲染 -->
           <!-- eslint-disable-next-line vue/no-v-html -->
           <div class="bd-content rv" v-html="sanitizedContent"></div>
+
+          <!-- 规格参数表（方案文档 §1.3：两列表） -->
+          <section v-if="specTable.length" class="bd-spec rv">
+            <div class="tpl-sec-head">
+              <div class="sec-tag">规格参数</div>
+              <h2>技术与服务规格</h2>
+            </div>
+            <table class="bd-spec-table">
+              <tbody>
+                <tr v-for="row in specTable" :key="row.name">
+                  <th>{{ row.name }}</th>
+                  <td>{{ row.value }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <!-- 服务/实施流程步骤条（方案文档 §1.3/§5.2：桌面横向、移动纵向） -->
+          <section v-if="processSteps.length" class="bd-steps rv">
+            <div class="tpl-sec-head">
+              <div class="sec-tag">服务流程</div>
+              <h2>合作路径，四步到位</h2>
+            </div>
+            <ol class="bd-step-bar">
+              <li v-for="(s, i) in processSteps" :key="s.title" class="bd-step">
+                <span class="bd-step-no">{{ i + 1 }}</span>
+                <h3>{{ s.title }}</h3>
+                <p>{{ s.desc }}</p>
+              </li>
+            </ol>
+          </section>
 
           <!-- 相关推荐：同类型最新（排除自身） -->
           <section v-if="relatedItems.length" class="bd-related">
@@ -99,6 +151,28 @@ const relatedItems = ref<Article[]>([])
 const loading = ref(true)
 
 const sanitizedContent = computed(() => sanitizeArticleContent(article.value?.content || ''))
+
+/** 结构化 JSON 字段安全解析（损坏/缺省回退空数组，区块自动隐藏） */
+function parseJsonArray<T>(raw: unknown): T[] {
+  if (typeof raw !== 'string' || !raw.trim()) return []
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+const sellingPoints = computed(() =>
+  parseJsonArray<{ title: string; desc: string }>(article.value?.sellingPoints)
+)
+const specTable = computed(() =>
+  parseJsonArray<{ name: string; value: string }>(article.value?.specTable)
+)
+const gallery = computed(() => parseJsonArray<string>(article.value?.gallery))
+const processSteps = computed(() =>
+  parseJsonArray<{ title: string; desc: string }>(article.value?.processSteps)
+)
 
 const formatDate = (date?: string) => (date ? parseTime(date, '{y}-{m}-{d}') : '')
 

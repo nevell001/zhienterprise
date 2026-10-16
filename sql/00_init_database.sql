@@ -579,6 +579,10 @@ CREATE TABLE IF NOT EXISTS `zhi_article` (
   `seo_keywords` varchar(255) DEFAULT NULL COMMENT 'SEO 关键词（英文逗号分隔）',
   `seo_description` varchar(500) DEFAULT NULL COMMENT 'SEO 描述（留空回退文章摘要）',
   `slug` varchar(100) DEFAULT NULL COMMENT 'URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID）',
+  `selling_points` json DEFAULT NULL COMMENT '卖点宫格（business/case）：[{title,desc}]',
+  `spec_table` json DEFAULT NULL COMMENT '规格参数表（business/case）：[{name,value}]',
+  `gallery` json DEFAULT NULL COMMENT '图集（business/case）：[url]',
+  `process_steps` json DEFAULT NULL COMMENT '服务/实施流程步骤条（business/case）：[{title,desc}]',
   `cover_url` varchar(255) DEFAULT NULL COMMENT '封面图片URL',
   `category_id` bigint DEFAULT NULL COMMENT '分类ID',
   `author_id` bigint DEFAULT NULL COMMENT '作者ID',
@@ -2478,6 +2482,57 @@ SET @add_article_slug := IF(@has_article_slug = 0,
 PREPARE add_article_slug_stmt FROM @add_article_slug;
 EXECUTE add_article_slug_stmt;
 DEALLOCATE PREPARE add_article_slug_stmt;
+
+-- 老库升级：补齐 zhi_article 业务详情结构化字段（幂等，模块化建站 M5：卖点宫格/规格表/图集/流程条）
+SET @has_article_selling_points := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'selling_points');
+SET @add_article_selling_points := IF(@has_article_selling_points = 0,
+    'ALTER TABLE `zhi_article` ADD COLUMN `selling_points` json DEFAULT NULL COMMENT ''卖点宫格（business/case）：[{title,desc}]''',
+    'SELECT 1');
+PREPARE add_article_selling_points_stmt FROM @add_article_selling_points;
+EXECUTE add_article_selling_points_stmt;
+DEALLOCATE PREPARE add_article_selling_points_stmt;
+
+SET @has_article_spec_table := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'spec_table');
+SET @add_article_spec_table := IF(@has_article_spec_table = 0,
+    'ALTER TABLE `zhi_article` ADD COLUMN `spec_table` json DEFAULT NULL COMMENT ''规格参数表（business/case）：[{name,value}]''',
+    'SELECT 1');
+PREPARE add_article_spec_table_stmt FROM @add_article_spec_table;
+EXECUTE add_article_spec_table_stmt;
+DEALLOCATE PREPARE add_article_spec_table_stmt;
+
+SET @has_article_gallery := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'gallery');
+SET @add_article_gallery := IF(@has_article_gallery = 0,
+    'ALTER TABLE `zhi_article` ADD COLUMN `gallery` json DEFAULT NULL COMMENT ''图集（business/case）：[url]''',
+    'SELECT 1');
+PREPARE add_article_gallery_stmt FROM @add_article_gallery;
+EXECUTE add_article_gallery_stmt;
+DEALLOCATE PREPARE add_article_gallery_stmt;
+
+SET @has_article_process_steps := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'process_steps');
+SET @add_article_process_steps := IF(@has_article_process_steps = 0,
+    'ALTER TABLE `zhi_article` ADD COLUMN `process_steps` json DEFAULT NULL COMMENT ''服务/实施流程步骤条（business/case）：[{title,desc}]''',
+    'SELECT 1');
+PREPARE add_article_process_steps_stmt FROM @add_article_process_steps;
+EXECUTE add_article_process_steps_stmt;
+DEALLOCATE PREPARE add_article_process_steps_stmt;
+
+-- 业务详情结构化演示数据（仅当对应字段为空时写入；管理员修改后不覆盖）
+UPDATE `zhi_article`
+SET `selling_points` = '[{"title":"开箱即用","desc":"标准化安装包与初始化向导，最快当天完成部署上线。"},{"title":"模块组合","desc":"功能模块按需启用，随业务成长平滑扩展。"},{"title":"安全合规","desc":"内置权限体系与安全基线，通过等保二级要求。"}]',
+    `spec_table` = '[{"name":"部署方式","value":"Docker / 安装包"},{"name":"授权模式","value":"按站点授权"},{"name":"服务响应","value":"1 个工作日"}]'
+WHERE `slug` = 'zhi-v1-release' AND `selling_points` IS NULL;
+
+UPDATE `zhi_article`
+SET `process_steps` = '[{"title":"接入评估","desc":"梳理站点现状，确认托管范围与迁移方案。"},{"title":"接管部署","desc":"备份、监控与告警体系接入，完成交接。"},{"title":"持续运维","desc":"按月巡检与报告，异常即时响应。"},{"title":"季度复盘","desc":"回顾服务水平，持续优化托管策略。"}]'
+WHERE `slug` = 'ops-hosting-service' AND `process_steps` IS NULL;
+
+UPDATE `zhi_article`
+SET `process_steps` = '[{"title":"现状诊断","desc":"摸底产线数据与管理系统现状，输出诊断报告。"},{"title":"方案设计","desc":"确认改造范围、优先级与里程碑。"},{"title":"分步实施","desc":"按产线分批切换，生产不停线。"},{"title":"长期陪跑","desc":"交付后持续优化，季度复盘迭代。"}]'
+WHERE `slug` = 'manufacturing-website-case' AND `process_steps` IS NULL;
 
 -- 幂等索引：伪静态查询列（slug/alias 的解析查询走点查，早期库重跑补齐索引）
 CALL sp_create_index_if_not_exists('zhi_article', 'idx_slug', 'CREATE INDEX idx_slug ON zhi_article(slug)');

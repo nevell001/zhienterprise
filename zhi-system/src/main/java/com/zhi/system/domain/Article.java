@@ -115,6 +115,18 @@ public class Article extends BaseEntity
     /** URL 别名（伪静态 /article/{slug}，留空用数字 ID） */
     private String slug;
 
+    /** 卖点宫格（business/case）：JSON 数组 [{title,desc}] */
+    private String sellingPoints;
+
+    /** 规格参数表（business/case）：JSON 数组 [{name,value}] */
+    private String specTable;
+
+    /** 图集（business/case）：JSON 数组 [url] */
+    private String gallery;
+
+    /** 服务/实施流程步骤条（business/case）：JSON 数组 [{title,desc}] */
+    private String processSteps;
+
     public void setArticleType(String articleType)
     {
         this.articleType = articleType;
@@ -163,6 +175,46 @@ public class Article extends BaseEntity
     public String getSlug()
     {
         return slug;
+    }
+
+    public void setSellingPoints(String sellingPoints)
+    {
+        this.sellingPoints = sellingPoints;
+    }
+
+    public String getSellingPoints()
+    {
+        return sellingPoints;
+    }
+
+    public void setSpecTable(String specTable)
+    {
+        this.specTable = specTable;
+    }
+
+    public String getSpecTable()
+    {
+        return specTable;
+    }
+
+    public void setGallery(String gallery)
+    {
+        this.gallery = gallery;
+    }
+
+    public String getGallery()
+    {
+        return gallery;
+    }
+
+    public void setProcessSteps(String processSteps)
+    {
+        this.processSteps = processSteps;
+    }
+
+    public String getProcessSteps()
+    {
+        return processSteps;
     }
 
     public void setId(Long id)
