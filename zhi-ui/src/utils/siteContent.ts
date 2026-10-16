@@ -38,6 +38,8 @@ export interface SiteHonor {
   issuer: string
   year: string
   cat: string
+  /** 证书图片（可选，点击查看大图） */
+  image?: string
 }
 
 export interface SiteHistoryEvent {

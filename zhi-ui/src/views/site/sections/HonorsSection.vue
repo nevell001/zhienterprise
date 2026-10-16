@@ -21,7 +21,18 @@
       </div>
       <div class="honor-grid rv d1">
         <div v-for="item in filteredItems" :key="item.name" class="honor-card">
-          <div class="honor-seal" aria-hidden="true">
+          <!-- 有图：点击查看大图（§1.3 证书墙）；无图：徽章占位 -->
+          <el-image
+            v-if="item.image"
+            :src="item.image"
+            :preview-src-list="[item.image]"
+            :alt="item.name"
+            fit="cover"
+            class="honor-image"
+            hide-on-click-modal
+            preview-teleported
+          />
+          <div v-else class="honor-seal" aria-hidden="true">
             <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
               <circle cx="17" cy="13" r="8" stroke="currentColor" stroke-width="1.5" />
               <path

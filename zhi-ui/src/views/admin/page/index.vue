@@ -650,6 +650,7 @@
                     <el-input v-model="h.issuer" placeholder="颁发方" style="width: 160px" />
                     <el-input v-model="h.year" placeholder="年份" style="width: 80px" />
                     <el-input v-model="h.cat" placeholder="分类" style="width: 110px" />
+                    <el-input v-model="h.image" placeholder="图片地址（可选）" style="flex: 1" />
                     <el-button type="danger" link @click="removeItem(sec, 'items', hi)">
                       删除
                     </el-button>

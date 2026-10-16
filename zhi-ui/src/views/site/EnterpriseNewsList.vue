@@ -9,103 +9,133 @@
     </header>
 
     <main class="eh-wrap enh-main">
-      <div v-if="loading" class="enh-skeleton rv">
-        <div class="enh-skel-hero"></div>
-        <div class="enh-skel-row">
-          <div class="enh-skel-card"></div>
-          <div class="enh-skel-card"></div>
-        </div>
-      </div>
-
-      <template v-else-if="items.length">
-        <!-- 头条：16:9 大图 + 摘要（方案文档 §3.4 企业动态） -->
-        <article v-if="headline" class="enh-hero-card rv" @click="goItem(headline.id)">
-          <div class="enh-hero-media">
-            <img
-              v-if="headline.coverUrl"
-              :src="headline.coverUrl"
-              :alt="headline.title"
-              loading="lazy"
-              decoding="async"
-            />
-            <svg
-              v-else
-              width="72"
-              height="72"
-              viewBox="0 0 72 72"
-              fill="none"
-              opacity=".5"
-              aria-hidden="true"
-            >
-              <rect
-                x="12"
-                y="12"
-                width="48"
-                height="48"
-                rx="12"
-                stroke="currentColor"
-                stroke-width="1.5"
-              />
-              <path
-                d="M24 36h24M36 24v24"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-              />
-            </svg>
-          </div>
-          <div class="enh-hero-body">
-            <div class="n-meta">
-              <span class="tag">企业动态</span>
-              <span>{{ formatDate(headline.createTime) }}</span>
+      <div class="enh-body">
+        <div class="enh-content">
+          <div v-if="loading" class="enh-skeleton rv">
+            <div class="enh-skel-hero"></div>
+            <div class="enh-skel-row">
+              <div class="enh-skel-card"></div>
+              <div class="enh-skel-card"></div>
             </div>
-            <h2>{{ headline.title }}</h2>
-            <p>{{ headline.summary }}</p>
-            <span class="lnk">
-              阅读全文
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path
-                  d="M3 8h10M9 4l4 4-4 4"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+          </div>
+
+          <template v-else-if="items.length">
+            <!-- 头条：16:9 大图 + 摘要（方案文档 §3.4 企业动态） -->
+            <article v-if="headline" class="enh-hero-card rv" @click="goItem(headline.id)">
+              <div class="enh-hero-media">
+                <img
+                  v-if="headline.coverUrl"
+                  :src="headline.coverUrl"
+                  :alt="headline.title"
+                  loading="lazy"
+                  decoding="async"
                 />
-              </svg>
-            </span>
-          </div>
-        </article>
+                <svg
+                  v-else
+                  width="72"
+                  height="72"
+                  viewBox="0 0 72 72"
+                  fill="none"
+                  opacity=".5"
+                  aria-hidden="true"
+                >
+                  <rect
+                    x="12"
+                    y="12"
+                    width="48"
+                    height="48"
+                    rx="12"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M24 36h24M36 24v24"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+              <div class="enh-hero-body">
+                <div class="n-meta">
+                  <span class="tag">企业动态</span>
+                  <span>{{ formatDate(headline.createTime) }}</span>
+                </div>
+                <h2>{{ headline.title }}</h2>
+                <p>{{ headline.summary }}</p>
+                <span class="lnk">
+                  阅读全文
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M3 8h10M9 4l4 4-4 4"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </article>
 
-        <!-- 次条：2 列卡片 -->
-        <div v-if="secondaryItems.length" class="enh-grid">
-          <article
-            v-for="(item, ii) in secondaryItems"
-            :key="item.id"
-            class="enh-card rv"
-            :class="`d${ii % 2}`"
-            @click="goItem(item.id)"
-          >
-            <div class="enh-card-meta">
-              <span class="tag">企业动态</span>
-              <span>{{ formatDate(item.createTime) }}</span>
+            <!-- 次条：2 列卡片 -->
+            <div v-if="secondaryItems.length" class="enh-grid">
+              <article
+                v-for="(item, ii) in secondaryItems"
+                :key="item.id"
+                class="enh-card rv"
+                :class="`d${ii % 2}`"
+                @click="goItem(item.id)"
+              >
+                <div class="enh-card-meta">
+                  <span class="tag">企业动态</span>
+                  <span>{{ formatDate(item.createTime) }}</span>
+                </div>
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.summary }}</p>
+              </article>
             </div>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.summary }}</p>
-          </article>
+
+            <div v-if="total > pageSize" class="enh-pager">
+              <el-pagination
+                v-model:current-page="page"
+                layout="prev, pager, next"
+                :total="total"
+                :page-size="pageSize"
+                background
+                @current-change="load"
+              />
+            </div>
+          </template>
+          <p v-else class="enh-empty rv">暂无动态，发布资讯后将在这里展示</p>
         </div>
 
-        <div v-if="total > pageSize" class="enh-pager">
-          <el-pagination
-            v-model:current-page="page"
-            layout="prev, pager, next"
-            :total="total"
-            :page-size="pageSize"
-            background
-            @current-change="load"
-          />
-        </div>
-      </template>
-      <p v-else class="enh-empty rv">暂无动态，发布资讯后将在这里展示</p>
+        <!-- 归档侧栏（桌面 ≥1200px，方案文档 §3.4）：年份归档入口 + 标签 -->
+        <aside class="enh-side rv d1">
+          <div v-if="archiveYears.length" class="enh-side-block">
+            <h4>归档</h4>
+            <router-link
+              v-for="y in archiveYears"
+              :key="y"
+              class="enh-side-link"
+              to="/blog/archive"
+            >
+              {{ y }} 年
+            </router-link>
+          </div>
+          <div v-if="sideTags.length" class="enh-side-block">
+            <h4>热门标签</h4>
+            <router-link
+              v-for="t in sideTags"
+              :key="t.id"
+              class="enh-side-link"
+              :to="`/blog/tag/${t.id}`"
+            >
+              {{ t.name }}
+            </router-link>
+          </div>
+        </aside>
+      </div>
     </main>
   </div>
 </template>
@@ -113,8 +143,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getArticleList } from '@/api/site'
+import { getArticleList, getArticleArchive } from '@/api/site'
 import type { Article } from '@/types'
+import { getTagCloud } from '@/api/site/tag'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { parseTime } from '@/utils/zhi'
@@ -128,6 +159,10 @@ const total = ref(0)
 const page = ref(1)
 const pageSize = 7
 const loading = ref(true)
+
+/* ---------- 归档侧栏（桌面 ≥1200px）：年份聚合 + 热门标签 ---------- */
+const archiveYears = ref<string[]>([])
+const sideTags = ref<{ id: number; name: string }[]>([])
 
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
@@ -159,6 +194,28 @@ const load = async () => {
     window.scrollTo({ top: 0 })
   }
 }
+
+onMounted(async () => {
+  try {
+    const [archiveRes, tagRes] = await Promise.allSettled([getArticleArchive(), getTagCloud()])
+    if (archiveRes.status === 'fulfilled') {
+      const rows = (archiveRes.value as { data?: { date: string }[] })?.data || []
+      // 按年去重，倒序
+      archiveYears.value = Array.from(new Set(rows.map(r => String(r.date).slice(0, 4)))).sort(
+        (a, b) => b.localeCompare(a)
+      )
+    }
+    if (tagRes.status === 'fulfilled') {
+      const tags = (tagRes.value as { data?: { id: number; name: string }[] })?.data || []
+      sideTags.value = (Array.isArray(tags) ? tags : [])
+        .slice(0, 8)
+        .map((t: any) => ({ id: t.id, name: t.name }))
+        .filter((t: any) => t.id && t.name)
+    }
+  } catch (error) {
+    logger.error('加载归档侧栏失败:', error)
+  }
+})
 
 onMounted(() => {
   const siteName = siteSettingsStore.siteSettings?.blog_name || '知企建站系统'

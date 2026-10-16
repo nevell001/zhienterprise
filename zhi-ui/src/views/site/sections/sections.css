@@ -656,3 +656,95 @@
 .tpl-site .pad-s {
   padding: var(--mo-sp-9) 0;
 }
+
+/* ---------- 新闻列表：归档侧栏（≥1200px 右栏 240px，方案文档 §3.4） ---------- */
+.tpl-site .enh-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.tpl-site .enh-side {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .tpl-site .enh-body {
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: var(--mo-sp-8);
+  }
+
+  .tpl-site .enh-side {
+    display: block;
+    align-self: start;
+  }
+}
+
+.tpl-site .enh-side-block {
+  background: var(--tpl-surface);
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  padding: var(--mo-sp-6);
+  margin-bottom: var(--mo-sp-6);
+}
+
+.tpl-site .enh-side-block h4 {
+  margin: 0 0 var(--mo-sp-4);
+  font-size: var(--mo-fs-md);
+  color: var(--tpl-ink-900);
+}
+
+.tpl-site .enh-side-link {
+  display: block;
+  padding: var(--mo-sp-2) 0;
+  font-size: var(--mo-fs-sm);
+  color: var(--tpl-ink-500);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.tpl-site .enh-side-link:hover {
+  color: var(--tpl-p-text);
+}
+
+/* ---------- 历程交互：展开收起 / 节点可点 ---------- */
+.tpl-site .tl-expand {
+  border: none;
+  background: transparent;
+  padding: var(--mo-sp-2) 0;
+  font-size: var(--mo-fs-sm);
+  font-weight: 500;
+  color: var(--tpl-p-text);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tpl-site .tl-expand:hover {
+  color: var(--tpl-p);
+}
+
+.tpl-site .tl-expand-inline {
+  margin-top: var(--mo-sp-4);
+}
+
+.tpl-site .tl-node[role='button'] {
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tpl-site .tl-node[role='button']:hover {
+  transform: scale(1.2);
+}
+
+.tpl-site .tl-node[role='button']:focus-visible {
+  outline: 2px solid var(--tpl-p);
+  outline-offset: 2px;
+}
+
+/* 荣誉证书图（点击查看大图） */
+.tpl-site .honor-image {
+  width: 100%;
+  height: 160px;
+  border-radius: var(--tpl-r-md);
+  margin-bottom: var(--mo-sp-5);
+  cursor: zoom-in;
+}
