@@ -1394,7 +1394,9 @@ LEFT JOIN `site_nav_item` p ON p.`id` = o.`parent_id`
 WHERE o.`parent_id` <> 0 AND p.`id` IS NULL;
 
 -- 头部/页脚导航默认项（设计稿 §1.1；后台「导航管理」可维护）
--- 幂等保护：按「位置+父项+标签」收敛写入，只补缺失项（本表无自然唯一键）
+-- 幂等保护：按「位置+父项+链接类型+链接值」收敛写入，只补缺失项（本表无自然唯一键）
+-- ⚠️ 判存键故意不含 label：站长在「导航管理」里改过标签后（实例：核心业务 → 咨询业务），
+-- 按 label 判存会认为默认项缺失、再插一条默认标签的行，导航就出现两个指向同一路径的入口
 -- ⚠️ 不可用显式主键 INSERT IGNORE：老库主键 1~10 已被旧版种子占用且排序不同，
 -- 主键冲突会跳过「解决方案」，而空闲的 11/12 号反而写成重复的页脚「新闻动态/关于我们」
 INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`)
@@ -1415,18 +1417,22 @@ FROM (
 ) t
 WHERE NOT EXISTS (
   SELECT 1 FROM `site_nav_item` n
-  WHERE n.`location` = t.location AND n.`parent_id` = 0 AND n.`label` = t.label
+  WHERE n.`location` = t.location AND n.`parent_id` = 0
+    AND n.`link_type` = t.link_type AND n.`link_value` = t.link_value
 );
 
--- 关于我们的二级下拉项（按 label 关联父项写入，幂等）
+-- 关于我们的二级下拉项（父项按链接值定位、子项按链接值判存，同样不受标签改名影响）
 INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`)
 SELECT 'header', p.id, t.label, 'path', t.link_value, t.sort, 1, 'admin'
 FROM `site_nav_item` p JOIN (
   SELECT '企业简介' AS label, '/about' AS link_value, 1 AS sort
   UNION ALL SELECT '荣誉资质', '/honors', 2
   UNION ALL SELECT '发展历程', '/history', 3
-) t ON p.label = '关于我们' AND p.location = 'header'
-WHERE NOT EXISTS (SELECT 1 FROM `site_nav_item` c WHERE c.parent_id = p.id AND c.label = t.label);
+) t ON p.location = 'header' AND p.parent_id = 0 AND p.link_type = 'path' AND p.link_value = '/about'
+WHERE NOT EXISTS (
+  SELECT 1 FROM `site_nav_item` c
+  WHERE c.`parent_id` = p.id AND c.`link_type` = 'path' AND c.`link_value` = t.link_value
+);
 
 -- 导航管理菜单与权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
