@@ -151,7 +151,13 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="导航显示" align="center" prop="showInNav" width="85">
+      <el-table-column
+        v-if="!isEnterpriseMode"
+        label="导航显示"
+        align="center"
+        prop="showInNav"
+        width="85"
+      >
         <template #default="scope">
           <el-tag :type="String(scope.row.showInNav) === '1' ? 'success' : 'info'" size="small">
             {{ navText(scope.row.showInNav) }}
@@ -800,7 +806,8 @@
             <el-radio label="1">已发布</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="导航显示" prop="showInNav">
+        <!-- 企业官网模式下导航由「导航管理」表驱动，本字段无任何消费点（含 sitemap） -->
+        <el-form-item v-if="!isEnterpriseMode" label="导航显示" prop="showInNav">
           <el-switch
             v-model="form.showInNav"
             active-value="1"
@@ -866,7 +873,8 @@ import { listPage, getPage, addPage, updatePage, changePageStatus, delPage } fro
 import type { SitePage, PageQueryParams, PageStatus } from '@/api/admin/page'
 import { listNav, addNav, delNav } from '@/api/admin/nav'
 import type { SiteNavItem } from '@/api/site/nav'
-import { pagePath, navItemsOfPage, nextTopSort } from '@/utils/siteNav'
+import { navItemsOfPage, nextTopSort, preferredPageNavPath } from '@/utils/siteNav'
+import { getSiteSettingsAnonymous } from '@/api/site/setting'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { parseTime } from '@/utils/zhi'
 import { renderMarkdown } from '@/utils/markdown'
@@ -874,6 +882,26 @@ import { sanitizeArticleContent } from '@/utils/sanitize'
 
 const { proxy } = getCurrentInstance()
 const siteSettingsStore = useSiteSettingsStore()
+
+/**
+ * 站点设置决定本页的导航控件（模式判定 + 「当前首页」标记），进页面必须真读一次；
+ * 未读到（lastUpdate=0）时按经典模式渲染，不凭 store 默认值隐藏控件。
+ */
+const isEnterpriseMode = computed(
+  () =>
+    siteSettingsStore.lastUpdate > 0 &&
+    String(siteSettingsStore.siteSettings.home_layout || '') === 'business'
+)
+
+const loadSiteSettings = async () => {
+  try {
+    const response = await getSiteSettingsAnonymous()
+    const settings = (response as { data?: Record<string, unknown> })?.data
+    if (settings) siteSettingsStore.updateSiteSettings(settings)
+  } catch {
+    // 拉取失败：按未加载处理（「首页」标记与「导航显示」列保持经典模式形态）
+  }
+}
 
 /** 页面别名只允许字母、数字、下划线、连字符 */
 const SLUG_PATTERN = /^[A-Za-z0-9_-]{1,100}$/
@@ -1099,7 +1127,7 @@ const loadHeaderNav = async () => {
   }
 }
 
-/** 页面是否已出现在头部导航（path 指向 /page/{slug}） */
+/** 页面是否已出现在头部导航（模板页认短路径，其余认 /page/{slug}） */
 const navItemsOf = (row: SitePage) => navItemsOfPage(headerNav.value, row.slug || '')
 
 const isInNav = (row: SitePage) => navItemsOf(row).length > 0
@@ -1117,7 +1145,7 @@ const handleAddToNav = async (row: SitePage) => {
       parentId: 0,
       label: row.title || row.slug,
       linkType: 'path',
-      linkValue: pagePath(row.slug),
+      linkValue: preferredPageNavPath(row.slug),
       sort: nextTopSort(headerNav.value),
       visible: 1
     })
@@ -1404,6 +1432,7 @@ function handleResize() {
 onMounted(() => {
   getList()
   loadHeaderNav()
+  loadSiteSettings()
   window.addEventListener('resize', handleResize)
 })
 

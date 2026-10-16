@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest'
+import siteRoutes from '@/router/site'
 import {
   buildNavMenus,
   hasCustomHomePage,
   pagePath,
+  pageNavPaths,
   pageSlugFromPath,
+  preferredPageNavPath,
   flattenNavTree,
   navItemsOfPage,
   nextTopSort
@@ -51,6 +54,31 @@ describe('pagePath / pageSlugFromPath', () => {
   })
 })
 
+describe('pageNavPaths / preferredPageNavPath', () => {
+  it('模板页短路径排在 /page/{slug} 之前', () => {
+    expect(pageNavPaths('about')).toEqual(['/about', '/page/about'])
+    expect(pageNavPaths('honors')).toEqual(['/honors', '/page/honors'])
+    expect(pageNavPaths('home')).toEqual(['/', '/page/home'])
+    expect(preferredPageNavPath('about')).toBe('/about')
+  })
+
+  it('非模板页只有 /page/{slug}', () => {
+    expect(pageNavPaths('terms')).toEqual(['/page/terms'])
+    expect(preferredPageNavPath('terms')).toBe('/page/terms')
+  })
+
+  it('空 slug 不产生路径', () => {
+    expect(pageNavPaths('')).toEqual([])
+  })
+
+  it('模板页短路径必须都是站点真实路由（与 router/site.ts 对齐）', () => {
+    // /page/{slug} 在路由表里写作 /page/:slug，只有短路径需要逐个核对
+    const registered = new Set([...siteRoutes.map(route => route.path), '/'])
+    const aliases = ['home', 'about', 'honors'].map(slug => preferredPageNavPath(slug))
+    expect(aliases.filter(path => !registered.has(path))).toEqual([])
+  })
+})
+
 describe('导航树联动（页面管理 ↔ 导航管理）', () => {
   const tree = [
     { id: 1, parentId: 0, label: '首页', linkValue: '/', sort: 1 },
@@ -83,6 +111,17 @@ describe('导航树联动（页面管理 ↔ 导航管理）', () => {
     expect(navItemsOfPage(tree, 'terms').map(i => i.id)).toEqual([5])
     expect(navItemsOfPage(tree, 'nope')).toEqual([])
     expect(navItemsOfPage(tree, '')).toEqual([])
+  })
+
+  it('模板页短路径同样命中，且两种写法一起算重复项', () => {
+    const mixed = [
+      { id: 4, parentId: 0, label: '关于我们', linkValue: '/about' },
+      { id: 5, parentId: 0, label: '关于我们', linkValue: '/page/about/' },
+      { id: 6, parentId: 0, label: '首页', linkValue: '/' }
+    ]
+    // 尾斜杠/空白差异不算另一页（导航管理允许手输）
+    expect(navItemsOfPage(mixed, 'about').map(i => i.id)).toEqual([4, 5])
+    expect(navItemsOfPage(mixed, 'home').map(i => i.id)).toEqual([6])
   })
 
   it('nextTopSort 取顶级项最大排序号 +1（不受二级项影响）', () => {
