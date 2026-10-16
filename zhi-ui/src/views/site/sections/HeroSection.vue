@@ -3,9 +3,12 @@
     <div class="eh-wrap eh-hero-grid">
       <div class="rv">
         <span class="eyebrow">{{ hero.eyebrow }}</span>
-        <!-- titleHtml 为内置模板配置或后台保存内容，渲染前均出自受控来源 -->
+        <!-- 分行错峰上浮（方案文档 §4.3 首屏标题分行）：titleHtml 按 <br> 拆行，
+             每行为受控来源（内置模板配置或后台保存内容） -->
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <h1 class="eh-title" v-html="hero.titleHtml"></h1>
+        <h1 class="eh-title">
+          <span v-for="(line, li) in titleLines" :key="li" class="line" v-html="line"></span>
+        </h1>
         <p class="eh-sub">{{ hero.subtitle }}</p>
         <div class="eh-cta">
           <router-link class="btn-p" :to="primary.link">
@@ -33,6 +36,7 @@
 import { computed } from 'vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteTemplate } from '@/config/siteTemplates'
+import { useScrollReveal } from '@/composables/useScrollReveal'
 
 /** config（模块配置）缺省字段回退当前行业模板的品牌文案包 */
 const props = defineProps<{ config?: Record<string, any> }>()
@@ -47,6 +51,9 @@ const hero = computed(() => ({
   titleHtml: str(cfg.value.titleHtml) || tpl.value.hero.titleHtml,
   subtitle: str(cfg.value.subtitle) || tpl.value.hero.subtitle
 }))
+
+/** 标题按 <br> 拆行（每行独立上浮，行内保留 <em> 强调） */
+const titleLines = computed(() => hero.value.titleHtml.split(/<br\s*\/?>/i))
 const primary = computed(() => ({
   label: str(cfg.value.ctaPrimary?.label) || '了解我们的业务',
   link: str(cfg.value.ctaPrimary?.link) || '/business'

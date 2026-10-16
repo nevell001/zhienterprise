@@ -51,11 +51,15 @@ describe('sections.css 结构守卫', () => {
   })
 
   it('每个选择器以 .tpl-site 开头且只含一个 .tpl-site（防 .pad.tpl-site / li.tpl-site 类污染）', () => {
+    // 例外：html.motion-off 是 §4.7 手动「减弱动效」开关的 <html> 级降级前缀
+    // （有意作用于全站，非类连接污染），允许其后代选择器以它开头。
+    const allowedPrefix = 'html.motion-off .tpl-site'
     const bad = rules
       .filter(rule =>
         rule.selector.split(',').some(part => {
           const trimmed = part.trim()
           const count = trimmed.match(/\.tpl-site\b/g)?.length ?? 0
+          if (trimmed.startsWith(allowedPrefix)) return false
           return !trimmed.startsWith('.tpl-site') || count !== 1
         })
       )

@@ -77,6 +77,14 @@
         <span class="fbot-links">
           <router-link to="/agreement">法律声明</router-link>
           <router-link to="/privacy">隐私政策</router-link>
+          <label class="motion-toggle">
+            <input
+              type="checkbox"
+              :checked="motionOff"
+              @change="toggleMotionOff(($event.target as HTMLInputElement).checked)"
+            />
+            减弱动效
+          </label>
         </span>
       </div>
     </div>
@@ -104,6 +112,11 @@ import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteNav, type SiteNavItem } from '@/api/site/nav'
 import { DEFAULT_FOOTER_NAV } from '@/config/siteNav'
 import { getApiBaseUrl } from '@/utils/index'
+import {
+  applyMotionOff,
+  getMotionOffStored,
+  MOTION_OFF_STORAGE_KEY
+} from '@/utils/motionPreference'
 
 const siteSettingsStore = useSiteSettingsStore()
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
@@ -127,6 +140,14 @@ const rssUrl = computed(() => {
 
 /* ---------- 快速导航：site_nav_item 表驱动（后台「导航管理」维护） ---------- */
 const footerNavItems = ref<SiteNavItem[]>(DEFAULT_FOOTER_NAV)
+
+/* ---------- 减弱动效开关（§4.7 用户手动开关，优先级高于系统设置） ---------- */
+const motionOff = ref(getMotionOffStored())
+
+function toggleMotionOff(on: boolean) {
+  motionOff.value = on
+  applyMotionOff(on)
+}
 
 onMounted(async () => {
   try {
@@ -152,7 +173,11 @@ const onScroll = () => {
 }
 const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
-onMounted(() => window.addEventListener('scroll', onScroll, { passive: true }))
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+  // 启动时同步历史手动偏好到 <html>（动效层据此跳过动画）
+  applyMotionOff(motionOff.value)
+})
 onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 </script>
 

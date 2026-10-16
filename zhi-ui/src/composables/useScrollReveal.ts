@@ -1,4 +1,5 @@
 import { onBeforeUnmount, onMounted, watch, type Ref } from 'vue'
+import { motionFadeOnly, shouldSkipMotion } from '@/utils/motionPreference'
 
 /**
  * 滚动入场动效（企业官网模板体系）。
@@ -16,7 +17,7 @@ import { onBeforeUnmount, onMounted, watch, type Ref } from 'vue'
 export function useScrollReveal(root: Ref<HTMLElement | null>) {
   let io: IntersectionObserver | null = null
   let mo: MutationObserver | null = null
-  // reduced-motion / IO 不可用时置位：新节点加入后直接呈现终态
+  // reduced-motion / IO 不可用 / 手动关闭动画时置位：新节点加入后直接呈现终态
   let instant = false
   let started = false
   let stopRootWatch: (() => void) | null = null
@@ -49,10 +50,12 @@ export function useScrollReveal(root: Ref<HTMLElement | null>) {
     if (started || !root.value) return
     started = true
 
-    if (typeof IntersectionObserver === 'undefined' || prefersReducedMotion()) {
+    if (typeof IntersectionObserver === 'undefined' || shouldSkipMotion()) {
       instant = true
       revealAll()
     } else {
+      // 性能降级（§4.7）：低内存/少核/saveData 设备纯淡入（无位移），根挂 rv-fade
+      if (motionFadeOnly()) root.value.classList.add('rv-fade')
       io = new IntersectionObserver(
         entries => {
           entries.forEach(entry => {

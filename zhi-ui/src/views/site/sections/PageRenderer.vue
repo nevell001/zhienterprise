@@ -60,6 +60,19 @@ onMounted(async () => {
 
 <style>
 @import './sections.css';
+
+/* 首屏标题分行上浮（§4.3）：keyframes 放全局层（sections.css 结构守卫不解析 from/to） */
+@keyframes eh-line-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 </style>
 
 <style scoped>

@@ -748,3 +748,44 @@
   margin-bottom: var(--mo-sp-5);
   cursor: zoom-in;
 }
+
+/* ---------- §4.7 手动「减弱动效」开关（html.motion-off，优先级高于系统设置） ----------
+   只关装饰性动效（滚动入场/分行上浮），保留必要状态反馈与终态可见性 */
+html.motion-off .tpl-site .rv {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+html.motion-off .tpl-site .eh-title .line {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ---------- §4.7 性能降级：低端设备纯淡入（无位移，根挂 .rv-fade） ---------- */
+.tpl-site.rv-fade .rv {
+  transform: none !important;
+}
+
+/* ---------- §4.3 首屏标题分行错峰上浮（每行延迟 80ms） ---------- */
+.tpl-site .eh-title .line {
+  display: block;
+  animation: eh-line-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.tpl-site .eh-title .line:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.tpl-site .eh-title .line:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tpl-site .eh-title .line {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

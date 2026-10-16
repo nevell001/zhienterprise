@@ -1,4 +1,5 @@
 import { onBeforeUnmount, onMounted, watch, type Ref } from 'vue'
+import { shouldSkipMotion } from '@/utils/motionPreference'
 
 /**
  * 数字滚动计数（企业官网模板体系，方案文档 §3.1/§4.7）。
@@ -55,11 +56,6 @@ export function useCountUp(root: Ref<HTMLElement | null>) {
   let started = false
   let stopRootWatch: (() => void) | null = null
 
-  const prefersReducedMotion = () =>
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
   /** 从 0 滚动到目标值；无数字/instant 场景只保证终值落位 */
   const animate = (el: HTMLElement) => {
     const raw = el.dataset.countUp ?? el.textContent ?? ''
@@ -104,7 +100,7 @@ export function useCountUp(root: Ref<HTMLElement | null>) {
     if (started || !root.value) return
     started = true
 
-    if (typeof IntersectionObserver === 'undefined' || prefersReducedMotion()) {
+    if (typeof IntersectionObserver === 'undefined' || shouldSkipMotion()) {
       instant = true
       root.value.querySelectorAll<HTMLElement>('[data-count-up]').forEach(animate)
     } else {
