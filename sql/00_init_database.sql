@@ -1353,21 +1353,23 @@ CREATE TABLE IF NOT EXISTS `site_nav_item` (
   KEY `idx_nav_loc_sort` (`location`, `sort`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='站点导航项';
 
--- 幂等保护：清理历史重跑/旧版脚本写入的重复导航项（同位置+父项+标签+链接+排序+显隐 保留最小 id）
--- 背景：site_nav_item 无自然唯一键，旧版脚本在两处各写了一份种子，单次执行即写入两份菜单
--- ① 先清重复父项下的二级项（父项存在更小 id 的完全相同副本时，该副本自身随后会被 ② 删除，其子项不能留成孤儿）
+-- 幂等保护：清理历史重跑/旧版脚本写入的重复导航项（同位置+父项+标签+链接+显隐 保留最小 id）
+-- 背景：site_nav_item 无自然唯一键，旧版脚本在两处各写了一份种子，单次执行即写入两份菜单；
+-- c15ca8c5 版种子在老库还以不同 sort 写入重复的页脚「新闻动态/关于我们」，
+-- 故排序差异不再作为判重条件（同位置同父同标签同链接的重复项，保留最小 id 的那个）
+-- ① 先清重复父项下的二级项（父项存在更小 id 的副本时，该副本自身随后会被 ② 删除，其子项不能留成孤儿）
 DELETE c FROM `site_nav_item` c
 JOIN `site_nav_item` p  ON p.`id` = c.`parent_id`
 JOIN `site_nav_item` p2 ON p2.`location` <=> p.`location` AND p2.`parent_id` <=> p.`parent_id`
   AND p2.`label` <=> p.`label` AND p2.`link_type` <=> p.`link_type` AND p2.`link_value` <=> p.`link_value`
-  AND p2.`sort` <=> p.`sort` AND p2.`visible` <=> p.`visible` AND p2.`id` < p.`id`;
+  AND p2.`visible` <=> p.`visible` AND p2.`id` < p.`id`;
 
--- ② 再删完全相同的重复项，保留最小 id
+-- ② 再删同位置同父同标签同链接的重复项（排序不同也算），保留最小 id
 DELETE n1 FROM `site_nav_item` n1
 JOIN `site_nav_item` n2
   ON n1.`location` <=> n2.`location` AND n1.`parent_id` <=> n2.`parent_id` AND n1.`label` <=> n2.`label`
  AND n1.`link_type` <=> n2.`link_type` AND n1.`link_value` <=> n2.`link_value`
- AND n1.`sort` <=> n2.`sort` AND n1.`visible` <=> n2.`visible` AND n1.`id` > n2.`id`;
+ AND n1.`visible` <=> n2.`visible` AND n1.`id` > n2.`id`;
 
 -- ③ 兜底：清孤儿二级项（父项已不存在，导航树不可见却占着数据）
 DELETE o FROM `site_nav_item` o
@@ -1375,20 +1377,29 @@ LEFT JOIN `site_nav_item` p ON p.`id` = o.`parent_id`
 WHERE o.`parent_id` <> 0 AND p.`id` IS NULL;
 
 -- 头部/页脚导航默认项（设计稿 §1.1；后台「导航管理」可维护）
--- 幂等保护：种子显式指定主键 id（本表无自然唯一键），重跑时 INSERT IGNORE 因主键冲突被忽略
-INSERT IGNORE INTO `site_nav_item` (`id`, `location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`) VALUES
-(1, 'header', 0, '首页', 'path', '/', 1, 1, 'admin'),
-(2, 'header', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
-(3, 'header', 0, '解决方案', 'path', '/solutions', 3, 1, 'admin'),
-(4, 'header', 0, '新闻动态', 'path', '/news', 4, 1, 'admin'),
-(5, 'header', 0, '关于我们', 'path', '/about', 5, 1, 'admin'),
-(6, 'header', 0, '联系我们', 'path', '/contact', 6, 1, 'admin'),
-(7, 'header', 0, '咨询合作', 'cta', '/contact', 7, 1, 'admin'),
-(8, 'footer', 0, '首页', 'path', '/', 1, 1, 'admin'),
-(9, 'footer', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
-(10, 'footer', 0, '解决方案', 'path', '/solutions', 3, 1, 'admin'),
-(11, 'footer', 0, '新闻动态', 'path', '/news', 4, 1, 'admin'),
-(12, 'footer', 0, '关于我们', 'path', '/about', 5, 1, 'admin');
+-- 幂等保护：按「位置+父项+标签」收敛写入，只补缺失项（本表无自然唯一键）
+-- ⚠️ 不可用显式主键 INSERT IGNORE：老库主键 1~10 已被旧版种子占用且排序不同，
+-- 主键冲突会跳过「解决方案」，而空闲的 11/12 号反而写成重复的页脚「新闻动态/关于我们」
+INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`)
+SELECT t.location, 0, t.label, t.link_type, t.link_value, t.sort, 1, 'admin'
+FROM (
+  SELECT 'header' AS location, '首页' AS label, 'path' AS link_type, '/' AS link_value, 1 AS sort
+  UNION ALL SELECT 'header', '核心业务', 'path', '/business', 2
+  UNION ALL SELECT 'header', '解决方案', 'path', '/solutions', 3
+  UNION ALL SELECT 'header', '新闻动态', 'path', '/news', 4
+  UNION ALL SELECT 'header', '关于我们', 'path', '/about', 5
+  UNION ALL SELECT 'header', '联系我们', 'path', '/contact', 6
+  UNION ALL SELECT 'header', '咨询合作', 'cta', '/contact', 7
+  UNION ALL SELECT 'footer', '首页', 'path', '/', 1
+  UNION ALL SELECT 'footer', '核心业务', 'path', '/business', 2
+  UNION ALL SELECT 'footer', '解决方案', 'path', '/solutions', 3
+  UNION ALL SELECT 'footer', '新闻动态', 'path', '/news', 4
+  UNION ALL SELECT 'footer', '关于我们', 'path', '/about', 5
+) t
+WHERE NOT EXISTS (
+  SELECT 1 FROM `site_nav_item` n
+  WHERE n.`location` = t.location AND n.`parent_id` = 0 AND n.`label` = t.label
+);
 
 -- 关于我们的二级下拉项（按 label 关联父项写入，幂等）
 INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`)
