@@ -87,7 +87,10 @@
                 :key="item.id"
                 class="bd-rel-card rv"
                 :class="`d${ri % 3}`"
+                role="link"
+                tabindex="0"
                 @click="goItem(item.id)"
+                @keydown.enter.prevent="goItem(item.id)"
               >
                 <h3>{{ item.title }}</h3>
                 <p>{{ item.summary }}</p>
@@ -125,7 +128,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import SiteLayout from '@/components/SiteLayout.vue'
 import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
 import { getArticleDetail, getArticleList, updateArticleViewCount } from '@/api/site/article'
@@ -139,15 +142,17 @@ import { logger } from '@/utils/logger'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
 const router = useRouter()
+const route = useRoute()
 const siteSettingsStore = useSiteSettingsStore()
 const settings = computed(() => siteSettingsStore.siteSettings)
 const businessLabel = computed(
   () => String(settings.value.business_label || '').trim() || '核心业务'
 )
+/** solution 文章经 /solutions 路由复用本详情页；列表与详情路径按文章类型分流 */
+const isSolution = computed(() => article.value?.articleType === 'solution')
+const listPath = computed(() => (isSolution.value ? '/solutions' : '/business'))
 /** 板块标签：solution 文章显示「解决方案」，其余（business）显示核心业务栏目名 */
-const sectionLabel = computed(() =>
-  article.value?.articleType === 'solution' ? '解决方案' : businessLabel.value
-)
+const sectionLabel = computed(() => (isSolution.value ? '解决方案' : businessLabel.value))
 const isViewCountEnabled = computed(() => siteSettingsStore.isFeatureEnabled('view_count_enabled'))
 
 const article = ref<Article | null>(null)
@@ -180,9 +185,10 @@ const processSteps = computed(() =>
 
 const formatDate = (date?: string) => (date ? parseTime(date, '{y}-{m}-{d}') : '')
 
-const goBack = () =>
-  router.push(article.value?.articleType === 'solution' ? '/solutions' : '/business')
-const goItem = (id?: number) => id && router.push(`/business/${id}`)
+// 返回列表与相关推荐跳转都带回进入时的筛选 query，保证「返回可复原」（方案文档 §3.2）
+const goBack = () => router.push({ path: listPath.value, query: { ...route.query } })
+const goItem = (id?: number) =>
+  id && router.push({ path: `${listPath.value}/${id}`, query: { ...route.query } })
 
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
@@ -190,10 +196,7 @@ useScrollReveal(rootEl)
 // 面包屑链路（≤3 级）：首页 → 业务栏目 → 当前条目
 const breadcrumbItems = computed(() => [
   { label: '首页', to: '/' },
-  {
-    label: sectionLabel.value,
-    to: article.value?.articleType === 'solution' ? '/solutions' : '/business'
-  },
+  { label: sectionLabel.value, to: listPath.value },
   { label: article.value?.title || '详情' }
 ])
 
@@ -237,9 +240,13 @@ onMounted(async () => {
           // 计数失败不打扰用户
         })
       }
-      // 相关推荐：同类型最新（排除自身）
+      // 相关推荐：同类型最新（排除自身）；方案详情推荐方案、业务详情推荐业务
       try {
-        const relRes = await getArticleList({ pageNum: 1, pageSize: 4, articleType: 'business' })
+        const relRes = await getArticleList({
+          pageNum: 1,
+          pageSize: 4,
+          articleType: isSolution.value ? 'solution' : 'business'
+        })
         if (relRes?.code === 200) {
           relatedItems.value = ((relRes.rows || []) as Article[])
             .filter(item => item.id !== articleId)

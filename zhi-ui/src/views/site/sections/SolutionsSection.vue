@@ -17,13 +17,19 @@
           :key="item.title"
           class="sol-card rv"
           :class="`d${si % 4}`"
-          :style="solutionArticles.length > 0 ? 'cursor: pointer' : ''"
-          @click="solutionArticles.length > 0 && goItemByTitle(item.title)"
+          role="link"
+          tabindex="0"
+          @click="goItem(item)"
+          @keydown.enter.prevent="goItem(item)"
         >
           <div class="num">{{ String(si + 1).padStart(2, '0') }} / 行业</div>
           <h3>{{ item.title }}</h3>
           <p>{{ item.desc }}</p>
-          <router-link class="lnk" to="/business">
+          <router-link
+            class="lnk"
+            :to="item.id ? `/solutions/${item.id}` : '/solutions'"
+            @click.stop
+          >
             查看方案
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
@@ -70,21 +76,30 @@ const cfg = computed(() => props.config ?? {})
 /** 引用方案文章优先（solution 类型），无数据回退「官网内容」手动填写 */
 const solutionArticles = ref<Article[]>([])
 
-const items = computed(() => {
+/** items 统一携带可选 id：来源为方案文章时点击进详情，手填/回退数据点击回列表 */
+const items = computed<{ id?: number; title: string; desc: string }[]>(() => {
   const fromArticles = solutionArticles.value
     .filter(a => a.title)
-    .map(a => ({ title: a.title || '', desc: a.summary || '' }))
+    .map(a => ({ id: a.id, title: a.title || '', desc: a.summary || '' }))
   if (fromArticles.length > 0) return fromArticles
 
   const fromConfig = props.config?.items
-  if (Array.isArray(fromConfig) && fromConfig.length > 0) return fromConfig
-  return getHomeSolutions(settings.value?.home_solutions)
+  if (Array.isArray(fromConfig) && fromConfig.length > 0) {
+    return fromConfig.map(item => ({
+      id: typeof item?.id === 'number' ? item.id : undefined,
+      title: String(item?.title || ''),
+      desc: String(item?.desc || '')
+    }))
+  }
+  return getHomeSolutions(settings.value?.home_solutions).map(item => ({
+    id: undefined,
+    title: String(item.title || ''),
+    desc: String(item.desc || '')
+  }))
 })
 
-const goItem = (id?: number) => id && router.push(`/solutions/${id}`)
-
-/** 手填项（无 id）点击回方案列表 */
-const goItemByTitle = (_title?: string) => router.push('/solutions')
+const goItem = (item: { id?: number }) =>
+  router.push(item.id ? `/solutions/${item.id}` : '/solutions')
 
 onMounted(async () => {
   try {

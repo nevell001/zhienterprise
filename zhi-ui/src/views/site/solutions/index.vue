@@ -50,7 +50,7 @@
           </button>
         </div>
 
-        <p class="sol-count rv d1">正在展示 {{ filteredItems.length }} 个方案</p>
+        <p class="sol-count rv d1">{{ countText }}</p>
 
         <div v-if="loading" class="sol-board-grid">
           <div v-for="n in 6" :key="n" class="sol-board-card sol-skeleton"></div>
@@ -62,7 +62,10 @@
               :key="item.id"
               class="sol-board-card rv"
               :class="`d${si % 3}`"
+              role="link"
+              tabindex="0"
               @click="goItem(item.id)"
+              @keydown.enter.prevent="goItem(item.id)"
             >
               <div class="sol-board-tags">
                 <span v-if="item.industry" class="tag">{{ item.industry }}</span>
@@ -105,14 +108,27 @@ import { applySeo, canonicalUrl } from '@/utils/seo'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
 const router = useRouter()
+const route = useRoute()
 const siteSettingsStore = useSiteSettingsStore()
 const settings = computed(() => siteSettingsStore.siteSettings)
 
 const allSolutions = ref<Article[]>([])
+const total = ref(0)
 const loading = ref(true)
 
-const activeIndustry = ref('全部')
-const activeScenarios = ref<string[]>([])
+/** 筛选状态写入 URL query（方案文档 §3.3）：行业单值 + 场景逗号分隔，分享与返回可复原 */
+const parseScenariosQuery = (raw: unknown): string[] =>
+  typeof raw === 'string'
+    ? raw
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+    : []
+
+const activeIndustry = ref(
+  typeof route.query.industry === 'string' && route.query.industry ? route.query.industry : '全部'
+)
+const activeScenarios = ref<string[]>(parseScenariosQuery(route.query.scenario))
 
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
@@ -136,7 +152,7 @@ const scenarioTabs = computed(() => {
   return Array.from(set)
 })
 
-/** 筛选：行业精确 + 场景交集 */
+/** 筛选：行业精确 + 场景任一命中（多选标签为或语义） */
 const filteredItems = computed(() =>
   allSolutions.value.filter(item => {
     if (activeIndustry.value !== '全部' && item.industry !== activeIndustry.value) return false
@@ -148,22 +164,51 @@ const filteredItems = computed(() =>
   })
 )
 
+/** 结果计数：页面一次最多加载 50 条，超出时标注总数（截断透明化） */
+const countText = computed(() => {
+  const base = `正在展示 ${filteredItems.value.length} 个方案`
+  return total.value > allSolutions.value.length
+    ? `${base}（共 ${total.value} 个，已加载 ${allSolutions.value.length} 个）`
+    : base
+})
+
 const toggleScenario = (sc: string) => {
   activeScenarios.value = activeScenarios.value.includes(sc)
     ? activeScenarios.value.filter(s => s !== sc)
     : [...activeScenarios.value, sc]
 }
 
+// 筛选变更同步 URL（replace：筛选不污染浏览器历史），分享链接可复原筛选状态
+watch([activeIndustry, activeScenarios], () => {
+  const query: Record<string, string> = {}
+  if (activeIndustry.value !== '全部') query.industry = activeIndustry.value
+  if (activeScenarios.value.length) query.scenario = activeScenarios.value.join(',')
+  router.replace({ query })
+})
+
 const clearFilters = () => {
   activeIndustry.value = '全部'
   activeScenarios.value = []
+}
+
+/** URL 携带了数据中不存在的行业/场景值时收敛为有效状态（数据加载后执行） */
+const normalizeFilters = () => {
+  if (activeIndustry.value !== '全部' && !industryTabs.value.includes(activeIndustry.value)) {
+    activeIndustry.value = '全部'
+  }
+  const valid = activeScenarios.value.filter(s => scenarioTabs.value.includes(s))
+  if (valid.length !== activeScenarios.value.length) activeScenarios.value = valid
 }
 
 const load = async () => {
   loading.value = true
   try {
     const res = await getArticleList({ pageNum: 1, pageSize: 50, articleType: 'solution' })
-    if (res?.code === 200) allSolutions.value = (res.rows || []) as Article[]
+    if (res?.code === 200) {
+      allSolutions.value = (res.rows || []) as Article[]
+      total.value = res.total || allSolutions.value.length
+      normalizeFilters()
+    }
   } finally {
     loading.value = false
   }
@@ -180,7 +225,9 @@ onMounted(() => {
   load()
 })
 
-const goItem = (id?: number) => id && router.push(`/solutions/${id}`)
+// 进入详情时携带筛选 query，详情页「返回」可复原当前筛选（方案文档 §3.2）
+const goItem = (id?: number) =>
+  id && router.push({ path: `/solutions/${id}`, query: { ...route.query } })
 </script>
 
 <style scoped>
