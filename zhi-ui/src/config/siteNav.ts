@@ -27,6 +27,7 @@ function item(
 export const DEFAULT_HEADER_NAV: SiteNavItem[] = [
   item('首页', '/'),
   item('核心业务', '/business'),
+  item('解决方案', '/solutions'),
   item('新闻动态', '/news'),
   item('关于我们', '/about', 'path', [
     item('企业简介', '/about'),
@@ -40,6 +41,7 @@ export const DEFAULT_HEADER_NAV: SiteNavItem[] = [
 export const DEFAULT_FOOTER_NAV: SiteNavItem[] = [
   item('首页', '/'),
   item('核心业务', '/business'),
+  item('解决方案', '/solutions'),
   item('新闻动态', '/news'),
   item('关于我们', '/about')
 ]
