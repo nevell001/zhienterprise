@@ -112,6 +112,43 @@
   color: var(--tpl-p-text);
 }
 
+/* ---------- 负责人信息（站点设置「个人信息」） ---------- */
+.aph-profile {
+  max-width: 720px;
+  padding: var(--mo-sp-8);
+  border: 1px solid var(--tpl-border);
+  border-radius: var(--tpl-r-lg);
+  background: var(--tpl-surface);
+}
+
+.aph-profile-head {
+  margin: 0 0 var(--mo-sp-4);
+  font-size: var(--mo-fs-xl);
+  font-weight: 600;
+  color: var(--tpl-ink-900);
+}
+
+.aph-profile-bio {
+  margin: 0 0 var(--mo-sp-5);
+  font-size: var(--mo-fs-md);
+  line-height: 1.8;
+  color: var(--tpl-ink-500);
+  white-space: pre-line;
+}
+
+.aph-profile-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--mo-fs-sm);
+  font-weight: 500;
+  color: var(--tpl-p-text);
+  text-decoration: none;
+}
+
+.aph-profile-link:hover {
+  text-decoration: underline;
+}
+
 /* ---------- 数据概览 ---------- */
 .aph-stats {
   display: grid;

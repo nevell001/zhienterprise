@@ -66,3 +66,59 @@ describe('关于页页头文案（site_page_copy 行为）', () => {
     expect(wrapper.get('.aph-sub').text()).toBe('十二年行业深耕。')
   })
 })
+
+describe('关于页负责人区块（站点设置「个人信息」行为）', () => {
+  it('填了简介/位置/个人网站时渲染负责人区块，并带上作者职位抬头', async () => {
+    const { wrapper, pinia } = mountAbout()
+    const store = useSiteSettingsStore(pinia)
+    store.updateSiteSettings({
+      author_title: '技术负责人',
+      author_bio: '十年工业软件与数字化交付经验。',
+      author_location: '中国·杭州',
+      personal_website: 'https://team.example.com'
+    })
+    await nextTick()
+
+    const profile = wrapper.get('.aph-profile')
+    expect(profile.get('.aph-profile-head').text()).toBe('技术负责人 · 中国·杭州')
+    expect(profile.get('.aph-profile-bio').text()).toBe('十年工业软件与数字化交付经验。')
+    const link = profile.get('.aph-profile-link')
+    expect(link.attributes('href')).toBe('https://team.example.com')
+    expect(link.attributes('rel')).toContain('noopener')
+  })
+
+  it('只有作者职位（内容字段全空）时不渲染，避免空卡片', async () => {
+    const { wrapper, pinia } = mountAbout()
+    const store = useSiteSettingsStore(pinia)
+    store.updateSiteSettings({ author_title: '网站管理员' })
+    await nextTick()
+
+    expect(wrapper.find('.aph-profile').exists()).toBe(false)
+  })
+
+  it.each([
+    { name: '个人简介', patch: { author_bio: '十年工业软件与数字化交付经验。' } },
+    { name: '位置信息', patch: { author_location: '中国·杭州' } }
+  ])('只填$name也能让负责人区块出现', async ({ patch }) => {
+    const { wrapper, pinia } = mountAbout()
+    useSiteSettingsStore(pinia).updateSiteSettings(patch)
+    await nextTick()
+
+    expect(wrapper.find('.aph-profile').exists()).toBe(true)
+  })
+
+  it('只填个人网站时，区块渲染抬头与网站入口、不渲染简介', async () => {
+    const { wrapper, pinia } = mountAbout()
+    const store = useSiteSettingsStore(pinia)
+    store.updateSiteSettings({
+      author_title: '技术负责人',
+      personal_website: 'https://team.example.com'
+    })
+    await nextTick()
+
+    const profile = wrapper.get('.aph-profile')
+    expect(profile.get('.aph-profile-head').text()).toBe('技术负责人')
+    expect(profile.find('.aph-profile-bio').exists()).toBe(false)
+    expect(profile.get('.aph-profile-link').attributes('href')).toBe('https://team.example.com')
+  })
+})

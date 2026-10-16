@@ -24,6 +24,29 @@
           </div>
         </section>
 
+        <!-- 负责人信息：站点设置「个人信息」的简介 / 位置 / 个人网站（三项均留空则整块不渲染） -->
+        <section v-if="hasAuthorProfile" class="pad">
+          <div class="eh-wrap">
+            <div class="tpl-sec-head rv">
+              <div class="sec-tag">团队</div>
+              <h2>负责人</h2>
+            </div>
+            <div class="aph-profile rv d1">
+              <p v-if="authorHeadline" class="aph-profile-head">{{ authorHeadline }}</p>
+              <p v-if="authorBio" class="aph-profile-bio">{{ authorBio }}</p>
+              <a
+                v-if="authorWebsite"
+                class="aph-profile-link"
+                :href="authorWebsite"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                个人网站 →
+              </a>
+            </div>
+          </div>
+        </section>
+
         <!-- 数据概览（站点真实统计） -->
         <section class="pad surface">
           <div class="eh-wrap">
@@ -82,6 +105,19 @@ const heroTitle = computed(
 )
 const heroSubtitle = computed(
   () => pageCopy.value.subtitle || siteSettings.value.blog_desc || DEFAULT_PAGE_COPY.about.subtitle
+)
+
+/* 负责人信息（站点设置「个人信息」页签）。抬头取「作者职位 · 位置信息」，
+   卡片内容取个人简介与个人网站；三项内容字段全空时整块不渲染，避免留白卡片 */
+const authorTitle = computed(() => String(siteSettings.value.author_title || '').trim())
+const authorBio = computed(() => String(siteSettings.value.author_bio || '').trim())
+const authorLocation = computed(() => String(siteSettings.value.author_location || '').trim())
+const authorWebsite = computed(() => String(siteSettings.value.personal_website || '').trim())
+const authorHeadline = computed(() =>
+  [authorTitle.value, authorLocation.value].filter(Boolean).join(' · ')
+)
+const hasAuthorProfile = computed(() =>
+  Boolean(authorBio.value || authorLocation.value || authorWebsite.value)
 )
 
 const rootEl = ref<HTMLElement | null>(null)
