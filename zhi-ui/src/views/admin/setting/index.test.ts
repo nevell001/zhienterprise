@@ -153,7 +153,23 @@ describe('SiteSetting 视图（行为）', () => {
     expect(wrapper.find('[data-feature="guestbook_enabled"]').exists()).toBe(true)
   })
 
-  it('功能设置包含三个导航裁剪开关（企业官网模式用）', async () => {
+  it('企业官网模式下隐藏三个不参与企业导航的裁剪开关', async () => {
+    // 默认 home_layout=business：分类/标签/归档入口由「导航管理」决定，这三张卡改了不生效
+    const wrapper = mountPage()
+    await flushPromises()
+
+    expect(wrapper.find('[data-feature="nav_category_enabled"]').exists()).toBe(false)
+    expect(wrapper.find('[data-feature="nav_tag_enabled"]').exists()).toBe(false)
+    expect(wrapper.find('[data-feature="nav_archive_enabled"]').exists()).toBe(false)
+    // 同组其它开关不受影响
+    expect(wrapper.find('[data-feature="footer_enabled"]').exists()).toBe(true)
+  })
+
+  it('经典模式（home_layout≠business）下保留三个导航裁剪开关', async () => {
+    listSetting.mockResolvedValue({
+      code: 200,
+      rows: [{ configKey: 'home_layout', configValue: 'article' }]
+    })
     const wrapper = mountPage()
     await flushPromises()
 

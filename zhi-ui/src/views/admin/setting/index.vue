@@ -508,7 +508,7 @@
         <!-- 功能设置 -->
         <el-tab-pane label="功能设置" name="features">
           <div class="feature-groups">
-            <section v-for="group in featureGroups" :key="group.title" class="feature-group">
+            <section v-for="group in visibleFeatureGroups" :key="group.title" class="feature-group">
               <header class="feature-group__head">
                 <el-icon class="feature-group__icon"><component :is="group.icon" /></el-icon>
                 <div class="feature-group__heading">
@@ -977,7 +977,7 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
       {
         key: 'nav_category_enabled',
         label: '导航显示分类',
-        desc: '关闭后前台导航与页脚隐藏「分类」入口（企业官网模式可裁剪）'
+        desc: '关闭后顶部导航与页脚隐藏「分类」入口'
       },
       {
         key: 'nav_tag_enabled',
@@ -1026,6 +1026,28 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
 function isFeatureDisabled(item: FeatureItem): boolean {
   return !!item.dependsOn && !isSwitchOn(settingsMap.value[item.dependsOn])
 }
+
+/** 企业官网模式（与 SiteLayout 的 isBusinessNavEnabled 同口径）：导航/页脚改由「导航管理」表驱动 */
+const isEnterpriseMode = computed(() => String(settingsMap.value.home_layout || '') === 'business')
+
+/** 这三个开关只被经典模式的 buildNavMenus / 经典页脚消费，企业模式下完全不参与 */
+const ENTERPRISE_INERT_KEYS = new Set([
+  'nav_category_enabled',
+  'nav_tag_enabled',
+  'nav_archive_enabled'
+])
+
+/** 企业模式下隐藏失效开关，避免出现「关了分类，前台导航纹丝不动」的假编辑 */
+const visibleFeatureGroups = computed(() =>
+  isEnterpriseMode.value
+    ? featureGroups
+        .map(group => ({
+          ...group,
+          items: group.items.filter(item => !ENTERPRISE_INERT_KEYS.has(item.key))
+        }))
+        .filter(group => group.items.length > 0)
+    : featureGroups
+)
 
 const defaultSettings: Record<string, any> = {
   // 站点信息
