@@ -49,7 +49,9 @@ function seededTopTuples(from: string, to: string, location: 'header' | 'footer'
 /** 二级项种子元组（label, link_value, sort）；link_type 由外层 INSERT 统一写 'path' */
 function seededChildTuples(from: string, to: string): NavTuple[] {
   return [
-    ...seedBlock(from, to).matchAll(/(?:SELECT|UNION ALL SELECT)\s+'([^']+)',\s*'([^']+)',\s*(\d+)/g)
+    ...seedBlock(from, to).matchAll(
+      /(?:SELECT|UNION ALL SELECT)\s+'([^']+)',\s*'([^']+)',\s*(\d+)/g
+    )
   ].map(([, label, linkValue, sort]) => ({
     label,
     linkType: 'path',
@@ -87,9 +89,10 @@ describe('企业官网兜底导航（DEFAULT_HEADER_NAV / DEFAULT_FOOTER_NAV）'
   it('兜底导航的每个链接都能在路由表里命中', () => {
     // 站点首页 '/' 定义在 router/index.ts（PublicRoot），不在 siteRoutes 里
     const registered = new Set([...siteRoutes.map(route => route.path), '/'])
-    const unresolvable = [...pathLinks(DEFAULT_HEADER_NAV), ...pathLinks(DEFAULT_FOOTER_NAV)].filter(
-      link => !registered.has(link)
-    )
+    const unresolvable = [
+      ...pathLinks(DEFAULT_HEADER_NAV),
+      ...pathLinks(DEFAULT_FOOTER_NAV)
+    ].filter(link => !registered.has(link))
     expect(unresolvable, `兜底导航指向了不存在的路由：${unresolvable.join(', ')}`).toEqual([])
   })
 
