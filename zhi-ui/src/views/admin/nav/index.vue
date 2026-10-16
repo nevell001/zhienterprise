@@ -41,7 +41,17 @@
     >
       <el-table-column label="标签" prop="label" min-width="180">
         <template #default="scope">
-          <span>{{ scope.row.label }}</span>
+          <span>{{ displayLabelOf(scope.row) }}</span>
+          <el-tag
+            v-if="isControlledLabel(scope.row)"
+            size="small"
+            type="warning"
+            effect="plain"
+            class="page-tag"
+            title="该标签取自「站点设置 → 栏目名称」，在本页修改不会生效"
+          >
+            栏目名称控制
+          </el-tag>
           <el-tag
             v-if="pageSlugOf(scope.row)"
             size="small"
@@ -115,7 +125,13 @@
     <el-dialog v-model="open" :title="dialogTitle" width="520px" append-to-body>
       <el-form ref="navRef" :model="form" :rules="rules" label-width="90px">
         <el-form-item label="导航标签" prop="label">
-          <el-input v-model="form.label" placeholder="如：关于我们" :maxlength="50" />
+          <el-input
+            v-model="form.label"
+            placeholder="如：关于我们"
+            :maxlength="50"
+            :disabled="labelControlled"
+          />
+          <div v-if="labelControlled" class="slug-tip">{{ labelControlTip }}</div>
         </el-form-item>
         <el-form-item v-if="form.linkType !== 'url'" label="链接页面">
           <el-select
@@ -173,6 +189,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { listNav, addNav, updateNav, delNav } from '@/api/admin/nav'
 import { listPage } from '@/api/admin/page'
+import { getConfigByKey } from '@/api/admin/setting'
 import type { SitePage } from '@/api/admin/page'
 import type { SiteNavItem } from '@/api/site/nav'
 import { pagePath, pageSlugFromPath } from '@/utils/siteNav'
@@ -238,9 +255,47 @@ const handlePageSelect = (slug: string) => {
   form.value.linkValue = pagePath(slug)
 }
 
+/* ---------- 「栏目名称」托管：/business 的标签由站点设置统一控制 ---------- */
+
+/** 与前台 EnterpriseNav / EnterpriseFooter 同口径：这两处把顶层 /business 项的标签换成 business_label，兜底「核心业务」 */
+const BUSINESS_LABEL_FALLBACK = '核心业务'
+
+const isControlledLabel = (item: { linkValue?: string; parentId?: number }) =>
+  (item.parentId ?? 0) === 0 && (item.linkValue || '').trim() === '/business'
+
+const businessNavLabel = ref(BUSINESS_LABEL_FALLBACK)
+
+const loadBusinessLabel = async () => {
+  try {
+    const response = await getConfigByKey('business_label')
+    const value = (response as { data?: unknown })?.data
+    businessNavLabel.value =
+      (typeof value === 'string' ? value.trim() : '') || BUSINESS_LABEL_FALLBACK
+  } catch {
+    businessNavLabel.value = BUSINESS_LABEL_FALLBACK
+  }
+}
+
+/** 表格展示生效标签：库里那份对 /business 项改了也不生效，摆在表里只会让人以为前台跟着变 */
+const displayLabelOf = (row: SiteNavItem) =>
+  isControlledLabel(row) ? businessNavLabel.value : row.label
+
+const labelControlled = computed(() => isControlledLabel(form.value))
+
+const labelControlTip = computed(
+  () =>
+    `该标签由「站点设置 → 栏目名称」统一控制（当前：${businessNavLabel.value}），在本页修改不会生效`
+)
+
+/** 链接值切到 /business（或栏目名称后到）时同步生效值，禁用输入框里得显示真相 */
+watch([labelControlled, businessNavLabel], () => {
+  if (labelControlled.value) form.value.label = businessNavLabel.value
+})
+
 onMounted(() => {
   loadTree()
   loadPublishedPages()
+  loadBusinessLabel()
 })
 
 watch(activeTab, () => {
@@ -334,6 +389,8 @@ function handleEdit(row: SiteNavItem) {
   editingId.value = row.id ?? null
   selectedPageSlug.value = pageSlugOf(row)
   form.value = { ...row }
+  // 连续编辑两个托管项时 labelControlled 不翻转，watch 不会触发，这里显式同步
+  if (isControlledLabel(row)) form.value.label = businessNavLabel.value
   open.value = true
   dialogTitle.value = '编辑导航项'
 }
@@ -360,7 +417,7 @@ function submitForm() {
 function handleDelete(row: SiteNavItem) {
   proxy?.$modal
     ?.confirm(
-      `确定删除导航项「${row.label}」吗？${row.children?.length ? '其子项将一并删除。' : ''}`
+      `确定删除导航项「${displayLabelOf(row)}」吗？${row.children?.length ? '其子项将一并删除。' : ''}`
     )
     .then(async () => {
       await delNav(row.id!)

@@ -5,20 +5,21 @@ import SiteNav from './index.vue'
 
 /**
  * 后台「导航管理」行为测试（挂载真实组件）。
- * 覆盖页面联动（选择器自动填充标签与路径、请求参数、空态引导）与二级项入口；
+ * 覆盖页面联动（选择器自动填充标签与路径、请求参数、空态引导）、二级项入口，
+ * 以及顶层 /business 项标签由「站点设置 → 栏目名称」托管（禁用编辑 + 落库生效值）；
  * 表格行内按钮与列表渲染依赖 el-table 的作用域插槽，桩无法还原，交由浏览器人工验证。
  */
-const { listNav, listPage, addNav, updateNav, delNav, ElMessageBox, ElMessage } = vi.hoisted(
-  () => ({
+const { listNav, listPage, addNav, updateNav, delNav, getConfigByKey, ElMessageBox, ElMessage } =
+  vi.hoisted(() => ({
     listNav: vi.fn(),
     listPage: vi.fn(),
     addNav: vi.fn(),
     updateNav: vi.fn(),
     delNav: vi.fn(),
+    getConfigByKey: vi.fn(),
     ElMessageBox: { confirm: vi.fn() },
     ElMessage: { success: vi.fn(), warning: vi.fn(), error: vi.fn() }
-  })
-)
+  }))
 
 vi.mock('@/api/admin/nav', () => ({
   listNav: (...args: unknown[]) => listNav(...args),
@@ -29,6 +30,10 @@ vi.mock('@/api/admin/nav', () => ({
 
 vi.mock('@/api/admin/page', () => ({
   listPage: (...args: unknown[]) => listPage(...args)
+}))
+
+vi.mock('@/api/admin/setting', () => ({
+  getConfigByKey: (...args: unknown[]) => getConfigByKey(...args)
 }))
 
 vi.mock('@/plugins/element-plus-service', () => ({
@@ -101,7 +106,13 @@ function mountNav() {
           template: '<form><slot /></form>'
         },
         'el-form-item': { template: '<div class="fi"><slot /></div>' },
-        'el-input': { props: ['modelValue'], template: '<input :value="modelValue" />' },
+        // 透传 placeholder/disabled 并回写 v-model：测试可用 setValue 驱动真实的链接值联动
+        'el-input': {
+          props: ['modelValue', 'placeholder', 'disabled'],
+          emits: ['update:modelValue'],
+          template:
+            '<input :value="modelValue" :placeholder="placeholder" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />'
+        },
         'el-radio-group': { template: '<div><slot /></div>' },
         'el-radio': { template: '<label><slot /></label>' },
         // 选择器桩：测试通过该组件的 change 事件驱动页面真实的 handlePageSelect
@@ -122,7 +133,7 @@ function mountNav() {
   return { wrapper }
 }
 
-describe('SiteNav 导航管理（页面联动）', () => {
+describe('SiteNav 导航管理', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     listNav.mockResolvedValue({ code: 200, data: navTree })
@@ -137,6 +148,7 @@ describe('SiteNav 导航管理（页面联动）', () => {
     addNav.mockResolvedValue({ code: 200 })
     updateNav.mockResolvedValue({ code: 200 })
     delNav.mockResolvedValue({ code: 200 })
+    getConfigByKey.mockResolvedValue({ code: 200, data: '核心业务' })
   })
 
   it('页面选择器只请求已发布页面', async () => {
@@ -219,5 +231,79 @@ describe('SiteNav 导航管理（页面联动）', () => {
     await flushPromises()
 
     expect(wrapper.find('.dialog').text()).toContain('请先在「页面管理」新建并发布页面')
+  })
+
+  /* ---------- 顶层 /business 标签：由「站点设置 → 栏目名称」托管 ---------- */
+
+  /** 挂载 → 打开「添加导航项」弹窗 → 把链接值填成 /business（模拟手输路径） */
+  async function openDialogWithBusinessLink() {
+    const { wrapper } = mountNav()
+    await flushPromises()
+    await wrapper
+      .findAll('button')
+      .find(b => b.text().includes('添加导航项'))!
+      .trigger('click')
+    await flushPromises()
+    await wrapper.find('input[placeholder="如：/about"]').setValue('/business')
+    await flushPromises()
+    return wrapper
+  }
+
+  it('顶层 /business 项禁用标签输入，并回显「栏目名称」生效值', async () => {
+    getConfigByKey.mockResolvedValue({ code: 200, data: '主营业务' })
+    const wrapper = await openDialogWithBusinessLink()
+
+    const label = wrapper.find('input[placeholder="如：关于我们"]')
+    expect(label.attributes('disabled')).toBeDefined()
+    expect((label.element as HTMLInputElement).value).toBe('主营业务')
+    expect(wrapper.find('.dialog').text()).toContain('栏目名称」统一控制（当前：主营业务）')
+  })
+
+  it('提交 /business 项时标签按生效值落库', async () => {
+    getConfigByKey.mockResolvedValue({ code: 200, data: '主营业务' })
+    const wrapper = await openDialogWithBusinessLink()
+
+    await wrapper
+      .findAll('button')
+      .find(b => b.text().includes('确 定'))!
+      .trigger('click')
+    await flushPromises()
+
+    expect(addNav).toHaveBeenCalledTimes(1)
+    const payload = addNav.mock.calls[0][0] as Record<string, unknown>
+    expect(payload.label).toBe('主营业务')
+    expect(payload.linkValue).toBe('/business')
+  })
+
+  it('二级项指向 /business 不托管（前台只覆盖顶级项）', async () => {
+    const { wrapper } = mountNav()
+    await flushPromises()
+
+    await wrapper
+      .findAll('button')
+      .find(b => b.text() === '添加二级项')!
+      .trigger('click')
+    await flushPromises()
+    await wrapper.find('input[placeholder="如：/about"]').setValue('/business')
+    await flushPromises()
+
+    expect(wrapper.find('input[placeholder="如：关于我们"]').attributes('disabled')).toBeUndefined()
+  })
+
+  it('栏目名称读不到时按前台兜底值「核心业务」标注', async () => {
+    getConfigByKey.mockRejectedValue(new Error('no permission'))
+    const wrapper = await openDialogWithBusinessLink()
+
+    const label = wrapper.find('input[placeholder="如：关于我们"]')
+    expect(label.attributes('disabled')).toBeDefined()
+    expect((label.element as HTMLInputElement).value).toBe('核心业务')
+  })
+
+  it('普通路径的标签保持可编辑', async () => {
+    const wrapper = await openDialogWithBusinessLink()
+    await wrapper.find('input[placeholder="如：/about"]').setValue('/news')
+    await flushPromises()
+
+    expect(wrapper.find('input[placeholder="如：关于我们"]').attributes('disabled')).toBeUndefined()
   })
 })
