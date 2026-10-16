@@ -203,7 +203,7 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
 | 新闻板块 | 归档侧栏（桌面年份+热门标签，移动下拉）与标签交叉筛选 | §3.4 |
 | 页脚 | 订阅条（需邮箱订阅后端） | §1.2 |
 | 交互细节 | 首屏标题分行错峰上浮、视差体系（§4.4 全部）、时间轴滚动填充/点击节点/Tooltip/展开收起、荣誉点击查看大图、业务列表能力多选筛选/视图切换/已选条件胶囊/URL 同步、移动端「加载更多」 | §3/§4.5 |
-| 无障碍 | 页脚「关闭动画」手动开关（§4.7 硬性）、connection.saveData/设备内存降级 | §4.7 |
+| 无障碍 | ~~页脚「关闭动画」手动开关、saveData/设备内存降级~~（✅ 2026-10-16，motionPreference + 页脚开关 + .rv-fade）；FPS<50 检测降级 | §4.7 |
 | 性能 | fetchpriority、AVIF/WebP+srcset、字体子集化（Inter/Noto 未实际引入）、首屏 CSS/JS 预算测量 | §6.1 |
 | SEO | WebSite potentialAction 搜索、业务详情 Product/Service schema、面包屑可见但无 BreadcrumbList JSON-LD | §6.2 |
 | 基础设施 | 启动期 schema 校验/迁移工具（升级依赖手动重跑脚本，site_nav_item 缺表事件即例证） | — |
