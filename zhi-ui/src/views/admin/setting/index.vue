@@ -967,7 +967,11 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
     desc: '前台页面的结构展示',
     icon: Grid,
     items: [
-      { key: 'sidebar_enabled', label: '显示侧边栏', desc: '在站点首页显示侧边栏' },
+      {
+        key: 'sidebar_enabled',
+        label: '显示侧边栏',
+        desc: '在文章列表（/news）、分类、标签页显示右侧栏；企业官网首页模板本身没有侧边栏'
+      },
       { key: 'footer_enabled', label: '显示底部', desc: '在站点页面底部显示页脚信息' },
       { key: 'copyright_enabled', label: '显示版权', desc: '在底部显示版权信息' },
       {
