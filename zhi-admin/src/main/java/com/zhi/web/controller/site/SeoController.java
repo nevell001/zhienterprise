@@ -70,8 +70,9 @@ public class SeoController
         {
             writeUrl(out, baseUrl + "/news", null);
         }
-        // 核心业务与联系我们：两种站点形态下都是独立页面
+        // 核心业务、解决方案与联系我们：两种站点形态下都是独立页面
         writeUrl(out, baseUrl + "/business", null);
+        writeUrl(out, baseUrl + "/solutions", null);
         writeUrl(out, baseUrl + "/contact", null);
         // 启用中的分类（alias 伪静态优先）
         try
@@ -94,7 +95,7 @@ public class SeoController
         {
             // 分类收录失败不影响站点地图其余部分
         }
-        // 已发布文章（核心业务/客户案例的规范入口是 /business/{id}）
+        // 已发布文章（核心业务/客户案例的规范入口是 /business/{id}，解决方案是 /solutions/{id}）
         try
         {
             Article query = new Article();
@@ -112,7 +113,7 @@ public class SeoController
                     }
                     String type = article.getArticleType();
                     boolean isBiz = "business".equals(type) || "case".equals(type);
-                    String pathPrefix = isBiz ? "/business/" : "/article/";
+                    String pathPrefix = "solution".equals(type) ? "/solutions/" : (isBiz ? "/business/" : "/article/");
                     // 伪静态优先：有 slug 用 slug，否则回退数字 ID
                     String seg = article.getSlug() != null && !article.getSlug().trim().isEmpty()
                         ? article.getSlug().trim() : String.valueOf(article.getId());

@@ -26,7 +26,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // 注意：排除 /profile 路径，该路径由 ResourcesConfig 处理上传文件
         registry.addResourceHandler(
                         "/login", "/register", "/forgot-password", "/about",
-                        "/news", "/article/**", "/business/**", "/contact", "/honors", "/history",
+                        "/news", "/article/**", "/business/**", "/solutions/**", "/contact", "/honors", "/history",
                         "/category/**", "/tag/**", "/author/**", "/archive", "/guestbook", "/page/**",
                         "/friend-links/**", "/agreement", "/privacy", "/search", "/bookmarks",
                         "/admin/**")

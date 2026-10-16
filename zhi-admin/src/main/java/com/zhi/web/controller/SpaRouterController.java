@@ -26,6 +26,8 @@ public class SpaRouterController {
         "/article/**",
         "/business",
         "/business/**",
+        "/solutions",
+        "/solutions/**",
         "/contact",
         "/about",
         "/honors",

@@ -1,8 +1,10 @@
 package com.zhi.web.controller.site;
 
+import com.zhi.system.domain.Article;
 import com.zhi.system.service.IArticleService;
 import com.zhi.system.service.IPageService;
 import com.zhi.system.service.ISettingService;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -120,6 +122,24 @@ class SeoControllerTest
 
         assertTrue(xml.contains("<loc>https://blog.example.com/business</loc>"), xml);
         assertTrue(xml.contains("<loc>https://blog.example.com/contact</loc>"), xml);
+    }
+
+    @Test
+    @DisplayName("解决方案栏目独立收录，方案文章规范地址为 /solutions/{slug} 而非 /article/")
+    void sitemapMapsSolutionArticlesToSolutionsPath() throws Exception
+    {
+        when(settingService.selectSettingValueByKey(anyString())).thenReturn(null);
+        Article solution = new Article();
+        solution.setId(7L);
+        solution.setArticleType("solution");
+        solution.setSlug("smart-retail");
+        when(articleService.selectSitemapArticles()).thenReturn(List.of(solution));
+
+        String xml = body("/sitemap.xml", "blog.example.com", 443);
+
+        assertTrue(xml.contains("<loc>https://blog.example.com/solutions</loc>"), xml);
+        assertTrue(xml.contains("<loc>https://blog.example.com/solutions/smart-retail</loc>"), xml);
+        assertFalse(xml.contains("/article/smart-retail"), "方案文章不应收录到 /article/：\n" + xml);
     }
 
     @Test
