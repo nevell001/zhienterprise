@@ -102,8 +102,12 @@ export interface Article {
   categoryName?: string
   authorId?: number
   authorName?: string
-  /** 内容类型：news 资讯（默认）business 核心业务 case 客户案例 */
+  /** 内容类型：news 资讯（默认）business 核心业务 case 客户案例 solution 解决方案 */
   articleType?: string
+  /** 所属行业（solution 筛选维度） */
+  industry?: string
+  /** 能力场景（逗号分隔，solution 筛选维度） */
+  scenario?: string
   /** SEO 标题（留空回退文章标题） */
   seoTitle?: string
   /** SEO 关键词（英文逗号分隔） */

@@ -96,7 +96,7 @@ describe('示例文章种子', () => {
   const articles = sampleArticles()
 
   it('至少覆盖 6 篇示例文章', () => {
-    expect(articles.length).toBe(6)
+    expect(articles.length).toBe(9)
   })
 
   it('正文必须是 HTML，不能残留 Markdown 标题', () => {

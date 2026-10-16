@@ -14,6 +14,8 @@
         <result property="seoKeywords"    column="seo_keywords"    />
         <result property="seoDescription"    column="seo_description"    />
         <result property="slug"    column="slug"    />
+        <result property="industry"    column="industry"    />
+        <result property="scenario"    column="scenario"    />
         <result property="sellingPoints"    column="selling_points"    />
         <result property="specTable"    column="spec_table"    />
         <result property="gallery"    column="gallery"    />
@@ -51,7 +53,7 @@
     </select>
 
     <select id="selectArticleList" parameterType="Article" resultMap="ArticleResult">
-        select ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.industry, ba.scenario, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -63,6 +65,8 @@
             <if test="content != null  and content != ''"> and ba.content = #{content}</if>
             <if test="coverUrl != null  and coverUrl != ''"> and ba.cover_url = #{coverUrl}</if>
             <if test="articleType != null and articleType != ''"> and ba.article_type = #{articleType}</if>
+            <if test="industry != null and industry != ''"> and ba.industry = #{industry}</if>
+            <if test="scenario != null and scenario != ''"> and ba.scenario like concat('%', #{scenario}, '%')</if>
             <if test="categoryId != null "> and ba.category_id = #{categoryId}</if>
             <if test="authorId != null "> and ba.author_id = #{authorId}</if>
             <if test="isTop != null "> and ba.is_top = #{isTop}</if>
@@ -97,8 +101,10 @@
 
     <!-- slug 解析专用：列集与 ById 对齐，前台详情解析一次即可返回，无需二次回表 -->
     <select id="selectArticleBySlug" parameterType="String" resultMap="ArticleResult">
+    <select id="selectArticleBySlug" parameterType="String" resultMap="ArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.content_md, ba.format, ba.article_type,
                ba.seo_title, ba.seo_keywords, ba.seo_description, ba.slug,
+               ba.industry, ba.scenario,
                ba.selling_points, ba.spec_table, ba.gallery, ba.process_steps,
                ba.cover_url, ba.category_id, ba.author_id, ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time,
                ba.view_count, ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
@@ -112,6 +118,7 @@
     <select id="selectArticleById" parameterType="Long" resultMap="ArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.content_md, ba.format, ba.article_type,
                ba.seo_title, ba.seo_keywords, ba.seo_description, ba.slug,
+               ba.industry, ba.scenario,
                ba.selling_points, ba.spec_table, ba.gallery, ba.process_steps,
                ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time, ba.view_count,
@@ -132,13 +139,13 @@
 
     <insert id="insertArticle" parameterType="Article" useGeneratedKeys="true" keyProperty="id">
         insert into zhi_article
-        (title, summary, content, content_md, format, article_type, seo_title, seo_keywords, seo_description, slug, selling_points, spec_table, gallery, process_steps, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, publish_time, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        (title, summary, content, content_md, format, article_type, industry, scenario, seo_title, seo_keywords, seo_description, slug, selling_points, spec_table, gallery, process_steps, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, publish_time, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
         (#{title}, #{summary}, #{content}, #{contentMd}, #{format},
         <choose>
             <when test="articleType != null and articleType != ''">#{articleType}</when>
             <otherwise>'news'</otherwise>
-        </choose>, #{seoTitle}, #{seoKeywords}, #{seoDescription}, #{slug}, #{sellingPoints}, #{specTable}, #{gallery}, #{processSteps}, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{publishTime}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
+        </choose>, #{industry}, #{scenario}, #{seoTitle}, #{seoKeywords}, #{seoDescription}, #{slug}, #{sellingPoints}, #{specTable}, #{gallery}, #{processSteps}, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{publishTime}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
         <choose>
             <when test="delFlag != null">#{delFlag}</when>
             <otherwise>0</otherwise>
@@ -154,6 +161,8 @@
             <if test="contentMd != null">content_md = #{contentMd},</if>
             <if test="format != null and format != ''">format = #{format},</if>
             <if test="articleType != null and articleType != ''">article_type = #{articleType},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="scenario != null">scenario = #{scenario},</if>
             <if test="sellingPoints != null">selling_points = #{sellingPoints},</if>
             <if test="specTable != null">spec_table = #{specTable},</if>
             <if test="gallery != null">gallery = #{gallery},</if>

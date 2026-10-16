@@ -36,6 +36,10 @@ export interface ArticleParams extends PageParams {
   isTop?: number
   tagId?: number
   articleType?: string
+  /** 所属行业（solution 筛选） */
+  industry?: string
+  /** 能力场景（solution 筛选，模糊匹配） */
+  scenario?: string
 }
 
 /**

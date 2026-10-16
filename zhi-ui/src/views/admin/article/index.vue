@@ -52,6 +52,7 @@
           <el-option label="资讯动态" value="news" />
           <el-option label="核心业务" value="business" />
           <el-option label="客户案例" value="case" />
+          <el-option label="解决方案" value="solution" />
         </el-select>
       </el-form-item>
       <el-form-item label="">
@@ -451,6 +452,9 @@
                   <el-radio-button v-if="!fixedArticleType" label="news">资讯动态</el-radio-button>
                   <el-radio-button label="business">核心业务</el-radio-button>
                   <el-radio-button label="case">客户案例</el-radio-button>
+                  <el-radio-button v-if="!fixedArticleType" label="solution">
+                    解决方案
+                  </el-radio-button>
                 </el-radio-group>
               </el-form-item>
               <div class="schedule-tip">
@@ -701,7 +705,11 @@ import { useRoute } from 'vue-router'
 const { proxy } = getCurrentInstance()
 const route = useRoute()
 // 核心业务管理菜单（/admin/business）复用本组件，按路由固定 articleType=business
-const fixedArticleType = route.path.endsWith('/business') ? 'business' : ''
+const fixedArticleType = route.path.endsWith('/business')
+  ? 'business'
+  : route.path.endsWith('/solution')
+    ? 'solution'
+    : ''
 /** 业务详情结构化（business/case）：编辑态数组，提交时序列化为 JSON */
 const sellingPointsList = ref<{ title: string; desc: string }[]>([])
 const specTableList = ref<{ name: string; value: string }[]>([])
@@ -726,9 +734,12 @@ function syncDetailListsFromForm() {
   processStepsList.value = parseList(form.value.processSteps)
 }
 const articleTypeLabel = (type?: string) =>
-  ({ news: '资讯动态', business: '核心业务', case: '客户案例' })[type || 'news'] || '资讯动态'
+  ({ news: '资讯动态', business: '核心业务', case: '客户案例', solution: '解决方案' })[
+    type || 'news'
+  ] || '资讯动态'
 const articleTypeTag = (type?: string) =>
-  ({ news: 'info', business: 'primary', case: 'warning' })[type || 'news'] ?? 'info'
+  ({ news: 'info', business: 'primary', case: 'warning', solution: 'success' })[type || 'news'] ??
+  'info'
 const userStore = useUserStore()
 const articleList = ref([])
 const open = ref(false)

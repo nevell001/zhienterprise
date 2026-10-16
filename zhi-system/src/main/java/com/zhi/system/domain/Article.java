@@ -115,6 +115,12 @@ public class Article extends BaseEntity
     /** URL 别名（伪静态 /article/{slug}，留空用数字 ID） */
     private String slug;
 
+    /** 所属行业（solution 筛选维度）：制造业/金融/零售/医疗/教育/政务 */
+    private String industry;
+
+    /** 能力场景（逗号分隔，solution 筛选维度）：数字化转型/降本增效/风险管控/数据治理 */
+    private String scenario;
+
     /** 卖点宫格（business/case）：JSON 数组 [{title,desc}] */
     private String sellingPoints;
 
@@ -175,6 +181,26 @@ public class Article extends BaseEntity
     public String getSlug()
     {
         return slug;
+    }
+
+    public void setIndustry(String industry)
+    {
+        this.industry = industry;
+    }
+
+    public String getIndustry()
+    {
+        return industry;
+    }
+
+    public void setScenario(String scenario)
+    {
+        this.scenario = scenario;
+    }
+
+    public String getScenario()
+    {
+        return scenario;
     }
 
     public void setSellingPoints(String sellingPoints)

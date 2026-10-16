@@ -574,7 +574,9 @@ CREATE TABLE IF NOT EXISTS `zhi_article` (
   `content` longtext NOT NULL COMMENT '文章内容（HTML，展示用）',
   `content_md` longtext COMMENT 'Markdown 源码（format=markdown 时保存）',
   `format` varchar(10) NOT NULL DEFAULT 'html' COMMENT '内容格式 html|markdown',
-  `article_type` varchar(20) NOT NULL DEFAULT 'news' COMMENT '内容类型：news 资讯 business 核心业务 case 客户案例',
+  `article_type` varchar(20) NOT NULL DEFAULT 'news' COMMENT '内容类型：news 资讯 business 核心业务 case 客户案例 solution 解决方案',
+  `industry` varchar(50) DEFAULT NULL COMMENT '所属行业（solution 筛选维度）：制造业/金融/零售/医疗/教育/政务',
+  `scenario` varchar(255) DEFAULT NULL COMMENT '能力场景（逗号分隔，solution 筛选维度）：数字化转型/降本增效/风险管控/数据治理',
   `seo_title` varchar(200) DEFAULT NULL COMMENT 'SEO 标题（留空回退文章标题）',
   `seo_keywords` varchar(255) DEFAULT NULL COMMENT 'SEO 关键词（英文逗号分隔）',
   `seo_description` varchar(500) DEFAULT NULL COMMENT 'SEO 描述（留空回退文章摘要）',
@@ -1150,7 +1152,16 @@ INSERT IGNORE INTO `zhi_article` (`title`, `summary`, `content`, `cover_url`, `c
 </ul>
 <h2>🤝 我们期待</h2>
 <p>热爱技术、乐于分享、对产品体验有追求的你。有意向请通过「关于」页面的联系方式与我们取得联系。</p>',
-'', 8, 1, 'admin', 0, 0, 1, 92, 16, 'news', 'join-zhiqi');
+'', 8, 1, 'admin', 0, 0, 1, 92, 16, 'news', 'join-zhiqi'),
+('解决方案：制造业数字化', '打通产线数据与管理系统，让产能、质量、成本可视可控。含现状诊断、方案架构、实施路径与可量化成果。',
+'<h1>制造业数字化解决方案</h1><h2>客户挑战</h2><p>产线数据孤岛、质量追溯困难、成本核算滞后，管理决策缺乏数据支撑。</p><h2>方案架构</h2><p>以数据中台为核心，打通设备、产线与管理系统三层数据链路。</p><h2>实施路径</h2><p>现状诊断 → 方案设计 → 分步实施 → 长期陪跑，全程四周内启动。</p><h2>成果数据</h2><p>平均运营成本下降 38%，交付效率提升 2.4 倍。</p>',
+'', 2, 1, 'admin', 0, 1, 1, 34, 5, 'solution', 'solution-manufacturing'),
+('解决方案：金融数据治理与风控', '满足合规与风控要求的数据治理与业务连续性方案，支撑监管报送与实时风控。',
+'<h1>金融数据治理与风控解决方案</h1><h2>客户挑战</h2><p>监管要求趋严，数据口径不一，风控数据时效性不足。</p><h2>方案架构</h2><p>统一数据标准与血缘管理，构建实时风控指标层。</p><h2>实施路径</h2><p>合规差距分析 → 数据标准落地 → 风控指标上线 → 常态化运营。</p><h2>成果数据</h2><p>监管报送效率提升 60%，风控数据时效从 T+1 到分钟级。</p>',
+'', 2, 1, 'admin', 0, 1, 1, 41, 6, 'solution', 'solution-finance'),
+('解决方案：零售全渠道运营', '整合线上线下会员与订单数据，支撑精准运营与供应链决策。',
+'<h1>零售全渠道运营解决方案</h1><h2>客户挑战</h2><p>线上线下会员割裂，库存与订单数据不同步，营销依赖经验。</p><h2>方案架构</h2><p>以会员数据中心打通全渠道触点，营销自动化精准触达。</p><h2>实施路径</h2><p>会员通 → 库存通 → 营销自动化，三步两月内见效。</p><h2>成果数据</h2><p>会员复购率提升 25%，滞销库存占比下降 18%。</p>',
+'', 2, 1, 'admin', 0, 1, 1, 28, 4, 'solution', 'solution-retail');
   END IF;
 END$$
 DELIMITER ;
@@ -1175,7 +1186,12 @@ INSERT IGNORE INTO `zhi_article_tag` (`article_id`, `tag_id`) VALUES
 (5, 2), (5, 16), (5, 7),
 
 -- 文章6：加入我们：与知企一起成长（团队文化 / 招聘信息）
-(6, 17), (6, 18);
+(6, 17), (6, 18),
+
+-- 文章7-9：解决方案（行业洞察 / 数字化转型 / 市场营销等）
+(7, 3), (7, 5), (7, 11),
+(8, 10), (8, 9), (8, 14),
+(9, 15), (9, 12), (9, 3);
 
 -- ========== 更新分类文章数量 ==========
 
@@ -1313,6 +1329,12 @@ VALUES (2010, '核心业务管理', 2000, 2, 'business', 'article/index', '', ''
 
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2010), (2, 2010);
 
+-- 解决方案管理菜单（复用文章管理组件，按路由固定 article_type=solution）
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (2012, '解决方案管理', 2000, 4, 'solution', 'article/index', '', '', 1, 0, 'C', '0', '0', 'zhi:article:list', 'lightning', 'admin', NOW(), '', NULL, '解决方案管理菜单（article_type=solution 的文章）');
+
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2012), (2, 2012);
+
 -- ========== 模块化建站 M3：导航管理 ==========
 CREATE TABLE IF NOT EXISTS `site_nav_item` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -1357,14 +1379,16 @@ WHERE o.`parent_id` <> 0 AND p.`id` IS NULL;
 INSERT IGNORE INTO `site_nav_item` (`id`, `location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`) VALUES
 (1, 'header', 0, '首页', 'path', '/', 1, 1, 'admin'),
 (2, 'header', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
-(3, 'header', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
-(4, 'header', 0, '关于我们', 'path', '/about', 4, 1, 'admin'),
-(5, 'header', 0, '联系我们', 'path', '/contact', 6, 1, 'admin'),
-(6, 'header', 0, '咨询合作', 'cta', '/contact', 7, 1, 'admin'),
-(7, 'footer', 0, '首页', 'path', '/', 1, 1, 'admin'),
-(8, 'footer', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
-(9, 'footer', 0, '新闻动态', 'path', '/news', 3, 1, 'admin'),
-(10, 'footer', 0, '关于我们', 'path', '/about', 4, 1, 'admin');
+(3, 'header', 0, '解决方案', 'path', '/solutions', 3, 1, 'admin'),
+(4, 'header', 0, '新闻动态', 'path', '/news', 4, 1, 'admin'),
+(5, 'header', 0, '关于我们', 'path', '/about', 5, 1, 'admin'),
+(6, 'header', 0, '联系我们', 'path', '/contact', 6, 1, 'admin'),
+(7, 'header', 0, '咨询合作', 'cta', '/contact', 7, 1, 'admin'),
+(8, 'footer', 0, '首页', 'path', '/', 1, 1, 'admin'),
+(9, 'footer', 0, '核心业务', 'path', '/business', 2, 1, 'admin'),
+(10, 'footer', 0, '解决方案', 'path', '/solutions', 3, 1, 'admin'),
+(11, 'footer', 0, '新闻动态', 'path', '/news', 4, 1, 'admin'),
+(12, 'footer', 0, '关于我们', 'path', '/about', 5, 1, 'admin');
 
 -- 关于我们的二级下拉项（按 label 关联父项写入，幂等）
 INSERT IGNORE INTO `site_nav_item` (`location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`)
@@ -2519,6 +2543,38 @@ SET @add_article_process_steps := IF(@has_article_process_steps = 0,
 PREPARE add_article_process_steps_stmt FROM @add_article_process_steps;
 EXECUTE add_article_process_steps_stmt;
 DEALLOCATE PREPARE add_article_process_steps_stmt;
+
+-- 老库升级：补齐 zhi_article 解决方案筛选维度（幂等，解决方案板块）
+SET @has_article_industry := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'industry');
+SET @add_article_industry := IF(@has_article_industry = 0,
+    'ALTER TABLE `zhi_article` ADD COLUMN `industry` varchar(50) DEFAULT NULL COMMENT ''所属行业（solution 筛选维度）：制造业/金融/零售/医疗/教育/政务''',
+    'SELECT 1');
+PREPARE add_article_industry_stmt FROM @add_article_industry;
+EXECUTE add_article_industry_stmt;
+DEALLOCATE PREPARE add_article_industry_stmt;
+
+SET @has_article_scenario := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'scenario');
+SET @add_article_scenario := IF(@has_article_scenario = 0,
+    'ALTER TABLE `zhi_article` ADD COLUMN `scenario` varchar(255) DEFAULT NULL COMMENT ''能力场景（逗号分隔，solution 筛选维度）：数字化转型/降本增效/风险管控/数据治理''',
+    'SELECT 1');
+PREPARE add_article_scenario_stmt FROM @add_article_scenario;
+EXECUTE add_article_scenario_stmt;
+DEALLOCATE PREPARE add_article_scenario_stmt;
+
+-- 解决方案板块演示数据（仅当对应字段为空时写入；管理员修改后不覆盖）
+UPDATE `zhi_article`
+SET `industry` = '制造业', `scenario` = '数字化转型,降本增效'
+WHERE `slug` = 'solution-manufacturing' AND `industry` IS NULL;
+
+UPDATE `zhi_article`
+SET `industry` = '金融', `scenario` = '风险管控,数据治理'
+WHERE `slug` = 'solution-finance' AND `industry` IS NULL;
+
+UPDATE `zhi_article`
+SET `industry` = '零售', `scenario` = '降本增效,数据治理'
+WHERE `slug` = 'solution-retail' AND `industry` IS NULL;
 
 -- 业务详情结构化演示数据（仅当对应字段为空时写入；管理员修改后不覆盖）
 UPDATE `zhi_article`
