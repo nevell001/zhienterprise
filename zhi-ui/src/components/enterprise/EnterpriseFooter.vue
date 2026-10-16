@@ -1,5 +1,5 @@
 <template>
-  <footer class="ent-footer">
+  <footer v-if="isFooterEnabled" class="ent-footer">
     <div class="eh-wrap">
       <div class="fgrid">
         <div class="fbrand">
@@ -73,7 +73,9 @@
       </div>
 
       <div class="fbot">
-        <span>© {{ currentYear }} {{ siteSettings.blog_name || '知企建站系统' }} 保留所有权利</span>
+        <span v-if="isCopyrightEnabled">
+          © {{ currentYear }} {{ siteSettings.blog_name || '知企建站系统' }} 保留所有权利
+        </span>
         <span class="fbot-links">
           <router-link to="/agreement">法律声明</router-link>
           <router-link to="/privacy">隐私政策</router-link>
@@ -123,6 +125,8 @@ const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const businessLabel = computed(
   () => String(siteSettings.value.business_label || '').trim() || '核心业务'
 )
+const isFooterEnabled = computed(() => siteSettingsStore.isFeatureEnabled('footer_enabled'))
+const isCopyrightEnabled = computed(() => siteSettingsStore.isFeatureEnabled('copyright_enabled'))
 const isGuestbookEnabled = computed(() => siteSettingsStore.isFeatureEnabled('guestbook_enabled'))
 const isBeianEnabled = computed(() => siteSettingsStore.isFeatureEnabled('beian_enabled'))
 const currentYear = computed(() => new Date().getFullYear())
