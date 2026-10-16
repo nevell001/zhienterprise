@@ -51,6 +51,10 @@
 - 触发器和存储过程
 - 示例数据（管理员账号、菜单、字典等）
 
+⚠️ **脚本不建库、不切换库**：目标库只由调用方给出（`mysql … <库名> < sql/00_init_database.sql`，
+或 Docker 的 `MYSQL_DATABASE`，其默认值取自 `.env` 的 `DB_NAME`）。**不要**在里面加 `CREATE DATABASE` / `USE`
+—— 会把调用方给的库名覆盖掉（演练写进主库、`DB_NAME` 失效，见下文案例）。
+
 ### 特性
 
 ✅ **完全幂等**：可重复执行，不会破坏已有数据
@@ -112,6 +116,34 @@
   改过标签的存量库重跑新种子只补 2 条「解决方案」、`/business` 不再翻倍；
   二级项改名后重跑新种子不再插入重复子项（旧种子会 +1 行）。
 
+### 案例：脚本里写死库名，演练写进了生产库（库名只应由调用方给出）
+`00_init_database.sql` 里曾有 `CREATE DATABASE IF NOT EXISTS zhienterprise; USE zhienterprise;`，两层后果：
+
+- **演练不可信**：按修复演练流程把脚本重定向给副本库（`mysql <副本库> < 00_init_database.sql`），
+  `USE` 会把连接切回 `zhienterprise`，**写入实际落到主库** —— 真实发生过：本地库多出 2 条种子导航项、
+  9 篇示例文章的 `update_time` 被刷新，而副本库里一张表都没建。
+- **自定义库名失效**：`docker-compose*.yml` 的库名来自 `MYSQL_DATABASE: ${DB_NAME:-zhienterprise}`，
+  但脚本内的 `USE` 覆盖了容器给的目标库，把 `DB_NAME` 改成别的名字时，表和授权仍会落到 `zhienterprise`。
+- **怎么修**：删掉这两行，库名只由调用方给出（命令行位置参数，或 Docker 的 `MYSQL_DATABASE`）。
+  未指定库时 mysql 直接报 `ERROR 1046 No database selected` —— 响亮失败，不再静默写错库。
+- **约束**：给副本库演练任何脚本前，先确认脚本里没有 `USE`（有就先剥掉再用）；
+  `zhi-ui/src/sql-init-script.test.ts` 也断言了 00 里不存在 `CREATE DATABASE`/`USE` 语句。
+- 唯一还写死库名的地方是 `GRANT … ON zhienterprise.*`：不带 Docker 且改过 `DB_NAME` 需手工改（脚本内有注释）。
+
+### 案例：重跑升级把文章/分类刷到「最近更新」（update_time 被顶动）
+维护型语句「文章评论数校正」和「分类文章数校正」（含 `sp_fix_category_article_count_by_id` 的
+「修复所有分类」分支）曾无条件命中全表，而这些表带 `ON UPDATE CURRENT_TIMESTAMP`，
+`zhi_article` 上还有 BEFORE UPDATE 触发器 `tr_article_update_time` 无条件 `SET NEW.update_time = NOW()`
+—— 于是**每次重跑升级脚本，全部文章与全部分类的更新时间都被刷成当前时刻**，示例文章顶到「最近更新」首位。
+
+- **关键认知**：在有这种触发器的表上 `SET update_time = update_time` 是**无效的**，触发器在 SET 之后覆盖 `NEW`。
+- **怎么修**：给维护型语句加「值确实不一致」守卫（`<>` / `IS NULL`），重跑命中 0 行即不写行、不触发触发器；
+  只有值真的对不上时才写，并把该行顶到当前时间（数据确实变了，合理）。
+- 验证（scratch 副本，2026-10-17）：全新执行 50 张表；再次执行后 21 张带 `update_time` 的表的
+  行数 + 时间戳签名**零变化**；把 1 篇文章的 `comment_count`、1 个分类的 `article_count` 改成 99 再重跑，
+  两处计数被纠正回真值，其余 8 篇文章 / 10 个分类完全未动。
+- **约束**：这两类语句由 `zhi-ui/src/sql-init-script.test.ts` 断言必须带值守卫（或按主键单行更新）。
+
 
 ## 使用方法
 
@@ -147,4 +179,6 @@ mysql -u root -p zhienterprise < sql/00_init_database.sql
 
 `docker-compose.*.yml` 默认挂载 `./sql:/docker-entrypoint-initdb.d:ro`，**注意**：
 - MySQL 容器只在**首次初始化**（数据卷为空）时执行 `docker-entrypoint-initdb.d` 中的脚本
+- 首次初始化时容器把 `MYSQL_DATABASE`（默认取 `.env` 的 `DB_NAME`）作为目标库传给每个脚本，
+  所以脚本内**不需要也不该**再 `USE` 一次库名 —— 改 `DB_NAME` 部署自定义库名才能生效
 - 已有数据的容器需要手动执行上述命令

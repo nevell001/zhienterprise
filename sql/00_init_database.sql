@@ -17,16 +17,18 @@
 -- ✅ 完整的示例数据
 -- ✅ 站点管理、系统管理、系统监控、数据统计、系统工具菜单和权限配置
 --
--- 🎯 使用方法：
+-- 🎯 使用方法（脚本内不建库、不切换库，库名由调用方给出）：
 -- 1. 创建数据库：CREATE DATABASE zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- 2. 导入本脚本：mysql -u root -p zhienterprise < 00_init_database.sql
+--    （Docker Compose：库名由 MYSQL_DATABASE（默认取 .env 的 DB_NAME）给出，容器首次初始化自动导入）
 -- 3. 完成！不再需要单独执行 index 或 fix 脚本
--- 2. 选择数据库：USE zhienterprise;
--- 3. 执行脚本：source /path/to/init_database.sql;
--- 4. 验证结果：查看最后的统计信息
 --
 -- ⚠️  注意事项：
 -- - 请确保MySQL版本 >= 8.0
+-- - ⚠️ 本脚本刻意不写 CREATE DATABASE / USE（见下方「1. 设置应用账号」处的说明）：
+--   库名一旦写进脚本，`mysql <副本库> < 00_init_database.sql` 会被 USE 静默改回主库，
+--   在副本库上做演练会实际写进生产库，自定义 DB_NAME 的部署也会建错库。
+--   要指定目标库，只把它写在命令行的位置参数上（或 Docker 的 MYSQL_DATABASE），一处给库名。
 -- - 执行前请备份现有数据（虽然脚本幂等，备份永远是好习惯）
 -- - ✅ 幂等设计：所有 CREATE TABLE 用 IF NOT EXISTS，INSERT 用 IGNORE，索引通过存储过程检查
 -- - ✅ 可重复执行：在已有数据的数据库上再次运行也不会破坏数据
@@ -34,9 +36,9 @@
 -- - 包含触发器和索引，首次执行时间约2-3分钟
 -- ===============================================================
 
--- 1. 创建数据库和设置应用账号
-CREATE DATABASE IF NOT EXISTS zhienterprise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE zhienterprise;
+-- 1. 设置应用账号（目标库由调用方选定，本脚本不建库也不切换库）
+-- ⚠️ 不要在这里加 CREATE DATABASE / USE：命令行的库名会被 USE 覆盖。演练时把脚本重定向给
+--    副本库，写入会静默落到主库（真实发生过），自定义 DB_NAME 的部署也会建错库。
 
 -- 创建专用应用账号，避免应用服务依赖root远程访问
 -- ⚠️ 安全警告：部署前必须修改此密码为强密码
@@ -46,6 +48,9 @@ USE zhienterprise;
 --    仅当不使用 Docker、手动执行本脚本初始化数据库时，才需要把下面的
 --    'CHANGE_ME_STRONG_PASSWORD_32_CHARS' 改成与 .env 的 DB_PASSWORD 一致；
 --    若库中已存在 zhienterprise_app（旧密码），还需 ALTER USER 同步密码。
+-- ⚠️ 这里的 GRANT 是脚本里唯一还写死库名的地方：不带 Docker 且把 .env 的 DB_NAME 改成
+--    非 zhienterprise 时，要手工把 `zhienterprise`.* 改成实际库名（Docker 部署无需改，
+--    容器会按 MYSQL_DATABASE 建好同名用户并授权）。
 CREATE USER IF NOT EXISTS 'zhienterprise_app'@'%' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD_32_CHARS';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES, CREATE ROUTINE, ALTER ROUTINE, EXECUTE, TRIGGER
 ON zhienterprise.* TO 'zhienterprise_app'@'%';
@@ -672,10 +677,21 @@ CREATE TABLE IF NOT EXISTS `zhi_comment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客评论表';
 
 -- 一次性校正历史评论数（按已发布评论重算 zhi_article.comment_count，幂等可重复执行）
+-- ⚠️ 必须只写「数值确实不一致」的行，不能整表刷：zhi_article 上的 BEFORE UPDATE 触发器
+--    tr_article_update_time 无条件 `SET NEW.update_time = NOW()`，触发器在 SET 之后覆盖
+--    NEW，所以在 SET 里把 update_time 赋回自身是无效的（这一点与其它表不同）。
+--    老写法 WHERE 命中全部已发布文章 → 每次升级重跑都把全部文章顶到「最近更新」首位
+--    （评论数没变、时间却变了）；加上下面的 <> 守卫后重跑命中 0 行，既不重写行也不触发触发器。
 UPDATE zhi_article ba
-SET ba.comment_count = (SELECT COUNT(*) FROM zhi_comment c
-                        WHERE c.article_id = ba.id AND c.status = '1')
-WHERE ba.del_flag = '0';
+  LEFT JOIN (
+    SELECT c.article_id, COUNT(*) AS cnt
+      FROM zhi_comment c
+     WHERE c.status = '1'
+     GROUP BY c.article_id
+  ) x ON x.article_id = ba.id
+   SET ba.comment_count = IFNULL(x.cnt, 0)
+ WHERE ba.del_flag = '0'
+   AND (ba.comment_count IS NULL OR ba.comment_count <> IFNULL(x.cnt, 0));
 
 -- 博客友情链接表
 CREATE TABLE IF NOT EXISTS `zhi_friend_link` (
@@ -1215,17 +1231,20 @@ JOIN `zhi_tag` `t` ON `t`.`name` = `seed`.`tag_name`;
 -- 禁用触发器以避免冲突
 SET @DISABLE_TRIGGERS = TRUE;
 
--- 批量更新所有分类的文章数量
+-- 批量校正分类的文章数量（只写计数确实不一致的分类）
+-- ⚠️ 老写法 `SET article_count = …, c.update_time = NOW()` 无条件命中全部分类，且更新了
+--    update_time（该列本就 ON UPDATE CURRENT_TIMESTAMP）：每次升级重跑都会把 11 个分类的
+--    更新时间刷成当前时刻。加上 <> 守卫后重跑命中 0 行，只有计数真的对不上时才落库。
 UPDATE zhi_category c
-SET c.article_count = (
-    SELECT COUNT(*)
-    FROM zhi_article a
-    WHERE a.category_id = c.id
-    AND a.del_flag = '0'
-    AND a.status = 1
-),
-c.update_time = NOW()
-WHERE c.del_flag = '0';
+  LEFT JOIN (
+    SELECT a.category_id, COUNT(*) AS cnt
+      FROM zhi_article a
+     WHERE a.del_flag = '0' AND a.status = 1
+     GROUP BY a.category_id
+  ) x ON x.category_id = c.id
+   SET c.article_count = IFNULL(x.cnt, 0)
+ WHERE c.del_flag = '0'
+   AND (c.article_count IS NULL OR c.article_count <> IFNULL(x.cnt, 0));
 
 -- 重新启用触发器
 SET @DISABLE_TRIGGERS = NULL;
@@ -2124,7 +2143,7 @@ BEGIN
     -- 禁用触发器以避免冲突
     SET @DISABLE_TRIGGERS = TRUE;
 
-    -- 如果指定了分类ID，只修复该分类
+    -- 如果指定了分类ID，只修复该分类（只写计数确实不一致的那一行）
     IF category_id_param IS NOT NULL THEN
         UPDATE zhi_category c
         SET c.article_count = (
@@ -2133,13 +2152,20 @@ BEGIN
             WHERE a.category_id = c.id
             AND a.del_flag = '0'
             AND a.status = 1
-        ),
-        c.update_time = NOW()
-        WHERE c.id = category_id_param AND c.del_flag = '0';
+        )
+        WHERE c.id = category_id_param AND c.del_flag = '0'
+          AND (c.article_count IS NULL OR c.article_count <> (
+              SELECT COUNT(*)
+              FROM zhi_article a
+              WHERE a.category_id = c.id
+              AND a.del_flag = '0'
+              AND a.status = 1
+          ));
 
         SET fix_count = ROW_COUNT();
     ELSE
-        -- 修复所有分类
+        -- 修复所有分类（只写计数确实不一致的分类；本存储过程每次执行 00 都会跑，
+        -- 老写法无条件 SET update_time = NOW() 会把所有分类的更新时间刷成当前时刻）
         UPDATE zhi_category c
         SET c.article_count = (
             SELECT COUNT(*)
@@ -2147,9 +2173,15 @@ BEGIN
             WHERE a.category_id = c.id
             AND a.del_flag = '0'
             AND a.status = 1
-        ),
-        c.update_time = NOW()
-        WHERE c.del_flag = '0';
+        )
+        WHERE c.del_flag = '0'
+          AND (c.article_count IS NULL OR c.article_count <> (
+              SELECT COUNT(*)
+              FROM zhi_article a
+              WHERE a.category_id = c.id
+              AND a.del_flag = '0'
+              AND a.status = 1
+          ));
 
         SET fix_count = ROW_COUNT();
     END IF;
