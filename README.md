@@ -43,7 +43,7 @@ mvn clean install -DskipTests && mvn -pl zhi-admin spring-boot:run
 cd zhi-ui && npm install && npm run dev
 ```
 
-> 项目没有默认 `docker-compose.yml`，必须指定 dev / prod / release（release 为免源码构建的发行版部署，见 [docs/DEPLOYMENT_RELEASE.md](docs/DEPLOYMENT_RELEASE.md)）；3306 端口被占用时可改映射并在 `.env` 设 `DB_PORT`。
+> 项目没有默认 `docker-compose.yml`，必须指定 dev / prod / release（release 为免源码构建的发行版部署，见 [docs/DEPLOYMENT_RELEASE.md](docs/DEPLOYMENT_RELEASE.md)）；公共基础设施（mysql / redis / 监控 / 数据卷 / 网络）在 [docker-compose.base.yml](docker-compose.base.yml)，三套编排通过 `extends` 继承。3306 端口被占用时可改映射并在 `.env` 设 `DB_PORT`。
 
 ## 升级已有数据库
 

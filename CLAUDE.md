@@ -57,7 +57,7 @@ docker compose -f docker-compose.prod.yml up -d --build   # Production
 docker compose -f docker-compose.release.yml up -d        # Release artifacts (no source build, see docs/DEPLOYMENT_RELEASE.md)
 ```
 
-No default `docker-compose.yml` exists - must specify dev, prod or release. The three files duplicate the mysql/redis/monitoring blocks, so change all three together; validate with `docker compose -f <file> config -q` (CI has a `compose` job for this).
+No default `docker-compose.yml` exists - must specify dev, prod or release. Shared infra (mysql / redis / prometheus / grafana + volumes + networks) lives in `docker-compose.base.yml` and is pulled in via `extends`; change it once and validate all four files with `docker compose -f <file> config -q` (CI has a `compose` job for this).
 
 **Monitoring stack (optional)**: Prometheus/Grafana in prod compose are behind `profiles: ["monitoring"]` — enterprise deliveries get `up -d` without them; operators enable via `docker compose -f docker-compose.prod.yml --profile monitoring up -d`.
 

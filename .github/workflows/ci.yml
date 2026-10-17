@@ -66,15 +66,16 @@ jobs:
 
   compose:
     name: 编排文件校验
-    # 三套 compose（dev/prod/release）必须保持可解析；改编排时最容易只改一套、漏掉另一套
+    # 三套环境编排 + 公共片段（docker-compose.base.yml）必须保持可解析；
+    # 三套都通过 extends 引用公共片段，改公共段时最容易漏掉某套
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
-      - name: 校验三套 Docker Compose 编排
+      - name: 校验 Docker Compose 编排
         run: |
           # 用示例环境变量做插值校验，CI 里没有本地 .env
           cp .env.example .env
-          for f in docker-compose.dev.yml docker-compose.prod.yml docker-compose.release.yml; do
+          for f in docker-compose.base.yml docker-compose.dev.yml docker-compose.prod.yml docker-compose.release.yml; do
             docker compose -f "$f" config -q
             echo "OK: $f"
           done

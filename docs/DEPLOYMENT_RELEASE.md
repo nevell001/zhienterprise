@@ -11,7 +11,7 @@
 | --- | --- |
 | `zhi-admin.jar` | 后端可执行包（含 common/framework/system/quartz/generator 全部模块） |
 | `frontend-dist.zip` | 前端构建产物（解压后 `index.html` 在根目录） |
-| `deploy-assets.zip` | 部署配套：数据库脚本、nginx 配置、`.env` 示例、本指南 |
+| `deploy-assets.zip` | 部署配套：数据库脚本、nginx 配置、compose 编排（`docker-compose.release.yml` + `docker-compose.base.yml`）、`.env` 示例、本指南 |
 
 ## 2. 整理目录
 
@@ -23,6 +23,8 @@ unzip deploy-assets.zip -d deploy/tmp
 mv deploy/tmp/00_init_database.sql deploy/sql/
 mv deploy/tmp/nginx.conf deploy/nginx.conf
 mv deploy/tmp/nginx-https.conf deploy/nginx-https.conf
+mv deploy/tmp/docker-compose.release.yml ./
+mv deploy/tmp/docker-compose.base.yml ./
 mv deploy/tmp/prometheus/* prometheus/
 mv deploy/tmp/grafana/* grafana/
 cp deploy/tmp/.env.example .env
@@ -46,6 +48,7 @@ grafana/
 └── provisioning/           # 已自动配置 Prometheus 数据源
 uploadPath/                 # 图片上传目录（可预先创建，须可写）
 docker-compose.release.yml
+docker-compose.base.yml     # 公共基础设施片段（mysql/redis/监控），必须与上面文件同目录
 .env
 ```
 
@@ -101,6 +104,7 @@ MySQL/Redis 数据卷和 `uploadPath/` 会保留。
 
 - MySQL 初始化脚本只在数据卷首次创建时执行，已有数据卷不会重复建库；如需重置请先备份并删除 `mysql_data` 卷。
 - **`deploy/zhi-admin.jar` 必须是文件**：文件缺失时 Docker 会按 bind mount 自动创建同名**目录**，容器里 `java -jar` 直接失败（表现为 `zhi-admin` 一直 unhealthy、`zhi-ui` 不启动）。同理 `deploy/frontend-dist` 若缺失会被建成空目录，nginx 返回 403/404。建议 `up -d` 前先确认这两个路径是文件/目录而非误建的空目录。
+- 需要 Docker Compose v2（编排用 `extends` 继承公共片段）；本指南统一用 `docker compose`（v2 插件），不要用旧的 `docker-compose` v1。
 - 三套编排（`docker-compose.dev.yml` / `docker-compose.prod.yml` / `docker-compose.release.yml`）解析出的 compose project 都是目录名 `zhienterprise`，容器名与数据卷同名——**不能同时运行**；从 dev/prod 切到 release 会复用同一份 MySQL 数据卷（root 密码只在首次初始化生效）。
 - 默认编排开放 HTTP 80 与 HTTPS 443；HTTPS 需要先放置证书并切换配置（见上文）。
 - Gitee 发行版同 tag 重跑会更新/追加附件但不会删除旧附件；变更附件清单后需在发行版编辑页手动清理，或删除该发行版（保留 tag）后重跑重建。

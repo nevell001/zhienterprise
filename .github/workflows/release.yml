@@ -60,6 +60,9 @@ jobs:
           cp zhi-ui/nginx-https.conf deploy-assets/
           cp .env.example deploy-assets/
           cp docs/DEPLOYMENT_RELEASE.md deploy-assets/
+          # release 编排通过 extends 引用 docker-compose.base.yml，两个文件必须一起发布
+          cp docker-compose.release.yml deploy-assets/
+          cp docker-compose.base.yml deploy-assets/
           cp -r prometheus deploy-assets/
           cp -r grafana deploy-assets/
           cd deploy-assets && zip -qr ../deploy-assets.zip .
@@ -111,7 +114,7 @@ jobs:
           # 同 tag 已存在 Release 时先删除，保证重复发布可覆盖
           gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1 && gh release delete "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --yes || true
           # 优先用仓库里的 docs/releases/<tag>.md（与 Gitee、README 共用同一份发行说明）
-          NOTES_ARGS=(--notes "知企建站系统 ${GITHUB_REF_NAME} 自动发布构建（GitHub Actions 生成）。包含：后端 jar、前端 dist、部署配套（sql / nginx / .env 示例），部署步骤见 docs/DEPLOYMENT_RELEASE.md。")
+          NOTES_ARGS=(--notes "知企建站系统 ${GITHUB_REF_NAME} 自动发布构建（GitHub Actions 生成）。包含：后端 jar、前端 dist、部署配套（sql / nginx / compose 编排 / .env 示例），部署步骤见 docs/DEPLOYMENT_RELEASE.md。")
           if [ -n "${{ steps.notes.outputs.file }}" ]; then
             NOTES_ARGS=(--notes-file "${{ steps.notes.outputs.file }}")
           fi

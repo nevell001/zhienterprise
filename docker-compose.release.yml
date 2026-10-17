@@ -2,11 +2,38 @@
 #
 # 用法：
 #   1. 下载 release 附件 zhi-admin.jar / frontend-dist.zip / deploy-assets.zip
-#   2. 按 docs/DEPLOYMENT_RELEASE.md 整理到 ./deploy/ 并解压
+#   2. 按 docs/DEPLOYMENT_RELEASE.md 整理到 ./deploy/ 并解压（本文件与 docker-compose.base.yml 放同一目录）
 #   3. cp deploy/.env.example .env  并设置强密码 / R_TOKEN_SECRET
 #   4. docker compose -f docker-compose.release.yml up -d
+#
+# 公共基础设施（mysql / redis / prometheus / grafana、数据卷、网络）在 docker-compose.base.yml，
+# 这里通过 extends 继承；监控栈默认随栈启动。
 
 services:
+  mysql:
+    extends:
+      file: docker-compose.base.yml
+      service: mysql
+    volumes:
+      - ./deploy/sql:/docker-entrypoint-initdb.d:ro
+
+  redis:
+    extends:
+      file: docker-compose.base.yml
+      service: redis
+
+  prometheus:
+    extends:
+      file: docker-compose.base.yml
+      service: prometheus
+
+  grafana:
+    extends:
+      file: docker-compose.base.yml
+      service: grafana
+    depends_on:
+      - prometheus
+
   zhi-admin:
     image: eclipse-temurin:17-jre
     container_name: zhi-admin
@@ -59,83 +86,6 @@ services:
       - zhi-network
     restart: unless-stopped
 
-  mysql:
-    image: mysql:8.4
-    container_name: mysql
-    restart: always
-    command: >
-      --mysql_native_password=ON
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-      --max_connections=200
-      --innodb_buffer_pool_size=256M
-    environment:
-      TZ: Asia/Shanghai
-      LANG: C.UTF-8
-      LC_ALL: C.UTF-8
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME:-zhienterprise}
-      MYSQL_USER: ${DB_USERNAME:-zhienterprise_app}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "127.0.0.1:3306:3306"  # 仅本地访问
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./deploy/sql:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
-      timeout: 20s
-      retries: 20
-      interval: 10s
-      start_period: 40s
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '1'
-        reservations:
-          memory: 512M
-          cpus: '0.25'
-    networks:
-      - zhi-network
-
-  redis:
-    image: redis:7.2-alpine
-    container_name: redis
-    restart: always
-    command: >
-      sh -c '
-        if [ -n "${REDIS_PASSWORD:-}" ]; then
-          redis-server --requirepass "${REDIS_PASSWORD}" --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-        else
-          redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-        fi
-      '
-    ports:
-      - "127.0.0.1:6379:6379"  # 仅本地访问
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: >
-        sh -c '
-          if [ -n "${REDIS_PASSWORD:-}" ]; then
-            redis-cli -a "${REDIS_PASSWORD}" ping
-          else
-            redis-cli ping
-          fi
-        '
-      interval: 10s
-      timeout: 3s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 128M
-    networks:
-      - zhi-network
-
   zhi-ui:
     image: nginx:1.27-alpine
     container_name: zhi-ui
@@ -170,66 +120,6 @@ services:
     networks:
       - zhi-network
     restart: unless-stopped
-
-  prometheus:
-    image: prom/prometheus:v2.54.1
-    container_name: prometheus
-    restart: always
-    ports:
-      - "127.0.0.1:9090:9090"  # 仅本地访问，安全考虑
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
-    networks:
-      - zhi-network
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '0.5'
-        reservations:
-          memory: 256M
-          cpus: '0.25'
-
-  grafana:
-    image: grafana/grafana:11.3.1
-    container_name: grafana
-    restart: always
-    ports:
-      - "127.0.0.1:3001:3000"  # 仅本地访问，安全考虑
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
-      GF_USERS_ALLOW_SIGN_UP: "false"
-      GF_PROVISIONING_ENABLED: "true"
-      GF_INSTALL_PLUGINS: ""
-    depends_on:
-      - prometheus
-    networks:
-      - zhi-network
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: '0.5'
-        reservations:
-          memory: 128M
-          cpus: '0.25'
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
 volumes:
   mysql_data:
