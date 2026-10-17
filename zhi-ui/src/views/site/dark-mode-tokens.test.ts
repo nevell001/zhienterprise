@@ -248,8 +248,9 @@ describe('模板层 --tpl-* 深浅模式约定', () => {
       '--tpl-on-hero: var(--tpl-ink-900)'
     )
 
-    // 暗色侧：基类仍为白色，且深色重映射块不得把 --tpl-on-hero 改成深色
-    const baseRule = rules.find(r => r.selector.split(',').some(s => s.trim() === '.tpl-site'))
+    // 暗色侧：基类仍为白色，且深色重映射块不得把 --tpl-on-hero 改成深色。
+    // 基类变量声明域是 html.tpl-site（页面根节点重复 .tpl-site 时不再重置模板变量）
+    const baseRule = rules.find(r => r.selector.split(',').some(s => s.trim() === 'html.tpl-site'))
     expect(baseRule?.body, '基类 --tpl-on-hero 应为 #ffffff，供暗色模式使用').toContain(
       '--tpl-on-hero: #ffffff'
     )

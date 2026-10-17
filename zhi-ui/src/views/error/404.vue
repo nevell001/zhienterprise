@@ -1,5 +1,5 @@
 <template>
-  <div class="wscn-http404-container">
+  <div class="wscn-http404-container" :class="templateClass" :style="themeStyle">
     <div class="wscn-http404">
       <div class="pic-404">
         <img class="pic-404__parent" src="@/assets/404_images/404.png" alt="404" />
@@ -22,8 +22,41 @@
 </template>
 
 <script setup lang="ts">
+import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { getSiteSettingsAnonymous } from '@/api/site/setting'
+import { getSiteTemplate } from '@/config/siteTemplates'
+
 const message = computed(() => {
   return '找不到网页！'
+})
+
+/**
+ * 404 不在 SiteLayout 内（没有导航/页脚，也不挂 <html> 模板类），
+ * 这里单独读取当前行业模板，把主色收敛到本页的 --el-color-primary，
+ * 避免所有模板下 404 都显示全局默认蓝。
+ * 直接打开死链时 store 可能尚未加载，回退默认模板（consult，与前台一致）。
+ */
+const siteSettingsStore = useSiteSettingsStore()
+const currentTemplate = computed(() =>
+  getSiteTemplate(siteSettingsStore.siteSettings?.site_template)
+)
+const templateClass = computed(() => currentTemplate.value.className)
+const themeStyle = computed(() => ({
+  '--el-color-primary': currentTemplate.value.color,
+  '--el-color-primary-light-3': currentTemplate.value.color,
+  '--mo-on-primary': '#ffffff'
+}))
+
+// 404 不在 SiteLayout 内，直接打开死链时 store 里没有站点设置（只有默认 consult）。
+// 这里补一次公开设置请求，保证 404 的主色与真实模板一致；失败则沿用默认，不影响展示。
+onMounted(async () => {
+  try {
+    const response = await getSiteSettingsAnonymous()
+    const settings = (response as { data?: Record<string, unknown> })?.data
+    if (settings) siteSettingsStore.updateSiteSettings(settings)
+  } catch {
+    // 静默失败：404 页不因设置请求失败而白屏
+  }
 })
 </script>
 

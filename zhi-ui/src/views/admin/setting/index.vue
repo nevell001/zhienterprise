@@ -287,7 +287,9 @@
                   maxlength="20"
                   @change="handleThemeColorChange"
                 />
-                <span class="setting-tip">影响按钮、链接、标签页和高亮状态</span>
+                <span class="setting-tip">
+                  影响后台与弹层；企业官网前台的按钮/链接/高亮以「行业模板」主色为准
+                </span>
               </div>
             </el-form-item>
 
@@ -344,7 +346,8 @@
               </el-select>
               <div class="setting-tip">
                 企业官网的行业形态：主色 / 圆角 / 母题主视觉 / 文案随模板整体切换（管理咨询 /
-                信息技术 / 制造业 / 商贸 / 数码产品），保存后前台即时生效
+                信息技术 / 制造业 / 商贸 / 数码产品），保存后前台全部页面（含表单、分页等 Element
+                组件）即时生效，后台不受影响
               </div>
               <div class="cfg-row" style="margin-top: 8px">
                 <el-button

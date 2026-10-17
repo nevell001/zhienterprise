@@ -4,10 +4,15 @@
    （主色 / 圆角 / 阴影 / 深色底 / 标题字体）——与原型"改组件改一次，
    五套同时生效"的约束一致。
    组件层：views/site/EnterpriseHome.vue（五套共用，不感知模板差异）。
-   挂载：前台布局在 home_layout=business 时给 <html> 挂 .tpl-site + .tpl-xxx。 */
+   挂载：前台布局在 home_layout=business 时给 <html> 挂 .tpl-site + .tpl-xxx。
+
+   ⚠️ 变量声明必须落在 html.tpl-site / html.tpl-xxx 上：
+   各内页根节点也带 .tpl-site 类（`.tpl-site contact-page` 等），若把基类变量
+   声明在 `.tpl-site` 上，页面根节点会重新声明基类值（默认蓝/圆角 16px），
+   覆盖掉 <html> 继承下来的模板值 —— 表现为只有首页换肤、内页仍是默认蓝。 */
 
 /* ---------- 基类：共用默认（base.css :root） ---------- */
-.tpl-site {
+html.tpl-site {
   --tpl-p: #1a56db;
   --tpl-p-h: #1544b0;
   --tpl-p-sub: #eef3fe;
@@ -39,6 +44,18 @@
   --tpl-sh-sm: 0 1px 2px rgba(11, 15, 25, 0.06), 0 1px 3px rgba(11, 15, 25, 0.04);
   --tpl-sh-md: 0 8px 24px rgba(11, 15, 25, 0.1), 0 2px 6px rgba(11, 15, 25, 0.04);
   --tpl-serif: inherit;
+
+  /* 前台 Element Plus 主色跟随行业模板：站点页面里的输入框/分页/按钮与 --tpl-p 一致。
+     !important 用于覆盖「界面主题 → 主题颜色」通过 handleThemeStyle 写入 <html> 的内联
+     --el-color-primary（后台不受影响，仍用主题色）。light-* 与 --tpl-bg 混合，
+     深浅模式各自得到对应档位。 */
+  --el-color-primary: var(--tpl-p) !important;
+  --el-color-primary-light-3: color-mix(in srgb, var(--tpl-p) 72%, var(--tpl-bg)) !important;
+  --el-color-primary-light-5: color-mix(in srgb, var(--tpl-p) 55%, var(--tpl-bg)) !important;
+  --el-color-primary-light-7: color-mix(in srgb, var(--tpl-p) 38%, var(--tpl-bg)) !important;
+  --el-color-primary-light-8: color-mix(in srgb, var(--tpl-p) 28%, var(--tpl-bg)) !important;
+  --el-color-primary-light-9: color-mix(in srgb, var(--tpl-p) 16%, var(--tpl-bg)) !important;
+  --el-color-primary-dark-2: color-mix(in srgb, var(--tpl-p) 82%, #000) !important;
 }
 
 /* 亮色模式下 Hero 是浅底，透明导航不能再反白 —— 用深墨保证对比度。
@@ -50,7 +67,7 @@ html:not(.dark).tpl-site {
 }
 
 /* ---------- 1. 管理咨询：指针罗盘 · 方向与决断 ---------- */
-.tpl-consult {
+html.tpl-consult {
   --tpl-p: #185fa5;
   --tpl-p-h: #123f73;
   --tpl-p-sub: #e6f1fb;
@@ -65,7 +82,7 @@ html:not(.dark).tpl-site {
 }
 
 /* ---------- 2. 信息技术：节点连接 · 架构与连接 ---------- */
-.tpl-tech {
+html.tpl-tech {
   --tpl-p: #0f6e56;
   --tpl-p-h: #0a5341;
   --tpl-p-sub: #e1f5ee;
@@ -79,7 +96,7 @@ html:not(.dark).tpl-site {
 }
 
 /* ---------- 3. 制造业：模块榫接 · 结构与咬合 ---------- */
-.tpl-mfg {
+html.tpl-mfg {
   --tpl-p: #b0442a;
   --tpl-p-h: #8a3420;
   --tpl-p-sub: #faece7;
@@ -114,7 +131,7 @@ html:not(.dark).tpl-site {
 }
 
 /* ---------- 4. 商贸：流通曲线 · 连接与流转 ---------- */
-.tpl-trade {
+html.tpl-trade {
   --tpl-p: #7c4a9e;
   --tpl-p-h: #5f3579;
   --tpl-p-sub: #f3eaf9;
@@ -128,7 +145,7 @@ html:not(.dark).tpl-site {
 }
 
 /* ---------- 5. 数码产品：产品轮廓 · 实体与细节 ---------- */
-.tpl-digital {
+html.tpl-digital {
   --tpl-p: #c2410c;
   --tpl-p-h: #9a3412;
   --tpl-p-sub: #fff1e7;
