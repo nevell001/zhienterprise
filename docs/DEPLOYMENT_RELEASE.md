@@ -84,7 +84,17 @@ docker compose -f docker-compose.release.yml up -d
 
 启用后 80 端口会自动 301 跳转到 HTTPS。**未放置证书时不要切换 HTTPS 配置**（nginx 会启动失败），保持 `nginx.conf` 即可。
 
-## 监控（release 编排已包含）
+## 监控（可选，默认不启动）
+
+release 编排里的 Prometheus / Grafana 声明了 `profiles: ["monitoring"]`，`up -d` **不会**启动它们（企业站点交付零负担）。需要时显式启用：
+
+```bash
+docker compose -f docker-compose.release.yml --profile monitoring up -d
+# 只停用监控、不动站点（不要用 down：那会把 mysql/后端/前端一起停掉）：
+docker compose -f docker-compose.release.yml --profile monitoring rm -sf prometheus grafana
+```
+
+启用后：
 
 - Prometheus：`http://127.0.0.1:9090`（抓取 `zhi-admin:8080/manage/actuator/prometheus`）
 - Grafana：`http://127.0.0.1:3001`，账号密码来自 `.env` 的 `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD`；已通过 provisioning 自动配置 Prometheus 数据源

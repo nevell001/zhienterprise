@@ -7,7 +7,7 @@
 #   4. docker compose -f docker-compose.release.yml up -d
 #
 # 公共基础设施（mysql / redis / prometheus / grafana、数据卷、网络）在 docker-compose.base.yml，
-# 这里通过 extends 继承；监控栈默认随栈启动。
+# 这里通过 extends 继承；监控栈默认不启动（企业站点交付零负担），需要时显式加 --profile monitoring。
 
 services:
   mysql:
@@ -22,10 +22,15 @@ services:
       file: docker-compose.base.yml
       service: redis
 
+  # 监控栈（可选）：默认不随 `up -d` 启动；需要时显式启用：
+  #   docker compose -f docker-compose.release.yml --profile monitoring up -d
+  # 停用监控（不影响站点）：--profile monitoring rm -sf prometheus grafana
+  # 不要用 down：那会把 mysql / 后端 / 前端一起停掉
   prometheus:
     extends:
       file: docker-compose.base.yml
       service: prometheus
+    profiles: ["monitoring"]
 
   grafana:
     extends:
@@ -33,6 +38,7 @@ services:
       service: grafana
     depends_on:
       - prometheus
+    profiles: ["monitoring"]
 
   zhi-admin:
     image: eclipse-temurin:17-jre

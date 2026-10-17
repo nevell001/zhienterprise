@@ -20,7 +20,8 @@ services:
 
   # 监控栈（可选）：默认不随 `up -d` 启动，企业站点交付零负担；自用运维时显式启用：
   #   docker compose -f docker-compose.prod.yml --profile monitoring up -d
-  # 停用时执行 --profile monitoring down 以免遗留 restart:always 的孤儿容器
+  # 停用监控（不影响站点）：--profile monitoring rm -sf prometheus grafana
+  # 不要用 down：那会把 mysql / 后端 / 前端一起停掉
   prometheus:
     extends:
       file: docker-compose.base.yml
