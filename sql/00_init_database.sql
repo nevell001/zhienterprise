@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS sys_menu (
 -- 初始化-菜单信息表数据
 INSERT IGNORE INTO sys_menu VALUES('1', '系统管理', '0', '5', 'admin/system',    NULL, '', '', 1, 0, 'M', '0', '0', '', 'system',   'admin', NOW(), '', NULL, '系统管理目录');
 INSERT IGNORE INTO sys_menu VALUES('2', '系统监控', '0', '3', 'admin/monitor',   NULL, '', '', 1, 0, 'M', '0', '0', '', 'monitor',  'admin', NOW(), '', NULL, '系统监控目录');
-INSERT IGNORE INTO sys_menu VALUES('3', '系统工具', '0', '4', 'admin/tool',      NULL, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录');
+INSERT IGNORE INTO sys_menu VALUES('3', '系统工具', '0', '4', 'admin/tool',      NULL, '', '', 1, 0, 'M', '1', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录（默认隐藏，可在菜单管理恢复）');
 
 -- 7、用户和角色关联表（用户N-1角色）
 CREATE TABLE IF NOT EXISTS sys_user_role (
@@ -1739,6 +1739,10 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 (1145, '缓存清理', 114, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:cache:clean', '#', 'admin', NOW(), '', NULL, '');
 
 -- ========== 配置系统工具菜单 ==========
+
+-- 企业官网默认隐藏「系统工具」整组（代码生成 / 系统接口属研发工具，非客户可见功能）。
+-- 菜单与权限保留，管理员可在「菜单管理 → 系统工具」把「可见」打开恢复。
+UPDATE sys_menu SET visible = '1' WHERE menu_id = 3;
 
 -- 1、表单构建菜单（已停用：表单构建页面为占位实现且前端已移除，如需启用请先恢复
 --    zhi-ui/src/views/admin/tool/build/index.vue 再取消下面的注释）

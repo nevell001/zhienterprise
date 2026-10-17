@@ -404,3 +404,9 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
 - **根因**：`sys_menu` 种子给 2012 配的 `lightning` 不在前端 `src/assets/icons/svg/` 图标集中；`SvgIcon` 直接输出 `<use href="#icon-lightning">`，找不到 symbol 即为空，不报错。
 - **修复**：种子与存量库改为 `skill`（灯泡，语义贴合「解决方案」）；SQL 增加幂等 `UPDATE sys_menu SET icon='skill' WHERE menu_id=2012 AND icon='lightning'`。
 - **防回归**：新增 `src/assets/icons/menu-icons.test.ts`（解析 SQL 种子的 sys_menu 图标 ↔ svg 目录比对）；`SvgIcon` 增加缺失兜底（回退 `component` 图标），避免配置错误时再出现空白。
+
+## 二十一、默认隐藏「系统工具」菜单（2026-10-17）
+
+- 代码生成 / 系统接口属研发工具，客户侧不需要出现在默认后台导航。
+- 处理：`sys_menu` 中 3（系统工具）的 `visible` 改为 `'1'`（隐藏），SQL 种子与存量库幂等迁移同步；菜单与 `tool:*` 权限保留，子路由仍可 URL 直达，可在「菜单管理」中打开「可见」恢复。
+- 验证：`/getRouters` 中 `Admin/tool` 为 `hidden=true`；侧栏实测不再出现「系统工具 / 代码生成 / 系统接口」，其余菜单正常。

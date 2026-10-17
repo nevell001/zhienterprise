@@ -128,6 +128,8 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
 
 - **侧栏菜单图标必须存在于 svg 图标集**：`sys_menu.icon` 的值最终渲染为 `<use href="#icon-<name>">`，图标名必须在 `zhi-ui/src/assets/icons/svg/` 里有同名文件；缺失时 svg 为空、菜单出现「看不见的空白」（「解决方案管理」曾配置不存在的 `lightning`，表现为图标不显示）。现在由 `zhi-ui/src/assets/icons/menu-icons.test.ts` 解析 SQL 种子的 sys_menu 图标并比对 svg 目录，改菜单数据前会先失败；`SvgIcon` 另外做了缺失兜底（回退 `component` 图标），避免线上再出现空白。修正存量库的幂等语句在 `sql/00_init_database.sql` 的 2012 菜单附近（`UPDATE ... icon='skill' WHERE icon='lightning'`）。
 
+- **「系统工具」菜单默认隐藏**：代码生成 / 系统接口属研发工具，不面向客户。`sys_menu` 里 3（系统工具）的 `visible='1'`（隐藏），种子与存量库迁移都在 `sql/00_init_database.sql` 的「配置系统工具菜单」段（`UPDATE sys_menu SET visible='1' WHERE menu_id=3`）。菜单与权限仍保留：子路由可通过 URL 直达，需要恢复时在「菜单管理 → 系统工具」把「可见」打开即可，**不要删除菜单或撤回 `tool:*` 权限**。
+
 - **后台「菜单管理」（原名「导航管理」）的链接目标**：`site_nav_item.link_type` 只有 `path` / `url` / `cta` 三种，**没有**「分类」类型；文章分类/标签也统一存成 `path` 的站内路径（分类 `/category/{alias或id}`、标签 `/tag/{id}`）。后台弹窗的分组选择器（常用页面 / 自定义页面 / 文章分类 / 文章标签）只是「自动填 `linkValue` + 标签」的便捷入口，选中项编码为 `fixed:/news`、`page:about`、`cat:12`、`tag:3`，**不要**为分类单独加 `link_type` 或改表结构。菜单名 2026-10 由「导航管理」改为「菜单管理」：`sys_menu` 种子 2011 改名，存量库由 `sql/00_init_database.sql` 里的幂等 `UPDATE sys_menu ... WHERE menu_name='导航管理'` 迁移，历史注释/文档中的旧名属正常引用。
 
 ## Frontend Conventions
