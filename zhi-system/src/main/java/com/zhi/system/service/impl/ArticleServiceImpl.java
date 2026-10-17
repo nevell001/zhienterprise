@@ -254,6 +254,10 @@ public class ArticleServiceImpl implements IArticleService
      */
     private void setDefaultValues(Article article)
     {
+        // format 是 NOT NULL 语义（前端/接口可能不传），插入时补默认 html
+        if (article.getFormat() == null || article.getFormat().trim().isEmpty()) {
+            article.setFormat("html");
+        }
         if (article.getDelFlag() == null) {
             article.setDelFlag(0L);
         }
@@ -622,6 +626,7 @@ public class ArticleServiceImpl implements IArticleService
      * @return 发布的文章数量
      */
     @Override
+    @SiteCacheEvict(keyPattern = "zhi:*")
     public int publishScheduledArticles() {
         return articleMapper.publishScheduledArticles();
     }

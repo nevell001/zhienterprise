@@ -179,10 +179,18 @@ class ArticleControllerTest {
 
         // 准备请求体
         Map<String, Object> articleStatus = new HashMap<>();
-        List<Long> ids = new ArrayList<>();
-        ids.add(1L);
+        // 模拟真实 JSON 反序列化：数字是 Integer，不是 Long
+        List<Integer> ids = new ArrayList<>();
+        ids.add(1);
         articleStatus.put("ids", ids);
         articleStatus.put("status", 1);
+
+        // 控制器必须转成 List<Long>，否则 service 迭代会 ClassCastException
+        when(articleService.updateArticleStatus(anyList(), anyInt())).thenAnswer(invocation -> {
+            List<Long> passed = invocation.getArgument(0);
+            assertThat(passed).containsExactly(1L);
+            return 1;
+        });
 
         // 执行测试 - 使用正确的端点路径 PUT /status
         mockMvc.perform(put("/system/article/status")
@@ -191,10 +199,53 @@ class ArticleControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
 
-        verify(articleService).updateArticleStatus(anyList(), anyInt());
+        verify(articleService).updateArticleStatus(anyList(), eq(1));
     }
 
     /**
+     * 回归：局部更新（如列表「发布/转草稿」）不带 format 时，不得把文章格式改成 html。
+     * 后端 mapper 仅在 format != null 时更新；控制器若默认写 html，Markdown 文章会被静默转换。
+     */
+    @Test
+    void testEditWithoutFormatLeavesFormatUnset() throws Exception {
+        when(articleService.updateArticle(any(Article.class))).thenReturn(1);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", 1L);
+        params.put("title", "测试文章标题");
+        params.put("status", 1L);
+
+        mockMvc.perform(put("/system/article")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Article> captor = ArgumentCaptor.forClass(Article.class);
+        verify(articleService).updateArticle(captor.capture());
+        assertThat(captor.getValue().getFormat()).isNull();
+    }
+
+    /**
+     * 回归：状态接口缺 status 时应返回明确错误，而不是静默更新 0 行。
+     */
+    @Test
+    void testChangeStatusRejectsMissingStatus() throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("ids", List.of(1));
+
+        mockMvc.perform(put("/system/article/status")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500))
+                .andExpect(jsonPath("$.msg").value("状态不能为空"));
+
+        verify(articleService, never()).updateArticleStatus(anyList(), anyInt());
+    }
+
+    /**
+     * 测试搜索文章接口
+     */    /**
      * 测试搜索文章接口
      */
     @Test

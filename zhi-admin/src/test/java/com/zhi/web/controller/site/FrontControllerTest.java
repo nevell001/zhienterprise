@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -426,6 +427,31 @@ class FrontControllerTest
     }
 
     /**
+     * 回归：草稿详情不得增加浏览量 / 写访问明细。
+     * 此前 getArticleDetail 先计数再校验 status，直接访问草稿 ID 会污染 PV/UV。
+     */
+    @Test
+    void draftArticleDetailShouldNotCountViews() throws Exception
+    {
+        Article draft = new Article();
+        draft.setId(1L);
+        draft.setTitle("草稿文章");
+        draft.setStatus(0L);
+        draft.setDelFlag(0L);
+        when(articleService.selectArticleById(1L)).thenReturn(draft);
+        when(settingService.selectSettingValueByKey("view_count_enabled")).thenReturn("true");
+
+        mockMvc.perform(get("/api/article/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("文章未发布"));
+
+        verify(articleService, never()).addViewCount(anyLong(), anyString());
+        verify(visitLogService, never()).recordVisit(anyString(), anyLong(), anyString(), anyString(), any());
+    }
+
+    /**
+     * 文章详情端点必须进入 @Anonymous 扫描出的匿名放行清单。    /**
      * 文章详情端点必须进入 @Anonymous 扫描出的匿名放行清单。
      *
      * <p>事故回归：@Anonymous 曾夹在两段 Javadoc 之间、挂到了私有方法 resolvePublishedArticle 上，

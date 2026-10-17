@@ -104,3 +104,16 @@ export function updateArticleRecommendStatus(
     data
   })
 }
+/**
+ * 批量更新文章状态（发布 / 草稿 / 定时）
+ *
+ * 只提交 ids + status：局部更新不会触碰 format / contentMd 等字段
+ * （用 updateArticle 做状态切换曾把 Markdown 文章静默改成 HTML）。
+ */
+export function updateArticleStatus(ids: number[], status: number): Promise<any> {
+  return request({
+    url: '/system/article/status',
+    method: 'put',
+    data: { ids, status }
+  })
+}

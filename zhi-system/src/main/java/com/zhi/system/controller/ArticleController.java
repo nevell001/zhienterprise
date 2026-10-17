@@ -219,12 +219,18 @@ public class ArticleController extends BaseController
     @PutMapping("/status")
     public AjaxResult updateStatus(@RequestBody Map<String, Object> params)
     {
-        @SuppressWarnings("unchecked")
-        List<Long> ids = (List<Long>) params.get("ids");
-        Integer status = (Integer) params.get("status");
+        // Jackson 把 JSON 数组反序列化成 List<Integer>，直接 (List<Long>) 强转会在
+        // service 迭代时抛 ClassCastException；统一走 Long 转换。
+        List<Long> ids = parseTagIds(params.get("ids"));
+        Integer status = parseIntParam(params.get("status"));
 
-        if (ids == null || ids.isEmpty()) {
+        if (ids.isEmpty())
+        {
             return error(MSG_SELECT_ARTICLES_TO_UPDATE);
+        }
+        if (status == null)
+        {
+            return error("状态不能为空");
         }
 
         int result = articleService.updateArticleStatus(ids, status);
@@ -239,12 +245,16 @@ public class ArticleController extends BaseController
     @PutMapping("/top")
     public AjaxResult updateTopStatus(@RequestBody Map<String, Object> params)
     {
-        @SuppressWarnings("unchecked")
-        List<Long> ids = (List<Long>) params.get("ids");
-        Integer isTop = (Integer) params.get(PARAM_IS_TOP);
+        List<Long> ids = parseTagIds(params.get("ids"));
+        Integer isTop = parseIntParam(params.get(PARAM_IS_TOP));
 
-        if (ids == null || ids.isEmpty()) {
+        if (ids.isEmpty())
+        {
             return error(MSG_SELECT_ARTICLES_TO_UPDATE);
+        }
+        if (isTop == null)
+        {
+            return error("置顶状态不能为空");
         }
 
         int result = articleService.updateArticleTopStatus(ids, isTop);
@@ -259,12 +269,16 @@ public class ArticleController extends BaseController
     @PutMapping("/recommend")
     public AjaxResult updateRecommendStatus(@RequestBody Map<String, Object> params)
     {
-        @SuppressWarnings("unchecked")
-        List<Long> ids = (List<Long>) params.get("ids");
-        Integer isRecommend = (Integer) params.get(PARAM_IS_RECOMMEND);
+        List<Long> ids = parseTagIds(params.get("ids"));
+        Integer isRecommend = parseIntParam(params.get(PARAM_IS_RECOMMEND));
 
-        if (ids == null || ids.isEmpty()) {
+        if (ids.isEmpty())
+        {
             return error(MSG_SELECT_ARTICLES_TO_UPDATE);
+        }
+        if (isRecommend == null)
+        {
+            return error("推荐状态不能为空");
         }
 
         int result = articleService.updateArticleRecommendStatus(ids, isRecommend);
@@ -426,10 +440,14 @@ public class ArticleController extends BaseController
             article.setProcessSteps(params.get("processSteps").toString());
         }
 
-        // Markdown 文章：保存源码并由服务端渲染 HTML 双写
-        String formatValue = params.get("format") == null ? null : params.get("format").toString();
+        // Markdown 文章：保存源码并由服务端渲染 HTML 双写。
+        // 仅在显式提交 format 时覆盖：列表「发布/转草稿」等局部更新不带 format，
+        // 默认写 html 会把 Markdown 文章静默改成 HTML（下次编辑保存还会清空 content_md）。
+        String formatValue = params.get("format") == null ? null : params.get("format").toString().trim();
         boolean markdown = "markdown".equalsIgnoreCase(formatValue);
-        article.setFormat(markdown ? "markdown" : "html");
+        if (formatValue != null) {
+            article.setFormat(markdown ? "markdown" : "html");
+        }
         if (params.get("contentMd") != null) {
             article.setContentMd(params.get("contentMd").toString());
         }
@@ -440,6 +458,18 @@ public class ArticleController extends BaseController
         return article;
     }
     
+    /** 解析 JSON 数字参数（Integer/Long/String 均兼容） */
+    private Integer parseIntParam(Object value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value.toString().trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     /**
      * 解析标签ID列表
      */

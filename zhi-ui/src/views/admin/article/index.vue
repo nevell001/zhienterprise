@@ -447,20 +447,23 @@
 
             <section class="side-section">
               <div class="side-title">内容类型</div>
-              <el-form-item prop="articleType" class="compact-form-item">
+              <el-form-item v-if="!fixedArticleType" prop="articleType" class="compact-form-item">
                 <el-radio-group v-model="form.articleType" class="status-radio">
-                  <el-radio-button v-if="!fixedArticleType" label="news">资讯动态</el-radio-button>
+                  <el-radio-button label="news">资讯动态</el-radio-button>
                   <el-radio-button label="business">核心业务</el-radio-button>
                   <el-radio-button label="case">客户案例</el-radio-button>
-                  <el-radio-button
-                    v-if="!fixedArticleType || fixedArticleType === 'solution'"
-                    label="solution"
-                  >
-                    解决方案
-                  </el-radio-button>
+                  <el-radio-button label="solution">解决方案</el-radio-button>
                 </el-radio-group>
               </el-form-item>
-              <div class="schedule-tip">
+              <div v-else class="fixed-type-hint">
+                <el-tag size="small" type="primary" effect="plain">
+                  {{ articleTypeLabel(fixedArticleType) }}
+                </el-tag>
+                <span>
+                  当前栏目固定为「{{ articleTypeLabel(fixedArticleType) }}」，发布后只出现在对应板块
+                </span>
+              </div>
+              <div v-if="!fixedArticleType" class="schedule-tip">
                 核心业务与客户案例展示在企业官网首页对应区块；资讯动态展示在文章列表
               </div>
             </section>
@@ -719,6 +722,7 @@ import {
   delArticle,
   addArticle,
   updateArticle,
+  updateArticleStatus,
   updateArticleTopStatus,
   updateArticleRecommendStatus
 } from '@/api/admin/article'
@@ -1375,22 +1379,8 @@ async function handleStatusChange(row) {
     )
 
     loading.value = true
-    // 使用updateArticle接口进行状态更新，传递必要的字段以满足后端验证
-    await updateArticle({
-      id: row.id,
-      status: Number(newStatus), // 确保状态值是数字类型
-      title: row.title || '(无标题文章)',
-      // 传递其他必要字段以防止后端清空这些字段
-      categoryId: row.categoryId,
-      content: row.content,
-      summary: row.summary,
-      coverUrl: row.coverUrl,
-      authorId: row.authorId,
-      authorName: row.authorName,
-      isTop: row.isTop,
-      isRecommend: row.isRecommend,
-      tagIds: row.tagIds
-    })
+    // 走专用状态接口：只改 status，不会触碰 format/contentMd/publishTime 等字段
+    await updateArticleStatus([Number(row.id)], Number(newStatus))
     ElMessage.success('状态切换成功')
     await getList()
   } catch (error: any) {
@@ -1878,6 +1868,15 @@ onMounted(async () => {
 .compact-form-item :deep(.el-input),
 .compact-form-item :deep(.el-textarea) {
   width: 100%;
+}
+
+.fixed-type-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--el-text-color-secondary);
 }
 
 .status-radio {

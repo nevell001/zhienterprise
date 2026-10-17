@@ -10,6 +10,7 @@ import com.zhi.common.core.redis.RedisCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -212,6 +213,34 @@ class ArticleServiceImplTest {
     }
 
     /**
+     * 回归：接口未显式传 format 时，插入必须补默认 html（列语义 NOT NULL；
+     * 此前 mapper 显式写 #{format}，null 会直接落库成 NULL）。
+     */
+    @Test
+    void insertArticleDefaultsFormatToHtml() {
+        testArticle.setFormat(null);
+
+        try (MockedStatic<SecurityUtils> mockedSecurityUtils = mockStatic(SecurityUtils.class)) {
+            SysUser user = new SysUser();
+            user.setUserId(1L);
+            user.setNickName("测试用户");
+            LoginUser loginUser = new LoginUser();
+            loginUser.setUser(user);
+            mockedSecurityUtils.when(SecurityUtils::getLoginUser).thenReturn(loginUser);
+
+            when(articleMapper.selectArticleByTitle("测试文章标题")).thenReturn(null);
+            when(articleMapper.insertArticle(any(Article.class))).thenReturn(1);
+
+            articleService.insertArticle(testArticle);
+
+            ArgumentCaptor<Article> captor = ArgumentCaptor.forClass(Article.class);
+            verify(articleMapper).insertArticle(captor.capture());
+            assertEquals("html", captor.getValue().getFormat());
+        }
+    }
+
+    /**
+     * 回归守卫：写方法必须真正带 @Transactional。    /**
      * 回归守卫：写方法必须真正带 @Transactional。
      * 2026-10-14 的 slug 伪静态提交在 insertArticle 上方插入了一段 javadoc，把原有的
      * @Transactional 与 insertArticle 隔开，注解因此漂移到了紧随其后的只读方法

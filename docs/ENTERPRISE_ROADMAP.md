@@ -410,3 +410,13 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
 - 代码生成 / 系统接口属研发工具，客户侧不需要出现在默认后台导航。
 - 处理：`sys_menu` 中 3（系统工具）的 `visible` 改为 `'1'`（隐藏），SQL 种子与存量库幂等迁移同步；菜单与 `tool:*` 权限保留，子路由仍可 URL 直达，可在「菜单管理」中打开「可见」恢复。
 - 验证：`/getRouters` 中 `Admin/tool` 为 `hidden=true`；侧栏实测不再出现「系统工具 / 代码生成 / 系统接口」，其余菜单正常。
+
+## 二十二、核心业务 / 产品或服务发布链路审计（2026-10-17）
+
+- **快捷发布污染内容格式**：后台列表「发布 / 转草稿」原先调用 `updateArticle` 提交整包字段（且列表查询不含 content/format），后端 `parseArticleFromParams` 会把缺省的 `format` 默认成 html → Markdown 文章被静默转成 HTML，mapper 的无条件 `publish_time = #{publishTime}` 还会清掉定时时间。
+  - 修复：前端改走 `PUT /system/article/status`（只提交 ids + status）；后端 `format` 仅在显式提交时覆盖；插入时由服务层补默认 `html`。
+- **状态接口 ids 强转隐患**：Jackson 把 JSON 数字反序列化为 `Integer`，控制器 `(List<Long>)` 强转后 service 迭代会 `ClassCastException`；改为 `parseTagIds` 统一转 `List<Long>`，并校验 status/isTop/isRecommend 非空。
+- **固定栏目类型漂移**：核心业务/解决方案页允许把文章改成其他类型，发布后从当前列表消失；固定栏目改为只显示当前类型（不可切换）。
+- **定时发布不清缓存**：`publishScheduledArticles` 补 `@SiteCacheEvict(keyPattern = "zhi:*")`，并加入缓存失效契约测试的写方法清单。
+- **草稿污染 PV/UV**：`getArticleDetail` 原先先计数再校验发布状态；调整为「发布/删除校验 → 计数」，草稿/已删除 ID 直接访问不再增加浏览量或写访问明细。
+- **验证**：后端全量 `mvn clean verify` 89 测试通过（ArticleController 31 / ArticleServiceImpl 72 / 缓存契约 3 / FrontController 20）；前端 216 文件 / 1896 测试、lint/format/typecheck/build 全绿。

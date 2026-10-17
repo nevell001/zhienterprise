@@ -130,6 +130,22 @@ describe('Article API 测试', () => {
     })
   })
 
+  describe('updateArticleStatus', () => {
+    it('应该导出 updateArticleStatus 函数', () => {
+      expect(articleApi.updateArticleStatus).toBeDefined()
+      expect(typeof articleApi.updateArticleStatus).toBe('function')
+    })
+
+    it('只提交 ids + status，避免局部更新污染 format/contentMd', () => {
+      articleApi.updateArticleStatus([3], 1)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/article/status',
+        method: 'put',
+        data: { ids: [3], status: 1 }
+      })
+    })
+  })
+
   describe('updateArticleRecommendStatus', () => {
     it('应该导出 updateArticleRecommendStatus 函数', () => {
       expect(articleApi.updateArticleRecommendStatus).toBeDefined()

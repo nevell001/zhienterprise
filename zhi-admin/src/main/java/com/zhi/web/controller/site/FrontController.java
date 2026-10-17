@@ -312,27 +312,6 @@ public class FrontController extends BaseController
         }
         Long id = article.getId();
 
-        // 检查浏览统计开关，决定是否增加浏览量
-        try {
-            String viewCountEnabled = settingService.selectSettingValueByKey("view_count_enabled");
-
-            // 如果浏览统计开关为 true 或 "true"，或者未设置（默认启用），则增加浏览量
-            boolean shouldCount = SiteSwitchUtils.isOn(viewCountEnabled);
-
-            if (shouldCount) {
-                String viewerKey = buildViewerKey(request);
-                articleService.addViewCount(id, viewerKey);
-                // 文章访问同样写入 zhi_visit_log 明细，否则管理端文章 PV/UV 明细永远为空
-                visitLogService.recordVisit("article", id, "/article/" + id, viewerKey, request);
-                logger.info("文章浏览量已增加，ID: {}", id);
-            } else {
-                logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
-            }
-        } catch (Exception e) {
-            logger.error("浏览量统计失败，ID: {}, 错误: {}", id, e.getMessage());
-            // 即使增加浏览量失败，也继续返回文章详情
-        }
-
         logger.info("找到文章，ID: {}, 状态: {}, 删除标记: {}, 浏览量: {}",
             id, article.getStatus(), article.getDelFlag(), article.getViewCount());
         
@@ -366,7 +345,28 @@ public class FrontController extends BaseController
         }
 
         logger.info("文章状态检查通过，ID: {}", id);
-        
+
+        // 检查浏览统计开关，决定是否增加浏览量
+        try {
+            String viewCountEnabled = settingService.selectSettingValueByKey("view_count_enabled");
+
+            // 如果浏览统计开关为 true 或 "true"，或者未设置（默认启用），则增加浏览量
+            boolean shouldCount = SiteSwitchUtils.isOn(viewCountEnabled);
+
+            if (shouldCount) {
+                String viewerKey = buildViewerKey(request);
+                articleService.addViewCount(id, viewerKey);
+                // 文章访问同样写入 zhi_visit_log 明细，否则管理端文章 PV/UV 明细永远为空
+                visitLogService.recordVisit("article", id, "/article/" + id, viewerKey, request);
+                logger.info("文章浏览量已增加，ID: {}", id);
+            } else {
+                logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
+            }
+        } catch (Exception e) {
+            logger.error("浏览量统计失败，ID: {}, 错误: {}", id, e.getMessage());
+            // 即使增加浏览量失败，也继续返回文章详情
+        }
+
         // 确保所有必要字段都有默认值，防止前端显示问题
         if (article.getViewCount() == null) article.setViewCount(0L);
         if (article.getLikeCount() == null) article.setLikeCount(0L);

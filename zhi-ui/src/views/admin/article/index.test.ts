@@ -38,6 +38,22 @@ describe('ArticleManage 视图组件测试', () => {
     expect(source).not.toContain('@click="form.status = 0"')
   })
 
+  it('列表发布/转草稿走专用状态接口，不再提交整包文章字段', () => {
+    const source = readFileSync(sourcePath, 'utf-8')
+
+    expect(source).toContain('updateArticleStatus([Number(row.id)], Number(newStatus))')
+    expect(source).not.toContain(
+      '// 使用updateArticle接口进行状态更新，传递必要的字段以满足后端验证'
+    )
+  })
+
+  it('固定栏目（核心业务/解决方案）不允许改内容类型，避免发布后从当前列表消失', () => {
+    const source = readFileSync(sourcePath, 'utf-8')
+
+    expect(source).toContain('v-if="!fixedArticleType" prop="articleType"')
+    expect(source).toContain('v-else class="fixed-type-hint"')
+  })
+
   it('文章发布页应该使用紧凑的编辑工作区和右侧发布面板', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
