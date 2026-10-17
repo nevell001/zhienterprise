@@ -42,6 +42,25 @@ describe('Nginx 反向代理配置守卫', () => {
     expect(source).toContain('location ^~ /stage-api/ {')
   })
 
+  it.each(CONFIGS)('%s 必须覆盖生产构建的接口前缀且剥掉 /prod-api', name => {
+    const source = readConfig(name)
+    const index = source.indexOf('location ^~ /prod-api/ {')
+    expect(index).toBeGreaterThanOrEqual(0)
+
+    // 必须剥前缀：/prod-api/captchaImage、/prod-api/system/** 要变成后端的 /captchaImage、/system/**
+    const block = source.slice(index)
+    const proxyPass = block.match(/proxy_pass\s+([^;]+);/)?.[1] ?? ''
+    expect(proxyPass).toBe('http://zhi-admin:8080/')
+  })
+
+  it('生产构建的 VITE_APP_BASE_API 必须是 /prod-api（/api 是站点公开 API 直通前缀）', () => {
+    // /api 在 nginx 里是「站点公开 API 原样转发」，写成 base 会把 /captchaImage、/auth/login、
+    // /system/** 变成 /api/xxx 而 401（登录页验证码不显示就是这个原因）
+    const env = readFileSync(resolve(process.cwd(), '.env.production'), 'utf-8')
+    expect(env).toMatch(/VITE_APP_BASE_API\s*=\s*'\/prod-api'/)
+    expect(readConfig('nginx.conf')).toContain('proxy_pass http://zhi-admin:8080/api/;')
+  })
+
   it.each(CONFIGS)('%s 的块结构必须自洽（括号配平）', name => {
     const source = readConfig(name)
     let depth = 0
