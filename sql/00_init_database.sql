@@ -897,7 +897,7 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 
 -- ========== 初始化站点系统数据 ==========
 
--- 初始化完整的站点设置数据（39项配置）
+-- 初始化完整的站点设置数据（40项配置）
 INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '知企建站系统', '站点名称', NOW(), NOW()),
@@ -930,6 +930,7 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('friend_link_enabled', 'true', '前台是否展示友情链接', NOW(), NOW()),
 ('friend_link_apply_enabled', 'false', '前台是否展示友链申请入口（关闭后申请页提示关闭且接口拒绝提交）', NOW(), NOW()),
 ('guestbook_enabled', 'false', '前台是否展示留言板（关闭后导航隐藏入口、页面提示关闭、留言接口拒绝提交）', NOW(), NOW()),
+('contact_form_enabled', 'true', '联系我们页咨询表单（提交写入「留言管理」，与留言板共用审核与冷却）', NOW(), NOW()),
 ('view_count_enabled', 'true', '是否开启浏览统计', NOW(), NOW()),
 ('search_enabled', 'true', '是否开启搜索功能', NOW(), NOW()),
 

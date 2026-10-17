@@ -30,6 +30,8 @@ public final class FrontConfigKeys
         // 模板页面页头文案（JSON 对象：页面 → eyebrow/title/subtitle）
         "site_page_copy",
         "friend_link_enabled", "friend_link_apply_enabled", "guestbook_enabled",
+        // 联系我们页咨询表单（复用留言提交接口，写入留言管理）
+        "contact_form_enabled",
         "user_agreement_content", "privacy_policy_content",
         // SEO 相关键（前台动态 title/description/keywords 使用）
         "seo_title", "seo_description", "seo_canonical_url", "seo_robots", "seo_favicon",

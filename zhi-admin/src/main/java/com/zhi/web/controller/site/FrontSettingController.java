@@ -200,6 +200,9 @@ public class FrontSettingController extends BaseController {
             case "guestbook_enabled":
                 settings.put(configKey, "false");
                 break;
+            case "contact_form_enabled":
+                settings.put(configKey, "true");
+                break;
             default:
                 settings.put(configKey, "");
                 break;

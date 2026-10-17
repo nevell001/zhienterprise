@@ -65,6 +65,9 @@ public class FrontMessageController extends BaseController
     /** 留言板功能开关键 */
     private static final String GUESTBOOK_ENABLED_KEY = "guestbook_enabled";
 
+    /** 联系我们页咨询表单开关键（表单复用本接口提交，写入同一张留言表） */
+    private static final String CONTACT_FORM_ENABLED_KEY = "contact_form_enabled";
+
     /** 留言板关闭时的统一提示 */
     private static final String DISABLED_TIP = "本站暂未开放留言板";
 
@@ -124,8 +127,10 @@ public class FrontMessageController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody Message message, HttpServletRequest request)
     {
-        // 关闭时短路在最前，避免消耗一次性的验证码
-        if (isGuestbookClosed())
+        // 关闭时短路在最前，避免消耗一次性的验证码。
+        // 留言板与联系我们页咨询表单共用本提交接口：任一开启即允许提交，
+        // 两者都关闭才拒绝（列表/计数仍只受留言板开关控制）
+        if (isGuestbookClosed() && isContactFormClosed())
         {
             return error(DISABLED_TIP);
         }
@@ -242,6 +247,14 @@ public class FrontMessageController extends BaseController
     private boolean isGuestbookClosed()
     {
         return SiteSwitchUtils.isOff(settingService.selectSettingValueByKey(GUESTBOOK_ENABLED_KEY));
+    }
+
+    /**
+     * 联系我们页咨询表单是否已关闭（未配置视为开启，与全站开关同一口径）
+     */
+    private boolean isContactFormClosed()
+    {
+        return SiteSwitchUtils.isOff(settingService.selectSettingValueByKey(CONTACT_FORM_ENABLED_KEY));
     }
 
     /**

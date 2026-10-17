@@ -136,9 +136,10 @@ class FrontMessageControllerTest
     }
 
     @Test
-    void addShouldBeRejectedWhenGuestbookDisabled() throws Exception
+    void addShouldBeRejectedWhenGuestbookAndContactFormBothDisabled() throws Exception
     {
         when(settingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("false");
+        when(settingService.selectSettingValueByKey("contact_form_enabled")).thenReturn("false");
 
         perform(validMessage())
             .andExpect(status().isOk())
@@ -148,6 +149,24 @@ class FrontMessageControllerTest
         verify(messageService, never()).insertMessage(any(Message.class));
         // 关闭判定在验证码之前，被拒不会消耗一次性验证码
         verify(captchaService, never()).validateAndGetAgeSeconds(any(), any());
+    }
+
+    /**
+     * 联系我们页「咨询表单」与留言板共用本提交接口：
+     * 留言板关闭但咨询表单开启时，表单仍必须能提交（写入同一张留言表）。
+     */
+    @Test
+    void addShouldBeAllowedWhenGuestbookClosedButContactFormOpen() throws Exception
+    {
+        when(settingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("false");
+        when(settingService.selectSettingValueByKey("contact_form_enabled")).thenReturn("true");
+        when(messageService.insertMessage(any(Message.class))).thenReturn(1);
+
+        perform(validMessage())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(messageService).insertMessage(any(Message.class));
     }
 
     @Test

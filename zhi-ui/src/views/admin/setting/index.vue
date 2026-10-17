@@ -878,6 +878,11 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
         key: 'guestbook_enabled',
         label: '留言板',
         desc: '允许访客在留言板发言；关闭后前台导航隐藏入口，且留言接口也会拒绝'
+      },
+      {
+        key: 'contact_form_enabled',
+        label: '咨询表单',
+        desc: '联系我们页的咨询表单（写入「留言管理」，与留言板共用审核与提交冷却）'
       }
     ]
   },
@@ -1022,6 +1027,7 @@ const defaultSettings: Record<string, any> = {
   comment_enabled: false,
   comment_review: true,
   guestbook_enabled: false,
+  contact_form_enabled: true,
   view_count_enabled: true,
   search_enabled: true,
   footer_enabled: true,
@@ -1078,6 +1084,7 @@ const managedKeys = [
   'comment_enabled',
   'comment_review',
   'guestbook_enabled',
+  'contact_form_enabled',
   'view_count_enabled',
   'search_enabled',
   'footer_enabled',
