@@ -2,7 +2,7 @@
   <div class="component-upload-image">
     <el-upload
       ref="imageUpload"
-      multiple
+      :multiple="multiple"
       :disabled="disabled"
       :action="uploadImgUrl"
       list-type="picture-card"
@@ -162,6 +162,11 @@ const props = defineProps({
   },
   // 拖动排序
   drag: {
+    type: Boolean,
+    default: true
+  },
+  // 是否允许一次选择多张（开启裁剪时应关闭，否则多个裁剪弹窗会叠加）
+  multiple: {
     type: Boolean,
     default: true
   },

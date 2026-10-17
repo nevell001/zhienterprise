@@ -29,6 +29,24 @@ describe('HeroSection 自定义 Banner', () => {
     expect(wrapper.find('.hero-viz svg').exists()).toBe(false)
   })
 
+  it('site_banner 存多图（逗号分隔）时渲染轮播：全部图片 + 圆点', () => {
+    const wrapper = mountWith({
+      site_banner: '/profile/a.png,/profile/b.png,/profile/c.png'
+    })
+
+    expect(wrapper.findAll('.bc-slide')).toHaveLength(3)
+    expect(wrapper.findAll('.bc-dot')).toHaveLength(3)
+    // 首张为当前展示图
+    expect(wrapper.find('.bc-slide.is-active').attributes('src')).toBe('/profile/a.png')
+  })
+
+  it('site_banner 为历史单图值时只渲染一张且无轮播控件', () => {
+    const wrapper = mountWith({ site_banner: '/profile/only.png' })
+
+    expect(wrapper.findAll('.bc-slide')).toHaveLength(1)
+    expect(wrapper.find('.bc-dots').exists()).toBe(false)
+  })
+
   it('未配置 site_banner 时回退模板母题插画', () => {
     const wrapper = mountWith({ site_banner: '' })
 

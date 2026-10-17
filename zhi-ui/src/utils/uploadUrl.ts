@@ -26,3 +26,32 @@ export function normalizeUploadUrl(value: unknown): string {
   }
   return raw
 }
+
+/** 首页 Banner 允许的最大张数（后台多图上传与前台轮播共用） */
+export const MAX_BANNER_IMAGES = 5
+
+/**
+ * 解析首页 Banner 多图配置。
+ *
+ * 存储沿用 `site_banner` 单键：多图以逗号分隔（`ImageUpload` 的多图模式即此格式），
+ * 历史单图值（无逗号）自动视为只有一张，无需数据迁移。
+ * 每项都经 `normalizeUploadUrl` 收敛（兼容容器名绝对地址），并去重、截断到上限。
+ */
+export function parseBannerUrls(value: unknown, max = MAX_BANNER_IMAGES): string[] {
+  const raw = typeof value === 'string' ? value : ''
+  // 内联地址（data:/blob:）自身可能含逗号，不能按分隔符拆开；多图以数组形式传入时走数组分支
+  const items = Array.isArray(value)
+    ? value
+    : /^\s*(data:|blob:)/i.test(raw)
+      ? [raw]
+      : raw.split(',')
+  const urls: string[] = []
+  for (const item of items) {
+    const url = normalizeUploadUrl(item)
+    if (url && !urls.includes(url)) {
+      urls.push(url)
+    }
+    if (urls.length >= Math.max(1, max)) break
+  }
+  return urls
+}

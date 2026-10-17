@@ -27,13 +27,8 @@
         </div>
       </div>
       <!-- 自定义 Banner 优先（站点设置 → 站点信息 → 首页 Banner），未配置回退模板母题插画 -->
-      <div v-if="bannerUrl" class="hero-viz hero-banner rv d1">
-        <img
-          :src="bannerUrl"
-          :alt="`${settings.blog_name || '首页'} Banner`"
-          loading="eager"
-          decoding="async"
-        />
+      <div v-if="bannerUrls.length" class="hero-viz hero-banner rv d1">
+        <BannerCarousel :images="bannerUrls" :label="`${settings.blog_name || '首页'} Banner`" />
       </div>
       <!-- eslint-disable-next-line vue/no-v-html -->
       <div v-else class="hero-viz rv d1" v-html="motifSvg"></div>
@@ -46,7 +41,8 @@ import { computed } from 'vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteTemplate } from '@/config/siteTemplates'
 import { useScrollReveal } from '@/composables/useScrollReveal'
-import { normalizeUploadUrl } from '@/utils/uploadUrl'
+import BannerCarousel from '@/components/BannerCarousel.vue'
+import { parseBannerUrls } from '@/utils/uploadUrl'
 
 /** config（模块配置）缺省字段回退当前行业模板的品牌文案包 */
 const props = defineProps<{ config?: Record<string, any> }>()
@@ -74,8 +70,9 @@ const secondary = computed(() => ({
 }))
 
 /** 首页 Banner 大图（站点设置上传）；为空时回退模板母题插画 */
-const bannerUrl = computed(() =>
-  normalizeUploadUrl((settings.value as Record<string, unknown>)?.site_banner)
+// 首页 Banner 支持多图（逗号分隔）：单图直接展示，多图自动轮播
+const bannerUrls = computed(() =>
+  parseBannerUrls((settings.value as Record<string, unknown>)?.site_banner)
 )
 
 const motifSvg = computed(() => tpl.value.motif(tpl.value.color))

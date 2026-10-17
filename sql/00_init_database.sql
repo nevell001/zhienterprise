@@ -916,7 +916,7 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('blog_avatar', '', '站点头像', NOW(), NOW()),
 -- 自定义品牌图（管理后台「站点信息」上传；site_logo 优先于 blog_avatar）
 ('site_logo', '', '站点 Logo（留空回退站点头像）', NOW(), NOW()),
-('site_banner', '', '首页 Banner 大图（留空显示默认母题插画）', NOW(), NOW()),
+('site_banner', '', '首页 Banner 轮播图（最多 5 张，逗号分隔；留空显示默认母题插画）', NOW(), NOW()),
 ('blog_start_time', '2025-01-01', '站点创建时间', NOW(), NOW()),
 
 -- 社交媒体设置

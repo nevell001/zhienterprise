@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeUploadUrl } from './uploadUrl'
+import { MAX_BANNER_IMAGES, normalizeUploadUrl, parseBannerUrls } from './uploadUrl'
 
 /**
  * 上传图片地址规范化。
@@ -50,5 +50,47 @@ describe('normalizeUploadUrl', () => {
 
   it('首尾空白会被裁剪', () => {
     expect(normalizeUploadUrl('  /profile/upload/d.png  ')).toBe('/profile/upload/d.png')
+  })
+})
+
+describe('parseBannerUrls 首页 Banner 多图解析', () => {
+  it('历史单图值解析为一张（无需数据迁移）', () => {
+    expect(parseBannerUrls('/profile/upload/a.png')).toEqual(['/profile/upload/a.png'])
+  })
+
+  it('逗号分隔的多图按顺序解析，并裁剪空白', () => {
+    expect(parseBannerUrls(' /profile/upload/a.png , /profile/upload/b.png ')).toEqual([
+      '/profile/upload/a.png',
+      '/profile/upload/b.png'
+    ])
+  })
+
+  it('兼容容器名绝对地址（逐项收敛）', () => {
+    expect(
+      parseBannerUrls('http://zhi-admin:8080/profile/upload/a.png,/profile/upload/b.png')
+    ).toEqual(['/profile/upload/a.png', '/profile/upload/b.png'])
+  })
+
+  it('去重并忽略空项', () => {
+    expect(parseBannerUrls('/a.png,,/a.png,/b.png,')).toEqual(['/a.png', '/b.png'])
+  })
+
+  it('超过上限截断（默认 5 张）', () => {
+    const six = Array.from({ length: 6 }, (_, i) => `/p/${i}.png`).join(',')
+    expect(parseBannerUrls(six)).toHaveLength(MAX_BANNER_IMAGES)
+    expect(parseBannerUrls(six, 2)).toEqual(['/p/0.png', '/p/1.png'])
+  })
+
+  it('data:/blob: 内联地址不按逗号拆分（自身含逗号）', () => {
+    const dataUri = 'data:image/svg+xml;base64,PHN2Zy8+'
+    expect(parseBannerUrls(dataUri)).toEqual([dataUri])
+    expect(parseBannerUrls(` ${dataUri} `)).toEqual([dataUri])
+  })
+
+  it('空值/空数组返回空列表', () => {
+    expect(parseBannerUrls('')).toEqual([])
+    expect(parseBannerUrls('   ')).toEqual([])
+    expect(parseBannerUrls(null)).toEqual([])
+    expect(parseBannerUrls([])).toEqual([])
   })
 })

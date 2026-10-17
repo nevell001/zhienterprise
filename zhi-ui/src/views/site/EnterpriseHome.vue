@@ -32,13 +32,8 @@
           </div>
         </div>
         <!-- 自定义 Banner 优先（站点设置 → 站点信息 → 首页 Banner），未配置回退模板母题插画 -->
-        <div v-if="bannerUrl" class="hero-viz hero-banner rv d1">
-          <img
-            :src="bannerUrl"
-            :alt="`${settings.blog_name || '首页'} Banner`"
-            loading="eager"
-            decoding="async"
-          />
+        <div v-if="bannerUrls.length" class="hero-viz hero-banner rv d1">
+          <BannerCarousel :images="bannerUrls" :label="`${settings.blog_name || '首页'} Banner`" />
         </div>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <div v-else class="hero-viz rv d1" v-html="motifSvg"></div>
@@ -293,7 +288,8 @@ import { getArticleList } from '@/api/site'
 import type { Article } from '@/types'
 import { getFrontFriendLinkList } from '@/api/site/friendLink'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
-import { normalizeUploadUrl } from '@/utils/uploadUrl'
+import BannerCarousel from '@/components/BannerCarousel.vue'
+import { parseBannerUrls } from '@/utils/uploadUrl'
 import { getSiteTemplate } from '@/config/siteTemplates'
 import { getHomeSolutions, getSiteMetrics, getSiteOutcomes } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
@@ -313,8 +309,9 @@ const solutions = computed(() => getHomeSolutions(settings.value?.home_solutions
 /** 当前行业模板（站点设置 site_template，非法值回退默认） */
 const tpl = computed(() => getSiteTemplate(settings.value.site_template))
 /** 首页 Banner 大图（站点设置上传）；为空时回退模板母题插画 */
-const bannerUrl = computed(() =>
-  normalizeUploadUrl((settings.value as Record<string, unknown>)?.site_banner)
+// 首页 Banner 支持多图（逗号分隔）：单图直接展示，多图自动轮播
+const bannerUrls = computed(() =>
+  parseBannerUrls((settings.value as Record<string, unknown>)?.site_banner)
 )
 
 const motifSvg = computed(() => tpl.value.motif(tpl.value.color))
@@ -616,6 +613,7 @@ const goNewsItem = (id?: number) => id && router.push(`/article/${id}`)
 
 /* 自定义 Banner：16:9 裁切铺满视觉区；无横幅时回退母题插画 */
 .hero-banner {
+  position: relative;
   overflow: hidden;
   padding: 0;
   aspect-ratio: 16 / 9;

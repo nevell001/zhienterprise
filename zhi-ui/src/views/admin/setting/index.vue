@@ -64,13 +64,15 @@
                   action="/common/upload"
                   crop
                   :aspect-ratio="16 / 9"
-                  :limit="1"
+                  :limit="5"
+                  :multiple="false"
                   :file-size="5"
                   :is-show-tip="false"
                 />
                 <p class="brand-upload-tip">
-                  用于「企业官网模板」首页 Hero 视觉区（替换默认母题插画）；建议
-                  16:9，留空则显示默认母题。
+                  用于「企业官网模板」首页 Hero 视觉区（替换默认母题插画）：最多 5 张、建议
+                  16:9，按上传顺序自动轮播（悬停暂停、可拖动排序）；只传 1
+                  张时直接展示不轮播，留空则显示默认母题。
                 </p>
               </div>
             </el-form-item>

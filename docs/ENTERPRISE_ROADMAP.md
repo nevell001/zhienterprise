@@ -292,3 +292,14 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
 | 联系我们页咨询表单 | **复用留言板接口** | 联系页新增「在线咨询」表单（姓名/公司/邮箱/电话/咨询类型/需求描述/图形验证码/隐私同意），提交走 `POST /api/message` 写入 `zhi_message`，后台「留言管理」统一审核回复；新增独立开关 `contact_form_enabled`（默认开启，站点设置「功能设置 → 咨询表单」）；留言板与咨询表单「任一开启」即可提交，读接口仍只受留言板开关控制 |
 | sitemap 法务页 | **两个都收录** | `SeoController.STATIC_PATHS` 增加 `/agreement`、`/privacy`（sitemap 由 31 条增至 33 条） |
 | 版本与推送 | **升 1.1.0 并推送** | 按 `docs/VERSION_MANAGEMENT.md` 更新 13 处版本号（根/子 POM、RuoYiConfig 兜底、package.json/lock、发布流水线 tag、文档），提交推送 Gitee |
+
+## 十一、首页 Banner 多图轮播（2026-10-17）
+
+原「首页 Banner」为单图（`:limit="1"`，`site_banner` 存单个路径）。按需求升级为多图轮播：
+
+- **存储**：沿用 `site_banner` 单键，多图以逗号分隔（不新增表/键，历史单图值无需迁移）；
+- **后台**：单图上限 5 张、16:9 裁剪、可拖动排序、按上传顺序轮播；达到上限后隐藏上传入口；
+- **前台**：新增 `components/BannerCarousel.vue`——单图直接展示（无轮播控件），多图 5s 自动轮播、悬停/聚焦暂停、左右箭头 + 圆点指示 + 触摸滑动；遵循「减弱动效」（页脚开关 / `prefers-reduced-motion`）时不自动播放，手动切换仍可用；深色模式沿用 `--tpl-white` 令牌；
+- **解析**：`utils/uploadUrl.ts#parseBannerUrls()` 统一做「逗号拆分 / 去重 / 上限 5 / 兼容容器名绝对地址 / `data:` 内联值不误拆」；
+- **测试**：`BannerCarousel.test.ts` 7 例（单图无控件、多图自动轮播、悬停暂停、手动切换循环、减弱动效、触摸滑动）+ `parseBannerUrls` 8 例 + Hero 接入 2 例；
+- **消费端**：builder 首页 `sections/HeroSection.vue` 与旧库回退首页 `EnterpriseHome.vue` 两处均已接入。
