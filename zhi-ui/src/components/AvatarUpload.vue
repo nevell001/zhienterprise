@@ -259,12 +259,12 @@ defineExpose({
 }
 
 .avatar-preview:hover {
-  border-color: #409eff;
+  border-color: var(--el-color-primary);
   transform: scale(1.05);
 }
 
 .avatar-preview.avatar-uploading {
-  border-color: #409eff;
+  border-color: var(--el-color-primary);
   animation: pulse 1.5s ease-in-out infinite;
 }
 

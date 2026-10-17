@@ -18,6 +18,8 @@ public final class FrontConfigKeys
         "blog_avatar", "blog_copyright", "blog_beian",
         // 自定义品牌图：站点 Logo 与首页 Banner（均为 /profile 下的上传地址）
         "site_logo", "site_banner",
+        // 主题颜色：前台匿名/无配置权限用户也要能跟随（企业官网仍以行业模板主色为准）
+        "theme_color",
         "comment_enabled", "comment_review", "view_count_enabled",
         "search_enabled", "footer_enabled", "copyright_enabled",
         "beian_enabled",

@@ -37,7 +37,15 @@ describe('SiteSettings Store 测试', () => {
       const store = useSiteSettingsStore()
       const avatar = store.getSiteAvatar
       expect(avatar).toContain('data:image/svg+xml')
-      expect(avatar).toContain('%23409EFF')
+      // 无主题变量时回退默认主题色（与 mo-blog 默认 --theme-primary 一致）
+      expect(avatar).toContain('%234f46e5')
+    })
+
+    it('默认头像占位色跟随当前主题色（--el-color-primary）', () => {
+      document.documentElement.style.setProperty('--el-color-primary', '#0f6e56')
+      const store = useSiteSettingsStore()
+      expect(store.getSiteAvatar).toContain('%230f6e56')
+      document.documentElement.style.removeProperty('--el-color-primary')
     })
 
     it('当 avatar 不为空时应该返回处理后的 URL', () => {

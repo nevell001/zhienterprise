@@ -40,7 +40,7 @@ function back() {
   margin: 60px auto;
 
   .back-btn {
-    background: #409eff;
+    background: var(--el-color-primary);
     color: #fff;
     border: none;
     margin-bottom: 20px;
@@ -61,18 +61,18 @@ function back() {
   .text-jumbo {
     font-size: 72px;
     font-weight: 700;
-    color: #409eff;
+    color: var(--el-color-primary);
     margin-bottom: 10px;
   }
 
   h2 {
-    color: #606266;
+    color: var(--el-text-color-regular);
     margin-bottom: 15px;
     font-size: 24px;
   }
 
   p {
-    color: #909399;
+    color: var(--el-text-color-secondary);
     margin-bottom: 20px;
     font-size: 16px;
   }
@@ -84,14 +84,14 @@ function back() {
   .home-link {
     display: inline-block;
     padding: 8px 20px;
-    background: #409eff;
+    background: var(--el-color-primary);
     color: #fff;
     text-decoration: none;
     border-radius: 4px;
     transition: background-color 0.3s;
 
     &:hover {
-      background: #66b1ff;
+      background: var(--el-color-primary-light-3);
       text-decoration: none;
     }
   }

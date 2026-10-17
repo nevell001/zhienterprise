@@ -52,11 +52,10 @@ const LIGHT_ONLY_HEX_CEILING: Record<string, number> = {
   'layout/components/AppMain.vue': 2,
   'layout/components/Copyright/index.vue': 2,
   'layout/components/Navbar.vue': 1,
-  'layout/components/Settings/index.vue': 1,
   'layout/components/Sidebar/SidebarItem.vue': 1,
   'layout/components/TagsView/index.vue': 4,
   'layout/index.vue': 1,
-  'views/error/401.vue': 8
+  'views/error/401.vue': 2
 }
 
 // svgicon.ts 的 import 名单 = 运行时全局注册的 EP 图标

@@ -48,10 +48,24 @@ export function applyAppTheme(
 }
 
 // 处理主题样式
+/** CSS 颜色（#hex / rgb / rgba）转 #rrggbb，供 SVG data URI 等不能使用 CSS 变量的场景 */
+export function cssColorToHex(value: string, fallback = '#4f46e5'): string {
+  const raw = String(value || '').trim()
+  if (/^#[0-9a-f]{3,8}$/i.test(raw)) return raw
+  const match = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/i.exec(raw)
+  if (!match) return fallback
+  return (
+    '#' +
+    [match[1], match[2], match[3]]
+      .map(channel => Math.min(255, Number(channel)).toString(16).padStart(2, '0'))
+      .join('')
+  )
+}
+
 export function handleThemeStyle(theme: string): void {
   // 添加主题参数有效性检查，避免undefined导致的错误
   if (!theme || typeof theme !== 'string') {
-    theme = '#409EFF' // 使用Element UI默认主色调作为备用
+    theme = '#4f46e5' // 默认主题色作为备用（与 mo-blog 默认主色一致）
   }
   // --mo-p* 色阶由它派生（见 themes/mo-blog.scss），改主题色即整站换色
   document.documentElement.style.setProperty('--theme-primary', theme)

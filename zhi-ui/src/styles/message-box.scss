@@ -24,8 +24,8 @@
 .relogin-message-box {
   .el-message-box__btns {
     .el-button--primary {
-      background-color: #409eff !important;
-      border-color: #409eff !important;
+      background-color: var(--el-color-primary) !important;
+      border-color: var(--el-color-primary) !important;
     }
   }
 }
@@ -34,8 +34,8 @@
 .logout-message-box {
   .el-message-box__btns {
     .el-button--danger {
-      background-color: #f56c6c !important;
-      border-color: #f56c6c !important;
+      background-color: var(--el-color-danger, #f56c6c) !important;
+      border-color: var(--el-color-danger, #f56c6c) !important;
     }
   }
 }

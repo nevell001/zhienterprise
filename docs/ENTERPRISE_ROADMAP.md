@@ -365,3 +365,12 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
   3. `themes/enterprise.scss` 移除写死的蓝色板，改为 `--theme-primary: var(--tpl-p) !important`：企业官网整站（含搜索/分类/标签/自定义页/协议页等原 `--mo-*` 页面）统一跟随**行业模板主色**；后台继续跟随「主题颜色」。
 - **验证**：模板 consult/digital 下搜索、分类、标签、自定义页、协议页的 `--mo-p600` 分别等于 `#185fa5` / `#c2410c`；主题色 `#409eff`/`#0f6e56` 下后台 `--mo-p600` 即时跟随；浅色/深色对比度扫描（前台 8 页 + 后台 6 页，阈值 <2.5:1）无新增低对比，后台浅色仅剩既有的禁用按钮/警告标签噪声。
 - **遗留**：匿名访客仍拿不到 `theme_color`（需公开白名单，另行决策）；统计图表硬编码色未接线。
+
+## 十七、主题色覆盖收尾（2026-10-17）
+
+- **匿名与普通用户**：`theme_color` 加入前台公开白名单（`FrontConfigKeys`），`SiteLayout` 在拿��公开设置后应用主题色；匿名访客、无 `system:config:query` 的注册用户不再看到默认靛蓝。404 页优先主题色。
+- **经典模式修复**：`SiteLayout` 关闭企业模板时只移除 `tpl-xxx`、漏移除 `tpl-site`，经典站仍被 `html.tpl-site` 的模板变量接管（主题色失效）。抽成 `applySiteAppearanceClasses()` 并单测（`siteAppearance.test.ts`）后修复。
+- **图表接主题色**：`getChartThemeColors()` 增加 `primary/primaryLight/success/warning/danger`，统计概览/文章/用户页的写死色（`#409EFF`/`#67C23A`/`#E6A23C`）改为读取主题色。
+- **组件级硬编码清理**：消息框确认按钮、标签/分类选择器、头像上传、富文本编辑器、文章卡片、401/404 错误页、后台文章编辑器与页面示例区块、默认头像占位色，全部改为令牌派生。
+- **防回归守卫**：新增 `src/theme-color-contract.test.ts` 扫描源码，禁止在声明与 ECharts option 中写死品牌色（`var()` fallback 与预设选择器白名单除外）。
+- **验证**：匿名经典模式实测 `--el-color-primary` = 主题色 `#334155`、`--mo-p600` 同步、主按钮 `rgb(51,65,85)`；企业模式仍为模板色 `#185fa5`；统计页 `getChartThemeColors().primary = #334155`；404 容器主色 = 主题色。全量门禁（前端测试/构建 + 后端 `mvn clean verify`）通过。

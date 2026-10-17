@@ -543,8 +543,8 @@ async function insertImage(file: File) {
   border-color: #c0c4cc;
 }
 .editor:focus-within {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  border-color: var(--el-color-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--el-color-primary) 20%, transparent);
 }
 .ql-toolbar {
   border-bottom: 1px solid #dcdfe6 !important;

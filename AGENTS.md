@@ -95,7 +95,11 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
   - 控件覆盖：mo-blog 主色控件（实心/plain 主按钮、Tabs 激活条、分页激活、侧栏菜单激活、TagsView、输入聚焦环、品牌 Logo 渐变）已改为 `var(--el-color-primary)` 派生，并用 `--mo-on-primary` 配前景色（亮主色→深墨、深主色→白）；**不要再把 Element 主色钉回 `--mo-p*` 字面量**。
   - **整条 `--mo-p*` 色阶由 `--theme-primary` 用 `color-mix` 派生**（`themes/mo-blog.scss` 的 `:root`）：`handleThemeStyle` 同时写内联 `--theme-primary`，所以改主题色 = 整站换色（含仍使用 `--mo-p*` 的旧页面/组件）；50–500 向白混合、700–900 向黑混合，档位比例对齐原靛蓝色板。深色模式的 `--mo-p50/p300/p500` 也改为按主题色向深底/白色混合（`theme-dark.css` 与各页深色块），`p600–p900` 仍不参与深色重映射（保持原约定）。
   - **企业官网前台**：`themes/enterprise.scss` 用 `--theme-primary: var(--tpl-p) !important` 把整条 `--mo-p*` 色阶接到「行业模板」主色——原先仍用 `--mo-*` 的搜索/分类/标签/自定义页/协议页因此也随模板换色；后台无 `theme-enterprise` 类，继续用「主题颜色」。
-  - 已知不覆盖：① 匿名访客与无 `system:config:query` 的注册用户拿不到 `theme_color`（不在前台公开白名单，接口需权限）；② 企业官网前台主色以「行业模板」为准（`html.tpl-site` 的 `!important` 映射）；③ 统计图表仍有硬编码色（`#409EFF`/`#E6A23C`，未接线到主题色）；④ 弹层 teleport 到 body，不在 `.tpl-site` 作用域内。若要前台匿名也跟随主题色，需要把键加入 `FrontConfigKeys` 并在站点布局应用（同时处理与模板的优先级）。
+  - **匿名/普通用户覆盖**：`theme_color` 已加入 `FrontConfigKeys` 前台公开白名单；`SiteLayout` 监听 store 里的 `theme_color` 并调用 `handleThemeStyle()`，匿名访客与无 `system:config:query` 的注册用户也能在前台看到主题色（登录管理员走 `initSiteSettings`，两侧一致）。404 页优先用主题色、无主题色时回退模板色。
+  - **经典模式（home_layout 非 business）**：`applySiteAppearanceClasses()`（`utils/siteAppearance.ts`）在关闭企业模板时必须同时移除 `tpl-site` 基类——曾只移除 `tpl-xxx`，经典站继续命中 `html.tpl-site` 变量导致主题色失效；`siteAppearance.test.ts` 守卫。
+  - **图表**：`utils/echarts.ts#getChartThemeColors()` 已包含 `primary / primaryLight / success / warning / danger`，统计页必须用它，不得在 option 里写死品牌色。
+  - **硬编码色守卫**：`src/theme-color-contract.test.ts` 扫描源码，禁止在声明/图表 option 中写死品牌色（`#409eff` / `#4f46e5` / 靛蓝 rgba 等）；`var(--x, #409eff)` 这类 fallback 不算违规。新增 UI 请直接用令牌。
+  - 已知不覆盖：① 企业官网前台主色以「行业模板」为准（`html.tpl-site` 的 `!important` 映射，属设计边界）；② teleport 到 body 的弹层不在 `.tpl-site` 作用域内，沿用主题色；③ `--mo-a*` 强调色（粉/青装饰色）不随主题色派生。
 
 - **行业模板（5 套）的 UI 适配边界**（2026-10 审计后固化）：`site_template` 是一套 **视觉变量层**（主色/圆角/阴影/标题字体/母题），挂在 `<html>` 的 `tpl-site tpl-xxx` 类上（由 `SiteLayout.applySiteAppearance` 维护）。
   - ⚠️ **变量声明必须写在 `html.tpl-site` / `html.tpl-xxx` 上**（`assets/styles/themes/site-templates.scss`）。各内页根节点也带 `.tpl-site` 类（`.tpl-site contact-page` 等），若把基类变量声明在 `.tpl-site`，页面根节点会重新声明基类值（默认蓝/圆角 16px），覆盖 `<html>` 上的模板值——表现为「只有首页换肤、内页仍是默认蓝」。`site-templates-scope.test.ts` 守卫该作用域。

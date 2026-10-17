@@ -172,14 +172,14 @@ const renderDailyChart = async rows => {
         type: 'line',
         smooth: true,
         data: pvData,
-        itemStyle: { color: '#409EFF' }
+        itemStyle: { color: colors.primary }
       },
       {
         name: 'UV',
         type: 'line',
         smooth: true,
         data: uvData,
-        itemStyle: { color: '#67C23A' }
+        itemStyle: { color: colors.success }
       }
     ]
   }
@@ -267,7 +267,7 @@ const renderTagsChart = async data => {
         data: data.data || [],
         type: 'bar',
         itemStyle: {
-          color: '#67C23A'
+          color: colors.success
         }
       }
     ]

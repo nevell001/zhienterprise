@@ -170,12 +170,15 @@ describe('theme 工具测试', () => {
 
     it('应该处理无效的主题并使用默认值', () => {
       handleThemeStyle('')
-      expect(mockStyle.setProperty).toHaveBeenCalledWith('--el-color-primary', '#409EFF')
+      // --theme-primary 是 --mo-p* 色阶的派生源，必须与 el 主色一起写入
+      expect(mockStyle.setProperty).toHaveBeenCalledWith('--theme-primary', '#4f46e5')
+      expect(mockStyle.setProperty).toHaveBeenCalledWith('--el-color-primary', '#4f46e5')
     })
 
     it('应该处理 undefined 主题并使用默认值', () => {
       handleThemeStyle(undefined as any)
-      expect(mockStyle.setProperty).toHaveBeenCalledWith('--el-color-primary', '#409EFF')
+      expect(mockStyle.setProperty).toHaveBeenCalledWith('--theme-primary', '#4f46e5')
+      expect(mockStyle.setProperty).toHaveBeenCalledWith('--el-color-primary', '#4f46e5')
     })
 
     it('应该生成所有9种浅色变体', () => {

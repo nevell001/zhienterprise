@@ -454,7 +454,7 @@ onMounted(() => {
 .recent-item:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-  border-color: rgba(79, 70, 229, 0.1);
+  border-color: color-mix(in srgb, var(--mo-p600) 10%, transparent);
 }
 
 .recent-title {
@@ -475,7 +475,7 @@ onMounted(() => {
 }
 
 .category-meta-item:hover {
-  background: rgba(79, 70, 229, 0.1);
+  background: color-mix(in srgb, var(--mo-p600) 10%, transparent);
   color: var(--mo-p600);
 }
 
@@ -637,7 +637,7 @@ html.dark .recent-item {
 
 html.dark .recent-item:hover {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  border-color: rgba(79, 70, 229, 0.2);
+  border-color: color-mix(in srgb, var(--mo-p600) 20%, transparent);
 }
 
 html.dark .category-meta-item {
@@ -646,7 +646,7 @@ html.dark .category-meta-item {
 }
 
 html.dark .category-meta-item:hover {
-  background: rgba(79, 70, 229, 0.15);
+  background: color-mix(in srgb, var(--mo-p600) 15%, transparent);
   color: var(--mo-p300);
 }
 
@@ -678,7 +678,7 @@ html.dark .category-link {
 
 html.dark .category-link:hover,
 html.dark .category-link.active {
-  background: rgba(79, 70, 229, 0.15);
+  background: color-mix(in srgb, var(--mo-p600) 15%, transparent);
   color: var(--mo-p300);
 }
 

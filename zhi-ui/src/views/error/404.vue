@@ -25,6 +25,7 @@
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteSettingsAnonymous } from '@/api/site/setting'
 import { getSiteTemplate } from '@/config/siteTemplates'
+import { readableOnPrimary } from '@/utils/theme'
 
 const message = computed(() => {
   return '找不到网页！'
@@ -41,11 +42,17 @@ const currentTemplate = computed(() =>
   getSiteTemplate(siteSettingsStore.siteSettings?.site_template)
 )
 const templateClass = computed(() => currentTemplate.value.className)
-const themeStyle = computed(() => ({
-  '--el-color-primary': currentTemplate.value.color,
-  '--el-color-primary-light-3': currentTemplate.value.color,
-  '--mo-on-primary': '#ffffff'
-}))
+// 公开设置现在会下发主题色：优先用主题色（后台「界面主题」），
+// 没有主题色时回退当前行业模板主色。
+const themeStyle = computed(() => {
+  const themed = String(siteSettingsStore.siteSettings.theme_color || '').trim()
+  const color = themed || currentTemplate.value.color
+  return {
+    '--el-color-primary': color,
+    '--el-color-primary-light-3': color,
+    '--mo-on-primary': readableOnPrimary(color)
+  }
+})
 
 // 404 不在 SiteLayout 内，直接打开死链时 store 里没有站点设置（只有默认 consult）。
 // 这里补一次公开设置请求，保证 404 的主色与真实模板一致；失败则沿用默认，不影响展示。

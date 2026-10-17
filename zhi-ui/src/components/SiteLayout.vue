@@ -260,6 +260,8 @@ import {
 import { getApiBaseUrl } from '@/utils/index'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { normalizeUploadUrl } from '@/utils/uploadUrl'
+import { applySiteAppearanceClasses } from '@/utils/siteAppearance'
+import { handleThemeStyle } from '@/utils/theme'
 import { buildNavMenus, hasCustomHomePage } from '@/utils/siteNav'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 import EnterpriseNav from '@/components/enterprise/EnterpriseNav.vue'
@@ -515,13 +517,19 @@ const siteTemplateId = computed(() =>
 
 watch([isBusinessNavEnabled, siteTemplateId], applySiteAppearance, { immediate: true })
 
+// 主题颜色：公开设置接口现在会下发 theme_color，匿名访客/无 system:config 权限的
+// 用户也能在前台看到后台配置的主题色（此前只有登录管理员能拿到）。
+// 企业官网模板作用域会通过 !important 覆盖成模板主色，因此这里不影响行业模板。
+watch(
+  () => String(siteSettingsStore.siteSettings.theme_color || '').trim(),
+  themeColor => {
+    if (themeColor) handleThemeStyle(themeColor)
+  },
+  { immediate: true }
+)
+
 function applySiteAppearance([enabled, tplId]: [boolean, SiteTemplateId]) {
-  const root = document.documentElement.classList
-  root.toggle('theme-enterprise', enabled)
-  SITE_TEMPLATE_CLASS_NAMES.forEach(cn => root.remove(cn))
-  if (enabled) {
-    root.add('tpl-site', `tpl-${tplId}`)
-  }
+  applySiteAppearanceClasses(document.documentElement.classList, enabled, tplId)
 }
 
 onBeforeUnmount(() => {

@@ -50,7 +50,7 @@
             <div style="display: flex; align-items: center">
               <el-tag
                 :style="{
-                  backgroundColor: tag.color || '#409EFF',
+                  backgroundColor: tag.color || 'var(--el-color-primary)',
                   color: 'white',
                   border: 'none'
                 }"
@@ -71,7 +71,7 @@
               v-for="tag in selectedTagsDisplay"
               :key="tag.id || tag.tagId"
               :style="{
-                backgroundColor: tag.color || '#409EFF',
+                backgroundColor: tag.color || 'var(--el-color-primary)',
                 color: 'white',
                 border: 'none',
                 margin: '2px 4px 2px 0'
@@ -343,8 +343,8 @@ defineExpose({
 }
 
 .quick-add-tag:hover {
-  border-color: #409eff;
-  background-color: #f0f9ff;
+  border-color: var(--el-color-primary);
+  background-color: color-mix(in srgb, var(--el-color-primary) 6%, #fff);
 }
 
 /* 响应式设计 */

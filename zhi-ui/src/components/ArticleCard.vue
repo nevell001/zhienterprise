@@ -108,7 +108,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 }
 
 .article-card:hover {
-  border-color: rgba(79, 70, 229, 0.1);
+  border-color: color-mix(in srgb, var(--mo-p600) 10%, transparent);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
   transform: translateY(-4px);
 }
@@ -238,7 +238,7 @@ html:not(.dark) .card-flag.flag-rec {
 
 .article-card-meta-item:hover {
   color: var(--mo-p600);
-  background: rgba(79, 70, 229, 0.1);
+  background: color-mix(in srgb, var(--mo-p600) 10%, transparent);
 }
 
 .article-card-meta-item .el-icon {
@@ -417,13 +417,13 @@ html.dark .article-card {
 }
 
 html.dark .article-card:hover {
-  border-color: rgba(79, 70, 229, 0.2);
+  border-color: color-mix(in srgb, var(--mo-p600) 20%, transparent);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
 html.dark .article-card-badge {
   color: var(--mo-p300);
-  background: rgba(79, 70, 229, 0.2);
+  background: color-mix(in srgb, var(--mo-p600) 20%, transparent);
   border-color: var(--mo-p600);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
@@ -450,7 +450,7 @@ html.dark .article-card-meta-item {
 
 html.dark .article-card-meta-item:hover {
   color: var(--mo-p300);
-  background: rgba(79, 70, 229, 0.15);
+  background: color-mix(in srgb, var(--mo-p600) 15%, transparent);
 }
 
 html.dark .article-card-summary {

@@ -198,7 +198,7 @@ const renderArticleChart = async data => {
         type: 'line',
         smooth: true,
         itemStyle: {
-          color: '#409EFF'
+          color: colors.primary
         }
       }
     ]
@@ -237,7 +237,7 @@ const renderUserChart = async data => {
         data: data.data || [],
         type: 'bar',
         itemStyle: {
-          color: '#67C23A'
+          color: colors.success
         }
       }
     ]

@@ -131,7 +131,7 @@ const renderRegisterChart = async data => {
         type: 'line',
         smooth: true,
         itemStyle: {
-          color: '#E6A23C'
+          color: colors.warning
         }
       }
     ]

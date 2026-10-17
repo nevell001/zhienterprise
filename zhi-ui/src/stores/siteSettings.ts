@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { isSwitchOn } from '@/utils/featureSwitch'
+import { cssColorToHex } from '@/utils/theme'
 import { processAvatarUrl } from '@/api/site/avatar'
 
 interface SiteSettingsState {
@@ -29,6 +30,8 @@ interface SiteSettingsState {
   contact_phone: string
   contact_address: string
   site_template: string
+  /** 主题颜色（公开接口下发；企业官网模板作用域内仍以模板主色为准） */
+  theme_color: string
   // 官网内容（JSON 数组字符串，「官网内容」页签维护，解析与回退见 utils/siteContent.ts）
   site_metrics: string
   site_outcomes: string
@@ -81,6 +84,7 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       contact_phone: '',
       contact_address: '',
       site_template: 'consult',
+      theme_color: '',
       site_metrics: '',
       site_outcomes: '',
       home_solutions: '',
@@ -102,7 +106,14 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       const avatar = state.siteSettings.blog_avatar
 
       if (!avatar || !avatar.trim()) {
-        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E"
+        // 默认头像占位：底色跟随当前主色（主题色 / 行业模板主色），
+        // 避免固定 #409EFF 在换肤后显得突兀
+        const primary =
+          typeof getComputedStyle === 'function'
+            ? getComputedStyle(document.documentElement).getPropertyValue('--el-color-primary')
+            : ''
+        const fill = encodeURIComponent(cssColorToHex(primary))
+        return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='${fill}' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E`
       }
 
       try {

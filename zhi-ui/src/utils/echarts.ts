@@ -26,9 +26,16 @@ export const loadEcharts = createEchartsLoader(async () => {
  */
 export function getChartThemeColors() {
   const rootStyle = getComputedStyle(document.documentElement)
-  const cssVar = (name: string, fallback: string) =>
+  const cssVar = (name: string, fallback = '') =>
     rootStyle.getPropertyValue(name).trim() || fallback
   return {
+    // 派生于「主题颜色 / 行业模板主色」：图表系列色必须跟随 --el-color-primary，
+    // 不能在 option 里写死 #409EFF（改主题色后图表不换色）。
+    primary: cssVar('--el-color-primary'),
+    primaryLight: cssVar('--el-color-primary-light-5'),
+    success: cssVar('--el-color-success', '#67c23a'),
+    warning: cssVar('--el-color-warning', '#e6a23c'),
+    danger: cssVar('--el-color-error', '#f56c6c'),
     textColor: cssVar('--el-text-color-primary', '#303133'),
     secondaryColor: cssVar('--el-text-color-secondary', '#909399'),
     borderColor: cssVar('--el-border-color', '#e4e7ed'),

@@ -1246,7 +1246,7 @@ function handleAdd() {
 const blockTemplates = [
   {
     name: 'Hero 横幅',
-    html: '<section style="padding:48px 24px;text-align:center;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#1c1917);color:#ffffff"><h1 style="margin:0 0 12px">主标题文案</h1><p style="margin:0;opacity:.85">在这里输入副标语，一句话说明企业定位与核心价值</p></section>'
+    html: '<section style="padding:48px 24px;text-align:center;border-radius:12px;background:linear-gradient(135deg,var(--el-color-primary),var(--mo-p900));color:#ffffff"><h1 style="margin:0 0 12px">主标题文案</h1><p style="margin:0;opacity:.85">在这里输入副标语，一句话说明企业定位与核心价值</p></section>'
   },
   {
     name: '三列卡片',
@@ -1262,7 +1262,7 @@ const blockTemplates = [
   },
   {
     name: 'CTA 行动条',
-    html: '<section style="padding:36px 24px;text-align:center;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#ffffff;margin:24px 0"><h2 style="margin:0 0 12px">期待与您的合作</h2><p style="margin:0 0 16px;opacity:.85">欢迎联系我们获取方案与报价</p><a href="/contact" style="display:inline-block;padding:10px 26px;border-radius:8px;background:#ffffff;color:#4f46e5;font-weight:600;text-decoration:none">联系我们</a></section>'
+    html: '<section style="padding:36px 24px;text-align:center;border-radius:12px;background:linear-gradient(135deg,var(--el-color-primary),var(--mo-p500));color:#ffffff;margin:24px 0"><h2 style="margin:0 0 12px">期待与您的合作</h2><p style="margin:0 0 16px;opacity:.85">欢迎联系我们获取方案与报价</p><a href="/contact" style="display:inline-block;padding:10px 26px;border-radius:8px;background:#ffffff;color:var(--el-color-primary);font-weight:600;text-decoration:none">联系我们</a></section>'
   }
 ]
 

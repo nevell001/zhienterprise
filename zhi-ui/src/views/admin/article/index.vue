@@ -1678,7 +1678,7 @@ onMounted(async () => {
 }
 
 .save-status.is-saving .dot {
-  background: #4f46e5;
+  background: var(--el-color-primary);
 }
 
 .save-status.is-error .dot {
@@ -1729,8 +1729,8 @@ onMounted(async () => {
 
 .tool:hover,
 .tool.active {
-  color: #4f46e5;
-  background: #e0e7ff;
+  color: var(--el-color-primary);
+  background: color-mix(in srgb, var(--el-color-primary) 12%, transparent);
 }
 
 .sep {
@@ -1816,7 +1816,7 @@ onMounted(async () => {
 
 .editor-preview :deep(code) {
   padding: 2px 6px;
-  color: #4f46e5;
+  color: var(--el-color-primary);
   font-size: 13px;
   background: #f5f5f4;
   border-radius: 4px;
