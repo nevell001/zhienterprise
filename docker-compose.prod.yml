@@ -238,7 +238,9 @@ services:
           memory: 128M
           cpus: '0.25'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      # 用 127.0.0.1 而不是 localhost：busybox wget 会把 localhost 解析成 ::1，
+      # Grafana 未监听 IPv6 时健康检查会一直失败
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3

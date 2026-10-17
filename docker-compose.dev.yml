@@ -38,7 +38,7 @@ services:
       mysql:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     env_file:
       - .env
     environment:
@@ -70,7 +70,7 @@ services:
       TZ: Asia/Shanghai
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME:-zhienterprise}
       MYSQL_USER: ${DB_USERNAME:-zhienterprise_app}
       MYSQL_PASSWORD: ${DB_PASSWORD}
@@ -80,7 +80,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./sql:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
       timeout: 20s
       retries: 20
       interval: 10s
@@ -89,21 +89,34 @@ services:
       - zhi-network
 
   redis:
-    image: redis:6.2
+    # 与 prod/release 同一口径：固定 7.2-alpine，带 maxmemory 与健康检查
+    image: redis:7.2-alpine
     container_name: redis
     restart: always
     command: >
       sh -c '
         if [ -n "${REDIS_PASSWORD:-}" ]; then
-          redis-server --requirepass "${REDIS_PASSWORD}" --appendonly yes
+          redis-server --requirepass "${REDIS_PASSWORD}" --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
         else
-          redis-server --appendonly yes
+          redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
         fi
       '
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: >
+        sh -c '
+          if [ -n "${REDIS_PASSWORD:-}" ]; then
+            redis-cli -a "${REDIS_PASSWORD}" ping
+          else
+            redis-cli ping
+          fi
+        '
+      interval: 10s
+      timeout: 3s
+      retries: 3
     networks:
       - zhi-network
 

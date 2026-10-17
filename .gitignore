@@ -9,6 +9,9 @@ target/
 *.iml
 *.class
 
+# 发行版部署目录（由 release 附件解压生成：jar / frontend-dist / nginx.conf / ssl，不入库）
+deploy/
+
 # Eclipse 构建产物（包含硬编码默认密码，不应提交）
 zhi-admin/bin/
 

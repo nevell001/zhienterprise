@@ -16,6 +16,9 @@ services:
     volumes:
       - ./deploy/zhi-admin.jar:/app/zhi-admin.jar:ro
       - ./uploadPath:/app/uploadPath
+    # 邮件/验证码/上传上限等配置来自 .env；缺了它这些变量在容器里全是空值
+    env_file:
+      - .env
     depends_on:
       mysql:
         condition: service_healthy
@@ -36,12 +39,22 @@ services:
       DRUID_USERNAME: ${DRUID_USERNAME:-nevell}
       DRUID_PASSWORD: ${DRUID_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod
+    # 用 curl 打 Actuator（镜像自带 curl）。不要用 /dev/tcp：CMD-SHELL 走 /bin/sh(dash)，
+    # dash 不支持 /dev/tcp，健康检查会永远失败，进而卡住依赖 service_healthy 的 zhi-ui
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/manage/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
     networks:
       - zhi-network
     restart: unless-stopped
@@ -75,6 +88,14 @@ services:
       retries: 20
       interval: 10s
       start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
     networks:
       - zhi-network
 
@@ -106,6 +127,12 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
     networks:
       - zhi-network
 
@@ -124,8 +151,18 @@ services:
       - ./deploy/frontend-dist:/usr/share/nginx/html:ro
       - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./deploy/ssl:/etc/nginx/ssl:ro  # HTTPS 证书目录（启用 HTTPS 时放入 fullchain.pem/privkey.pem 并把挂载换成 nginx-https.conf）
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      # 用 curl（镜像自带）而不是 busybox wget：wget 会把 localhost 解析成 ::1，
+      # 而 nginx 只监听 IPv4，健康检查会一直失败（容器永远 unhealthy）
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -188,7 +225,7 @@ services:
           memory: 128M
           cpus: '0.25'
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3

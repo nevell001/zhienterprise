@@ -314,6 +314,10 @@ management:
       base-path: /manage/actuator
   # 健康检查配置
   health:
+    # 邮件是可选旁路能力（验证码/通知）：SMTP 不可达时不应把整个应用标记为 DOWN。
+    # 曾导致 release 编排里 zhi-admin 永远 unhealthy、依赖 service_healthy 的 zhi-ui 不启动
+    mail:
+      enabled: false
     redis:
       enabled: true
     db:
