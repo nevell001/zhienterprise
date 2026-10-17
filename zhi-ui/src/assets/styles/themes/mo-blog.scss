@@ -193,25 +193,45 @@ html.theme-mo-blog {
   font-weight: 600;
 }
 
+/* 主按钮跟「站点设置 → 主题颜色」/行业模板主色走（--el-color-primary 由
+   handleThemeStyle 或 html.tpl-site 映射注入），不再钉死在 Mo-Blog 靛蓝色板：
+   之前主题颜色改了按钮不变，与设置项「影响按钮、链接、标签页和高亮状态」不符。
+   hover/active 用派生深色，避免依赖未被内联覆盖的 --el-color-primary-light-*。 */
 .theme-mo-blog .el-button--primary {
-  --el-button-bg-color: var(--mo-p600);
-  --el-button-border-color: var(--mo-p600);
-  --el-button-hover-bg-color: var(--mo-p700);
-  --el-button-hover-border-color: var(--mo-p700);
-  --el-button-active-bg-color: var(--mo-p800);
-  --el-button-active-border-color: var(--mo-p800);
+  --el-button-text-color: var(--mo-on-primary, #fff);
+  --el-button-hover-text-color: var(--mo-on-primary, #fff);
+  --el-button-active-text-color: var(--mo-on-primary, #fff);
+  --el-button-bg-color: var(--el-color-primary);
+  --el-button-border-color: var(--el-color-primary);
+  --el-button-hover-bg-color: var(
+    --el-color-primary-dark-2,
+    color-mix(in srgb, var(--el-color-primary) 82%, #000)
+  );
+  --el-button-hover-border-color: var(
+    --el-color-primary-dark-2,
+    color-mix(in srgb, var(--el-color-primary) 82%, #000)
+  );
+  --el-button-active-bg-color: color-mix(in srgb, var(--el-color-primary) 76%, #000);
+  --el-button-active-border-color: color-mix(in srgb, var(--el-color-primary) 76%, #000);
 }
 
 .theme-mo-blog .el-button--primary.is-plain {
-  --el-button-text-color: var(--mo-p700);
-  --el-button-bg-color: var(--mo-p50);
-  --el-button-border-color: var(--mo-p200);
-  --el-button-hover-text-color: #fff;
-  --el-button-hover-bg-color: var(--mo-p600);
-  --el-button-hover-border-color: var(--mo-p600);
-  --el-button-active-text-color: #fff;
-  --el-button-active-bg-color: var(--mo-p700);
-  --el-button-active-border-color: var(--mo-p700);
+  --el-button-text-color: var(
+    --el-color-primary-dark-2,
+    color-mix(in srgb, var(--el-color-primary) 82%, #000)
+  );
+  --el-button-bg-color: color-mix(in srgb, var(--el-color-primary) 8%, var(--el-bg-color, #fff));
+  --el-button-border-color: color-mix(
+    in srgb,
+    var(--el-color-primary) 26%,
+    var(--el-bg-color, #fff)
+  );
+  --el-button-hover-text-color: var(--mo-on-primary, #fff);
+  --el-button-hover-bg-color: var(--el-color-primary);
+  --el-button-hover-border-color: var(--el-color-primary);
+  --el-button-active-text-color: var(--mo-on-primary, #fff);
+  --el-button-active-bg-color: var(--el-color-primary-dark-2, var(--el-color-primary));
+  --el-button-active-border-color: var(--el-color-primary-dark-2, var(--el-color-primary));
 }
 
 .theme-mo-blog .el-input__wrapper,
@@ -225,8 +245,8 @@ html.theme-mo-blog {
 .theme-mo-blog .el-select__wrapper.is-focused,
 .theme-mo-blog .el-textarea__inner:focus {
   box-shadow:
-    0 0 0 1px var(--mo-p500) inset,
-    0 0 0 3px rgba(99, 102, 241, 0.14);
+    0 0 0 1px var(--el-color-primary) inset,
+    0 0 0 3px color-mix(in srgb, var(--el-color-primary) 14%, transparent);
 }
 
 .theme-mo-blog .el-card,
@@ -248,16 +268,16 @@ html.theme-mo-blog {
 }
 
 .theme-mo-blog .el-tabs__active-bar {
-  background-color: var(--mo-p600);
+  background-color: var(--el-color-primary);
 }
 
 .theme-mo-blog .el-tabs__item.is-active,
 .theme-mo-blog .el-tabs__item:hover {
-  color: var(--mo-p600);
+  color: var(--el-color-primary);
 }
 
 .theme-mo-blog .el-pagination.is-background .el-pager li.is-active {
-  background: var(--mo-p600);
+  background: var(--el-color-primary);
 }
 
 .theme-mo-blog .site-layout {
@@ -279,7 +299,7 @@ html.theme-mo-blog {
 
 .theme-mo-blog .brand-logo,
 .theme-mo-blog .footer-logo {
-  background: linear-gradient(135deg, var(--mo-p600), var(--mo-a500));
+  background: linear-gradient(135deg, var(--el-color-primary), var(--mo-a500));
   border-radius: var(--mo-r-md);
   box-shadow: 0 8px 18px rgba(79, 70, 229, 0.25);
 }
@@ -486,15 +506,15 @@ html.dark.theme-mo-blog .article-actions {
 }
 
 .theme-mo-blog .sidebar-container .el-menu-item.is-active {
-  color: #fff;
-  background: var(--mo-p600);
-  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.26);
+  color: var(--mo-on-primary, #fff);
+  background: var(--el-color-primary);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--el-color-primary) 26%, transparent);
 }
 
 .theme-mo-blog .sidebar-container .el-sub-menu__title:hover,
 .theme-mo-blog .sidebar-container .el-menu-item:hover {
-  color: #fff;
-  background: rgba(79, 70, 229, 0.32);
+  color: var(--mo-on-primary, #fff);
+  background: color-mix(in srgb, var(--el-color-primary) 32%, transparent);
 }
 
 .theme-mo-blog .sidebar-container .nest-menu .el-sub-menu > .el-sub-menu__title,
@@ -584,15 +604,15 @@ html.dark.theme-mo-blog .article-actions {
 }
 
 .theme-mo-blog .tags-view-container .tags-view-wrapper .tags-view-item:hover {
-  color: var(--mo-p700);
-  background: var(--mo-p50);
+  color: var(--el-color-primary);
+  background: color-mix(in srgb, var(--el-color-primary) 8%, var(--el-bg-color, #fff));
 }
 
 .theme-mo-blog .tags-view-container .tags-view-wrapper .tags-view-item.active {
-  color: #fff;
-  background: var(--mo-p600) !important;
-  border-color: var(--mo-p600) !important;
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
+  color: var(--mo-on-primary, #fff);
+  background: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--el-color-primary) 22%, transparent);
 }
 
 .theme-mo-blog .tags-view-container .contextmenu {

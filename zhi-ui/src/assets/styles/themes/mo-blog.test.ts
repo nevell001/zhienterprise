@@ -19,11 +19,21 @@ describe('mo-blog theme stylesheet', () => {
     )
   })
 
-  it('应该覆盖后台新增按钮常用的 plain primary 状态', () => {
+  it('主色控件跟随「主题颜色」（--el-color-primary），不再钉死 mo 调色板', () => {
+    // 实心主按钮：底色/边框取 --el-color-primary（由 handleThemeStyle 或模板映射注入），
+    // 前景用对比度推导的 --mo-on-primary（亮主色自动转深墨，深主色用白）。
+    expect(stylesheet).toContain('--el-button-bg-color: var(--el-color-primary);')
+    expect(stylesheet).toContain('--el-button-text-color: var(--mo-on-primary, #fff);')
+    expect(stylesheet).toContain('--el-button-hover-text-color: var(--mo-on-primary, #fff);')
+
+    // plain 主按钮：底色/边框用主题色混合，hover 变实心主题色
     expect(stylesheet).toContain('.theme-mo-blog .el-button--primary.is-plain')
-    expect(stylesheet).toContain('--el-button-bg-color: var(--mo-p50)')
-    expect(stylesheet).toContain('--el-button-text-color: var(--mo-p700)')
-    expect(stylesheet).toContain('--el-button-hover-bg-color: var(--mo-p600)')
+    expect(stylesheet).toContain('--el-button-hover-bg-color: var(--el-color-primary);')
+    expect(stylesheet).toContain('--el-button-bg-color: color-mix(')
+
+    // Tabs / 分页 / 侧栏菜单激活也跟随主题色
+    expect(stylesheet).toContain('background-color: var(--el-color-primary);')
+    expect(stylesheet).toContain('.el-pagination.is-background .el-pager li.is-active')
   })
 
   it('应该把管理后台框架和常用控件纳入当前主题', () => {

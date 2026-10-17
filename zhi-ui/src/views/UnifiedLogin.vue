@@ -109,6 +109,7 @@ import { User, Lock, Key } from '@element-plus/icons-vue'
 import { getCodeImg } from '@/api/login'
 import { unifiedLogin } from '@/api/unifiedAuth'
 import { setToken } from '@/utils/auth'
+import { initSiteSettings } from '@/utils/siteSettings'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { useAuthBrand } from '@/composables/useAuthBrand'
 import { useUserStore } from '@/stores/user'
@@ -263,6 +264,10 @@ const handleLogin = async () => {
         duration: 3000
       })
     }
+
+    // 登录后立即补齐站点个性化设置：bootstrap 的 initSiteSettings 在未登录时早退，
+    // 不刷新页面直接跳转会导致「主题颜色」等设置要等下次刷新才生效。
+    void initSiteSettings()
 
     // 跳转到首页，路由守卫会根据用户权限自动跳转
     const redirect = (route.query.redirect as string) || '/index'

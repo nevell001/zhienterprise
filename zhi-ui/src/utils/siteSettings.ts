@@ -2,8 +2,27 @@ import { getConfigKey } from '@/api/system/config'
 import { useSettingsStore } from '@/stores/settings'
 import { handleThemeStyle } from '@/utils/theme'
 import { getToken } from '@/utils/auth'
-import type { Config } from '@/api/system/config'
 import { normalizeUploadUrl } from '@/utils/uploadUrl'
+
+/**
+ * 读取 `getConfigKey` 的配置值。
+ *
+ * RuoYi 的 `AjaxResult.success(String)` 会把字符串放进 **msg**（而不是 data）：
+ * `GET /system/config/configKey/theme_color` 实际返回 `{ code: 200, msg: "#409eff" }`。
+ * 早先这里按 `{ configValue }` 读取，导致主题色 / Logo / 侧边栏 / 自定义 CSS
+ * 在启动初始化时静默失效（只有打开「站点设置」页手动应用过一次）。
+ * 这里兼容三种形态：`data`（对象型配置）、`configValue`（前端桩/旧封装）、`msg`（真实接口）。
+ */
+export function readConfigValue(response: unknown): string {
+  if (typeof response === 'string') return response.trim()
+  if (!response || typeof response !== 'object') return ''
+  const record = response as Record<string, unknown>
+  for (const key of ['data', 'configValue', 'msg']) {
+    const value = record[key]
+    if (typeof value === 'string' && value.trim() && value !== '操作成功') return value.trim()
+  }
+  return ''
+}
 
 /**
  * 初始化站点个性化设置
@@ -19,55 +38,38 @@ export async function initSiteSettings(): Promise<void> {
     // 获取站点个性化设置（silent: 无权限时不弹通知，站点前台有自己的公开设置接口）
     const silentCfg = { silent: true }
     const [themeColor, customLogo, logoUrl, sidebarStyle, customCss] = await Promise.all([
-      getConfigKey('theme_color', silentCfg).catch((): Config => ({
-        configKey: '',
-        configValue: '',
-        configName: ''
-      })),
-      getConfigKey('site_logo', silentCfg).catch((): Config => ({
-        configKey: '',
-        configValue: '',
-        configName: ''
-      })),
-      getConfigKey('blog_avatar', silentCfg).catch((): Config => ({
-        configKey: '',
-        configValue: '',
-        configName: ''
-      })),
-      getConfigKey('sidebar_style', silentCfg).catch((): Config => ({
-        configKey: '',
-        configValue: '',
-        configName: ''
-      })),
-      getConfigKey('custom_css', silentCfg).catch((): Config => ({
-        configKey: '',
-        configValue: '',
-        configName: ''
-      }))
+      getConfigKey('theme_color', silentCfg).catch(() => ({})),
+      getConfigKey('site_logo', silentCfg).catch(() => ({})),
+      getConfigKey('blog_avatar', silentCfg).catch(() => ({})),
+      getConfigKey('sidebar_style', silentCfg).catch(() => ({})),
+      getConfigKey('custom_css', silentCfg).catch(() => ({}))
     ])
 
     const settingsStore = useSettingsStore()
 
     // 应用主题颜色
-    if (themeColor.configValue && themeColor.configValue !== '') {
-      settingsStore.changeSetting({ key: 'theme', value: themeColor.configValue })
-      handleThemeStyle(themeColor.configValue)
+    const themeColorValue = readConfigValue(themeColor)
+    if (themeColorValue) {
+      settingsStore.changeSetting({ key: 'theme', value: themeColorValue })
+      handleThemeStyle(themeColorValue)
     }
 
     // 应用 Logo：自定义 site_logo 优先，回退站点头像 blog_avatar
-    const effectiveLogo = customLogo.configValue || logoUrl.configValue
-    if (effectiveLogo && effectiveLogo !== '') {
+    const effectiveLogo = readConfigValue(customLogo) || readConfigValue(logoUrl)
+    if (effectiveLogo) {
       applyLogo(effectiveLogo)
     }
 
     // 应用侧边栏样式
-    if (sidebarStyle.configValue && sidebarStyle.configValue !== '') {
-      applySidebarStyle(sidebarStyle.configValue)
+    const sidebarStyleValue = readConfigValue(sidebarStyle)
+    if (sidebarStyleValue) {
+      applySidebarStyle(sidebarStyleValue)
     }
 
     // 应用自定义CSS
-    if (customCss.configValue && customCss.configValue !== '') {
-      applyCustomCss(customCss.configValue)
+    const customCssValue = readConfigValue(customCss)
+    if (customCssValue) {
+      applyCustomCss(customCssValue)
     }
   } catch {
     // 静默处理错误，避免影响页面功能
