@@ -538,9 +538,10 @@ const loadArticleDetail = async () => {
         publisher: {
           '@type': 'Organization',
           name: siteName,
-          logo: siteSettings.value.blog_avatar
-            ? { '@type': 'ImageObject', url: siteSettings.value.blog_avatar }
-            : undefined
+          logo:
+            (siteSettings.value as any).site_logo || siteSettings.value.blog_avatar
+              ? { '@type': 'ImageObject', url: siteSettings.value.blog_avatar }
+              : undefined
         }
       })
     } else {

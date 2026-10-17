@@ -12,6 +12,9 @@ import locale from 'element-plus/es/locale/lang/zh-cn'
 
 import '@/assets/styles/index.scss' // global css
 import '@/assets/styles/theme-dark.css'
+// 企业风格认证页（登录/注册/找回密码共用）：需在 theme-dark.css 之后加载，
+// 其暗色覆盖才能压过全局旧认证页规则
+import '@/assets/styles/auth-enterprise.scss'
 
 import App from './App.vue'
 import { createPinia } from 'pinia'

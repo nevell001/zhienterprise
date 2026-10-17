@@ -1,0 +1,492 @@
+/* ==================== 企业官网风格 · 认证页共享样式 ====================
+   登录（UnifiedLogin）/ 注册（site/auth/Register）/ 找回密码（site/auth/ForgotPassword）
+   三个页面共用，保证同一套视觉语言：
+   - 变量层走企业模板 site-templates.scss 的 --tpl-*（蓝系主色、大圆角、分层阴影、ink 文字层级）；
+   - 页面 = 浅底 + 两处低饱和主色光晕；卡片 = --tpl-bg 浮于 --tpl-surface；
+   - 深色由 html.dark .tpl-site 的变量重映射自动生效，无需逐属性再写一遍。
+
+   注意：类名统一用 ent- 前缀，刻意避开 theme-dark.css / mo-blog.scss 里针对旧认证页
+   （.auth-card / .switch-item / .sub …）的 !important 全局规则，否则会被旧配色覆盖。
+   ==================================================================== */
+
+/* ---------- 页面容器 ---------- */
+.ent-auth-page {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 60px);
+  /* 顶部避开经典模式 fixed 导航（60px），并留出企业站的呼吸感 */
+  padding: calc(60px + var(--mo-sp-9, 48px)) var(--mo-sp-6, 24px) var(--mo-sp-9, 48px);
+  overflow: hidden;
+  background: var(--tpl-surface, #f7f8fa);
+}
+
+/* 极光背景：两处低饱和主色光晕，呼应企业站 Hero 的浅底气质 */
+.ent-auth-page::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: '';
+  background:
+    radial-gradient(
+      circle at 18% 8%,
+      color-mix(in srgb, var(--tpl-p, #1a56db) 14%, transparent),
+      transparent 44%
+    ),
+    radial-gradient(
+      circle at 84% 92%,
+      color-mix(in srgb, var(--tpl-p, #1a56db) 10%, transparent),
+      transparent 46%
+    );
+}
+
+/* 企业模式：SiteLayout 已用 .tpl-nav-offset 为 fixed 导航留 64px，页面不再重复让位 */
+.site-layout.tpl-nav-offset > .ent-auth-page {
+  min-height: calc(100vh - 64px);
+  padding-top: var(--mo-sp-9, 48px);
+}
+
+/* 认证页与页脚紧接：企业页脚的 margin-top 是给常规内容段留呼吸感的 */
+.site-layout > .ent-auth-page + .ent-footer {
+  margin-top: 0;
+}
+
+/* ---------- 卡片 ---------- */
+.ent-auth-card {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 380px;
+  padding: 34px 32px 28px;
+  background: var(--tpl-bg, #fff);
+  border: 1px solid var(--tpl-border, #e5e7eb);
+  border-radius: var(--tpl-r-lg, 16px);
+  box-shadow: var(--tpl-sh-md, 0 8px 24px rgba(11, 15, 25, 0.1));
+}
+
+/* 注册页字段较多，卡片略宽；找回密码含步骤条同样略宽 */
+.ent-auth-card--wide {
+  max-width: 440px;
+}
+
+/* ---------- 品牌 ---------- */
+.ent-auth-brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 26px;
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-sm, 14px);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ent-brand-mark {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--tpl-white, #fff);
+  font-size: var(--mo-fs-md, 16px);
+  font-weight: 700;
+  background: var(--tpl-p, #1a56db);
+  border-radius: var(--tpl-r-md, 10px);
+}
+
+.ent-brand-logo {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: var(--tpl-r-md, 10px);
+}
+
+.ent-brand-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 标题区 ---------- */
+.ent-auth-head {
+  margin-bottom: 22px;
+}
+
+.ent-auth-eyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 4px 10px;
+  color: var(--tpl-p-text, #1a56db);
+  font-size: var(--mo-fs-xs, 12px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--tpl-p-sub, #eef3fe);
+  border-radius: 999px;
+}
+
+.ent-auth-head h1,
+.ent-auth-head h2 {
+  margin: 0 0 8px;
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-3xl, 28px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.ent-auth-sub {
+  margin: 0;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-sm, 14px);
+  line-height: 1.6;
+}
+
+/* ---------- 登录/注册切换 ---------- */
+.ent-auth-switch {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  background: var(--tpl-surface, #f7f8fa);
+  border-radius: var(--tpl-r-md, 10px);
+}
+
+.ent-switch-item {
+  flex: 1;
+  padding: 8px 10px;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-sm, 14px);
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-radius: var(--tpl-r-sm, 6px);
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+
+.ent-switch-item:hover {
+  color: var(--tpl-ink-900, #0b0f19);
+}
+
+.ent-switch-item.is-active {
+  color: var(--tpl-p-text, #1a56db);
+  background: var(--tpl-bg, #fff);
+  box-shadow: var(--tpl-sh-sm, 0 1px 2px rgba(11, 15, 25, 0.06));
+}
+
+/* ---------- 表单 ---------- */
+.ent-auth-form {
+  margin-top: 0;
+}
+
+.ent-auth-page .form-group {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.ent-auth-page .form-group label,
+.ent-auth-page .ent-form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--tpl-ink-700, #1f2937);
+  font-size: var(--mo-fs-xs, 12px);
+  font-weight: 600;
+}
+
+.ent-auth-page .required {
+  margin-left: 2px;
+  color: var(--el-color-danger, #f56c6c);
+}
+
+.ent-auth-page .form-group .el-form-item__content {
+  display: block;
+}
+
+.ent-auth-page .el-input__wrapper {
+  background: var(--tpl-bg, #fff);
+  border-radius: var(--tpl-r-md, 10px);
+  box-shadow: 0 0 0 1px var(--tpl-border, #e5e7eb) inset;
+}
+
+.ent-auth-page .el-input__wrapper.is-focus {
+  box-shadow:
+    0 0 0 1px var(--tpl-p, #1a56db) inset,
+    0 0 0 3px color-mix(in srgb, var(--tpl-p, #1a56db) 14%, transparent);
+}
+
+/* 图形验证码 */
+.ent-auth-page .captcha-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ent-auth-page .captcha-row .el-input {
+  flex: 1;
+}
+
+.ent-auth-page .captcha-img {
+  width: 106px;
+  height: 34px;
+  cursor: pointer;
+  object-fit: cover;
+  border: 1px solid var(--tpl-border, #e5e7eb);
+  border-radius: var(--tpl-r-sm, 6px);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.ent-auth-page .captcha-img:hover {
+  border-color: var(--tpl-p, #1a56db);
+  box-shadow: var(--tpl-sh-sm, 0 1px 2px rgba(11, 15, 25, 0.06));
+}
+
+/* 邮箱验证码行 */
+.ent-auth-page .email-code-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ent-auth-page .email-code-row .el-input {
+  flex: 1;
+}
+
+/* 密码 + 确认密码两列（窄屏自动单列） */
+.ent-auth-page .password-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 12px;
+}
+
+/* 记住我 / 忘记密码 */
+.ent-auth-page .form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 0 18px;
+}
+
+.ent-auth-page .remember {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-xs, 12px);
+  line-height: 1.5;
+}
+
+.ent-auth-page .remember input {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  accent-color: var(--tpl-p, #1a56db);
+}
+
+.ent-auth-page .remember a,
+.ent-auth-page .forgot,
+.ent-auth-footer a {
+  color: var(--tpl-p-text, #1a56db);
+  font-size: var(--mo-fs-xs, 12px);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ent-auth-page .remember a:hover,
+.ent-auth-page .forgot:hover,
+.ent-auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* 提交按钮 */
+.ent-auth-submit {
+  width: 100%;
+  height: 44px;
+  color: var(--tpl-white, #fff);
+  font-size: var(--mo-fs-sm, 14px);
+  font-weight: 600;
+  background: var(--tpl-p, #1a56db);
+  border: none;
+  border-radius: var(--tpl-r-md, 10px);
+  transition: background 0.2s;
+}
+
+.ent-auth-submit:hover,
+.ent-auth-submit:focus {
+  color: var(--tpl-white, #fff);
+  background: var(--tpl-p-h, #1544b0);
+}
+
+/* 底部链接 */
+.ent-auth-footer {
+  margin: 20px 0 0;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-xs, 12px);
+  text-align: center;
+}
+
+/* ---------- 找回密码：步骤条与结果页 ---------- */
+.ent-auth-steps {
+  margin-bottom: 24px;
+}
+
+.ent-auth-steps .el-step__title {
+  font-size: var(--mo-fs-xs, 12px);
+}
+
+.ent-auth-page .step-content .el-form-item {
+  margin-bottom: 16px;
+}
+
+.ent-auth-page .ent-success {
+  padding: 8px 0 4px;
+  color: var(--tpl-ink-700, #1f2937);
+  text-align: center;
+}
+
+.ent-auth-page .ent-success .el-icon {
+  margin-bottom: 12px;
+  color: var(--tpl-p, #1a56db);
+  font-size: 44px;
+}
+
+.ent-auth-page .ent-success h3 {
+  margin: 0 0 8px;
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-lg, 18px);
+  font-weight: 700;
+}
+
+.ent-auth-page .ent-success p {
+  margin: 0 0 20px;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-sm, 14px);
+}
+
+.ent-auth-page .ent-back-link {
+  display: inline-block;
+  color: var(--tpl-p-text, #1a56db);
+  font-size: var(--mo-fs-sm, 14px);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ent-auth-page .ent-back-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- 深色模式 ----------
+   --tpl-* 已由 site-templates.scss 的 html.dark .tpl-site 重映射；
+   这里额外压过 mo-blog.scss 对全站输入框的 !important 棕色底（--mo-n800），
+   并把卡片层次定为「页面 --tpl-bg（#141414）→ 卡片 --tpl-surface（#1d1d1d）」。 */
+html.dark .ent-auth-page {
+  background: var(--tpl-bg);
+}
+
+html.dark .ent-auth-page .ent-auth-card {
+  background: var(--tpl-surface);
+  border-color: var(--tpl-border);
+  box-shadow: var(--tpl-sh-md);
+}
+
+html.dark .ent-auth-page .ent-auth-switch {
+  background: var(--tpl-bg);
+}
+
+html.dark .ent-auth-page .ent-switch-item {
+  color: var(--tpl-ink-500);
+}
+
+html.dark .ent-auth-page .ent-switch-item.is-active {
+  color: var(--tpl-p-text);
+  /* 混入少量前景色提亮一档，形成「浮起」的选中态（而非比卡片更暗的凹陷） */
+  background: color-mix(in srgb, var(--tpl-ink-900) 6%, var(--tpl-surface));
+}
+
+html.dark .ent-auth-page .ent-auth-head h1,
+html.dark .ent-auth-page .ent-auth-head h2,
+html.dark .ent-auth-page .ent-auth-brand,
+html.dark .ent-auth-page .ent-success h3 {
+  color: var(--tpl-ink-900);
+}
+
+html.dark .ent-auth-page .ent-auth-sub,
+html.dark .ent-auth-page .ent-auth-footer,
+html.dark .ent-auth-page .remember,
+html.dark .ent-auth-page .ent-success,
+html.dark .ent-auth-page .ent-success p {
+  color: var(--tpl-ink-500);
+}
+
+html.dark .ent-auth-page .form-group label,
+html.dark .ent-auth-page .ent-form-label {
+  color: var(--tpl-ink-700);
+}
+
+/* mo-blog.scss 对 .el-input__wrapper 写了 !important 的棕色底，需同权重以上覆盖 */
+html.dark .ent-auth-page .el-input__wrapper {
+  background-color: var(--tpl-surface) !important;
+  box-shadow: 0 0 0 1px var(--tpl-border) inset !important;
+}
+
+html.dark .ent-auth-page .el-input__wrapper.is-focus {
+  box-shadow:
+    0 0 0 1px var(--tpl-p) inset,
+    0 0 0 3px color-mix(in srgb, var(--tpl-p) 26%, transparent) !important;
+}
+
+html.dark .ent-auth-page .remember a,
+html.dark .ent-auth-page .forgot,
+html.dark .ent-auth-footer a {
+  color: var(--tpl-p-text);
+}
+
+html.dark .ent-auth-submit {
+  color: var(--tpl-white);
+  background: var(--tpl-p);
+}
+
+html.dark .ent-auth-submit:hover,
+html.dark .ent-auth-submit:focus {
+  background: var(--tpl-p-h);
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 768px) {
+  .ent-auth-page {
+    min-height: auto;
+    padding: calc(60px + var(--mo-sp-6, 24px)) var(--mo-sp-4, 16px) var(--mo-sp-7, 32px);
+  }
+
+  .site-layout.tpl-nav-offset > .ent-auth-page {
+    padding-top: var(--mo-sp-6, 24px);
+  }
+
+  .ent-auth-card {
+    padding: 26px 22px 22px;
+  }
+
+  .ent-auth-head h1,
+  .ent-auth-head h2 {
+    font-size: var(--mo-fs-2xl, 24px);
+  }
+
+  /* 注册页密码两列在窄屏改为单列 */
+  .ent-auth-page .password-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .ent-auth-page .form-options {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

@@ -26,8 +26,17 @@
           <router-link class="btn-s" :to="secondary.link">{{ secondary.label }}</router-link>
         </div>
       </div>
+      <!-- 自定义 Banner 优先（站点设置 → 站点信息 → 首页 Banner），未配置回退模板母题插画 -->
+      <div v-if="bannerUrl" class="hero-viz hero-banner rv d1">
+        <img
+          :src="bannerUrl"
+          :alt="`${settings.blog_name || '首页'} Banner`"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
       <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="hero-viz rv d1" v-html="motifSvg"></div>
+      <div v-else class="hero-viz rv d1" v-html="motifSvg"></div>
     </div>
   </header>
 </template>
@@ -62,6 +71,11 @@ const secondary = computed(() => ({
   label: str(cfg.value.ctaSecondary?.label) || '预约咨询',
   link: str(cfg.value.ctaSecondary?.link) || '/contact'
 }))
+
+/** 首页 Banner 大图（站点设置上传）；为空时回退模板母题插画 */
+const bannerUrl = computed(() =>
+  String((settings.value as Record<string, unknown>)?.site_banner || '').trim()
+)
 
 const motifSvg = computed(() => tpl.value.motif(tpl.value.color))
 

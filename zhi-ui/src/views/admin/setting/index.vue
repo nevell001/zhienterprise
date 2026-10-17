@@ -41,6 +41,39 @@
                 show-word-limit
               />
             </el-form-item>
+            <el-divider content-position="left">品牌图（自定义 Logo / 首页 Banner）</el-divider>
+            <el-form-item label="站点 Logo" prop="site_logo">
+              <div class="brand-upload">
+                <ImageUpload
+                  v-model="settingsMap.site_logo"
+                  action="/common/upload"
+                  :limit="1"
+                  :file-size="2"
+                  :is-show-tip="false"
+                />
+                <p class="brand-upload-tip">
+                  显示在前台导航、登录/注册/找回密码页与结构化数据中；建议透明背景
+                  PNG/SVG，留空则回退上方站点头像与站名首字。
+                </p>
+              </div>
+            </el-form-item>
+            <el-form-item label="首页 Banner" prop="site_banner">
+              <div class="brand-upload">
+                <ImageUpload
+                  v-model="settingsMap.site_banner"
+                  action="/common/upload"
+                  crop
+                  :aspect-ratio="16 / 9"
+                  :limit="1"
+                  :file-size="5"
+                  :is-show-tip="false"
+                />
+                <p class="brand-upload-tip">
+                  用于「企业官网模板」首页 Hero 视觉区（替换默认母题插画）；建议
+                  16:9，留空则显示默认母题。
+                </p>
+              </div>
+            </el-form-item>
             <el-form-item label="版权信息" prop="blog_copyright">
               <el-input
                 v-model="settingsMap.blog_copyright"
@@ -665,6 +698,7 @@ import {
   saveMailConfig,
   testMailConfig
 } from '@/api/admin/setting'
+import ImageUpload from '@/components/ImageUpload'
 import { clearSiteCache } from '@/api/site/setting'
 import { getPublishedPages } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
@@ -950,6 +984,8 @@ const defaultSettings: Record<string, any> = {
   // 站点信息
   blog_name: '知企建站系统',
   blog_desc: '欢迎来到我的站点',
+  site_logo: '',
+  site_banner: '',
   blog_copyright: '',
   blog_beian: '',
   blog_url: '',
@@ -1007,6 +1043,8 @@ const defaultSettings: Record<string, any> = {
 const managedKeys = [
   'blog_name',
   'blog_desc',
+  'site_logo',
+  'site_banner',
   'blog_copyright',
   'blog_beian',
   'blog_url',
@@ -1718,5 +1756,21 @@ html.dark .feature-group__icon {
   border-radius: 8px;
   padding: var(--el-border-radius-base, 8px) var(--el-border-radius-base, 8px) 0;
   margin-bottom: var(--el-border-radius-base, 8px);
+}
+
+/* 品牌图上传：控件与说明上下排布，说明文字限制宽度避免撑满整行 */
+.brand-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.brand-upload-tip {
+  max-width: 460px;
+  margin: 0;
+  color: var(--el-text-color-secondary, #909399);
+  font-size: 12px;
+  line-height: 1.6;
 }
 </style>

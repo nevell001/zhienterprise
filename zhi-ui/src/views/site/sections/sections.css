@@ -213,6 +213,21 @@
   aspect-ratio: 1;
 }
 
+/* 自定义 Banner（站点设置上传）：16:9 铺满视觉区；未配置时回退上面的母题插画 */
+.tpl-site .hero-viz.hero-banner {
+  overflow: hidden;
+  padding: 0;
+  aspect-ratio: 16 / 9;
+  background: var(--tpl-surface);
+}
+
+.tpl-site .hero-viz.hero-banner img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* ---------- ② 核心业务 ---------- */
 .tpl-site .biz {
   display: grid;

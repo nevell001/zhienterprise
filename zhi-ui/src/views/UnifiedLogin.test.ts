@@ -31,16 +31,20 @@ describe('UnifiedLogin 组件测试', () => {
     expect(source).not.toContain('class="features"')
     expect(source).not.toContain('沉浸式阅读体验')
     expect(source).not.toContain('size="large"')
-    expect(source).toContain('max-width: 380px;')
 
     // 与注册/找回密码一致：包在 SiteLayout 中，企业模式自动带企业导航与页脚
     expect(source).toContain('<SiteLayout>')
-    // 样式走企业官网的 --tpl-* 变量层，而非硬编码色值
-    expect(source).toContain('--tpl-ink-900')
-    expect(source).toContain('--tpl-p')
-    expect(source).toContain('tpl-site')
+    expect(source).toContain('class="unified-login-container ent-auth-page tpl-site"')
+    // 配色集中在共享企业认证样式表（三页共用），页面本身不硬编码色值
+    const authScss = readFileSync(
+      resolve(process.cwd(), 'src/assets/styles/auth-enterprise.scss'),
+      'utf-8'
+    )
+    expect(authScss).toContain('--tpl-ink-900')
+    expect(authScss).toContain('--tpl-p')
+    expect(authScss).toContain('max-width: 380px;')
     // 品牌取站点设置，不写死站名
-    expect(source).toContain('siteSettingsStore')
+    expect(source).toContain('useAuthBrand')
     expect(source).not.toContain('<span>知企建站系统</span>')
   })
 })

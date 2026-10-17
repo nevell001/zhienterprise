@@ -41,6 +41,14 @@ vi.mock('@/api/admin/setting', () => ({
   testMailConfig: (...args: unknown[]) => testMailConfig(...args)
 }))
 
+// 真实 ImageUpload 依赖 el-upload/token，这里只关心字段是否渲染
+vi.mock('@/components/ImageUpload', () => ({
+  default: {
+    props: ['modelValue'],
+    template: '<div class="image-upload-stub" :data-model="modelValue"></div>'
+  }
+}))
+
 vi.mock('@/api/site/setting', () => ({
   clearSiteCache: (...args: unknown[]) => clearSiteCache(...args)
 }))
@@ -236,6 +244,23 @@ describe('SiteSetting 视图（行为）', () => {
     const review = wrapper.find('[data-feature="comment_review"]')
     expect(review.exists()).toBe(true)
     expect((review.element as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('站点信息 tab 提供 Logo 与 Banner 上传，并绑定到站点设置键', async () => {
+    listSetting.mockResolvedValue({ code: 200, rows: [] })
+    getRegistrationSwitch.mockResolvedValue({ code: 200, data: false })
+    getMailConfig.mockResolvedValue({ code: 200, data: {} })
+    getPublishedPages.mockResolvedValue({ code: 200, data: [] })
+
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const labels = wrapper.findAll('.fi-label').map(n => n.text())
+    expect(labels).toContain('站点 Logo')
+    expect(labels).toContain('首页 Banner')
+
+    // 两个字段都渲染了上传控件（而非纯文本输入）
+    expect(wrapper.findAll('.image-upload-stub')).toHaveLength(2)
   })
 
   it('切换功能开关会把开关的新值落库', async () => {

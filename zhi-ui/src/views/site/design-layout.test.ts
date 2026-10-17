@@ -101,13 +101,14 @@ describe('blog design layout guards', () => {
     expect(tagView).toContain('minmax(min(100%, 380px), 1fr)')
   })
 
-  it('找回密码页应复用当前博客认证主题布局', () => {
-    expect(forgotPasswordView).toContain('class="site-forgot-password-container mo-auth-page"')
+  it('找回密码页复用企业认证页布局（与登录/注册同一套 ent-auth 样式）', () => {
+    expect(forgotPasswordView).toContain('class="ent-auth-page tpl-site"')
     expect(forgotPasswordView).toContain('<SiteLayout>')
     expect(forgotPasswordView).not.toContain('<SiteNav')
     expect(forgotPasswordView).not.toContain("from '@/components/SiteNav.vue'")
     expect(forgotPasswordView).toContain("from '@/components/SiteLayout.vue'")
-    expect(forgotPasswordView).toContain('html.dark .mo-auth-page')
+    expect(forgotPasswordView).toContain('ent-auth-card')
+    expect(forgotPasswordView).toContain('ent-auth-steps')
     expect(forgotPasswordView).toContain("router.push('/login')")
   })
 
@@ -227,12 +228,25 @@ describe('blog design layout guards', () => {
     expect(tagView).toContain('var(--mo-n50)')
   })
 
-  it('博客认证页应复用全局 mo 主题 token', () => {
-    const themeHardcodes = /#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i
+  it('认证页统一走企业官网 --tpl-* 变量层（共享样式表承载配色）', () => {
+    const authScss = readFileSync(
+      resolve(__dirname, '../../assets/styles/auth-enterprise.scss'),
+      'utf-8'
+    )
+    // 三个认证页（登录/注册/找回密码）都用同一套 ent-auth 类，配色集中在共享表
+    expect(registerView).toContain('class="ent-auth-page tpl-site"')
+    expect(forgotPasswordView).toContain('class="ent-auth-page tpl-site"')
+    expect(registerView).toContain('ent-auth-card')
+    expect(forgotPasswordView).toContain('ent-auth-card')
 
+    // 不再硬编码靛蓝/棕色字面量，一律走 --tpl-* 令牌
+    const themeHardcodes = /#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i
     expect(registerView).not.toMatch(themeHardcodes)
     expect(forgotPasswordView).not.toMatch(themeHardcodes)
-    expect(registerView).toContain('var(--mo-p600)')
-    expect(forgotPasswordView).toContain('var(--mo-p600)')
+    expect(authScss).not.toMatch(themeHardcodes)
+    expect(authScss).toContain('var(--tpl-ink-900')
+    expect(authScss).toContain('var(--tpl-p')
+    // 深色由 .tpl-site 变量重映射 + 共享表的 html.dark 覆盖负责
+    expect(authScss).toContain('html.dark .ent-auth-page')
   })
 })

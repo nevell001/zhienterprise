@@ -6,6 +6,10 @@ interface SiteSettingsState {
   blog_name: string
   blog_desc: string
   blog_avatar: string | null
+  /** 自定义站点 Logo（优先级高于站点头像 blog_avatar） */
+  site_logo: string
+  /** 首页 Banner 大图（企业官网模板 Hero 使用；为空回退母题插画） */
+  site_banner: string
   blog_copyright: string
   blog_beian: string
   comment_enabled: boolean
@@ -51,6 +55,8 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       blog_name: '知企建站系统',
       blog_desc: '欢迎来到我的站点',
       blog_avatar: null,
+      site_logo: '',
+      site_banner: '',
       blog_copyright: '',
       blog_beian: '',
 

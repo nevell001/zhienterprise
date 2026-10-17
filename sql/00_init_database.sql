@@ -897,7 +897,7 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 
 -- ========== 初始化站点系统数据 ==========
 
--- 初始化完整的站点设置数据（37项配置）
+-- 初始化完整的站点设置数据（39项配置）
 INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '知企建站系统', '站点名称', NOW(), NOW()),
@@ -914,6 +914,9 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('grafana_url', '', 'Grafana 监控地址', NOW(), NOW()),
 ('actuator_url', '', 'Actuator 监控地址', NOW(), NOW()),
 ('blog_avatar', '', '站点头像', NOW(), NOW()),
+-- 自定义品牌图（管理后台「站点信息」上传；site_logo 优先于 blog_avatar）
+('site_logo', '', '站点 Logo（留空回退站点头像）', NOW(), NOW()),
+('site_banner', '', '首页 Banner 大图（留空显示默认母题插画）', NOW(), NOW()),
 ('blog_start_time', '2025-01-01', '站点创建时间', NOW(), NOW()),
 
 -- 社交媒体设置

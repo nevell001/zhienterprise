@@ -31,8 +31,17 @@
             </div>
           </div>
         </div>
+        <!-- 自定义 Banner 优先（站点设置 → 站点信息 → 首页 Banner），未配置回退模板母题插画 -->
+        <div v-if="bannerUrl" class="hero-viz hero-banner rv d1">
+          <img
+            :src="bannerUrl"
+            :alt="`${settings.blog_name || '首页'} Banner`"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="hero-viz rv d1" v-html="motifSvg"></div>
+        <div v-else class="hero-viz rv d1" v-html="motifSvg"></div>
       </div>
     </header>
 
@@ -302,6 +311,11 @@ const solutions = computed(() => getHomeSolutions(settings.value?.home_solutions
 
 /** 当前行业模板（站点设置 site_template，非法值回退默认） */
 const tpl = computed(() => getSiteTemplate(settings.value.site_template))
+/** 首页 Banner 大图（站点设置上传）；为空时回退模板母题插画 */
+const bannerUrl = computed(() =>
+  String((settings.value as Record<string, unknown>)?.site_banner || '').trim()
+)
+
 const motifSvg = computed(() => tpl.value.motif(tpl.value.color))
 
 const rootEl = ref<HTMLElement | null>(null)
@@ -597,6 +611,21 @@ const goNewsItem = (id?: number) => id && router.push(`/article/${id}`)
   width: 100%;
   height: auto;
   aspect-ratio: 1;
+}
+
+/* 自定义 Banner：16:9 裁切铺满视觉区；无横幅时回退母题插画 */
+.hero-banner {
+  overflow: hidden;
+  padding: 0;
+  aspect-ratio: 16 / 9;
+  background: var(--tpl-surface);
+}
+
+.hero-banner img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* ---------- ② 核心业务 ---------- */

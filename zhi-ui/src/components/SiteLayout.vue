@@ -12,7 +12,13 @@
     <nav v-else class="site-top-nav">
       <div class="nav-inner">
         <router-link to="/" class="nav-left">
-          <div class="brand-logo">
+          <img
+            v-if="brandLogo"
+            :src="brandLogo"
+            class="brand-logo brand-logo-img"
+            :alt="siteSettings.blog_name || '站点 Logo'"
+          />
+          <div v-else class="brand-logo">
             {{ siteSettings.blog_name?.charAt(0) || '知' }}
           </div>
           <span class="brand-name">{{ siteSettings.blog_name || '知企建站系统' }}</span>
@@ -168,7 +174,14 @@
       </div>
       <div class="footer-inner">
         <div class="footer-brand">
-          <div class="footer-logo">
+          <img
+            v-if="brandLogo"
+            :src="brandLogo"
+            class="footer-logo footer-logo-img"
+            :alt="siteSettings.blog_name || '站点 Logo'"
+            loading="lazy"
+          />
+          <div v-else class="footer-logo">
             {{ siteSettings.blog_name?.charAt(0) || '知' }}
           </div>
           <div class="brand-text">
@@ -446,6 +459,12 @@ const menus = computed(() =>
   })
 )
 
+/** 站点 Logo：自定义 site_logo 优先，回退站点头像 blog_avatar（均由站点设置上传） */
+const brandLogo = computed(() => {
+  const s = siteSettingsStore.siteSettings as Record<string, unknown>
+  return String(s?.site_logo || s?.blog_avatar || '').trim()
+})
+
 const currentYear = computed(() => new Date().getFullYear())
 
 // JSON-LD 结构化数据：Organization + WebSite 随站点设置注入
@@ -466,7 +485,10 @@ watch(
       name: settings.blog_name,
       description: settings.blog_desc || undefined,
       url: `${origin}/`,
-      logo: settings.blog_avatar || undefined,
+      logo:
+        ((settings as Record<string, unknown>).site_logo as string) ||
+        settings.blog_avatar ||
+        undefined,
       address: settings.contact_address
         ? { '@type': 'PostalAddress', streetAddress: settings.contact_address }
         : undefined,
@@ -682,6 +704,18 @@ function fetchPublishedPages() {
   gap: 10px;
   text-decoration: none;
 }
+.brand-logo-img {
+  object-fit: contain;
+  background: transparent;
+  border-radius: 8px;
+}
+
+.footer-logo-img {
+  object-fit: contain;
+  background: transparent;
+  border-radius: 10px;
+}
+
 .brand-logo {
   width: 36px;
   height: 36px;

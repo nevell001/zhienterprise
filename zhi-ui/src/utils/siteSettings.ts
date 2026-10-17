@@ -17,8 +17,13 @@ export async function initSiteSettings(): Promise<void> {
 
     // 获取站点个性化设置（silent: 无权限时不弹通知，站点前台有自己的公开设置接口）
     const silentCfg = { silent: true }
-    const [themeColor, logoUrl, sidebarStyle, customCss] = await Promise.all([
+    const [themeColor, customLogo, logoUrl, sidebarStyle, customCss] = await Promise.all([
       getConfigKey('theme_color', silentCfg).catch((): Config => ({
+        configKey: '',
+        configValue: '',
+        configName: ''
+      })),
+      getConfigKey('site_logo', silentCfg).catch((): Config => ({
         configKey: '',
         configValue: '',
         configName: ''
@@ -48,9 +53,10 @@ export async function initSiteSettings(): Promise<void> {
       handleThemeStyle(themeColor.configValue)
     }
 
-    // 应用Logo
-    if (logoUrl.configValue && logoUrl.configValue !== '') {
-      applyLogo(logoUrl.configValue)
+    // 应用 Logo：自定义 site_logo 优先，回退站点头像 blog_avatar
+    const effectiveLogo = customLogo.configValue || logoUrl.configValue
+    if (effectiveLogo && effectiveLogo !== '') {
+      applyLogo(effectiveLogo)
     }
 
     // 应用侧边栏样式

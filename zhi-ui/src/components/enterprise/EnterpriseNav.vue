@@ -2,7 +2,13 @@
   <nav class="ent-nav" :class="{ solid: navSolid || !isHome, 'over-hero': isHome && !navSolid }">
     <div class="ent-nav-in">
       <router-link to="/" class="ent-logo">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+        <img
+          v-if="brandLogo"
+          :src="brandLogo"
+          class="ent-logo-img"
+          :alt="blogSettings.blog_name || '站点 Logo'"
+        />
+        <svg v-else width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
           <rect
             x="1.5"
             y="1.5"
@@ -123,6 +129,12 @@ const userStore = useUserStore()
 const siteSettingsStore = useSiteSettingsStore()
 
 const blogSettings = computed(() => siteSettingsStore.siteSettings)
+
+/** 站点 Logo：自定义 site_logo 优先，回退站点头像；都为空则用内联图形标记 */
+const brandLogo = computed(() => {
+  const s = blogSettings.value as Record<string, unknown>
+  return String(s?.site_logo || s?.blog_avatar || '').trim()
+})
 const businessLabel = computed(
   () => String(blogSettings.value.business_label || '').trim() || '核心业务'
 )
@@ -241,6 +253,13 @@ const handleUserCommand = async (command: string) => {
 /* 透明态高于实底态（方案文档 §1.1：滚动 80px 后 88px 收拢至 64px） */
 .ent-nav.over-hero .ent-nav-in {
   height: 88px;
+}
+
+.ent-logo-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 .ent-logo {

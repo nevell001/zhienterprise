@@ -231,3 +231,18 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
 友链、浏览量统计（企业站同样需要）。**已有库注意**：种子只做 `INSERT IGNORE`，不会清理
 存量键行 —— 功能层面无害（白名单已不含这些键），如需彻底清理按 `sql/README.md` 的
 `99_fix_*.sql` 约定处理。
+
+## 六、自定义 Logo / Banner（管理后台可配置，2026-10-17）
+新增两个站点设置键，均可在「站点设置 → 站点信息 → 品牌图」上传（单图，存 `/profile` 下）：
+
+| 键 | 用途 | 未配置时 |
+| --- | --- | --- |
+| `site_logo` | 前台导航（经典/企业）、页脚品牌、登录/注册/找回密码品牌区、JSON-LD `logo`、后台侧边栏 Logo | 回退 `blog_avatar` 站点头像 → 站名首字 |
+| `site_banner` | 企业官网首页 Hero 右侧视觉区（16:9，替换模板母题插画） | 回退当前行业模板的母题插画 |
+
+实现要点：`FrontConfigKeys` 前台白名单 + SQL 种子同步新增（**不改白名单后台能存前台读不到**，前端 `FrontConfigKeysTest` 契约守卫）；消费端在 `EnterpriseNav` / `SiteLayout`（导航+页脚+JSON-LD）/ `sections/HeroSection.vue`（builder 首页真正在用的 Hero）/ `EnterpriseHome.vue`（老库回退首页）/ `utils/siteSettings.ts`（后台侧边栏）。
+
+## 七、认证页（登录/注册/找回密码）统一企业风格（2026-10-17）
+
+
+三页统一包进 `SiteLayout`、共用 `assets/styles/auth-enterprise.scss`（`ent-*` 类 + `--tpl-*` 变量层）与 `composables/useAuthBrand.ts`（品牌取值），与整站导航/字体/配色/圆角/阴影一致；深色模式走 `.tpl-site` 变量重映射。类名刻意避开 `.auth-card` 等旧类，以免被 `theme-dark.css` / `mo-blog.scss` 的 `!important` 棕色规则覆盖。

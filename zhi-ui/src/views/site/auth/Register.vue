@@ -1,27 +1,35 @@
 <template>
   <SiteLayout>
-    <div class="mo-auth-page">
-      <section class="auth-card">
-        <router-link to="/" class="auth-brand">
-          <span class="brand-mark">知</span>
-          <span>知企建站系统</span>
+    <div class="ent-auth-page tpl-site">
+      <section class="ent-auth-card ent-auth-card--wide">
+        <router-link to="/" class="ent-auth-brand">
+          <img
+            v-if="brandLogo"
+            :src="brandLogo"
+            class="ent-brand-logo"
+            :alt="brandName"
+            loading="lazy"
+          />
+          <span v-else class="ent-brand-mark">{{ brandInitial }}</span>
+          <span class="ent-brand-name">{{ brandName }}</span>
         </router-link>
 
-        <div class="auth-head">
+        <div class="ent-auth-head">
+          <span class="ent-auth-eyebrow">企业官网 · 注册账号</span>
           <h2>注册</h2>
-          <p class="sub">创建账号，开始发布与评论</p>
+          <p class="ent-auth-sub">创建账号，开始管理官网内容</p>
         </div>
 
-        <div class="auth-switch">
-          <router-link to="/login" class="switch-item">登录</router-link>
-          <span class="switch-item active">注册</span>
+        <div class="ent-auth-switch">
+          <router-link to="/login" class="ent-switch-item">登录</router-link>
+          <span class="ent-switch-item is-active">注册</span>
         </div>
 
         <el-form
           ref="registerFormRef"
           :model="registerForm"
           :rules="registerRules"
-          class="register-form"
+          class="ent-auth-form"
         >
           <el-form-item prop="username" class="form-group">
             <label>
@@ -132,12 +140,17 @@
             </label>
           </div>
 
-          <el-button type="primary" :loading="loading" class="auth-submit" @click="handleRegister">
+          <el-button
+            type="primary"
+            :loading="loading"
+            class="ent-auth-submit"
+            @click="handleRegister"
+          >
             {{ loading ? '注册中...' : '注册' }}
           </el-button>
         </el-form>
 
-        <p class="auth-footer">
+        <p class="ent-auth-footer">
           已有账号？
           <router-link to="/login">返回登录</router-link>
         </p>
@@ -156,9 +169,11 @@ import { useSiteUserStore } from '@/stores/siteUser'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { getCodeImg } from '@/api/site/auth'
 import { logger } from '@/utils/logger'
+import { useAuthBrand } from '@/composables/useAuthBrand'
 
 const router = useRouter()
 const siteUserStore = useSiteUserStore()
+const { brandName, brandLogo, brandInitial } = useAuthBrand()
 
 const registerFormRef = ref<FormInstance>()
 const loading = ref(false)
@@ -327,311 +342,3 @@ onUnmounted(() => {
   }
 })
 </script>
-
-<style scoped>
-.mo-auth-page {
-  box-sizing: border-box;
-  min-height: 100vh;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  /* 顶部避开 SiteLayout 的 fixed 导航（60px） */
-  padding: calc(60px + 24px) var(--mo-sp-6) var(--mo-sp-6);
-  background: radial-gradient(circle at top left, var(--mo-p50), transparent 32%), var(--mo-n50);
-}
-
-.auth-card {
-  width: min(100%, 420px);
-  max-width: 420px;
-  padding: 26px 28px;
-  background: var(--mo-bg-card, #fff);
-  border: 1px solid var(--mo-n200);
-  border-radius: var(--mo-r-md);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-}
-
-.auth-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: fit-content;
-  margin-bottom: 18px;
-  color: var(--mo-n900);
-  font-size: var(--mo-fs-sm);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.brand-mark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  color: #fff;
-  background: var(--mo-p600);
-  border-radius: var(--mo-r-md);
-}
-
-.auth-head h2 {
-  margin: 0 0 6px;
-  color: var(--mo-n900);
-  font-size: var(--mo-fs-2xl);
-  font-weight: 700;
-}
-
-.sub {
-  margin: 0 0 var(--mo-sp-4);
-  color: var(--mo-n500);
-  font-size: var(--mo-fs-sm);
-}
-
-.auth-switch {
-  display: flex;
-  gap: var(--mo-sp-1);
-  padding: var(--mo-sp-1);
-  margin-bottom: var(--mo-sp-4);
-  background: var(--mo-n100);
-  border-radius: var(--mo-r-md);
-}
-
-.switch-item {
-  flex: 1;
-  padding: 7px 10px;
-  color: var(--mo-n500);
-  font-size: var(--mo-fs-sm);
-  font-weight: 500;
-  text-align: center;
-  text-decoration: none;
-  border-radius: var(--mo-r-sm);
-  transition: all 0.2s;
-}
-
-.switch-item:hover {
-  color: var(--mo-n700);
-}
-
-.switch-item.active {
-  color: var(--mo-p600);
-  background: var(--mo-bg-card, #fff);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-}
-
-.register-form {
-  margin-top: 0;
-}
-
-.form-group {
-  display: block;
-  margin-bottom: var(--mo-sp-3);
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: var(--mo-n700);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.form-group label .required {
-  color: var(--mo-error, #f56c6c);
-  margin-left: 2px;
-}
-
-.form-group :deep(.el-form-item__content) {
-  display: block;
-}
-
-:deep(.el-input__wrapper) {
-  border-radius: var(--mo-r-md);
-  box-shadow: 0 0 0 1px var(--mo-n300) inset;
-}
-
-:deep(.el-input__wrapper.is-focus) {
-  box-shadow:
-    0 0 0 1px var(--mo-p400) inset,
-    0 0 0 3px var(--mo-p50);
-}
-
-.email-code-row,
-.captcha-row {
-  display: flex;
-  align-items: center;
-  gap: var(--mo-sp-2);
-}
-
-.email-code-row :deep(.el-input),
-.captcha-row :deep(.el-input) {
-  flex: 1;
-}
-
-.code-button {
-  width: 82px;
-  border-radius: var(--mo-r-md);
-}
-
-.captcha-img {
-  width: 106px;
-  height: 32px;
-  object-fit: cover;
-  cursor: pointer;
-  border: 1px solid var(--mo-n300);
-  border-radius: var(--mo-r-md);
-  transition: border-color 0.2s;
-}
-
-.captcha-img:hover {
-  border-color: var(--mo-p400);
-}
-
-.form-options {
-  margin: 2px 0 16px;
-  font-size: 13px;
-}
-
-.remember {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  color: var(--mo-n600);
-}
-
-.remember input {
-  width: 14px;
-  height: 14px;
-  flex: 0 0 auto;
-  accent-color: var(--mo-p600);
-}
-
-.remember a {
-  color: var(--mo-p600);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.remember a:hover {
-  text-decoration: underline;
-}
-
-.auth-submit {
-  width: 100%;
-  height: 38px;
-  border-radius: var(--mo-r-md);
-  font-size: var(--mo-fs-sm);
-  font-weight: 600;
-}
-
-.auth-footer {
-  margin: var(--mo-sp-4) 0 0;
-  color: var(--mo-n500);
-  font-size: 13px;
-  text-align: center;
-}
-
-.auth-footer a {
-  color: var(--mo-p600);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.password-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
-}
-
-@media (max-width: 768px) {
-  .mo-auth-page {
-    padding: calc(60px + 16px) var(--mo-sp-4) var(--mo-sp-4);
-  }
-
-  .auth-card {
-    padding: 22px;
-  }
-
-  .password-grid {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-}
-
-:global(html.dark.theme-mo-blog .auth-card),
-:global(html.dark .auth-card) {
-  background: var(--mo-bg-card) !important;
-  border-color: var(--mo-border, #44403c) !important;
-}
-
-/* 深色下 --mo-n900 被重映射成背景色，直接用作文字色会与卡片同色而隐形，这里显式改回前景色 */
-:global(html.dark.theme-mo-blog .auth-head h2),
-:global(html.dark .auth-head h2),
-:global(html.dark.theme-mo-blog .auth-brand),
-:global(html.dark .auth-brand) {
-  color: var(--mo-n100, #f5f5f4) !important;
-}
-
-:global(html.dark.theme-mo-blog .auth-switch),
-:global(html.dark .auth-switch) {
-  background: var(--mo-n700) !important;
-}
-
-:global(html.dark.theme-mo-blog .switch-item),
-:global(html.dark .switch-item) {
-  color: var(--mo-n300, #57534e) !important;
-}
-
-:global(html.dark.theme-mo-blog .switch-item:hover),
-:global(html.dark .switch-item:hover) {
-  color: var(--mo-n100, #f5f5f4) !important;
-}
-
-:global(html.dark.theme-mo-blog .switch-item.active),
-:global(html.dark .switch-item.active) {
-  background: var(--mo-n700) !important;
-  color: var(--mo-n100, #f5f5f4) !important;
-  box-shadow: none !important;
-  border-color: transparent !important;
-}
-
-:global(html.dark.theme-mo-blog .auth-submit),
-:global(html.dark .auth-submit) {
-  background: var(--mo-p600) !important;
-  color: var(--mo-n100, #f5f5f4) !important;
-  border-color: transparent !important;
-}
-
-:global(html.dark.theme-mo-blog .auth-footer a),
-:global(html.dark .auth-footer a) {
-  color: var(--mo-p300, #a5b4fc) !important;
-}
-
-/* 深色下 .remember 内的协议链接沿用浅色 p600 会太暗（色阶被重映射），与 auth-footer 链接同口径 */
-:global(html.dark.theme-mo-blog .remember a),
-:global(html.dark .remember a) {
-  color: var(--mo-p300, #a5b4fc);
-}
-
-/* 默认深色下标签用次要文字色；不写死 #78716c（深色底上只有 3.4:1）。 */
-:global(html.dark .form-group label) {
-  color: var(--mo-n400) !important;
-}
-
-/* 默认深色下 .el-input__wrapper 的描边：浅色规则用的 --mo-n300 在深色作用域被重映射成
-   次要文字色（#cfd3dc），会画出一条近乎白色的边框，这里换成边框令牌 --mo-n700。
-   Mo-Blog 深色由 theme-dark.css / mo-blog.scss 的同名规则覆盖，值也是 #44403c。 */
-html.dark .mo-auth-page :deep(.el-input__wrapper) {
-  box-shadow: 0 0 0 1px var(--mo-n700) inset;
-}
-
-/* 上一条选择器权重高于浅色区的 .is-focus 规则，聚焦态必须一起补写，否则深色下聚焦没有反馈。 */
-html.dark .mo-auth-page :deep(.el-input__wrapper.is-focus) {
-  box-shadow:
-    0 0 0 1px var(--mo-p400) inset,
-    0 0 0 3px var(--mo-p50);
-}
-
-/* 输入框 / 占位符的深色样式由 theme-dark.css 与 mo-blog.scss 的
-   「Auth 表单」块负责。这里原先还有一批 :global(html.dark :deep(...)) 规则，
-   :deep() 嵌在 :global() 里不会被编译器展开，浏览器把整条选择器当作非法
-   规则丢弃（实测 CSSOM 里查不到），删掉不改变任何渲染结果。 */
-</style>
