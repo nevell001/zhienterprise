@@ -40,6 +40,7 @@
     <resultMap type="Article" id="SimpleArticleResult">
         <result property="id"    column="id"    />
         <result property="title"    column="title"    />
+        <result property="status"    column="status"    />
         <result property="delFlag"    column="del_flag"    />
     </resultMap>
 
@@ -270,13 +271,13 @@
     </select>
 
     <select id="getPrevArticle" resultMap="SimpleArticleResult" parameterType="Long">
-        SELECT id, title, del_flag FROM zhi_article 
+        SELECT id, title, status, del_flag FROM zhi_article 
         WHERE id &lt; #{id} AND status = 1 AND del_flag = 0 
         ORDER BY id DESC LIMIT 1
     </select>
 
     <select id="getNextArticle" resultMap="SimpleArticleResult" parameterType="Long">
-        SELECT id, title, del_flag FROM zhi_article 
+        SELECT id, title, status, del_flag FROM zhi_article 
         WHERE id &gt; #{id} AND status = 1 AND del_flag = 0 
         ORDER BY id ASC LIMIT 1
     </select>

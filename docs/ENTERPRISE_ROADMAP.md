@@ -246,3 +246,13 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
 
 
 三页统一包进 `SiteLayout`、共用 `assets/styles/auth-enterprise.scss`（`ent-*` 类 + `--tpl-*` 变量层）与 `composables/useAuthBrand.ts`（品牌取值），与整站导航/字体/配色/圆角/阴影一致；深色模式走 `.tpl-site` 变量重映射。类名刻意避开 `.auth-card` 等旧类，以免被 `theme-dark.css` / `mo-blog.scss` 的 `!important` 棕色规则覆盖。
+
+## 八、文章详情页去博客化（2026-10-17）
+
+详情页从「博客阅读页」改为「企业官网新闻详情」：
+
+**移除的博客元素**：阅读进度条、文章目录（TOC）、作者卡（头像/昵称/简介/「+ 关注」/获赞/评论数统计）、收藏按钮、阅读时长（⏱ 约 N 分钟）、标签云侧栏、侧栏迷你相关推荐、meta 里的作者署名。
+
+**保留 / 新增**：面包屑、分类徽标、发布日期与更新日期、阅读量（`view_count_enabled` 开关控制）、摘要导语、封面图、正文、关键词胶囊（SEO 用，保留 `/tag/:id` 跳转）、**相关阅读卡片**（3 列，替代侧栏迷你列表）、**咨询 CTA**（引导到 `/contact`）、上/下一篇。评论区保留但受 `comment_enabled` 开关控制（默认关闭）。
+
+**配套修复**：`ArticleMapper.xml` 的 `SimpleArticleResult` 与 `getPrevArticle` / `getNextArticle` 两条 SQL 漏取 `status`，而 `FrontController#getArticleDetail` 要求 `status != null && equals(1L)` 才输出导航项 —— 结果「上一篇/下一篇」永远不返回（静默失效）。已补 `status` 列与映射，并加 `ArticleNavigationQueryTest` 契约守卫。

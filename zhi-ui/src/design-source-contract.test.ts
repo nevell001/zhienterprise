@@ -29,7 +29,6 @@ const LEGACY_ICON_ALLOWLIST = ['layout/components/TagsView/index.vue']
 // 2026-10-02 B 批基线：127 处 / 13 个文件；B2 令牌化后剩 39 处 / 5 个文件。
 // 降到 0 的文件从表里删除，再写回来就会被当成「新增」直接报错。
 const DARK_HEX_CEILING: Record<string, number> = {
-  'components/ArticleTOC.vue': 1,
   'assets/styles/themes/mo-blog.scss': 2,
   'views/admin/article/index.vue': 1
 }

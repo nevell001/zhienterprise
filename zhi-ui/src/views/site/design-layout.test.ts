@@ -5,7 +5,6 @@ import { resolve } from 'node:path'
 const homeView = readFileSync(resolve(__dirname, 'index.vue'), 'utf8')
 const articleDetailView = readFileSync(resolve(__dirname, 'article/detail.vue'), 'utf8')
 const siteLayout = readFileSync(resolve(__dirname, '../../components/SiteLayout.vue'), 'utf8')
-const articleTOC = readFileSync(resolve(__dirname, '../../components/ArticleTOC.vue'), 'utf8')
 const forgotPasswordView = readFileSync(resolve(__dirname, 'auth/ForgotPassword.vue'), 'utf8')
 const registerView = readFileSync(resolve(__dirname, 'auth/Register.vue'), 'utf8')
 const categoryView = readFileSync(resolve(__dirname, 'category/index.vue'), 'utf8')
@@ -25,7 +24,6 @@ const publicSiteSurfaces = [
   homeView,
   articleDetailView,
   siteLayout,
-  articleTOC,
   forgotPasswordView,
   registerView,
   categoryView,
@@ -49,15 +47,15 @@ describe('blog design layout guards', () => {
   })
 
   it('文章详情页不应被旧卡片布局类压缩', () => {
-    expect(articleDetailView).toContain('class="mo-article-page"')
+    expect(articleDetailView).toContain('class="mo-article-page news-article"')
     expect(articleDetailView).not.toContain('class="article-detail mo-article-page"')
     expect(articleDetailView).not.toContain('padding-top: 64px;')
   })
 
   it('文章详情页应支持主题深色变量并允许内容列收缩', () => {
     expect(articleDetailView).toContain('html.dark .mo-article-page')
-    expect(articleDetailView).toContain('.mo-article-page .article-content {\n  min-width: 0;')
-    expect(articleDetailView).toContain('.mo-article-page .article-side {\n  min-width: 0;')
+    // 内容列允许收缩（表格/代码块在窄屏内横向滚动，不撑破布局）
+    expect(articleDetailView).toContain('.mo-article-page .content-body {\n  min-width: 0;')
     expect(articleDetailView).toContain(
       '.mo-article-page .content-body :deep(table) {\n  display: block;'
     )
@@ -81,13 +79,6 @@ describe('blog design layout guards', () => {
     publicSiteSurfaces.forEach(surface => {
       expect(surface).not.toMatch(/console\.(warn|error|log)/)
     })
-  })
-
-  it('目录组件应使用当前主题色和可清理的滚动监听', () => {
-    expect(articleTOC).not.toContain('@media (prefers-color-scheme: dark)')
-    expect(articleTOC).toContain('html.dark .article-toc')
-    expect(articleTOC).toContain('const handleScroll')
-    expect(articleTOC).not.toContain("window.addEventListener('scroll', () =>")
   })
 
   it('分类和标签页主布局不应横向溢出', () => {
@@ -162,7 +153,7 @@ describe('blog design layout guards', () => {
     )
     expect(businessDetailView).toContain('<SiteBreadcrumb')
     // 头部顺序：面包屑 → 分类标签 → 标题（§3.4），面包屑必须先于 cat-badge
-    const headerStart = articleDetailView.indexOf('class="mo-article-header"')
+    const headerStart = articleDetailView.indexOf('class="na-head"')
     const crumbAt = articleDetailView.indexOf('<SiteBreadcrumb', headerStart)
     const badgeAt = articleDetailView.indexOf('class="cat-badge"', headerStart)
     expect(headerStart).toBeGreaterThan(-1)

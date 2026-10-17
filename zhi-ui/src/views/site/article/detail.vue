@@ -1,7 +1,6 @@
 <template>
-  <div class="article-detail-container" :class="{ 'tpl-site': isTplMode }">
-    <!-- 企业官网模板：阅读进度条（方案文档 §3.4） -->
-    <div v-if="isTplMode" class="read-progress" :style="{ width: readProgress + '%' }"></div>
+  <!-- 新闻/内容详情：企业官网风格（博客元素已移除） -->
+  <div class="article-detail-container tpl-site">
     <!-- 站点导航 -->
     <SiteLayout>
       <!-- 加载状态 -->
@@ -48,137 +47,108 @@
         </div>
       </div>
 
-      <div v-else class="mo-article-page">
-        <header class="mo-article-header">
-          <!-- 面包屑（方案文档 §3.4 详情页顶部：面包屑 → 分类标签 → 标题） -->
+      <div v-else class="mo-article-page news-article">
+        <header class="na-head">
+          <!-- 面包屑（方案文档 §3.4：面包屑 → 分类 → 标题） -->
           <SiteBreadcrumb class="article-crumb" :items="breadcrumbItems" />
-          <span v-if="article.categoryName" class="cat-badge">{{ article.categoryName }}</span>
-          <h1>{{ article.title }}</h1>
-          <div class="a-meta">
-            <span class="author">{{ article.authorName || article.author || '匿名作者' }}</span>
-            <span>·</span>
+          <div class="na-kicker">
+            <span v-if="article.categoryName" class="cat-badge">{{ article.categoryName }}</span>
             <time :datetime="article.createTime">{{ formatDate(article.createTime) }}</time>
-            <!-- 方案文档 §6.2：发布日期与更新时间均在页面可见（两者相同则不重复展示） -->
-            <template v-if="article.updateTime && article.updateTime !== article.createTime">
-              <span>·</span>
-              <span>更新于 {{ formatDate(article.updateTime) }}</span>
-            </template>
-            <span v-if="isFeatureEnabled('view_count_enabled')">·</span>
-            <span v-if="isFeatureEnabled('view_count_enabled')">
-              👁 {{ article.viewCount || 0 }} 阅读
+            <span v-if="article.updateTime && article.updateTime !== article.createTime">
+              更新于 {{ formatDate(article.updateTime) }}
             </span>
-            <span>·</span>
-            <span>⏱ 约 {{ readingMinutes }} 分钟</span>
+            <span v-if="isFeatureEnabled('view_count_enabled')">
+              {{ article.viewCount || 0 }} 阅读
+            </span>
           </div>
+          <h1>{{ article.title }}</h1>
+          <p v-if="article.summary" class="na-lead">{{ article.summary }}</p>
         </header>
 
-        <main class="body-layout">
-          <aside class="toc">
-            <ArticleTOC
-              v-if="article && article.content"
-              :content="article.content"
-              @toc-ready="handleTOCReady"
-            />
-          </aside>
+        <div class="na-body">
+          <figure v-if="article.coverUrl" class="article-cover">
+            <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
+          </figure>
+          <div class="content-body" v-html="processedContent"></div>
 
-          <article class="article-content">
-            <div v-if="article.coverUrl" class="article-cover">
-              <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
-            </div>
-            <div class="content-body" v-html="processedContent"></div>
+          <div v-if="article.tags && article.tags.length" class="na-tags">
+            <span class="na-tags-label">关键词</span>
+            <router-link
+              v-for="tag in article.tags"
+              :key="tag.id"
+              :to="`/tag/${tag.id}`"
+              class="na-tag"
+            >
+              {{ tag.name }}
+            </router-link>
+          </div>
+        </div>
 
-            <div class="article-actions">
-              <el-button
-                :type="article.isBookmarked ? 'warning' : 'default'"
-                plain
-                @click="handleBookmark"
-              >
-                {{ article.isBookmarked ? '已收藏' : '收藏' }}
-              </el-button>
-            </div>
+        <!-- 相关阅读：企业站用卡片而不是博客侧栏迷你列表 -->
+        <section v-if="relatedArticles.length > 0" class="na-related">
+          <div class="na-sec-head">
+            <h2>相关阅读</h2>
+            <p>继续了解行业实践与我们的解决思路</p>
+          </div>
+          <div class="na-related-grid">
+            <router-link
+              v-for="related in relatedArticles.slice(0, 3)"
+              :key="related.id"
+              class="na-related-card"
+              :to="{
+                name: 'PublicSiteArticleDetail',
+                params: { id: related.id ?? related.articleId ?? related.uuid }
+              }"
+            >
+              <span v-if="related.categoryName" class="na-related-cat">
+                {{ related.categoryName }}
+              </span>
+              <h3>{{ related.title }}</h3>
+              <p v-if="related.summary">{{ related.summary }}</p>
+              <span class="na-related-more">阅读全文 →</span>
+            </router-link>
+          </div>
+        </section>
 
-            <div v-if="prevArticle || nextArticle" class="article-navigation">
-              <router-link
-                v-if="prevArticle"
-                :to="{
-                  name: 'PublicSiteArticleDetail',
-                  params: { id: prevArticle.id ?? prevArticle.articleId ?? prevArticle.uuid }
-                }"
-                class="nav-item"
-              >
-                <span class="nav-label">上一篇</span>
-                <span class="nav-title">{{ prevArticle.title }}</span>
-              </router-link>
-              <router-link
-                v-if="nextArticle"
-                :to="{
-                  name: 'PublicSiteArticleDetail',
-                  params: { id: nextArticle.id ?? nextArticle.articleId ?? nextArticle.uuid }
-                }"
-                class="nav-item next-article"
-              >
-                <span class="nav-label">下一篇</span>
-                <span class="nav-title">{{ nextArticle.title }}</span>
-              </router-link>
-            </div>
-          </article>
+        <!-- 转化入口：文章读完给出下一步动作 -->
+        <section class="na-cta">
+          <div class="na-cta-text">
+            <h2>需要进一步了解？</h2>
+            <p>告诉我们你的业务场景，我们会给出可落地的建议。</p>
+          </div>
+          <router-link class="na-cta-btn" to="/contact">预约咨询</router-link>
+        </section>
 
-          <aside class="article-side">
-            <div class="author-card">
-              <div class="a-avatar">{{ authorInitial }}</div>
-              <div class="a-name">{{ article.authorName || article.author || '匿名作者' }}</div>
-              <div class="a-bio">
-                {{ siteSettings.blog_desc || '记录技术、产品与生活里的认真思考。' }}
-              </div>
-              <button class="btn btn-primary btn-sm" type="button">+ 关注</button>
-              <div class="a-stats">
-                <div class="a-stat">
-                  <div class="num">{{ relatedArticles.length || 0 }}</div>
-                  <div class="lbl">相关</div>
-                </div>
-                <div class="a-stat">
-                  <div class="num">{{ article.likeCount || 0 }}</div>
-                  <div class="lbl">获赞</div>
-                </div>
-                <div class="a-stat">
-                  <div class="num">{{ articleCommentCount }}</div>
-                  <div class="lbl">评论</div>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="article.tags && article.tags.length" class="side-widget">
-              <div class="wt">文章标签</div>
-              <div class="tag-cloud">
-                <router-link
-                  v-for="tag in article.tags"
-                  :key="tag.id"
-                  :to="`/tag/${tag.id}`"
-                  class="tc"
-                >
-                  {{ tag.name }}
-                </router-link>
-              </div>
-            </div>
-
-            <div v-if="relatedArticles.length > 0" class="side-widget">
-              <div class="wt">相关推荐</div>
-              <div class="related-mini-list">
-                <router-link
-                  v-for="related in relatedArticles.slice(0, 4)"
-                  :key="related.id"
-                  :to="{
-                    name: 'PublicSiteArticleDetail',
-                    params: { id: related.id ?? related.articleId ?? related.uuid }
-                  }"
-                  class="related-mini"
-                >
-                  {{ related.title }}
-                </router-link>
-              </div>
-            </div>
-          </aside>
-        </main>
+        <!-- 上/下一篇：保留新闻式顺序浏览 -->
+        <nav
+          v-if="prevArticle || nextArticle"
+          class="na-prevnext"
+          :class="{ 'is-single': !prevArticle || !nextArticle }"
+        >
+          <router-link
+            v-if="prevArticle"
+            class="na-prevnext-item"
+            :to="{
+              name: 'PublicSiteArticleDetail',
+              params: { id: prevArticle.id ?? prevArticle.articleId ?? prevArticle.uuid }
+            }"
+          >
+            <span class="na-prevnext-label">上一篇</span>
+            <span class="na-prevnext-title">{{ prevArticle.title }}</span>
+          </router-link>
+          <span v-else class="na-prevnext-item is-empty"></span>
+          <router-link
+            v-if="nextArticle"
+            class="na-prevnext-item is-next"
+            :to="{
+              name: 'PublicSiteArticleDetail',
+              params: { id: nextArticle.id ?? nextArticle.articleId ?? nextArticle.uuid }
+            }"
+          >
+            <span class="na-prevnext-label">下一篇</span>
+            <span class="na-prevnext-title">{{ nextArticle.title }}</span>
+          </router-link>
+        </nav>
 
         <section v-if="isFeatureEnabled('comment_enabled')" class="comment-section">
           <div class="comment-head">
@@ -305,12 +275,10 @@ import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import SiteLayout from '@/components/SiteLayout.vue'
 import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
-import ArticleTOC from '@/components/ArticleTOC.vue'
 import SitePager from '@/components/SitePager.vue'
 import { DocumentCopy } from '@element-plus/icons-vue'
 import { getArticleDetail, getRelatedArticles } from '@/api/site/article'
 import { toggleCommentLike, getCommentLikedStatuses } from '@/api/site/like'
-import { toggleBookmark } from '@/api/site/bookmark'
 
 import {
   getArticleComments,
@@ -329,23 +297,6 @@ onUnmounted(() => {
   removeJsonLd('zh-jsonld-article')
 })
 
-// 企业官网模板模式：阅读进度条 + 模板皮肤开关
-const isTplMode = computed(() => String(siteSettings.value?.home_layout || '') === 'business')
-const readProgress = ref(0)
-
-const updateReadProgress = () => {
-  const doc = document.documentElement
-  const scrollable = doc.scrollHeight - window.innerHeight
-  readProgress.value = scrollable > 0 ? Math.min(100, (window.scrollY / scrollable) * 100) : 0
-}
-
-onMounted(() => {
-  window.addEventListener('scroll', updateReadProgress, { passive: true })
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', updateReadProgress)
-})
 import { logger } from '@/utils/logger'
 
 const route = useRoute()
@@ -368,7 +319,6 @@ const commentSubmitting = ref(false)
 const isLoggedIn = ref(false)
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const isFeatureEnabled = (feature: string) => siteSettingsStore.isFeatureEnabled(feature)
-const tocItems = ref([])
 
 // 处理文章内容，为标题添加ID并消毒内容
 const processedContent = computed(() => {
@@ -377,7 +327,7 @@ const processedContent = computed(() => {
   // 首先消毒HTML内容，防止XSS攻击
   const sanitizedContent = sanitizeArticleContent(article.value.content)
 
-  // 然后为标题添加ID，用于目录导航
+  // 然后为标题添加 ID（保留锚点能力，便于外链直达小节）
   const tempDiv = document.createElement('div')
   tempDiv.innerHTML = sanitizedContent
 
@@ -400,16 +350,6 @@ const processedContent = computed(() => {
   return tempDiv.innerHTML
 })
 
-const readingMinutes = computed(() => {
-  const text = article.value?.content?.replace(/<[^>]+>/g, '') || ''
-  return Math.max(1, Math.ceil(text.length / 500))
-})
-
-const authorInitial = computed(() => {
-  const name = article.value?.authorName || article.value?.author || '匿'
-  return name.charAt(0)
-})
-
 // 面包屑链路（≤3 级）：首页 → 分类 → 当前文章；分类优先数字 ID（路由兼容别名）
 const breadcrumbItems = computed(() => {
   const items: Array<{ label: string; to?: string }> = [{ label: '首页', to: '/' }]
@@ -428,11 +368,6 @@ const articleCommentCount = computed(() => {
   const count = Number(article.value?.commentCount)
   return Number.isFinite(count) ? count : totalComments.value
 })
-
-// 处理目录就绪事件
-const handleTOCReady = items => {
-  tocItems.value = items
-}
 
 // 评论表单
 const commentForm = reactive({
@@ -534,14 +469,15 @@ const loadArticleDetail = async () => {
         image: article.value.coverUrl || undefined,
         datePublished: article.value.createTime || undefined,
         dateModified: article.value.updateTime || undefined,
-        author: { '@type': 'Person', name: article.value.authorName || 'admin' },
+        // 企业官网不再暴露个人作者：署名统一用站点机构
+        author: { '@type': 'Organization', name: siteName },
         publisher: {
           '@type': 'Organization',
           name: siteName,
-          logo:
-            (siteSettings.value as any).site_logo || siteSettings.value.blog_avatar
-              ? { '@type': 'ImageObject', url: siteSettings.value.blog_avatar }
-              : undefined
+          logo: (() => {
+            const logo = (siteSettings.value as any).site_logo || siteSettings.value.blog_avatar
+            return logo ? { '@type': 'ImageObject', url: logo } : undefined
+          })()
         }
       })
     } else {
@@ -662,26 +598,6 @@ const handleCommentPageChange = async (page: number) => {
   const section = document.querySelector('.comment-section')
   if (section) {
     section.scrollIntoView({ behavior: 'smooth' })
-  }
-}
-
-// 收藏文章
-const handleBookmark = async () => {
-  if (!isLoggedIn.value) {
-    ElMessage.info('请先登录后再进行收藏')
-    router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
-    return
-  }
-
-  try {
-    const response = await toggleBookmark(article.value.id)
-    if (response.code === 200) {
-      article.value.isBookmarked = response.data.bookmarked
-      ElMessage.success(article.value.isBookmarked ? '收藏成功' : '取消收藏')
-    }
-  } catch (error: any) {
-    logger.error('收藏失败:', error)
-    ElMessage.error('操作失败')
   }
 }
 
@@ -916,23 +832,458 @@ watch(
 </script>
 
 <style scoped>
+/* ==================== 新闻 / 内容详情（企业官网风格） ====================
+   已移除的博客元素：阅读进度条、文章目录（TOC）、作者卡（头像/昵称/简介/关注/
+   获赞/评论数）、收藏按钮、阅读时长、标签云侧栏、侧栏迷你相关推荐。
+   新结构对齐企业官网：面包屑 → 分类与日期 → 标题 → 摘要 → 封面 → 正文 →
+   关键词 → 相关阅读卡片 → 咨询 CTA → 上/下一篇 →（评论，开关默认关闭）。
+   配色统一走 --tpl-* 变量层；评论区保留 --mo-* 色阶（下方保留其深色重映射）。 */
+
 .mo-article-page {
   min-height: 100vh;
   padding-top: 60px;
-  background: var(--mo-n50);
-  color: var(--mo-n800);
+  background: var(--tpl-bg, #fff);
+  color: var(--tpl-ink-700, #1f2937);
   font-family: var(--mo-font-sans);
 }
 
-/* ===== 深色模式：博文详情页 =====
-   默认主题深色映射到 --el-* 变量（Tech Blue 深蓝），Mo-Blog 深色恢复棕色色阶。
-   所有引用 --mo-n* 的亮色/深色覆盖规则自动适配。 */
-html.dark .article-detail-container {
-  background: var(--el-bg-color);
-  color: var(--el-text-color-primary);
+/* 企业模式：SiteLayout 的 .tpl-nav-offset 已为 fixed 导航留 64px，页面不重复让位 */
+:global(.site-layout.tpl-nav-offset) .mo-article-page {
+  padding-top: 0;
 }
 
-html.dark .mo-article-page {
+/* ---------- 内容列（收敛到 860px，利于扫读） ---------- */
+.na-head,
+.na-body,
+.na-related,
+.na-cta,
+.na-prevnext {
+  box-sizing: border-box;
+  max-width: 860px;
+  margin: 0 auto;
+  padding-right: var(--mo-sp-6, 24px);
+  padding-left: var(--mo-sp-6, 24px);
+}
+
+.na-head {
+  padding-top: var(--mo-sp-9, 48px);
+}
+
+.article-crumb {
+  margin-bottom: var(--mo-sp-4, 16px);
+}
+
+.na-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: var(--mo-sp-3, 12px);
+  color: var(--tpl-ink-400, #6b7280);
+  font-size: var(--mo-fs-sm, 14px);
+}
+
+.cat-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  color: var(--tpl-p-text, #1a56db);
+  font-size: var(--mo-fs-xs, 12px);
+  font-weight: 600;
+  background: var(--tpl-p-sub, #eef3fe);
+  border-radius: 999px;
+}
+
+.na-head h1 {
+  margin: 0 0 var(--mo-sp-4, 16px);
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: clamp(26px, 3.2vw, var(--mo-fs-4xl, 32px));
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+}
+
+.na-lead {
+  margin: 0 0 var(--mo-sp-5, 20px);
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-lg, 18px);
+  line-height: 1.75;
+}
+
+.na-body {
+  padding-bottom: var(--mo-sp-8, 40px);
+}
+
+.article-cover {
+  margin: var(--mo-sp-5, 20px) 0 var(--mo-sp-7, 32px);
+  overflow: hidden;
+  border-radius: var(--tpl-r-lg, 16px);
+}
+
+.article-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---------- 正文排版 ---------- */
+.mo-article-page .content-body {
+  min-width: 0;
+  max-width: none;
+  color: var(--tpl-ink-700, #1f2937);
+  font-size: var(--mo-fs-md, 16px);
+  line-height: 1.9;
+}
+
+.mo-article-page .content-body :deep(h1) {
+  margin: var(--mo-sp-7, 32px) 0 var(--mo-sp-3, 12px);
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-3xl, 28px);
+  font-weight: 700;
+}
+
+.mo-article-page .content-body :deep(h2) {
+  margin: var(--mo-sp-7, 32px) 0 var(--mo-sp-3, 12px);
+  padding-bottom: var(--mo-sp-2, 8px);
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-2xl, 24px);
+  font-weight: 700;
+  border-bottom: 1px solid var(--tpl-border, #e5e7eb);
+}
+
+.mo-article-page .content-body :deep(h3) {
+  margin: var(--mo-sp-6, 24px) 0 var(--mo-sp-2, 8px);
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-lg, 18px);
+  font-weight: 600;
+}
+
+.mo-article-page .content-body :deep(p) {
+  margin-bottom: var(--mo-sp-4, 16px);
+}
+
+.mo-article-page .content-body :deep(ul),
+.mo-article-page .content-body :deep(ol) {
+  margin: 0 0 var(--mo-sp-4, 16px) 22px;
+  padding: 0;
+}
+
+.mo-article-page .content-body :deep(li) {
+  margin-bottom: var(--mo-sp-2, 8px);
+  color: var(--tpl-ink-700, #1f2937);
+}
+
+.mo-article-page .content-body :deep(a) {
+  color: var(--tpl-p-text, #1a56db);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.mo-article-page .content-body :deep(strong) {
+  color: var(--tpl-ink-900, #0b0f19);
+  font-weight: 600;
+}
+
+.mo-article-page .content-body :deep(code) {
+  padding: 2px 6px;
+  color: var(--tpl-p-text, #1a56db);
+  font-family: var(--mo-font-mono);
+  font-size: var(--mo-fs-sm, 14px);
+  background: var(--tpl-surface, #f7f8fa);
+  border-radius: 4px;
+}
+
+.mo-article-page .content-body :deep(pre) {
+  padding: var(--mo-sp-4, 16px);
+  margin: var(--mo-sp-4, 16px) 0;
+  overflow-x: auto;
+  color: #e5e7eb;
+  font-family: var(--mo-font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  background: #0b0f19;
+  border-radius: var(--tpl-r-md, 10px);
+}
+
+.mo-article-page .content-body :deep(blockquote) {
+  padding: var(--mo-sp-4, 16px) var(--mo-sp-5, 20px);
+  margin: var(--mo-sp-4, 16px) 0;
+  color: var(--tpl-ink-500, #4b5563);
+  font-style: italic;
+  background: var(--tpl-p-sub, #eef3fe);
+  border-left: 3px solid var(--tpl-p, #1a56db);
+  border-radius: 0 var(--tpl-r-md, 10px) var(--tpl-r-md, 10px) 0;
+}
+
+.mo-article-page .content-body :deep(img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: var(--mo-sp-5, 20px) auto;
+  border-radius: var(--tpl-r-lg, 16px);
+}
+
+.mo-article-page .content-body :deep(table) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: var(--mo-sp-5, 20px) 0;
+  overflow-x: auto;
+  font-family: var(--mo-font-sans);
+  font-size: var(--mo-fs-sm, 14px);
+  border: 1px solid var(--tpl-border, #e5e7eb);
+  border-collapse: collapse;
+  border-radius: var(--tpl-r-md, 10px);
+}
+
+.mo-article-page .content-body :deep(th),
+.mo-article-page .content-body :deep(td) {
+  padding: 11px 12px;
+  text-align: left;
+  border: 1px solid var(--tpl-border, #e5e7eb);
+}
+
+.mo-article-page .content-body :deep(th) {
+  font-weight: 600;
+  color: var(--tpl-ink-900, #0b0f19);
+  background: var(--tpl-surface, #f7f8fa);
+}
+
+.mo-article-page .content-body :deep(hr) {
+  height: 1px;
+  margin: var(--mo-sp-7, 32px) 0;
+  background: var(--tpl-border, #e5e7eb);
+  border: 0;
+}
+
+/* ---------- 关键词 ---------- */
+.na-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: var(--mo-sp-5, 20px);
+  margin-top: var(--mo-sp-5, 20px);
+  border-top: 1px solid var(--tpl-border, #e5e7eb);
+}
+
+.na-tags-label {
+  margin-right: 4px;
+  color: var(--tpl-ink-400, #6b7280);
+  font-size: var(--mo-fs-xs, 12px);
+}
+
+.na-tag {
+  padding: 4px 12px;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-xs, 12px);
+  text-decoration: none;
+  background: var(--tpl-surface, #f7f8fa);
+  border: 1px solid var(--tpl-border, #e5e7eb);
+  border-radius: 999px;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.na-tag:hover {
+  color: var(--tpl-p-text, #1a56db);
+  border-color: var(--tpl-p, #1a56db);
+}
+
+/* ---------- 相关阅读 ---------- */
+.na-related {
+  padding-top: var(--mo-sp-8, 40px);
+  padding-bottom: var(--mo-sp-8, 40px);
+  border-top: 1px solid var(--tpl-border, #e5e7eb);
+  background: var(--tpl-surface, #f7f8fa);
+  max-width: none;
+}
+
+.na-sec-head {
+  max-width: 860px;
+  padding: 0 var(--mo-sp-6, 24px);
+  margin: 0 auto var(--mo-sp-5, 20px);
+}
+
+.na-sec-head h2 {
+  margin: 0 0 var(--mo-sp-2, 8px);
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-2xl, 24px);
+  font-weight: 700;
+}
+
+.na-sec-head p {
+  margin: 0;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-sm, 14px);
+}
+
+.na-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mo-sp-4, 16px);
+  max-width: 860px;
+  padding: 0 var(--mo-sp-6, 24px);
+  margin: 0 auto;
+}
+
+.na-related-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--mo-sp-5, 20px);
+  text-decoration: none;
+  background: var(--tpl-bg, #fff);
+  border: 1px solid var(--tpl-border, #e5e7eb);
+  border-radius: var(--tpl-r-lg, 16px);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+
+.na-related-card:hover {
+  border-color: var(--tpl-p, #1a56db);
+  box-shadow: var(--tpl-sh-md, 0 8px 24px rgba(11, 15, 25, 0.1));
+  transform: translateY(-2px);
+}
+
+.na-related-cat {
+  align-self: flex-start;
+  padding: 2px 8px;
+  color: var(--tpl-p-text, #1a56db);
+  font-size: var(--mo-fs-xs, 12px);
+  background: var(--tpl-p-sub, #eef3fe);
+  border-radius: 999px;
+}
+
+.na-related-card h3 {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-md, 16px);
+  font-weight: 600;
+  line-height: 1.5;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.na-related-card p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-sm, 14px);
+  line-height: 1.6;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.na-related-more {
+  margin-top: auto;
+  color: var(--tpl-p-text, #1a56db);
+  font-size: var(--mo-fs-xs, 12px);
+  font-weight: 600;
+}
+
+/* ---------- 咨询 CTA ---------- */
+.na-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mo-sp-4, 16px);
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--mo-sp-8, 40px);
+  padding-bottom: var(--mo-sp-8, 40px);
+}
+
+.na-cta h2 {
+  margin: 0 0 var(--mo-sp-1, 4px);
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-xl, 20px);
+  font-weight: 700;
+}
+
+.na-cta p {
+  margin: 0;
+  color: var(--tpl-ink-500, #4b5563);
+  font-size: var(--mo-fs-sm, 14px);
+}
+
+.na-cta-btn {
+  padding: 12px 26px;
+  color: var(--tpl-white, #fff);
+  font-size: var(--mo-fs-sm, 14px);
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--tpl-p, #1a56db);
+  border-radius: var(--tpl-r-md, 10px);
+  transition: background 0.2s;
+}
+
+.na-cta-btn:hover {
+  background: var(--tpl-p-h, #1544b0);
+}
+
+/* ---------- 上/下一篇 ---------- */
+.na-prevnext {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--mo-sp-4, 16px);
+  padding-top: var(--mo-sp-5, 20px);
+  padding-bottom: var(--mo-sp-9, 48px);
+  border-top: 1px solid var(--tpl-border, #e5e7eb);
+}
+
+.na-prevnext-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--mo-sp-4, 16px);
+  text-decoration: none;
+  background: var(--tpl-surface, #f7f8fa);
+  border: 1px solid var(--tpl-border, #e5e7eb);
+  border-radius: var(--tpl-r-md, 10px);
+  transition: border-color 0.2s;
+}
+
+.na-prevnext.is-single {
+  grid-template-columns: 1fr;
+}
+
+.na-prevnext-item.is-next {
+  text-align: right;
+}
+
+.na-prevnext-item.is-empty {
+  visibility: hidden;
+}
+
+.na-prevnext-item:hover {
+  border-color: var(--tpl-p, #1a56db);
+}
+
+.na-prevnext-label {
+  color: var(--tpl-ink-400, #6b7280);
+  font-size: var(--mo-fs-xs, 12px);
+}
+
+.na-prevnext-title {
+  overflow: hidden;
+  color: var(--tpl-ink-900, #0b0f19);
+  font-size: var(--mo-fs-sm, 14px);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== 评论区色阶：评论用 --mo-* 变量，保留其深色重映射 ===== */
+/* ===== 深色模式：评论区色阶 =====
+   默认主题深色映射到 --el-* 变量（Tech Blue 深蓝），Mo-Blog 深色恢复棕色色阶。
+   所有引用 --mo-n* 的亮色/深色覆盖规则自动适配。 */
+html.dark .mo-article-page .comment-section {
   --mo-n900: var(--el-bg-color);
   --mo-n800: var(--el-bg-color-overlay);
   --mo-n700: var(--el-border-color);
@@ -949,18 +1300,10 @@ html.dark .mo-article-page {
   --mo-p500: var(--el-color-primary);
   --mo-p600: var(--el-color-primary);
   --mo-p700: var(--el-color-primary);
-  background: var(--el-bg-color);
-  color: var(--el-text-color-primary);
 }
 
-/* Mo-Blog 主题深色：恢复棕色色阶 */
-html.dark.theme-mo-blog .article-detail-container {
-  /* 容器在 .mo-article-page 重映射作用域之外，取到的是浅色阶的原始值：
-     n900 = #1c1917、n300 = #d6d3d1，与原写死值全等。 */
-  color: var(--mo-n300);
-}
-
-html.dark.theme-mo-blog .mo-article-page {
+/* Mo-Blog 主题深色：恢复棕色色阶（仅评论区） */
+html.dark.theme-mo-blog .mo-article-page .comment-section {
   --mo-n900: #1c1917;
   --mo-n800: #292524;
   --mo-n700: #44403c;
@@ -978,468 +1321,9 @@ html.dark.theme-mo-blog .mo-article-page {
   --mo-p500: #6366f1;
   --mo-p600: #4f46e5;
   --mo-p700: #4338ca;
-  background: var(--mo-n900);
-  color: var(--mo-n200);
 }
 
-/* 特殊覆盖 */
-html.dark .mo-article-page .cat-badge,
-html.dark .mo-article-page .content-body :deep(blockquote) {
-  background: var(--mo-p50);
-  color: var(--mo-p300);
-}
-
-/* 深色模式：标题/姓名/导航等文字改用浅色。
-   --mo-n900/--mo-n800 在深色下被映射为背景色，不能直接用于文字。 */
-html.dark .mo-article-page .mo-article-header h1,
-html.dark .mo-article-page .a-name,
-html.dark .mo-article-page .a-stat .num,
-html.dark .mo-article-page .wt,
-html.dark .mo-article-page .nav-title,
-html.dark .mo-article-page .c-name,
-html.dark .mo-article-page .a-meta .author,
-html.dark .mo-article-page .not-found-content h2,
-html.dark .mo-article-page .content-body :deep(h1),
-html.dark .mo-article-page .content-body :deep(h2),
-html.dark .mo-article-page .content-body :deep(h3),
-html.dark .mo-article-page .content-body :deep(h4),
-html.dark .mo-article-page .content-body :deep(h5),
-html.dark .mo-article-page .content-body :deep(h6) {
-  color: var(--mo-n100);
-}
-
-html.dark .mo-article-page .nav-title {
-  color: var(--mo-n200);
-}
-
-html.dark .mo-article-page .article-actions :deep(.el-button.is-plain) {
-  color: var(--mo-n200);
-}
-
-html.dark .mo-article-page .author-card,
-html.dark .mo-article-page .side-widget,
-html.dark .mo-article-page .nav-item,
-html.dark .mo-article-page .comment-section,
-html.dark .mo-article-page .comment-input,
-html.dark .mo-article-page .c-reply,
-html.dark .mo-article-page .article-actions,
-html.dark .mo-article-page .article-navigation {
-  border-color: var(--mo-n700);
-  background: var(--mo-n800);
-}
-
-html.dark .mo-article-page .a-stats {
-  border-top-color: var(--mo-n700);
-}
-
-html.dark .mo-article-page .comment-item {
-  border-bottom-color: var(--mo-n700);
-}
-
-html.dark .mo-article-page .tc {
-  background: var(--mo-n700);
-  color: var(--mo-n200);
-}
-
-html.dark .mo-article-page .toc :deep(.article-toc) {
-  background: var(--mo-n800);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* 强调色文字：浅色用 p700（p300 在浅底只有 ≈1.9:1），深色回到 p300
-   （默认主题=主色，Mo-Blog=#a5b4fc） */
-html.dark .mo-article-page .toc :deep(.toc-item:hover),
-html.dark .mo-article-page .toc :deep(.toc-item-active),
-html.dark .mo-article-page .content-body :deep(code),
-html.dark .mo-article-page .content-body :deep(a),
-html.dark .mo-article-page .tc:hover,
-html.dark .mo-article-page .related-mini:hover,
-html.dark .mo-article-page .a-avatar {
-  color: var(--mo-p300);
-}
-
-html.dark .mo-article-page .article-actions :deep(.el-button.is-plain) {
-  background: var(--mo-n800);
-  border-color: var(--mo-n700);
-  color: var(--mo-n300);
-}
-
-html.dark .mo-article-page .article-actions :deep(.el-button.is-plain:hover) {
-  background: var(--mo-n700);
-  color: var(--mo-n200);
-}
-
-html.dark .mo-article-page .btn-primary {
-  /* 默认主题深色下 --mo-p600 被重映射成主色（#00d4ff），白字只有 1.77:1；
-     --mo-on-primary 按主题给出配对前景（默认 #06272e，Mo-Blog 仍是白色）。
-     浅色不动：那里 p600 = #4f46e5，白字 7:1 才是对的。 */
-  color: var(--mo-on-primary);
-}
-
-html.dark .mo-article-page .article-content,
-html.dark .mo-article-page .content-body,
-/* li 在浅色规则里显式写了 color: var(--mo-n700)，深色下 n700 被重映射成描边色
-   （#44403c，1.7:1），正文列表项几乎看不见，所以必须跟着正文一起改回文字色。
-   related-mini 同理（默认主题深色下是 #3f3f46，1.6:1）。 */
-html.dark .mo-article-page .related-mini,
-html.dark .mo-article-page .content-body :deep(li) {
-  color: var(--mo-n300);
-}
-
-.mo-article-page .mo-article-header {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: var(--mo-sp-8) var(--mo-sp-7) var(--mo-sp-6);
-  text-align: center;
-}
-
-/* 面包屑锚在标题区左上（标题/元信息居中的版式下提供层级导航） */
-.mo-article-page .article-crumb {
-  text-align: left;
-  margin-bottom: var(--mo-sp-5);
-}
-
-.mo-article-page .cat-badge {
-  display: inline-block;
-  margin-bottom: 14px;
-  padding: 4px 14px;
-  border-radius: var(--mo-r-full);
-  background: var(--mo-p50);
-  color: var(--mo-p700);
-  font-size: var(--mo-fs-xs);
-  font-weight: 500;
-}
-
-.mo-article-page .mo-article-header h1 {
-  margin: 0 0 14px;
-  color: var(--mo-n900);
-  font-size: var(--mo-fs-3xl);
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: 0;
-}
-
-.mo-article-page .a-meta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--mo-sp-4);
-  flex-wrap: wrap;
-  color: var(--mo-n500);
-  font-size: 13px;
-}
-
-.mo-article-page .a-meta .author {
-  color: var(--mo-n700);
-  font-weight: 500;
-}
-
-.mo-article-page .body-layout {
-  display: grid;
-  grid-template-columns: 180px minmax(0, 1fr) 260px;
-  gap: 28px;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 0 var(--mo-sp-7) var(--mo-sp-8);
-}
-
-.mo-article-page .toc {
-  position: sticky;
-  top: 80px;
-  align-self: start;
-}
-
-.mo-article-page .toc :deep(.article-toc) {
-  position: static;
-  width: auto;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.mo-article-page .toc :deep(.toc-header) {
-  margin-bottom: var(--mo-sp-3);
-  padding-bottom: var(--mo-sp-2);
-  border-bottom: 1px solid var(--mo-n200);
-}
-
-.mo-article-page .toc :deep(.toc-title) {
-  color: var(--mo-n700);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-/* n700 在深色作用域被重映射成描边色（默认主题 #3f3f46 / Mo-Blog #44403c），
-   拿来当文字色只有 1.6~1.7:1，「目录」标题在深色下几乎看不见。 */
-html.dark .mo-article-page .toc :deep(.toc-title) {
-  color: var(--mo-n100);
-}
-
-.mo-article-page .toc :deep(.toc-toggle) {
-  display: none;
-}
-
-.mo-article-page .toc :deep(.toc-list) {
-  padding: 0;
-}
-
-.mo-article-page .toc :deep(.toc-item) {
-  padding: 5px 0 5px 14px;
-  border-left: 2px solid transparent;
-  color: var(--mo-n500);
-  font-size: 13px;
-}
-
-.mo-article-page .toc :deep(.toc-item:hover),
-.mo-article-page .toc :deep(.toc-item-active) {
-  border-left-color: var(--mo-p500);
-  color: var(--mo-p700);
-  background: transparent;
-  font-weight: 500;
-}
-
-.mo-article-page .toc :deep(.toc-dot) {
-  display: none;
-}
-
-.mo-article-page .article-content {
-  min-width: 0;
-  max-width: 680px;
-  margin: 0;
-  color: var(--mo-n700);
-  font-family: var(--mo-font-serif);
-  font-size: 17px;
-  line-height: 1.9;
-}
-
-.mo-article-page .article-cover {
-  margin-bottom: 22px;
-  overflow: hidden;
-  border-radius: var(--mo-r-lg);
-  border: 1px solid var(--mo-n200);
-}
-
-.mo-article-page .content-body {
-  max-width: none;
-  color: var(--mo-n700);
-  font-family: var(--mo-font-serif);
-  font-size: 17px;
-  line-height: 1.9;
-}
-
-.mo-article-page .content-body :deep(h2) {
-  margin: 32px 0 14px;
-  padding-bottom: var(--mo-sp-2);
-  border-bottom: 1px solid var(--mo-n200);
-  color: var(--mo-n900);
-  font-family: var(--mo-font-sans);
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.mo-article-page .content-body :deep(h3) {
-  margin: 22px 0 10px;
-  color: var(--mo-n800);
-  font-family: var(--mo-font-sans);
-  font-size: var(--mo-fs-lg);
-  font-weight: 600;
-}
-
-.mo-article-page .content-body :deep(p) {
-  margin-bottom: 18px;
-}
-
-.mo-article-page .content-body :deep(code) {
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--mo-n100);
-  color: var(--mo-p700);
-  font-family: var(--mo-font-mono);
-  font-size: var(--mo-fs-sm);
-}
-
-.mo-article-page .content-body :deep(pre) {
-  margin: var(--mo-sp-4) 0;
-  padding: 18px;
-  overflow-x: auto;
-  border-radius: var(--mo-r-md);
-  background: var(--mo-n900);
-  color: var(--mo-n200);
-  font-family: var(--mo-font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.mo-article-page .content-body :deep(blockquote) {
-  margin: 18px 0;
-  padding: 14px 20px;
-  border-left: 3px solid var(--mo-p400);
-  border-radius: 0 var(--mo-r-md) var(--mo-r-md) 0;
-  background: var(--mo-p50);
-  color: var(--mo-n600);
-  font-style: italic;
-}
-
-.mo-article-page .author-card,
-.mo-article-page .side-widget {
-  border: 1px solid var(--mo-n200);
-  border-radius: var(--mo-r-lg);
-  background: var(--mo-n50);
-}
-
-.mo-article-page .article-side {
-  min-width: 0;
-}
-
-.mo-article-page .author-card {
-  padding: 22px;
-  text-align: center;
-}
-
-.mo-article-page .a-avatar {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto var(--mo-sp-3);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--mo-p100);
-  color: var(--mo-p700);
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.mo-article-page .a-name {
-  color: var(--mo-n900);
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.mo-article-page .a-bio {
-  margin: 4px 0 14px;
-  color: var(--mo-n500);
-  font-size: var(--mo-fs-xs);
-  line-height: 1.6;
-}
-
-.mo-article-page .a-stats {
-  display: flex;
-  justify-content: center;
-  gap: var(--mo-sp-5);
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--mo-n100);
-}
-
-.mo-article-page .a-stat .num {
-  color: var(--mo-n800);
-  font-size: var(--mo-fs-md);
-  font-weight: 700;
-}
-
-.mo-article-page .a-stat .lbl {
-  color: var(--mo-n500);
-  font-size: 11px;
-}
-
-.mo-article-page .side-widget {
-  margin-top: var(--mo-sp-4);
-  padding: 18px;
-}
-
-.mo-article-page .wt {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  margin-bottom: var(--mo-sp-3);
-  color: var(--mo-n800);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.mo-article-page .wt::before {
-  content: '';
-  width: 3px;
-  height: 14px;
-  border-radius: 2px;
-  background: var(--mo-p500);
-}
-
-.mo-article-page .tag-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--mo-sp-2);
-}
-
-.mo-article-page .tc {
-  padding: var(--mo-sp-1) var(--mo-sp-3);
-  border-radius: var(--mo-r-full);
-  background: var(--mo-n100);
-  color: var(--mo-n600);
-  font-size: var(--mo-fs-xs);
-  text-decoration: none;
-}
-.mo-article-page .tc:hover {
-  color: var(--mo-p700);
-}
-
-.mo-article-page .related-mini-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.mo-article-page .related-mini {
-  color: var(--mo-n700);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.mo-article-page .related-mini:hover {
-  color: var(--mo-p700);
-}
-
-.mo-article-page .article-actions,
-.mo-article-page .article-navigation {
-  margin-top: var(--mo-sp-6);
-}
-
-.mo-article-page .article-actions {
-  display: flex;
-  justify-content: center;
-  padding: 18px 0;
-}
-
-.mo-article-page .article-navigation {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--mo-sp-3);
-}
-
-.mo-article-page .nav-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mo-sp-1);
-  padding: 14px;
-  border: 1px solid var(--mo-n200);
-  border-radius: var(--mo-r-md);
-  background: var(--mo-n50);
-}
-
-.mo-article-page .nav-label {
-  color: var(--mo-n500);
-  font-size: var(--mo-fs-xs);
-}
-
-.mo-article-page .nav-title {
-  color: var(--mo-n800);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
+/* ===== 评论区（开关默认关闭，comment_enabled） ===== */
 .mo-article-page .comment-section {
   max-width: 680px;
   margin: 0 auto;
@@ -1635,151 +1519,7 @@ html.dark .mo-article-page .reply-item + .reply-item {
   font-size: 13px;
 }
 
-@media (max-width: 1024px) {
-  .mo-article-page .body-layout {
-    grid-template-columns: minmax(0, 1fr) 260px;
-  }
-
-  .mo-article-page .toc {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .mo-article-page .body-layout {
-    grid-template-columns: 1fr;
-    padding: 0 var(--mo-sp-4) var(--mo-sp-6);
-  }
-
-  .mo-article-page .article-side {
-    display: none;
-  }
-
-  .mo-article-page .article-content {
-    font-size: var(--mo-fs-md);
-  }
-
-  .mo-article-page .mo-article-header {
-    padding: var(--mo-sp-6) var(--mo-sp-4) var(--mo-sp-4);
-  }
-
-  .mo-article-page .mo-article-header h1 {
-    font-size: 22px;
-  }
-
-  .mo-article-page .comment-section {
-    padding: var(--mo-sp-6) var(--mo-sp-4);
-  }
-
-  .mo-article-page .guest-fields,
-  .mo-article-page .article-navigation {
-    grid-template-columns: 1fr;
-  }
-}
-
-.article-detail-container {
-  min-height: 100vh;
-  background: var(--mo-n50);
-}
-
-html.dark .article-detail-container {
-  background: var(--el-bg-color);
-}
-
-html.dark.theme-mo-blog .article-detail-container {
-  /* 容器继承的是浅色阶：--mo-n900 在 :root / html.theme-mo-blog 里都是 #1c1917 */
-  background: var(--mo-n900);
-}
-
-.mo-article-page .article-cover img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.mo-article-page .content-body :deep(h1),
-.mo-article-page .content-body :deep(h4),
-.mo-article-page .content-body :deep(h5),
-.mo-article-page .content-body :deep(h6) {
-  margin: 28px 0 12px;
-  color: var(--mo-n900);
-  font-family: var(--mo-font-sans);
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-.mo-article-page .content-body :deep(h1) {
-  font-size: 26px;
-}
-
-.mo-article-page .content-body :deep(h4) {
-  font-size: var(--mo-fs-md);
-}
-
-.mo-article-page .content-body :deep(h5),
-.mo-article-page .content-body :deep(h6) {
-  font-size: 15px;
-}
-
-.mo-article-page .content-body :deep(ul),
-.mo-article-page .content-body :deep(ol) {
-  margin: 0 0 18px 22px;
-  padding: 0;
-}
-
-.mo-article-page .content-body :deep(li) {
-  margin-bottom: var(--mo-sp-2);
-  color: var(--mo-n700);
-}
-
-.mo-article-page .content-body :deep(a) {
-  color: var(--mo-p700);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-
-.mo-article-page .content-body :deep(img) {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin: 22px auto;
-  border-radius: var(--mo-r-lg);
-}
-
-.mo-article-page .content-body :deep(table) {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  margin: 22px 0;
-  overflow-x: auto;
-  border: 1px solid var(--mo-n200);
-  border-collapse: collapse;
-  border-radius: var(--mo-r-md);
-  font-family: var(--mo-font-sans);
-  font-size: var(--mo-fs-sm);
-}
-
-.mo-article-page .content-body :deep(th),
-.mo-article-page .content-body :deep(td) {
-  padding: 11px 12px;
-  border: 1px solid var(--mo-n200);
-  text-align: left;
-}
-
-.mo-article-page .content-body :deep(th) {
-  background: var(--mo-n100);
-  color: var(--mo-n800);
-  font-weight: 600;
-}
-
-.mo-article-page .content-body :deep(hr) {
-  height: 1px;
-  margin: 30px 0;
-  border: 0;
-  background: var(--mo-n200);
-}
-
+/* ===== 加载态 / 404 ===== */
 .loading-container {
   min-height: calc(100vh - 60px);
   padding: var(--mo-sp-12) var(--mo-sp-5);
@@ -1841,34 +1581,67 @@ html.dark.theme-mo-blog .article-detail-container {
   text-decoration: none;
 }
 
-/* ---------- 企业官网模板模式：阅读进度条 + 模板皮肤微调 ----------
-   颜色引用 --tpl-* 变量层（themes/site-templates.scss），行业模板切换时同步换装 */
-.read-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 2px;
-  background: var(--tpl-p);
-  z-index: 200;
-  transition: width 0.1s linear;
+html.dark .loading-container {
+  background: var(--el-bg-color);
 }
 
-.article-detail-container.tpl-site .mo-article-header h1 {
-  font-family: var(--tpl-serif);
-  color: var(--tpl-ink-900);
+html.dark .not-found-content h2 {
+  color: var(--el-text-color-primary);
 }
 
-.article-detail-container.tpl-site .cat-badge {
-  background: var(--tpl-p-sub);
-  color: var(--tpl-p-text);
+html.dark .not-found-content p {
+  color: var(--el-text-color-regular);
 }
 
-.article-detail-container.tpl-site .a-meta {
-  color: var(--tpl-ink-400);
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
+  .na-related-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.article-detail-container.tpl-site .article-content :deep(a),
-.article-detail-container.tpl-site .content-body :deep(a) {
-  color: var(--tpl-p-text);
+@media (max-width: 768px) {
+  .na-head,
+  .na-body,
+  .na-cta,
+  .na-prevnext {
+    padding-right: var(--mo-sp-4, 16px);
+    padding-left: var(--mo-sp-4, 16px);
+  }
+
+  .na-head {
+    padding-top: var(--mo-sp-6, 24px);
+  }
+
+  .na-head h1 {
+    font-size: var(--mo-fs-2xl, 24px);
+  }
+
+  .na-lead {
+    font-size: var(--mo-fs-md, 16px);
+  }
+
+  .na-related-grid {
+    grid-template-columns: 1fr;
+    padding-right: var(--mo-sp-4, 16px);
+    padding-left: var(--mo-sp-4, 16px);
+  }
+
+  .na-sec-head {
+    padding-right: var(--mo-sp-4, 16px);
+    padding-left: var(--mo-sp-4, 16px);
+  }
+
+  .na-prevnext {
+    grid-template-columns: 1fr;
+  }
+
+  .na-prevnext-item.is-empty {
+    display: none;
+  }
+
+  .na-prevnext-item.is-next {
+    text-align: left;
+  }
 }
 </style>

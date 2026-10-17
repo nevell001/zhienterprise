@@ -73,7 +73,6 @@ vi.mock('@/plugins/element-plus-service', () => ({
 
 const stubs = {
   SiteLayout: { template: '<div class="layout-stub"><slot /></div>' },
-  ArticleTOC: { template: '<div />' },
   'el-skeleton': { template: '<div><slot name="template" /><slot /></div>' },
   'el-skeleton-item': { template: '<div />' },
   'el-icon': { template: '<span><slot /></span>' },
@@ -333,5 +332,94 @@ describe('文章详情页评论（行为）', () => {
       sort: 'newest'
     })
     expect(wrapper.find('.pagination-container').exists()).toBe(false)
+  })
+})
+
+describe('文章详情页企业官网改造（行为）', () => {
+  /**
+   * 博客元素已被移除：目录（TOC）、作者卡（头像/关注/获赞/评论数）、收藏按钮、
+   * 阅读进度条、阅读时长、标签云侧栏、侧栏迷你相关推荐。
+   * 结构改为新闻详情：面包屑 → 分类/日期 → 标题 → 摘要 → 正文 → 关键词 →
+   * 相关阅读卡片 → 咨询 CTA → 上/下一篇。
+   */
+  beforeEach(() => {
+    vi.clearAllMocks()
+    getArticleDetail.mockResolvedValue({
+      code: 200,
+      data: {
+        article: {
+          id: 1,
+          title: '企业官网改版实践',
+          content: '<h2>改版目标</h2><p>正文内容</p>',
+          summary: '一篇讲官网改版的文章',
+          categoryName: '行业资讯',
+          tags: [
+            { id: 3, name: '企业官网' },
+            { id: 4, name: '品牌升级' }
+          ],
+          commentCount: 0,
+          likeCount: 7,
+          viewCount: 156,
+          createTime: '2026-01-01 10:00:00'
+        },
+        extraInfo: {
+          prevArticle: { id: 2, title: '上一篇标题' },
+          nextArticle: { id: 3, title: '下一篇标题' }
+        }
+      }
+    })
+    getRelatedArticles.mockResolvedValue({
+      data: [
+        { id: 2, title: '相关内容一', summary: '摘要一', categoryName: '企业动态' },
+        { id: 3, title: '相关内容二', summary: '摘要二', categoryName: '行业资讯' }
+      ]
+    })
+    getSiteSettings.mockResolvedValue({
+      code: 200,
+      data: { comment_enabled: 'false', view_count_enabled: 'true' }
+    })
+    getSiteSettingsAnonymous.mockResolvedValue({ data: {} })
+    getArticleComments.mockResolvedValue({ rows: [], total: 0 })
+  })
+
+  it('不再渲染博客元素（目录/作者卡/收藏/阅读进度/阅读时长/标签云）', async () => {
+    const wrapper = await mountDetail()
+    await flushPromises()
+
+    expect(wrapper.find('.toc').exists()).toBe(false)
+    expect(wrapper.find('.author-card').exists()).toBe(false)
+    expect(wrapper.find('.read-progress').exists()).toBe(false)
+    expect(wrapper.find('.tag-cloud').exists()).toBe(false)
+    expect(wrapper.find('.related-mini').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('收藏')
+    expect(wrapper.text()).not.toContain('关注')
+    expect(wrapper.text()).not.toMatch(/约\s*\d+\s*分钟/)
+  })
+
+  it('渲染企业官网新闻结构：分类/日期/关键词/相关阅读/CTA/上下篇', async () => {
+    const wrapper = await mountDetail()
+    await flushPromises()
+
+    // 头部：分类徽标 + 日期 + 标题 + 摘要
+    expect(wrapper.find('.na-kicker .cat-badge').text()).toContain('行业资讯')
+    expect(wrapper.find('.na-kicker').text()).toContain('2026')
+    expect(wrapper.find('.na-head h1').text()).toContain('企业官网改版实践')
+    expect(wrapper.find('.na-lead').text()).toContain('一篇讲官网改版的文章')
+
+    // 关键词以胶囊形式保留（SEO 需要，不再是博客标签云侧栏）
+    const tags = wrapper.findAll('.na-tags .na-tag')
+    expect(tags).toHaveLength(2)
+    expect(tags[0].text()).toBe('企业官网')
+
+    // 相关阅读卡片（最多 3 条）
+    expect(wrapper.findAll('.na-related-card').length).toBe(2)
+    expect(wrapper.find('.na-related').text()).toContain('相关内容一')
+
+    // 咨询 CTA 与上/下一篇
+    expect(wrapper.find('.na-cta').exists()).toBe(true)
+    const navItems = wrapper.findAll('.na-prevnext-item')
+    expect(navItems.length).toBeGreaterThanOrEqual(2)
+    expect(wrapper.find('.na-prevnext').text()).toContain('上一篇标题')
+    expect(wrapper.find('.na-prevnext').text()).toContain('下一篇标题')
   })
 })
