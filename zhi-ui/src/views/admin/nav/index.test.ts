@@ -4,22 +4,34 @@ import { createPinia } from 'pinia'
 import SiteNav from './index.vue'
 
 /**
- * 后台「导航管理」行为测试（挂载真实组件）。
+ * 后台「菜单管理」行为测试（挂载真实组件）。
  * 覆盖页面联动（选择器自动填充标签与路径、请求参数、空态引导）、二级项入口，
  * 以及顶层 /business 项标签由「站点设置 → 栏目名称」托管（禁用编辑 + 落库生效值）；
  * 表格行内按钮与列表渲染依赖 el-table 的作用域插槽，桩无法还原，交由浏览器人工验证。
  */
-const { listNav, listPage, addNav, updateNav, delNav, getConfigByKey, ElMessageBox, ElMessage } =
-  vi.hoisted(() => ({
-    listNav: vi.fn(),
-    listPage: vi.fn(),
-    addNav: vi.fn(),
-    updateNav: vi.fn(),
-    delNav: vi.fn(),
-    getConfigByKey: vi.fn(),
-    ElMessageBox: { confirm: vi.fn() },
-    ElMessage: { success: vi.fn(), warning: vi.fn(), error: vi.fn() }
-  }))
+const {
+  listNav,
+  listPage,
+  listCategory,
+  listTag,
+  addNav,
+  updateNav,
+  delNav,
+  getConfigByKey,
+  ElMessageBox,
+  ElMessage
+} = vi.hoisted(() => ({
+  listNav: vi.fn(),
+  listPage: vi.fn(),
+  listCategory: vi.fn(),
+  listTag: vi.fn(),
+  addNav: vi.fn(),
+  updateNav: vi.fn(),
+  delNav: vi.fn(),
+  getConfigByKey: vi.fn(),
+  ElMessageBox: { confirm: vi.fn() },
+  ElMessage: { success: vi.fn(), warning: vi.fn(), error: vi.fn() }
+}))
 
 vi.mock('@/api/admin/nav', () => ({
   listNav: (...args: unknown[]) => listNav(...args),
@@ -30,6 +42,14 @@ vi.mock('@/api/admin/nav', () => ({
 
 vi.mock('@/api/admin/page', () => ({
   listPage: (...args: unknown[]) => listPage(...args)
+}))
+
+vi.mock('@/api/admin/category', () => ({
+  listCategory: (...args: unknown[]) => listCategory(...args)
+}))
+
+vi.mock('@/api/admin/tag', () => ({
+  listTag: (...args: unknown[]) => listTag(...args)
 }))
 
 vi.mock('@/api/admin/setting', () => ({
@@ -126,6 +146,10 @@ function mountNav() {
           props: ['value', 'label'],
           template: '<div class="option">{{ label }}</div>'
         },
+        'el-option-group': {
+          props: ['label'],
+          template: '<div class="option-group">{{ label }}<slot /></div>'
+        },
         'el-input-number': { props: ['modelValue'], template: '<input type="number" />' }
       }
     }
@@ -133,7 +157,7 @@ function mountNav() {
   return { wrapper }
 }
 
-describe('SiteNav 导航管理', () => {
+describe('SiteNav 菜单管理', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     listNav.mockResolvedValue({ code: 200, data: navTree })
@@ -144,6 +168,19 @@ describe('SiteNav 导航管理', () => {
         { id: 12, title: '服务条款', slug: 'terms', status: '1', pageType: 'richtext' }
       ],
       total: 2
+    })
+    listCategory.mockResolvedValue({
+      code: 200,
+      rows: [
+        { id: 1, name: '公司新闻', alias: 'news' },
+        { id: 2, name: '行业洞察' }
+      ],
+      total: 2
+    })
+    listTag.mockResolvedValue({
+      code: 200,
+      rows: [{ id: 3, name: '数字化转型' }],
+      total: 1
     })
     addNav.mockResolvedValue({ code: 200 })
     updateNav.mockResolvedValue({ code: 200 })
@@ -170,12 +207,97 @@ describe('SiteNav 导航管理', () => {
 
     // 选择器 change 事件即真实的 handlePageSelect（选中「服务条款」）
     const select = wrapper.findComponent({ name: 'SiteNavSelectStub' })
-    await select.vm.$emit('change', 'terms')
+    await select.vm.$emit('change', 'page:terms')
     await flushPromises()
 
     const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
     expect(values).toContain('服务条款')
     expect(values).toContain('/page/terms')
+  })
+
+  it('选择文章分类后自动填充标签与 /category 别名路径', async () => {
+    const { wrapper } = mountNav()
+    await flushPromises()
+
+    await wrapper
+      .findAll('button')
+      .find(b => b.text().includes('添加导航项'))!
+      .trigger('click')
+    await flushPromises()
+
+    const select = wrapper.findComponent({ name: 'SiteNavSelectStub' })
+    await select.vm.$emit('change', 'cat:1')
+    await flushPromises()
+
+    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
+    expect(values).toContain('公司新闻')
+    expect(values).toContain('/category/news')
+  })
+
+  it('选择文章标签后自动填充 /tag/ID 路径', async () => {
+    const { wrapper } = mountNav()
+    await flushPromises()
+
+    await wrapper
+      .findAll('button')
+      .find(b => b.text().includes('添加导航项'))!
+      .trigger('click')
+    await flushPromises()
+
+    const select = wrapper.findComponent({ name: 'SiteNavSelectStub' })
+    await select.vm.$emit('change', 'tag:3')
+    await flushPromises()
+
+    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
+    expect(values).toContain('数字化转型')
+    expect(values).toContain('/tag/3')
+  })
+
+  it('编辑已有分类菜单时，链接目标回显为对应分类', async () => {
+    listNav.mockResolvedValue({
+      code: 200,
+      data: [
+        {
+          id: 7,
+          location: 'header',
+          parentId: 0,
+          label: '新闻动态',
+          linkType: 'path',
+          linkValue: '/news',
+          sort: 1,
+          visible: 1,
+          children: [
+            {
+              id: 71,
+              parentId: 7,
+              label: '公司新闻',
+              linkType: 'path',
+              linkValue: '/category/news',
+              sort: 1,
+              visible: 1
+            }
+          ]
+        }
+      ]
+    })
+    const { wrapper } = mountNav()
+    await flushPromises()
+
+    // 触发子项编辑按钮（表格桩不渲染作用域插槽，直接调用组件方法）
+    ;(wrapper.vm as any).handleEdit({
+      id: 71,
+      parentId: 7,
+      label: '公司新闻',
+      linkType: 'path',
+      linkValue: '/category/news',
+      sort: 1,
+      visible: 1
+    })
+    await flushPromises()
+
+    expect((wrapper.vm as any).selectedTarget).toBe('cat:1')
+    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
+    expect(values).toContain('/category/news')
   })
 
   it('提交新增导航项时调用 addNav 并携带页面路径', async () => {
@@ -189,7 +311,7 @@ describe('SiteNav 导航管理', () => {
     await flushPromises()
 
     const select = wrapper.findComponent({ name: 'SiteNavSelectStub' })
-    await select.vm.$emit('change', 'terms')
+    await select.vm.$emit('change', 'page:terms')
     await flushPromises()
 
     const okButton = wrapper.findAll('button').find(b => b.text().includes('确 定'))!
@@ -230,7 +352,7 @@ describe('SiteNav 导航管理', () => {
       .trigger('click')
     await flushPromises()
 
-    expect(wrapper.find('.dialog').text()).toContain('请先在「页面管理」新建并发布页面')
+    expect(wrapper.find('.dialog').text()).toContain('手填站内路径')
   })
 
   /* ---------- 顶层 /business 标签：由「站点设置 → 栏目名称」托管 ---------- */
@@ -244,7 +366,7 @@ describe('SiteNav 导航管理', () => {
       .find(b => b.text().includes('添加导航项'))!
       .trigger('click')
     await flushPromises()
-    await wrapper.find('input[placeholder="如：/about"]').setValue('/business')
+    await wrapper.find('input[placeholder^="如：/news"]').setValue('/business')
     await flushPromises()
     return wrapper
   }
@@ -284,7 +406,7 @@ describe('SiteNav 导航管理', () => {
       .find(b => b.text() === '添加二级项')!
       .trigger('click')
     await flushPromises()
-    await wrapper.find('input[placeholder="如：/about"]').setValue('/business')
+    await wrapper.find('input[placeholder^="如：/news"]').setValue('/business')
     await flushPromises()
 
     expect(wrapper.find('input[placeholder="如：关于我们"]').attributes('disabled')).toBeUndefined()
@@ -301,7 +423,7 @@ describe('SiteNav 导航管理', () => {
 
   it('普通路径的标签保持可编辑', async () => {
     const wrapper = await openDialogWithBusinessLink()
-    await wrapper.find('input[placeholder="如：/about"]').setValue('/news')
+    await wrapper.find('input[placeholder^="如：/news"]').setValue('/news')
     await flushPromises()
 
     expect(wrapper.find('input[placeholder="如：关于我们"]').attributes('disabled')).toBeUndefined()

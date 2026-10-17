@@ -2,7 +2,7 @@
 -- 📌 99_dedupe_nav_defaults.sql —— 导航默认项重复行清理（存量库一次性补丁）
 -- ===============================================================
 -- 修什么：
---   后台「导航管理」表 site_nav_item 没有自然唯一键。00_init_database.sql 早先版本的默认
+--   后台「菜单管理」表 site_nav_item 没有自然唯一键。00_init_database.sql 早先版本的默认
 --   导航种子按「位置+父项+标签」判存在，而站长在后台改过标签的库（真实例子：把 /business
 --   的标签从「核心业务」改成「咨询业务」）里再也找不到「核心业务」这一行，于是重跑初始化
 --   脚本会**再插一条**默认标签的行 —— 头部/页脚各多出一个指向同一路径的重复菜单。
@@ -93,7 +93,7 @@ SELECT n.`location`, n.`parent_id`, n.`link_type`, n.`link_value`,
  GROUP BY n.`location`, n.`parent_id`, n.`link_type`, n.`link_value`
 HAVING COUNT(*) > 1;
 
--- ④ 执行后复核：导航全貌（应与后台「导航管理」看到的一致）
+-- ④ 执行后复核：导航全貌（应与后台「菜单管理」看到的一致）
 SELECT `location`, `parent_id`, `label`, `link_type`, `link_value`, `sort`, `visible`, `create_by`
   FROM `site_nav_item`
  ORDER BY `location`, `parent_id`, `sort`, `id`;

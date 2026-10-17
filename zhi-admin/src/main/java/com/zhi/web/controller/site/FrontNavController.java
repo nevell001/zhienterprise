@@ -13,7 +13,7 @@ import com.zhi.system.domain.SiteNavItem;
 import com.zhi.system.service.ISiteNavItemService;
 
 /**
- * 站点导航（前台公开）：企业官网头部/页脚菜单，后台「导航管理」维护
+ * 站点导航（前台公开）：企业官网头部/页脚菜单，后台「菜单管理」维护
  *
  * @author zhi
  */

@@ -8,7 +8,7 @@ import { useSiteSettingsStore } from '@/stores/siteSettings'
 
 /**
  * 后台「页面管理」行为测试（挂载真实组件）。
- * 覆盖与「导航管理」的联动（顶部导航列的已加入/未加入、加入/移出、首页标签）、
+ * 覆盖与「菜单管理」的联动（顶部导航列的已加入/未加入、加入/移出、首页标签）、
  * 站点设置拉取与企业模式下「导航显示」字段的隐藏；
  * 表格行内渲染与按钮点击依赖 el-table 作用域插槽，桩无法还原，交由浏览器人工验证。
  */
@@ -99,7 +99,7 @@ const headerNav = [
 ]
 
 /**
- * 导航管理里维护「关于我们」实际写的是模板短路径 /about（站点路由），
+ * 菜单管理里维护「关于我们」实际写的是模板短路径 /about（站点路由），
  * 同时存在早期「加入导航」留下的 /page/about 重复项 —— 联动判定必须两种都认。
  */
 const shortPathNav = [
@@ -326,7 +326,7 @@ describe('PageManage 页面管理（导航联动）', () => {
   })
 
   it('模板页的短路径导航项同样识别为已加入，「移出」一并清掉重复项', async () => {
-    // 导航管理里「关于我们」存的是路由短路径 /about，另有一条早期一键加入留下的 /page/about
+    // 菜单管理里「关于我们」存的是路由短路径 /about，另有一条早期一键加入留下的 /page/about
     listNav.mockResolvedValue({ code: 200, data: shortPathNav })
     const { wrapper } = mountView()
     await flushPromises()

@@ -128,7 +128,7 @@ const rssUrl = computed(() => {
   return `${base}/api/rss`
 })
 
-/* ---------- 快速导航：site_nav_item 表驱动（后台「导航管理」维护） ---------- */
+/* ---------- 快速导航：site_nav_item 表驱动（后台「菜单管理」维护） ---------- */
 const footerNavItems = ref<SiteNavItem[]>(DEFAULT_FOOTER_NAV)
 
 /* ---------- 减弱动效开关（§4.7 用户手动开关，优先级高于系统设置） ---------- */

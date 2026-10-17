@@ -170,7 +170,7 @@ describe('SiteSetting 视图（行为）', () => {
   })
 
   it('企业官网模式下隐藏三个不参与企业导航的裁剪开关', async () => {
-    // 默认 home_layout=business：分类/标签/归档入口由「导航管理」决定，这三张卡改了不生效
+    // 默认 home_layout=business：分类/标签/归档入口由「菜单管理」决定，这三张卡改了不生效
     const wrapper = mountPage()
     await flushPromises()
 

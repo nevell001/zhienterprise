@@ -79,7 +79,7 @@ describe('pageNavPaths / preferredPageNavPath', () => {
   })
 })
 
-describe('导航树联动（页面管理 ↔ 导航管理）', () => {
+describe('导航树联动（页面管理 ↔ 菜单管理）', () => {
   const tree = [
     { id: 1, parentId: 0, label: '首页', linkValue: '/', sort: 1 },
     {
@@ -119,7 +119,7 @@ describe('导航树联动（页面管理 ↔ 导航管理）', () => {
       { id: 5, parentId: 0, label: '关于我们', linkValue: '/page/about/' },
       { id: 6, parentId: 0, label: '首页', linkValue: '/' }
     ]
-    // 尾斜杠/空白差异不算另一页（导航管理允许手输）
+    // 尾斜杠/空白差异不算另一页（菜单管理允许手输）
     expect(navItemsOfPage(mixed, 'about').map(i => i.id)).toEqual([4, 5])
     expect(navItemsOfPage(mixed, 'home').map(i => i.id)).toEqual([6])
   })

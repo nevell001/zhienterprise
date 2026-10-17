@@ -1371,7 +1371,7 @@ VALUES (2012, '解决方案管理', 2000, 4, 'solution', 'article/index', '', ''
 
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2012), (2, 2012);
 
--- ========== 模块化建站 M3：导航管理 ==========
+-- ========== 模块化建站 M3：菜单管理 ==========
 CREATE TABLE IF NOT EXISTS `site_nav_item` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `location` varchar(20) NOT NULL DEFAULT 'header' COMMENT '位置：header 头部导航 footer 页脚快速导航',
@@ -1412,9 +1412,9 @@ DELETE o FROM `site_nav_item` o
 LEFT JOIN `site_nav_item` p ON p.`id` = o.`parent_id`
 WHERE o.`parent_id` <> 0 AND p.`id` IS NULL;
 
--- 头部/页脚导航默认项（设计稿 §1.1；后台「导航管理」可维护）
+-- 头部/页脚导航默认项（设计稿 §1.1；后台「菜单管理」可维护）
 -- 幂等保护：按「位置+父项+链接类型+链接值」收敛写入，只补缺失项（本表无自然唯一键）
--- ⚠️ 判存键故意不含 label：站长在「导航管理」里改过标签后（实例：核心业务 → 咨询业务），
+-- ⚠️ 判存键故意不含 label：站长在「菜单管理」里改过标签后（实例：核心业务 → 咨询业务），
 -- 按 label 判存会认为默认项缺失、再插一条默认标签的行，导航就出现两个指向同一路径的入口
 -- ⚠️ 不可用显式主键 INSERT IGNORE：老库主键 1~10 已被旧版种子占用且排序不同，
 -- 主键冲突会跳过「解决方案」，而空闲的 11/12 号反而写成重复的页脚「新闻动态/关于我们」
@@ -1453,9 +1453,12 @@ WHERE NOT EXISTS (
   WHERE c.`parent_id` = p.id AND c.`link_type` = 'path' AND c.`link_value` = t.link_value
 );
 
--- 导航管理菜单与权限
+-- 菜单管理菜单与权限（原名「导航管理」）
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2011, '导航管理', 2000, 3, 'nav', 'nav/index', '', '', 1, 0, 'C', '0', '0', 'site:nav:list', 'guide', 'admin', NOW(), '', NULL, '站点导航管理菜单（头部/页脚）');
+VALUES (2011, '菜单管理', 2000, 3, 'nav', 'nav/index', '', '', 1, 0, 'C', '0', '0', 'site:nav:list', 'guide', 'admin', NOW(), '', NULL, '站点菜单管理（头部/页脚导航项）');
+
+-- 存量库改名：INSERT IGNORE 不会更新已存在的菜单行（2026-10 由「导航管理」更名）
+UPDATE sys_menu SET menu_name = '菜单管理' WHERE menu_id = 2011 AND menu_name = '导航管理';
 
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20110, '导航查询', 2011, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'site:nav:query', '#', 'admin', NOW(), '', NULL, ''),
@@ -2710,7 +2713,7 @@ EXECUTE add_message_update_by_stmt;
 DEALLOCATE PREPARE add_message_update_by_stmt;
 
 -- ===============================================================
--- 📌 模块化建站 M3：导航管理（存量库兜底建表，幂等）
+-- 📌 模块化建站 M3：菜单管理（存量库兜底建表，幂等）
 -- ===============================================================
 -- 本文件自顶向下顺序执行，上文初始化区的 CREATE TABLE / 种子对存量库同样会重放，
 -- 这里只保留一份幂等建表兜底（历史上用于规避老库缺表）。

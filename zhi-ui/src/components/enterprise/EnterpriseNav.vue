@@ -146,7 +146,7 @@ const businessLabel = computed(
   () => String(blogSettings.value.business_label || '').trim() || '核心业务'
 )
 
-/* ---------- 导航数据：site_nav_item 表驱动（后台「导航管理」维护） ---------- */
+/* ---------- 导航数据：site_nav_item 表驱动（后台「菜单管理」维护） ---------- */
 const navItems = ref<SiteNavItem[]>(DEFAULT_HEADER_NAV)
 
 onMounted(async () => {

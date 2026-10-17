@@ -61,6 +61,24 @@
           >
             页面
           </el-tag>
+          <el-tag
+            v-if="isCategoryLink(scope.row)"
+            size="small"
+            type="info"
+            effect="plain"
+            class="page-tag"
+          >
+            分类
+          </el-tag>
+          <el-tag
+            v-if="isTagLink(scope.row)"
+            size="small"
+            type="info"
+            effect="plain"
+            class="page-tag"
+          >
+            标签
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="链接类型" align="center" width="110">
@@ -133,29 +151,25 @@
           />
           <div v-if="labelControlled" class="slug-tip">{{ labelControlTip }}</div>
         </el-form-item>
-        <el-form-item v-if="form.linkType !== 'url'" label="链接页面">
+        <el-form-item v-if="form.linkType !== 'url'" label="链接目标">
           <el-select
-            v-model="selectedPageSlug"
-            placeholder="从已发布页面中选择（可留空手填路径）"
+            v-model="selectedTarget"
+            placeholder="选择页面 / 文章分类 / 标签（也可留空手填路径）"
             clearable
             filterable
             style="width: 100%"
-            @change="handlePageSelect"
+            @change="handleTargetSelect"
           >
-            <el-option
-              v-for="p in pageOptions"
-              :key="p.id"
-              :label="`${p.title || p.slug}（/page/${p.slug}）`"
-              :value="p.slug"
-            />
+            <el-option-group v-for="group in targetOptions" :key="group.label" :label="group.label">
+              <el-option
+                v-for="opt in group.options"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
+              />
+            </el-option-group>
           </el-select>
-          <div class="slug-tip">
-            {{
-              pageOptions.length
-                ? '选择页面后自动填入标签与路径；页面列表也能一键加入/移出导航'
-                : '暂无可选页面：请先在「页面管理」新建并发布页面'
-            }}
-          </div>
+          <div class="slug-tip">{{ targetTip }}</div>
         </el-form-item>
         <el-form-item label="链接类型" prop="linkType">
           <el-radio-group v-model="form.linkType">
@@ -167,7 +181,11 @@
         <el-form-item label="链接值" prop="linkValue">
           <el-input
             v-model="form.linkValue"
-            :placeholder="form.linkType === 'url' ? 'https://example.com' : '如：/about'"
+            :placeholder="
+              form.linkType === 'url'
+                ? 'https://example.com'
+                : '如：/news、/category/分类别名、/tag/标签ID、/about'
+            "
           />
         </el-form-item>
         <el-form-item label="排序" prop="sort">
@@ -189,8 +207,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { listNav, addNav, updateNav, delNav } from '@/api/admin/nav'
 import { listPage } from '@/api/admin/page'
+import { listCategory } from '@/api/admin/category'
+import { listTag } from '@/api/admin/tag'
 import { getConfigByKey } from '@/api/admin/setting'
 import type { SitePage } from '@/api/admin/page'
+import type { Category, Tag } from '@/types'
 import type { SiteNavItem } from '@/api/site/nav'
 import { pagePath, pageSlugFromPath } from '@/utils/siteNav'
 
@@ -206,9 +227,28 @@ const form = ref<Partial<SiteNavItem>>({})
 const editingId = ref<number | null>(null)
 const editMode = ref<'add' | 'edit'>('add')
 
+/** 链接值按类型校验：站内路径必须以 / 开头，外链必须是 http(s) */
+const validateLinkValue = (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+  const raw = (value || '').trim()
+  if (!raw) {
+    callback(new Error('链接值不能为空'))
+    return
+  }
+  if (form.value.linkType === 'url') {
+    if (!/^https?:\/\//i.test(raw)) {
+      callback(new Error('外链需以 http:// 或 https:// 开头'))
+      return
+    }
+  } else if (!raw.startsWith('/')) {
+    callback(new Error('站内路径需以 / 开头，如 /news、/category/分类别名'))
+    return
+  }
+  callback()
+}
+
 const rules = {
   label: [{ required: true, message: '导航标签不能为空', trigger: 'blur' }],
-  linkValue: [{ required: true, message: '链接值不能为空', trigger: 'blur' }]
+  linkValue: [{ required: true, validator: validateLinkValue, trigger: 'blur' }]
 }
 
 const linkTypeLabel = (type?: string) =>
@@ -232,10 +272,78 @@ const loadTree = async () => {
 const publishedPages = ref<SitePage[]>([])
 const pageOptions = computed(() => publishedPages.value.filter(p => p.slug && p.id))
 
-/** 当前编辑的导航项是否指向自定义页面（供下拉回显/「页面」标记） */
+/** 文章分类 / 标签：二级菜单里最常见的链接目标 */
+const categories = ref<Category[]>([])
+const tags = ref<Tag[]>([])
+
+/** 常用站内页面：不必手输路径，也避免写错（如文章列表实际是 /news） */
+const FIXED_TARGETS = [
+  { path: '/', label: '首页' },
+  { path: '/news', label: '新闻动态' },
+  { path: '/business', label: '核心业务' },
+  { path: '/solutions', label: '解决方案' },
+  { path: '/about', label: '关于我们' },
+  { path: '/honors', label: '荣誉资质' },
+  { path: '/history', label: '发展历程' },
+  { path: '/contact', label: '联系我们' }
+]
+
+/** 下拉值编码：`fixed:/news`、`page:about`、`cat:12`、`tag:3` */
+const selectedTarget = ref('')
+
+const targetOptions = computed(() =>
+  [
+    {
+      label: '常用页面',
+      options: FIXED_TARGETS.map(t => ({
+        label: `${t.label}（${t.path}）`,
+        value: `fixed:${t.path}`
+      }))
+    },
+    {
+      label: '自定义页面',
+      options: pageOptions.value.map(p => ({
+        label: `${p.title || p.slug}（/page/${p.slug}）`,
+        value: `page:${p.slug}`
+      }))
+    },
+    {
+      label: '文章分类',
+      options: categories.value
+        .filter(c => c.id)
+        .map(c => ({ label: `${c.name}（/category/${c.alias || c.id}）`, value: `cat:${c.id}` }))
+    },
+    {
+      label: '文章标签',
+      options: tags.value
+        .filter(t => t.id)
+        .map(t => ({ label: `${t.name}（/tag/${t.id}）`, value: `tag:${t.id}` }))
+    }
+  ].filter(g => g.options.length)
+)
+
+const targetTip = computed(() => {
+  if (!pageOptions.value.length && !categories.value.length && !tags.value.length) {
+    return '暂无可选目标：请先在「页面管理」新建并发布页面，或先创建文章分类 / 标签'
+  }
+  return '选择后自动填入标签与路径（文章分类 → /category/别名、标签 → /tag/ID）；也可直接手填站内路径。二级菜单同样适用。'
+})
+
+/** 当前编辑的导航项是否指向自定义页面（供「页面」标记） */
 const pageSlugOf = (row: SiteNavItem) =>
   row.linkType === 'url' ? '' : pageSlugFromPath(row.linkValue)
-const selectedPageSlug = ref('')
+
+/** 分类 / 标签链接标记（后台表格一眼能看出二级菜单指向什么） */
+const categoryKeyOf = (row: SiteNavItem) =>
+  row.linkType === 'url' ? '' : /^\/category\/([^/?#]+)/.exec(row.linkValue || '')?.[1] || ''
+const tagKeyOf = (row: SiteNavItem) =>
+  row.linkType === 'url' ? '' : /^\/tag\/([^/?#]+)/.exec(row.linkValue || '')?.[1] || ''
+const isCategoryLink = (row: SiteNavItem) => Boolean(categoryKeyOf(row))
+const isTagLink = (row: SiteNavItem) => Boolean(tagKeyOf(row))
+
+const findCategory = (key: string) =>
+  categories.value.find(c => String(c.id) === key || (c.alias || '') === key)
+const findTag = (key: string) => tags.value.find(t => String(t.id) === key)
 
 const loadPublishedPages = async () => {
   try {
@@ -246,13 +354,61 @@ const loadPublishedPages = async () => {
   }
 }
 
-/** 选中页面：自动填充标签与路径（标签保持可改） */
-const handlePageSelect = (slug: string) => {
-  if (!slug) return
-  const page = publishedPages.value.find(p => p.slug === slug)
-  if (!page) return
-  if (!form.value.label?.trim()) form.value.label = page.title || slug
-  form.value.linkValue = pagePath(slug)
+const loadLinkTargets = async () => {
+  const [categoryResult, tagResult] = await Promise.allSettled([
+    listCategory({ pageNum: 1, pageSize: 200 }),
+    listTag({ pageNum: 1, pageSize: 200 })
+  ])
+  categories.value = categoryResult.status === 'fulfilled' ? categoryResult.value?.rows || [] : []
+  tags.value = tagResult.status === 'fulfilled' ? tagResult.value?.rows || [] : []
+}
+
+/** 选中目标：自动填充标签（仅当标签为空）与链接值 */
+const handleTargetSelect = (value: string) => {
+  if (!value) return
+  const sep = value.indexOf(':')
+  const kind = value.slice(0, sep)
+  const rest = value.slice(sep + 1)
+  let label = ''
+  let path = ''
+
+  if (kind === 'fixed') {
+    const target = FIXED_TARGETS.find(t => t.path === rest)
+    label = target?.label || ''
+    path = rest
+  } else if (kind === 'page') {
+    const page = pageOptions.value.find(p => p.slug === rest)
+    if (!page) return
+    label = page.title || page.slug || ''
+    path = pagePath(rest)
+  } else if (kind === 'cat') {
+    const category = categories.value.find(c => String(c.id) === rest)
+    if (!category) return
+    label = category.name || ''
+    path = `/category/${category.alias || category.id}`
+  } else if (kind === 'tag') {
+    const tag = tags.value.find(t => String(t.id) === rest)
+    if (!tag) return
+    label = tag.name || ''
+    path = `/tag/${tag.id}`
+  }
+  if (!path) return
+  if (!form.value.label?.trim()) form.value.label = label
+  form.value.linkValue = path
+}
+
+/** 编辑回显：把已有链接值反解成下拉选中项；无法识别（手填路径）时留空 */
+const targetOfRow = (row: SiteNavItem): string => {
+  if (row.linkType === 'url') return ''
+  const path = (row.linkValue || '').trim()
+  const pageSlug = pageSlugFromPath(path)
+  if (pageSlug) return `page:${pageSlug}`
+  const category = findCategory(categoryKeyOf(row))
+  if (category) return `cat:${category.id}`
+  const tag = findTag(tagKeyOf(row))
+  if (tag) return `tag:${tag.id}`
+  const fixed = FIXED_TARGETS.find(t => t.path === path)
+  return fixed ? `fixed:${fixed.path}` : ''
 }
 
 /* ---------- 「栏目名称」托管：/business 的标签由站点设置统一控制 ---------- */
@@ -295,6 +451,7 @@ watch([labelControlled, businessNavLabel], () => {
 onMounted(() => {
   loadTree()
   loadPublishedPages()
+  loadLinkTargets()
   loadBusinessLabel()
 })
 
@@ -352,7 +509,7 @@ const handleVisibleChange = async (row: SiteNavItem, val: any) => {
 
 function handleAdd() {
   editMode.value = 'add'
-  selectedPageSlug.value = ''
+  selectedTarget.value = ''
   form.value = {
     location: activeTab.value,
     parentId: 0,
@@ -370,7 +527,7 @@ function handleAddChild(parent?: SiteNavItem) {
   const parentRow = parent || navTree.value[0]
   if (!parentRow) return
   editMode.value = 'add'
-  selectedPageSlug.value = ''
+  selectedTarget.value = ''
   form.value = {
     location: activeTab.value,
     parentId: parentRow.id,
@@ -387,7 +544,7 @@ function handleAddChild(parent?: SiteNavItem) {
 function handleEdit(row: SiteNavItem) {
   editMode.value = 'edit'
   editingId.value = row.id ?? null
-  selectedPageSlug.value = pageSlugOf(row)
+  selectedTarget.value = targetOfRow(row)
   form.value = { ...row }
   // 连续编辑两个托管项时 labelControlled 不翻转，watch 不会触发，这里显式同步
   if (isControlledLabel(row)) form.value.label = businessNavLabel.value

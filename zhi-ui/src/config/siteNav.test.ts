@@ -106,7 +106,7 @@ describe('企业官网兜底导航（DEFAULT_HEADER_NAV / DEFAULT_FOOTER_NAV）'
 
     const about = DEFAULT_HEADER_NAV.find(item => item.label === '关于我们')
     expect(toTuples(about?.children || [])).toEqual(
-      seededChildTuples('-- 关于我们的二级下拉项', '-- 导航管理菜单与权限')
+      seededChildTuples('-- 关于我们的二级下拉项', '-- 菜单管理菜单与权限')
     )
   })
 })

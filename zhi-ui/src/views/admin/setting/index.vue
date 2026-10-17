@@ -970,7 +970,7 @@ function isFeatureDisabled(item: FeatureItem): boolean {
   return !!item.dependsOn && !isSwitchOn(settingsMap.value[item.dependsOn])
 }
 
-/** 企业官网模式（与 SiteLayout 的 isBusinessNavEnabled 同口径）：导航/页脚改由「导航管理」表驱动 */
+/** 企业官网模式（与 SiteLayout 的 isBusinessNavEnabled 同口径）：导航/页脚改由「菜单管理」表驱动 */
 const isEnterpriseMode = computed(() => String(settingsMap.value.home_layout || '') === 'business')
 
 /** 这两个开关只被经典模式的 buildNavMenus / 经典页脚消费，企业模式下完全不参与 */

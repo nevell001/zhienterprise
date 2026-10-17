@@ -806,7 +806,7 @@
             <el-radio label="1">已发布</el-radio>
           </el-radio-group>
         </el-form-item>
-        <!-- 企业官网模式下导航由「导航管理」表驱动，本字段无任何消费点（含 sitemap） -->
+        <!-- 企业官网模式下导航由「菜单管理」表驱动，本字段无任何消费点（含 sitemap） -->
         <el-form-item v-if="!isEnterpriseMode" label="导航显示" prop="showInNav">
           <el-switch
             v-model="form.showInNav"
@@ -1109,7 +1109,7 @@ function statusText(status?: PageStatus): string {
   return status === '1' ? '已发布' : '草稿'
 }
 
-/* ---------- 顶部导航联动：与「导航管理」同一数据源（site_nav_item） ---------- */
+/* ---------- 顶部导航联动：与「菜单管理」同一数据源（site_nav_item） ---------- */
 
 const headerNav = ref<SiteNavItem[]>([])
 

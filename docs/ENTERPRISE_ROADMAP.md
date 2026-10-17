@@ -190,7 +190,7 @@ templates/ 的两层分离架构）：
 ### Phase 3.3 — 模块化建站（✅ M1~M4 + M5 首批已完成，2026-10-15/16）
 
 详见 `docs/模块化建站架构方案.md`：zhi_page builder 页（sections JSON）+
-PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
+PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
 行业模板包（预置数据包一键导入，取代固定模板语义）+ 导航短路径。
 
 **仍未实现清单**（对照设计方案逐项盘点，2026-10-16）：
@@ -303,3 +303,16 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
 - **解析**：`utils/uploadUrl.ts#parseBannerUrls()` 统一做「逗号拆分 / 去重 / 上限 5 / 兼容容器名绝对地址 / `data:` 内联值不误拆」；
 - **测试**：`BannerCarousel.test.ts` 7 例（单图无控件、多图自动轮播、悬停暂停、手动切换循环、减弱动效、触摸滑动）+ `parseBannerUrls` 8 例 + Hero 接入 2 例；
 - **消费端**：builder 首页 `sections/HeroSection.vue` 与旧库回退首页 `EnterpriseHome.vue` 两处均已接入。
+
+## 十二、后台菜单管理（原名导航管理）与链接目标（2026-10-17）
+
+- **更名**：后台「站点管理 → 导航管理」改为「菜单管理」（`sys_menu` id=2011）；SQL 种子改名并附
+  存量库幂等 `UPDATE ... WHERE menu_name='导航管理'`，重跑一次脚本即完成迁移。
+- **问题**：原弹窗只有「链接页面」下拉（仅自定义页面），文章分类/标签只能手输 `/category/{id}`，
+  管理员需自己知道分类 ID/别名，易写错且无法回显；这与「二级菜单指向某个文章分类」的常见用法不符。
+- **改造**：链接目标改为分组选择器——常用页面（`/`、`/news`、`/business`、`/solutions`、
+  `/about`、`/honors`、`/history`、`/contact`）、自定义页面、文章分类（`alias` 优先）、文章标签；
+  选择后自动填标签（标签非空时不覆盖）与 `linkValue`，编辑时按已有链接值回显；
+  表格增加「分类 / 标签」标记；`linkValue` 增加按类型校验（站内路径须以 `/` 开头、外链须 `http(s)`）。
+- **不变式**：`site_nav_item.link_type` 仍只有 `path/url/cta`，分类/标签不新增类型、不改表结构。
+- **测试**：`views/admin/nav/index.test.ts` 覆盖页面/分类/标签自动填充、编辑回显、提交载荷与栏目名称托管。
