@@ -50,4 +50,65 @@ describe('数据库初始化脚本的库名与重跑安全约定', () => {
     const unguarded = touching.filter(s => !legal.test(s))
     expect(unguarded.map(s => s.slice(0, 120))).toEqual([])
   })
+
+  /**
+   * 顺序守卫（回归）：引用「表.列」的语句必须出现在该列的补齐守卫之后。
+   * 2026-10 的真实故障：zhi_article_tag 种子在 ON 子句引用 zhi_article.slug，
+   * 而 slug 的 ADD COLUMN 守卫在其后 1340 行 —— 早于 slug 特性建库的存量库重跑时
+   * 抛 ERROR 1054 (Unknown column 'a.slug' in 'on clause') 并中断其后全部语句。
+   * 注意 CREATE TABLE 里的列只对全新库生效，存量库依赖 ADD COLUMN 守卫，故必须校验顺序。
+   */
+  it('引用表.列 的语句必须晚于该列的补齐守卫（防前向引用）', () => {
+    // 收集所有 information_schema.COLUMNS 守卫：键为 `表.列`，值为守卫所在行号
+    const guardLine = new Map<string, number>()
+    const guardRe =
+      /information_schema\.COLUMNS[\s\S]{0,200}?TABLE_NAME\s*=\s*'(\w+)'\s+AND\s+COLUMN_NAME\s*=\s*'(\w+)'/gi
+    for (const m of source.matchAll(guardRe)) {
+      const line = source.slice(0, m.index).split('\n').length
+      guardLine.set(`${m[1]}.${m[2]}`, line)
+    }
+    // 防止解析失效导致空集合通过
+    expect(guardLine.size, '未解析到任何列补齐守卫，正则可能已失效').toBeGreaterThanOrEqual(15)
+
+    // ⚠️ 关键：引用常经由**表别名**（`JOIN zhi_article a ON a.slug = ...`），
+    // 直接用 `表.列` 匹配会漏掉全部此类引用 —— 首版守卫即因此放过缺陷（已验证）。
+    // 这里按语句块解析「表 → 别名」映射，再把 `别名.列` 归一为 `表.列`。
+    const problems: string[] = []
+    const rawLines = source.split('\n')
+
+    // 逐行维护别名映射：遇到 FROM/JOIN/UPDATE/INSERT INTO 时登记 `表 别名`
+    const aliasToTable = new Map<string, string>()
+    rawLines.forEach((raw, idx) => {
+      const lineNo = idx + 1
+      const line = raw.trim()
+      if (line.startsWith('--')) return
+      // 登记别名：FROM/JOIN/UPDATE `table` `alias` 或 table alias
+      const aliasRe = /\b(?:FROM|JOIN|UPDATE|INTO)\s+`?(\w+)`?\s+(?:AS\s+)?`?([a-z]\w*)`?/gi
+      for (const m of line.matchAll(aliasRe)) {
+        const [, tbl, alias] = m
+        // 排除把关键字当别名的情形（如 ON / WHERE / SET）
+        if (/^(on|where|set|and|or|values|select|left|inner|group|order)$/i.test(alias)) continue
+        if (alias.toLowerCase() === tbl.toLowerCase()) continue
+        aliasToTable.set(alias, tbl)
+      }
+      // 检查本行是否引用了「别名.列」或「表.列」，且该列有守卫
+      for (const [key, gLine] of guardLine) {
+        if (lineNo >= gLine) continue // 守卫之后才允许引用
+        const [table, column] = key.split('.')
+        if (/information_schema|COLUMN_NAME|ADD COLUMN|COMMENT/i.test(line)) continue
+        // 直接表名限定
+        const direct = new RegExp(`\`${table}\`\\s*\\.\\s*\`${column}\`|\\b${table}\\.${column}\\b`)
+        // 别名限定：本行出现的别名若映射到该表，且引用了 `别名.列`
+        const viaAlias = [...aliasToTable.entries()].some(
+          ([alias, tbl]) =>
+            tbl === table &&
+            new RegExp(`\`${alias}\`\\s*\\.\\s*\`${column}\`|\\b${alias}\\.${column}\\b`).test(line)
+        )
+        if (direct.test(line) || viaAlias) {
+          problems.push(`${key}: 第 ${lineNo} 行引用了它，但补齐守卫在第 ${gLine} 行`)
+        }
+      }
+    })
+    expect(problems).toEqual([])
+  })
 })
