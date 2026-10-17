@@ -165,7 +165,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     industry: '咨询 / 专业服务 · 权威可信，衬线标题，圆角偏小',
     color: '#185FA5',
     hero: {
-      eyebrow: '战略判断 · 15 年咨询经验',
+      eyebrow: '战略判断 · 长期陪跑',
       titleHtml: '把复杂的问题<br>变成<em>清晰的决策</em>',
       subtitle:
         '面向【行业】企业提供战略与运营咨询，从诊断到落地，全程陪跑，让每一次决策都有据可依。'
@@ -186,7 +186,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     industry: '软件 / IT 服务 · 稳定可靠，墨绿低饱和',
     color: '#0F6E56',
     hero: {
-      eyebrow: '稳定可靠 · 15 年技术沉淀',
+      eyebrow: '稳定可靠 · 技术沉淀',
       titleHtml: '让复杂的系统<br>变得<em>简单可靠</em>',
       subtitle: '面向【行业】企业提供产品与服务一体化解决方案，从架构设计到长期运维，全程陪跑。'
     },
@@ -206,7 +206,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     industry: '制造 / 工业 · 精准硬朗，小圆角，标题带竖线',
     color: '#B0442A',
     hero: {
-      eyebrow: '精密制造 · 15 年产线经验',
+      eyebrow: '精密制造 · 产线经验',
       titleHtml: '让每一道工序<br>都<em>精准可控</em>',
       subtitle: '面向制造企业提供产线数字化与质量管理方案，让产能、质量、成本可视可控。'
     },
@@ -226,7 +226,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     industry: '商贸 / 零售 · 流通高效，紫调柔化，圆角偏大',
     color: '#7C4A9E',
     hero: {
-      eyebrow: '流通效率 · 15 年商贸经验',
+      eyebrow: '流通效率 · 商贸经验',
       titleHtml: '让每一笔流转<br>都<em>高效顺畅</em>',
       subtitle: '面向商贸与零售企业提供供应链与会员数字化方案，打通线上线下全链路数据。'
     },
@@ -246,7 +246,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     industry: '消费电子 / 数码 · 年轻亲和，大圆角，视觉最轻',
     color: '#C2410C',
     hero: {
-      eyebrow: '持续创新 · 15 年产品经验',
+      eyebrow: '持续创新 · 产品经验',
       titleHtml: '让每一次选择<br>都<em>简单安心</em>',
       subtitle: '面向【行业】企业提供产品与服务一体化解决方案，从选购到售后，全程陪伴。'
     },

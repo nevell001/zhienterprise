@@ -379,6 +379,16 @@
 
             <el-tabs v-model="contentTab" class="content-tabs">
               <el-tab-pane label="首页内容" name="home">
+                <div class="content-source-tip">
+                  <el-icon><InfoFilled /></el-icon>
+                  <span>
+                    首页 Hero 的眉题 / 标题 / 副标题 / 按钮在
+                    <router-link to="/admin/page">页面管理 → 首页</router-link>
+                    维护；本页维护指标、成果、方案等内容数据。年限数字只写在「信任指标」里，
+                    模板默认文案不再写死，避免两边不一致。
+                  </span>
+                </div>
+
                 <ContentSectionCard
                   title="首页 · 信任指标条"
                   desc="首页 Hero 下方的数字指标，建议 2–4 项"
@@ -871,7 +881,8 @@ import {
   Bottom,
   Delete,
   Plus,
-  Top
+  Top,
+  InfoFilled
 } from '@element-plus/icons-vue'
 import {
   listSetting,
@@ -1964,6 +1975,31 @@ html.dark .feature-group__icon {
 /* ---------- 官网内容编辑器 ---------- */
 .content-tabs {
   margin-top: 12px;
+}
+
+.content-source-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 10px;
+  background: var(--el-fill-color-light);
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.content-source-tip .el-icon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--el-color-primary);
+}
+
+.content-source-tip a {
+  color: var(--el-color-primary);
+  font-weight: 600;
 }
 
 .content-tabs :deep(.el-tabs__content) {

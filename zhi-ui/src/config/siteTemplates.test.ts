@@ -47,6 +47,12 @@ describe('siteTemplates（5 套行业模板）', () => {
     expect(SITE_TEMPLATE_CLASS_NAMES).toEqual(SITE_TEMPLATES.map(t => `tpl-${t.id}`))
   })
 
+  it('模板默认眉题不得写死年限（年限只在官网内容指标维护）', () => {
+    for (const tpl of SITE_TEMPLATES) {
+      expect(tpl.hero.eyebrow).not.toMatch(/\d+\s*年/)
+    }
+  })
+
   it('五套主色互不相同（行业心智差异的基础）', () => {
     expect(new Set(SITE_TEMPLATES.map(t => t.color)).size).toBe(5)
   })

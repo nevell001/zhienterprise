@@ -111,7 +111,8 @@ function mountPage() {
           template:
             '<button class="sw" :disabled="disabled" :data-on="String(!!modelValue)" @click="$emit(\'update:modelValue\', !modelValue); $emit(\'change\', !modelValue)"></button>'
         },
-        editor: { template: '<div class="editor-stub" />' }
+        editor: { template: '<div class="editor-stub" />' },
+        RouterLink: { template: '<a><slot /></a>' }
       }
     }
   })
@@ -465,6 +466,15 @@ describe('SiteSetting 视图（行为）', () => {
     for (const label of ['首页内容', '荣誉与历程', '联系与问答', '页面文案']) {
       expect(text).toContain(label)
     }
+  })
+
+  it('官网内容提示首页 Hero 文案的维护入口，避免与模板硬编码不一致', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const text = wrapper.text()
+    expect(text).toContain('页面管理 → 首页')
+    expect(text).toContain('年限数字只写在「信任指标」里')
   })
 
   it('官网内容按分区卡片渲染，每个分区带标题、说明与字段标签', async () => {

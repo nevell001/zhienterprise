@@ -2690,8 +2690,16 @@ DEALLOCATE PREPARE add_page_sections_stmt;
 -- metrics/outcomes/solutions 的 items 留空时前台回退「官网内容」设置与内置占位）。
 INSERT IGNORE INTO `zhi_page` (`title`, `slug`, `summary`, `content`, `page_type`, `sections`, `status`, `show_in_nav`, `sort`, `create_by`, `create_time`, `update_time`)
 VALUES ('首页', 'home', '企业官网首页（模块组装）', NULL, 'builder',
-'[{"type":"hero","visible":true,"config":{"eyebrow":"战略判断 · 15 年咨询经验","titleHtml":"把复杂的问题<br>变成<em>清晰的决策</em>","subtitle":"面向【行业】企业提供战略与运营咨询，从诊断到落地，全程陪跑，让每一次决策都有据可依。","ctaPrimary":{"label":"了解我们的业务","link":"/business"},"ctaSecondary":{"label":"预约咨询","link":"/contact"}}},{"type":"metrics","visible":true,"config":{}},{"type":"biz-cards","visible":true,"config":{}},{"type":"solutions","visible":true,"config":{}},{"type":"outcomes","visible":true,"config":{}},{"type":"logos","visible":true,"config":{"count":8}},{"type":"news","visible":true,"config":{"count":3}},{"type":"cta","visible":true,"config":{"title":"把下一步交给我们","subtitle":"一个小时的免费诊断，换一份可执行的问题清单。","primary":{"label":"预约咨询","link":"/contact"},"secondary":{"label":"了解我们","link":"/about"}}}]',
+'[{"type":"hero","visible":true,"config":{"eyebrow":"战略判断 · 长期陪跑","titleHtml":"把复杂的问题<br>变成<em>清晰的决策</em>","subtitle":"面向【行业】企业提供战略与运营咨询，从诊断到落地，全程陪跑，让每一次决策都有据可依。","ctaPrimary":{"label":"了解我们的业务","link":"/business"},"ctaSecondary":{"label":"预约咨询","link":"/contact"}}},{"type":"metrics","visible":true,"config":{}},{"type":"biz-cards","visible":true,"config":{}},{"type":"solutions","visible":true,"config":{}},{"type":"outcomes","visible":true,"config":{}},{"type":"logos","visible":true,"config":{"count":8}},{"type":"news","visible":true,"config":{"count":3}},{"type":"cta","visible":true,"config":{"title":"把下一步交给我们","subtitle":"一个小时的免费诊断，换一份可执行的问题清单。","primary":{"label":"预约咨询","link":"/contact"},"secondary":{"label":"了解我们","link":"/about"}}}]',
 '1', '0', 0, 'admin', NOW(), NOW());
+
+-- 去硬编码：模板 Hero 眉题不再写死年限，年限只在「官网内容 → 首页内容 → 信任指标」维护。
+-- 仅替换与旧模板默认值完全一致的已落库文案，管理员自定义过的内容不受影响。
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '战略判断 · 15 年咨询经验', '战略判断 · 长期陪跑') WHERE `sections` LIKE '%战略判断 · 15 年咨询经验%';
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '稳定可靠 · 15 年技术沉淀', '稳定可靠 · 技术沉淀') WHERE `sections` LIKE '%稳定可靠 · 15 年技术沉淀%';
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '精密制造 · 15 年产线经验', '精密制造 · 产线经验') WHERE `sections` LIKE '%精密制造 · 15 年产线经验%';
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '流通效率 · 15 年商贸经验', '流通效率 · 商贸经验') WHERE `sections` LIKE '%流通效率 · 15 年商贸经验%';
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '持续创新 · 15 年产品经验', '持续创新 · 产品经验') WHERE `sections` LIKE '%持续创新 · 15 年产品经验%';
 
 -- 老库升级：补齐 zhi_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS
