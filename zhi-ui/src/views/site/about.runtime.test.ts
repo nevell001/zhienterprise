@@ -67,118 +67,34 @@ describe('关于页页头文案（site_page_copy 行为）', () => {
   })
 })
 
-describe('关于页负责人区块（站点设置「个人信息」行为）', () => {
-  it('填了简介/位置/个人网站时渲染负责人区块，并带上作者职位抬头', async () => {
+describe('关于页「负责人」区块已下线', () => {
+  /**
+   * 该区块的数据源是「站点设置 → 个人信息」tab，tab 已随需求移除，
+   * 区块与 Person 结构化数据同步删除。锁住它们不会因残留代码悄悄渲染出来。
+   */
+  it('不再渲染负责人区块（.aph-profile）', async () => {
     const { wrapper, pinia } = mountAbout()
     const store = useSiteSettingsStore(pinia)
+    // 即便旧键被注入，也不应渲染出负责人区块
     store.updateSiteSettings({
       author_title: '技术负责人',
-      author_bio: '十年工业软件与数字化交付经验。',
-      author_location: '中国·杭州',
-      personal_website: 'https://team.example.com'
+      author_bio: '十年经验',
+      author_location: '中国·北京',
+      personal_website: 'https://example.com'
     })
     await nextTick()
-
-    const profile = wrapper.get('.aph-profile')
-    expect(profile.get('.aph-profile-head').text()).toBe('技术负责人 · 中国·杭州')
-    expect(profile.get('.aph-profile-bio').text()).toBe('十年工业软件与数字化交付经验。')
-    const link = profile.get('.aph-profile-link')
-    expect(link.attributes('href')).toBe('https://team.example.com')
-    expect(link.attributes('rel')).toContain('noopener')
-  })
-
-  it('只有作者职位（内容字段全空）时不渲染，避免空卡片', async () => {
-    const { wrapper, pinia } = mountAbout()
-    const store = useSiteSettingsStore(pinia)
-    store.updateSiteSettings({ author_title: '网站管理员' })
     await nextTick()
 
     expect(wrapper.find('.aph-profile').exists()).toBe(false)
+    expect(wrapper.find('.aph-profile-head').exists()).toBe(false)
+    expect(wrapper.find('.aph-profile-bio').exists()).toBe(false)
   })
 
-  it.each([
-    { name: '个人简介', patch: { author_bio: '十年工业软件与数字化交付经验。' } },
-    { name: '位置信息', patch: { author_location: '中国·杭州' } }
-  ])('只填$name也能让负责人区块出现', async ({ patch }) => {
-    const { wrapper, pinia } = mountAbout()
-    useSiteSettingsStore(pinia).updateSiteSettings(patch)
+  it('不再注入 Person 结构化数据', async () => {
+    mountAbout()
+    await nextTick()
     await nextTick()
 
-    expect(wrapper.find('.aph-profile').exists()).toBe(true)
-  })
-
-  it('只填个人网站时，区块渲染抬头与网站入口、不渲染简介', async () => {
-    const { wrapper, pinia } = mountAbout()
-    const store = useSiteSettingsStore(pinia)
-    store.updateSiteSettings({
-      author_title: '技术负责人',
-      personal_website: 'https://team.example.com'
-    })
-    await nextTick()
-
-    const profile = wrapper.get('.aph-profile')
-    expect(profile.get('.aph-profile-head').text()).toBe('技术负责人')
-    expect(profile.find('.aph-profile-bio').exists()).toBe(false)
-    expect(profile.get('.aph-profile-link').attributes('href')).toBe('https://team.example.com')
-  })
-})
-
-describe('关于页负责人结构化数据（Person JSON-LD）', () => {
-  const PERSON_LD_ID = 'zh-jsonld-person'
-
-  const readPersonLd = (): Record<string, unknown> | null => {
-    const el = document.getElementById(PERSON_LD_ID)
-    return el ? JSON.parse(el.textContent || 'null') : null
-  }
-
-  // 组件挂载测试之间共用同一个 document，先清掉上一例注入的脚本
-  beforeEach(() => {
-    document.getElementById(PERSON_LD_ID)?.remove()
-  })
-
-  it('负责人区块出现时注入 Person，字段取站长/职位/简介/网站/位置', async () => {
-    const { wrapper, pinia } = mountAbout()
-    useSiteSettingsStore(pinia).updateSiteSettings({
-      blog_author: '张三',
-      author_title: '技术负责人',
-      author_bio: '十二年工业软件与数字化交付经验。',
-      author_location: '中国·杭州',
-      personal_website: 'https://team.example.com'
-    })
-    await nextTick()
-
-    expect(readPersonLd()).toMatchObject({
-      '@context': 'https://schema.org',
-      '@type': 'Person',
-      name: '张三',
-      jobTitle: '技术负责人',
-      description: '十二年工业软件与数字化交付经验。',
-      url: 'https://team.example.com',
-      address: { '@type': 'PostalAddress', addressLocality: '中国·杭州' }
-    })
-
-    wrapper.unmount()
-    expect(readPersonLd()).toBeNull()
-  })
-
-  it('三项内容全空（负责人区块不渲染）时不注入', async () => {
-    const { wrapper } = mountAbout()
-    await nextTick()
-
-    expect(readPersonLd()).toBeNull()
-    wrapper.unmount()
-  })
-
-  it('站长留空时不注入：无 name 的 Person 对搜索引擎无意义', async () => {
-    const { wrapper, pinia } = mountAbout()
-    useSiteSettingsStore(pinia).updateSiteSettings({
-      blog_author: '  ',
-      author_bio: '十二年工业软件与数字化交付经验。'
-    })
-    await nextTick()
-
-    expect(wrapper.find('.aph-profile').exists()).toBe(true)
-    expect(readPersonLd()).toBeNull()
-    wrapper.unmount()
+    expect(document.getElementById('zh-jsonld-person')).toBeNull()
   })
 })

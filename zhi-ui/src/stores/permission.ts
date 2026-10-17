@@ -158,12 +158,6 @@ function filterChildren(childrenMap: any[], lastRouter = false): any[] {
 export const loadView = (view: string) => {
   let res: any
 
-  // 特殊处理个人中心路径
-  if (view === 'user/profile' || view === 'profile') {
-    res = () => import('../views/admin/system/user/user/profile/index.vue')
-    return res
-  }
-
   // 优先匹配 admin/ 前缀的路径（管理后台组件）
   for (const path in modules) {
     const dir = path.split('views/')[1]?.split('.vue')[0]

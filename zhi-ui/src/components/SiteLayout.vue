@@ -70,9 +70,6 @@
                     <div class="notif-item-time">{{ formatNotifTime(n.createTime) }}</div>
                   </div>
                 </div>
-                <div class="notif-panel-foot">
-                  <router-link to="/user/profile" class="notif-more">查看全部通知</router-link>
-                </div>
               </div>
             </el-popover>
 
@@ -99,10 +96,6 @@
                   <el-dropdown-item v-if="userStore.userType === '00'" @click="goToAdmin">
                     <el-icon><Setting /></el-icon>
                     管理后台
-                  </el-dropdown-item>
-                  <el-dropdown-item command="profile">
-                    <el-icon><User /></el-icon>
-                    个人中心
                   </el-dropdown-item>
                   <el-dropdown-item command="bookmark">
                     <el-icon><CollectionTag /></el-icon>
@@ -150,9 +143,6 @@
         <template v-if="userStore.token && userStore.name">
           <router-link to="/bookmarks" class="mobile-nav-link" @click="mobileMenuOpen = false">
             我的收藏
-          </router-link>
-          <router-link to="/user/profile" class="mobile-nav-link" @click="mobileMenuOpen = false">
-            个人中心
           </router-link>
         </template>
         <router-link v-else to="/login" class="mobile-nav-link" @click="mobileMenuOpen = false">
@@ -203,20 +193,6 @@
           </div>
           <div class="footer-col">
             <h4>社交平台</h4>
-            <a
-              v-if="siteSettings.github_url"
-              :href="formatUrl(siteSettings.github_url)"
-              target="_blank"
-            >
-              GitHub
-            </a>
-            <a
-              v-if="siteSettings.weibo_url"
-              :href="formatUrl(siteSettings.weibo_url)"
-              target="_blank"
-            >
-              微博
-            </a>
             <a :href="rssUrl" target="_blank">RSS订阅</a>
           </div>
           <div v-if="friendLinks.length > 0 && isFriendLinkEnabled" class="footer-col">
@@ -261,7 +237,6 @@ import {
   Setting,
   UserFilled,
   ArrowDown,
-  User,
   CollectionTag,
   SwitchButton,
   Monitor,
@@ -491,7 +466,6 @@ watch(
       contactType: 'customer service'
     }
     if (settings.contact_phone) contactPoint.telephone = settings.contact_phone
-    if (settings.blog_email) contactPoint.email = settings.blog_email
     setJsonLd('zh-jsonld-organization', {
       '@context': 'https://schema.org',
       '@type': 'Organization',
@@ -502,7 +476,7 @@ watch(
       address: settings.contact_address
         ? { '@type': 'PostalAddress', streetAddress: settings.contact_address }
         : undefined,
-      contactPoint: settings.contact_phone || settings.blog_email ? contactPoint : undefined
+      contactPoint: settings.contact_phone ? contactPoint : undefined
     })
     // WebSite + potentialAction 搜索（方案文档 §6.2 首页），搜索关闭时不输出 SearchAction
     setJsonLd('zh-jsonld-website', {
@@ -597,9 +571,7 @@ const goToAdmin = () => {
 }
 
 const handleUserCommand = async (command: string) => {
-  if (command === 'profile') {
-    window.location.href = '/user/profile'
-  } else if (command === 'bookmark') {
+  if (command === 'bookmark') {
     router.push('/bookmarks')
   } else if (command === 'logout') {
     try {

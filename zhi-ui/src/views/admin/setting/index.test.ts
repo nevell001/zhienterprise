@@ -182,31 +182,24 @@ describe('SiteSetting 视图（行为）', () => {
     expect(wrapper.find('[data-feature="nav_archive_enabled"]').exists()).toBe(true)
   })
 
-  it('企业官网模式下个人信息页签隐藏只有经典页脚消费的「微博地址」', async () => {
-    // 默认 home_layout=business：企业页脚没有微博位，留着就是个填了不生效的字段
+  it('「个人信息」页签及其字段已移除（需求：去掉站长设置）', async () => {
     const wrapper = mountPage()
     await flushPromises()
 
     const labels = wrapper.findAll('.fi-label').map(el => el.text())
-    expect(labels).not.toContain('微博地址')
-    // 企业模式下仍然生效的字段保留
-    expect(labels).toContain('作者职位')
-    expect(labels).toContain('个人简介')
-    expect(labels).toContain('位置信息')
-    expect(labels).toContain('联系邮箱')
-    expect(labels).toContain('GitHub地址')
-    expect(labels).toContain('个人网站')
-  })
-
-  it('经典模式下保留「微博地址」字段', async () => {
-    listSetting.mockResolvedValue({
-      code: 200,
-      rows: [{ configKey: 'home_layout', configValue: 'article' }]
-    })
-    const wrapper = mountPage()
-    await flushPromises()
-
-    expect(wrapper.findAll('.fi-label').map(el => el.text())).toContain('微博地址')
+    for (const label of [
+      '作者职位',
+      '个人简介',
+      '位置信息',
+      '联系邮箱',
+      'GitHub地址',
+      '微博地址',
+      '个人网站'
+    ]) {
+      expect(labels, `「${label}」不应再出现在站点设置里`).not.toContain(label)
+    }
+    // 页签本身也没了
+    expect(wrapper.text()).not.toContain('个人信息')
   })
 
   it('「首页显示」下拉列出已发布的自定义页面', async () => {

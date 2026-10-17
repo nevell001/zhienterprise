@@ -79,11 +79,6 @@
                 </div>
               </div>
             </div>
-            <div class="notification-footer">
-              <el-button type="primary" link size="small" @click="goToProfileNotifications">
-                查看全部通知
-              </el-button>
-            </div>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -99,14 +94,11 @@
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <!-- 仅管理员显示管理后台入口 -->
+            <!-- 管理后台入口 -->
             <el-dropdown-item v-if="userStore.userType === '00'" @click="goToAdmin">
               <span>管理后台</span>
             </el-dropdown-item>
-            <!-- 个人中心 -->
-            <router-link to="/user/profile">
-              <el-dropdown-item>个人中心</el-dropdown-item>
-            </router-link>
+            <!-- 个人中心已下线，不再提供入口 -->
             <el-dropdown-item divided command="logout">
               <span>退出登录</span>
             </el-dropdown-item>
@@ -281,13 +273,6 @@ function handleMarkAllRead() {
     .catch(error => {
       if (error !== 'cancel') console.error('操作失败:', error)
     })
-}
-
-function goToProfileNotifications() {
-  window.location.href = '/user/profile'
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('switchProfileTab', { detail: 'notifications' }))
-  }, 300)
 }
 
 function formatTime(time: string): string {

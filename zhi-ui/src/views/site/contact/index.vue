@@ -139,13 +139,6 @@
             <router-link v-if="isGuestbookEnabled" class="btn-p" to="/guestbook">
               前往留言板
             </router-link>
-            <a
-              v-else-if="siteSettings.blog_email"
-              class="btn-p"
-              :href="`mailto:${siteSettings.blog_email}`"
-            >
-              邮件联系
-            </a>
           </div>
         </section>
       </main>
@@ -193,14 +186,6 @@ const basicItems = computed<ContactItem[]>(() => {
       label: '联系电话',
       value: siteSettings.value.contact_phone,
       href: `tel:${siteSettings.value.contact_phone.replace(/\s/g, '')}`
-    })
-  }
-  if (siteSettings.value.blog_email) {
-    items.push({
-      key: 'email',
-      label: '联系邮箱',
-      value: siteSettings.value.blog_email,
-      href: `mailto:${siteSettings.value.blog_email}`
     })
   }
   if (siteSettings.value.contact_address) {

@@ -87,42 +87,6 @@ export function changeUserStatus(userId: number, status: string): Promise<any> {
 }
 
 /**
- * 查询用户个人信息
- */
-export function getUserProfile(): Promise<any> {
-  return request({
-    url: '/system/user/profile',
-    method: 'get'
-  })
-}
-
-/**
- * 修改用户个人信息
- */
-export function updateUserProfile(data: Partial<UserInfo> | Record<string, any>): Promise<any> {
-  return request({
-    url: '/system/user/profile',
-    method: 'put',
-    data: data
-  })
-}
-
-/**
- * 用户密码重置
- */
-export function updateUserPwd(oldPassword: string, newPassword: string): Promise<any> {
-  const data = {
-    oldPassword,
-    newPassword
-  }
-  return request({
-    url: '/system/user/profile/updatePwd',
-    method: 'put',
-    data: data
-  })
-}
-
-/**
  * 用户头像上传
  */
 export function uploadAvatar(data: FormData): Promise<any> {

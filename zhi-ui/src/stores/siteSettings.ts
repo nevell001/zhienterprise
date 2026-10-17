@@ -6,7 +6,6 @@ interface SiteSettingsState {
   blog_name: string
   blog_desc: string
   blog_author: string
-  blog_email: string
   blog_avatar: string | null
   blog_copyright: string
   blog_beian: string
@@ -42,12 +41,6 @@ interface SiteSettingsState {
   site_page_copy: string
   user_agreement_content: string
   privacy_policy_content: string
-  author_title: string
-  author_bio: string
-  github_url: string
-  weibo_url: string
-  author_location: string
-  personal_website: string
   skills?: string[]
 }
 
@@ -63,7 +56,6 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       blog_name: '知企建站系统',
       blog_desc: '欢迎来到我的站点',
       blog_author: 'nevell',
-      blog_email: '',
       blog_avatar: null,
       blog_copyright: '',
       blog_beian: '',
@@ -103,15 +95,7 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
 
       // 其他设置
       user_agreement_content: '',
-      privacy_policy_content: '',
-
-      // 站长信息（关于页「负责人」区块；职位留空则抬头不显示，故不给演示默认值）
-      author_title: '',
-      author_bio: '',
-      github_url: '',
-      weibo_url: '',
-      author_location: '',
-      personal_website: ''
+      privacy_policy_content: ''
     },
     lastUpdate: 0
   }),

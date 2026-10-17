@@ -259,26 +259,26 @@ describe('SiteSettings Store 测试', () => {
     })
   })
 
-  describe('博主信息', () => {
-    it('应该包含博主信息字段', () => {
+  describe('站长信息已下线', () => {
+    // 「站点设置 → 个人信息」tab 已随关于页「负责人」区块一起移除，
+    // 这些键不再有录入入口与消费方，锁住它们不会悄悄回来。
+    it('store 不应再携带已下线的站长/社交字段', () => {
       const store = useSiteSettingsStore()
-      expect(store.siteSettings.author_title).toBeDefined()
-      expect(store.siteSettings.author_bio).toBeDefined()
-      expect(store.siteSettings.github_url).toBeDefined()
-      expect(store.siteSettings.weibo_url).toBeDefined()
-      expect(store.siteSettings.author_location).toBeDefined()
-      expect(store.siteSettings.personal_website).toBeDefined()
+      for (const key of [
+        'author_title',
+        'author_bio',
+        'author_location',
+        'personal_website',
+        'github_url',
+        'weibo_url'
+      ]) {
+        expect(store.siteSettings[key as keyof typeof store.siteSettings]).toBeUndefined()
+      }
     })
 
-    it('应该能够更新博主信息', () => {
+    it('站长名称（blog_author）仍在：页脚版权署名与结构化数据依赖它', () => {
       const store = useSiteSettingsStore()
-      store.updateSiteSettings({
-        author_title: '全栈工程师',
-        github_url: 'https://github.com/test'
-      })
-
-      expect(store.siteSettings.author_title).toBe('全栈工程师')
-      expect(store.siteSettings.github_url).toBe('https://github.com/test')
+      expect(store.siteSettings.blog_author).toBeDefined()
     })
   })
 

@@ -540,94 +540,6 @@
           </div>
         </el-tab-pane>
 
-        <!-- 个人信息 -->
-        <el-tab-pane label="个人信息" name="author">
-          <el-form ref="authorForm" :model="settingsMap" label-width="120px">
-            <el-alert
-              title="简介、位置、个人网站显示在关于页「负责人」区块（至少填一项才出现，作者职位作为抬头）；联系邮箱与 GitHub 显示在页脚和联系我们页面"
-              type="info"
-              :closable="false"
-              class="tab-alert"
-            />
-            <el-divider content-position="left">基本信息</el-divider>
-            <el-form-item label="作者职位" prop="author_title">
-              <el-input
-                v-model="settingsMap.author_title"
-                placeholder="请输入作者职位，如：全栈开发工程师"
-                maxlength="50"
-                show-word-limit
-              />
-            </el-form-item>
-            <el-form-item label="个人简介" prop="author_bio">
-              <el-input
-                v-model="settingsMap.author_bio"
-                type="textarea"
-                :rows="3"
-                placeholder="请输入个人简介"
-                maxlength="500"
-                show-word-limit
-              />
-            </el-form-item>
-            <el-form-item label="位置信息" prop="author_location">
-              <el-input
-                v-model="settingsMap.author_location"
-                placeholder="请输入位置信息，如：中国·北京"
-                maxlength="100"
-                show-word-limit
-              />
-            </el-form-item>
-
-            <el-divider content-position="left">联系方式</el-divider>
-            <el-form-item label="联系邮箱" prop="blog_email">
-              <el-input
-                v-model="settingsMap.blog_email"
-                placeholder="请输入联系邮箱"
-                maxlength="100"
-                show-word-limit
-              />
-            </el-form-item>
-
-            <el-divider content-position="left">社交媒体</el-divider>
-            <el-form-item label="GitHub地址" prop="github_url">
-              <el-input
-                v-model="settingsMap.github_url"
-                placeholder="请输入GitHub地址"
-                maxlength="200"
-                show-word-limit
-              >
-                <template #prepend>
-                  <el-icon><LinkIcon /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-            <!-- 微博只有经典模式的页脚有社交位，企业官网模式的页脚没有它 -->
-            <el-form-item v-if="!isEnterpriseMode" label="微博地址" prop="weibo_url">
-              <el-input
-                v-model="settingsMap.weibo_url"
-                placeholder="请输入微博地址"
-                maxlength="200"
-                show-word-limit
-              >
-                <template #prepend>
-                  <el-icon><LinkIcon /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item label="个人网站" prop="personal_website">
-              <el-input
-                v-model="settingsMap.personal_website"
-                placeholder="请输入个人网站地址"
-                maxlength="200"
-                show-word-limit
-              >
-                <template #prepend>
-                  <el-icon><LinkIcon /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-
         <!-- 协议页面 -->
         <el-tab-pane label="协议页面" name="legal">
           <el-form :model="settingsMap" label-width="120px">
@@ -1110,14 +1022,6 @@ const defaultSettings: Record<string, any> = {
   email_notify_enabled: true,
   // 用户注册（真实值读自 sys_config，默认关闭与 SQL 种子一致）
   [REGISTER_KEY]: false,
-  // 个人信息
-  blog_email: '',
-  author_title: '',
-  author_bio: '',
-  author_location: '',
-  github_url: '',
-  weibo_url: '',
-  personal_website: '',
   // 协议页面
   user_agreement_content: '',
   privacy_policy_content: ''
@@ -1175,13 +1079,6 @@ const managedKeys = [
   'friend_link_enabled',
   'friend_link_apply_enabled',
   'email_notify_enabled',
-  'blog_email',
-  'author_title',
-  'author_bio',
-  'author_location',
-  'github_url',
-  'weibo_url',
-  'personal_website',
   'user_agreement_content',
   'privacy_policy_content'
 ]

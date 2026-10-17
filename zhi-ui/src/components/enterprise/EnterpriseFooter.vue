@@ -45,14 +45,6 @@
           <h4>合作</h4>
           <router-link to="/contact">咨询合作</router-link>
           <router-link v-if="isGuestbookEnabled" to="/guestbook">留言板</router-link>
-          <a
-            v-if="siteSettings.github_url"
-            :href="formatUrl(siteSettings.github_url)"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
           <a :href="rssUrl" target="_blank" rel="noopener noreferrer">RSS 订阅</a>
         </div>
 
@@ -64,9 +56,6 @@
             :href="`tel:${siteSettings.contact_phone.replace(/\s/g, '')}`"
           >
             {{ siteSettings.contact_phone }}
-          </a>
-          <a v-if="siteSettings.blog_email" :href="`mailto:${siteSettings.blog_email}`">
-            {{ siteSettings.blog_email }}
           </a>
           <span v-if="!hasContactInfo">通过「联系我们」页面获取联系方式</span>
         </div>
@@ -131,10 +120,7 @@ const isGuestbookEnabled = computed(() => siteSettingsStore.isFeatureEnabled('gu
 const isBeianEnabled = computed(() => siteSettingsStore.isFeatureEnabled('beian_enabled'))
 const currentYear = computed(() => new Date().getFullYear())
 const hasContactInfo = computed(
-  () =>
-    Boolean(siteSettings.value.contact_address) ||
-    Boolean(siteSettings.value.contact_phone) ||
-    Boolean(siteSettings.value.blog_email)
+  () => Boolean(siteSettings.value.contact_address) || Boolean(siteSettings.value.contact_phone)
 )
 
 const rssUrl = computed(() => {

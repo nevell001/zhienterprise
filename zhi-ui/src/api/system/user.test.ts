@@ -137,57 +137,6 @@ describe('System User API 测试', () => {
     })
   })
 
-  describe('getUserProfile', () => {
-    it('应该导出 getUserProfile 函数', () => {
-      expect(userApi.getUserProfile).toBeDefined()
-      expect(typeof userApi.getUserProfile).toBe('function')
-    })
-
-    it('应该调用用户个人信息接口', () => {
-      userApi.getUserProfile()
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/user/profile',
-        method: 'get'
-      })
-    })
-  })
-
-  describe('updateUserProfile', () => {
-    it('应该导出 updateUserProfile 函数', () => {
-      expect(userApi.updateUserProfile).toBeDefined()
-      expect(typeof userApi.updateUserProfile).toBe('function')
-    })
-
-    it('应该调用修改用户个人信息接口', () => {
-      const profileData = { nickName: 'New Name' }
-      userApi.updateUserProfile(profileData)
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/user/profile',
-        method: 'put',
-        data: profileData
-      })
-    })
-  })
-
-  describe('updateUserPwd', () => {
-    it('应该导出 updateUserPwd 函数', () => {
-      expect(userApi.updateUserPwd).toBeDefined()
-      expect(typeof userApi.updateUserPwd).toBe('function')
-    })
-
-    it('应该调用修改用户密码接口', () => {
-      userApi.updateUserPwd('oldPassword', 'newPassword')
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/user/profile/updatePwd',
-        method: 'put',
-        data: { oldPassword: 'oldPassword', newPassword: 'newPassword' }
-      })
-    })
-  })
-
   describe('uploadAvatar', () => {
     it('应该导出 uploadAvatar 函数', () => {
       expect(userApi.uploadAvatar).toBeDefined()

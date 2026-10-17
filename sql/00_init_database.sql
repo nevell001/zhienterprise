@@ -897,7 +897,7 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 
 -- ========== 初始化站点系统数据 ==========
 
--- 初始化完整的站点设置数据（38项配置）
+-- 初始化完整的站点设置数据（45项配置）
 INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '知企建站系统', '站点名称', NOW(), NOW()),
@@ -919,17 +919,8 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('blog_start_time', '2025-01-01', '站点创建时间', NOW(), NOW()),
 
 -- 社交媒体设置
--- 负责人信息（关于页「负责人」区块）：职位只作抬头，留空则抬头不显示
-('author_title', '', '负责人职位', NOW(), NOW()),
 ('author_description', '这个人很懒，什么都没留下', '站长描述', NOW(), NOW()),
-('github_url', 'https://github.com/nevell', 'GitHub链接', NOW(), NOW()),
-('weibo_url', '', '微博链接', NOW(), NOW()),
 ('zhihu_url', '', '知乎链接', NOW(), NOW()),
--- 后台「个人信息」页签里的三项（此前只存在于设置页，未进种子，全新安装保存后才会生成）
-('author_bio', '', '个人简介', NOW(), NOW()),
-('author_location', '', '位置信息', NOW(), NOW()),
-('personal_website', '', '个人网站', NOW(), NOW()),
-
 
 -- 功能开关设置
 ('footer_enabled', 'true', '是否显示底部', NOW(), NOW()),
