@@ -1367,11 +1367,13 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2010), (2, 2010);
 
 -- 解决方案管理菜单（复用文章管理组件，按路由固定 article_type=solution）
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2012, '解决方案管理', 2000, 4, 'solution', 'article/index', '', '', 1, 0, 'C', '0', '0', 'zhi:article:list', 'skill', 'admin', NOW(), '', NULL, '解决方案管理菜单（article_type=solution 的文章）');
+VALUES (2012, '解决方案管理', 2000, 4, 'solution', 'article/index', '', '', 1, 0, 'C', '0', '0', 'zhi:article:list', 'guide', 'admin', NOW(), '', NULL, '解决方案管理菜单（article_type=solution 的文章）');
 
 -- 修正历史种子：'lightning' 不在前端 svg 图标集中，侧栏会渲染成空白占位
 -- （图标集见 zhi-ui/src/assets/icons/svg，由 menu-icons.test.ts 守卫）
 UPDATE sys_menu SET icon = 'skill' WHERE menu_id = 2012 AND icon = 'lightning';
+-- 与「媒体管理」(component) 区分：skill 与 component 形状接近，改用纸飞机
+UPDATE sys_menu SET icon = 'guide' WHERE menu_id = 2012 AND icon = 'skill';
 
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2012), (2, 2012);
 
