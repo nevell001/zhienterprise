@@ -50,6 +50,24 @@ describe('菜单图标资源契约', () => {
     expect(missing).toEqual([])
   })
 
+  it('解决方案管理图标不得与其他站点菜单重复（曾与菜单管理同用 guide）', () => {
+    const sql = readFileSync(SQL_PATH, 'utf-8')
+    const iconOf = (menuId: number): string | null => {
+      const pattern = new RegExp(
+        `VALUES\\s*\\(\\s*${menuId}\\s*,[\\s\\S]*?'([^']*)'\\s*,\\s*'admin'\\s*,\\s*NOW\\(\\)`
+      )
+      return sql.match(pattern)?.[1] ?? null
+    }
+
+    // 站点管理下的一级菜单（2000 为父级目录）
+    const siteMenuIds = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
+    const solutionIcon = iconOf(2012)
+    expect(solutionIcon).toBeTruthy()
+
+    const others = siteMenuIds.map(iconOf).filter((icon): icon is string => Boolean(icon))
+    expect(others).not.toContain(solutionIcon)
+  })
+
   it('解决方案管理使用存在的图标（回归：曾配置不存在的 lightning）', () => {
     const sql = readFileSync(SQL_PATH, 'utf-8')
     // 只检查 2012 这条种子的 icon 字面量，防止再被改回不存在的图标

@@ -402,7 +402,7 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
 
 - **现象**：后台侧栏「解决方案管理」没有图标（一块空白），其余菜单正常。
 - **根因**：`sys_menu` 种子给 2012 配的 `lightning` 不在前端 `src/assets/icons/svg/` 图标集中；`SvgIcon` 直接输出 `<use href="#icon-lightning">`，找不到 symbol 即为空，不报错。
-- **修复**：种子与存量库先后改为 `skill`、`guide`（纸飞机）：`skill` 与「媒体管理」的 `component` 形状太接近，`guide` 区分度更高；SQL 保留幂等迁移 `skill←lightning` 与 `guide←skill`。
+- **修复**：种子与存量库先后改为 `skill`、`guide`、`star`：`skill` 与「媒体管理」的 `component` 太接近，`guide` 又与「菜单管理」重复，最终用 `star`（星标/精选方案）；SQL 保留幂等迁移 `skill←lightning`、`guide←skill`、`star←guide`，并用 `menu-icons.test.ts` 断言解决方案图标不得与其他站点菜单重复。
 - **防回归**：新增 `src/assets/icons/menu-icons.test.ts`（解析 SQL 种子的 sys_menu 图标 ↔ svg 目录比对）；`SvgIcon` 增加缺失兜底（回退 `component` 图标），避免配置错误时再出现空白。
 
 ## 二十一、默认隐藏「系统工具」菜单（2026-10-17）
