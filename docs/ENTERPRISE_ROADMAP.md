@@ -240,6 +240,8 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
 | `site_logo` | 前台导航（经典/企业）、页脚品牌、登录/注册/找回密码品牌区、JSON-LD `logo`、后台侧边栏 Logo | 回退 `blog_avatar` 站点头像 → 站名首字 |
 | `site_banner` | 企业官网首页 Hero 右侧视觉区（16:9，替换模板母题插画） | 回退当前行业模板的母题插画 |
 
+**上传地址口径**：后端 `/common/upload` 的 `url` 是带请求 Host 的绝对地址（Docker/代理下会变成 `http://zhi-admin:8080/...`），直接存会导致图片 404。前端统一只存相对路径（`fileName`，如 `/profile/upload/...`），并用 `utils/uploadUrl.ts` 的 `normalizeUploadUrl()` 兼容历史绝对地址；设置页保存时会把旧值写回为相对路径（自愈）。
+
 实现要点：`FrontConfigKeys` 前台白名单 + SQL 种子同步新增（**不改白名单后台能存前台读不到**，前端 `FrontConfigKeysTest` 契约守卫）；消费端在 `EnterpriseNav` / `SiteLayout`（导航+页脚+JSON-LD）/ `sections/HeroSection.vue`（builder 首页真正在用的 Hero）/ `EnterpriseHome.vue`（老库回退首页）/ `utils/siteSettings.ts`（后台侧边栏）。
 
 ## 七、认证页（登录/注册/找回密码）统一企业风格（2026-10-17）

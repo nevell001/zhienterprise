@@ -699,6 +699,7 @@ import {
   testMailConfig
 } from '@/api/admin/setting'
 import ImageUpload from '@/components/ImageUpload'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 import { clearSiteCache } from '@/api/site/setting'
 import { getPublishedPages } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
@@ -1287,8 +1288,15 @@ async function getAllSettings() {
       // 读不到就保留镜像值，不让整页回退到默认设置
     }
 
-    settingsMap.value = merged
+    settingsMap.value = structuredClone(merged)
+    // 原始值保持未规范化：这样「表单里的相对路径」与「库里的绝对地址」会产生差异，
+    // 用户点保存时顺带把历史脏值写回为相对路径（自愈），不必手工清理数据库
     originalSettings.value = toStoredMap(merged)
+
+    // 品牌图历史值可能是后端返回的绝对地址（http://zhi-admin:8080/...，浏览器
+    // 无法解析）：展示与提交统一收敛为站内相对路径
+    settingsMap.value.site_logo = normalizeUploadUrl(settingsMap.value.site_logo)
+    settingsMap.value.site_banner = normalizeUploadUrl(settingsMap.value.site_banner)
   } catch (error) {
     settingsMap.value = structuredClone(defaultSettings)
     originalSettings.value = toStoredMap(settingsMap.value)

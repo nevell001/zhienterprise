@@ -268,6 +268,7 @@ import {
 } from '@/api/site/notification'
 import { getApiBaseUrl } from '@/utils/index'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 import { buildNavMenus, hasCustomHomePage } from '@/utils/siteNav'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 import EnterpriseNav from '@/components/enterprise/EnterpriseNav.vue'
@@ -462,7 +463,8 @@ const menus = computed(() =>
 /** 站点 Logo：自定义 site_logo 优先，回退站点头像 blog_avatar（均由站点设置上传） */
 const brandLogo = computed(() => {
   const s = siteSettingsStore.siteSettings as Record<string, unknown>
-  return String(s?.site_logo || s?.blog_avatar || '').trim()
+  // 兼容历史绝对地址（容器名/内网 IP）→ 站内相对路径
+  return normalizeUploadUrl(s?.site_logo || s?.blog_avatar)
 })
 
 const currentYear = computed(() => new Date().getFullYear())
@@ -486,9 +488,9 @@ watch(
       description: settings.blog_desc || undefined,
       url: `${origin}/`,
       logo:
-        ((settings as Record<string, unknown>).site_logo as string) ||
-        settings.blog_avatar ||
-        undefined,
+        normalizeUploadUrl(
+          (settings as Record<string, unknown>).site_logo || settings.blog_avatar
+        ) || undefined,
       address: settings.contact_address
         ? { '@type': 'PostalAddress', streetAddress: settings.contact_address }
         : undefined,
@@ -705,12 +707,18 @@ function fetchPublishedPages() {
   text-decoration: none;
 }
 .brand-logo-img {
+  width: auto;
+  max-width: 168px;
+  height: 32px;
   object-fit: contain;
   background: transparent;
   border-radius: 8px;
 }
 
 .footer-logo-img {
+  width: auto;
+  max-width: 168px;
+  height: 40px;
   object-fit: contain;
   background: transparent;
   border-radius: 10px;

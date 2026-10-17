@@ -246,6 +246,34 @@ describe('SiteSetting 视图（行为）', () => {
     expect((review.element as HTMLButtonElement).disabled).toBe(true)
   })
 
+  it('品牌图历史绝对地址（容器名/内网 IP）加载时收敛为相对路径', async () => {
+    listSetting.mockResolvedValue({
+      code: 200,
+      rows: [
+        {
+          configKey: 'site_logo',
+          configValue: 'http://zhi-admin:8080/profile/upload/2026/10/17/logo_A002.png'
+        },
+        {
+          configKey: 'site_banner',
+          configValue: 'http://127.0.0.1:8080/profile/upload/2026/10/17/banner.png'
+        }
+      ]
+    })
+    getRegistrationSwitch.mockResolvedValue({ code: 200, data: false })
+    getMailConfig.mockResolvedValue({ code: 200, data: {} })
+    getPublishedPages.mockResolvedValue({ code: 200, data: [] })
+
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const uploadModels = wrapper
+      .findAll('.image-upload-stub')
+      .map(node => node.attributes('data-model'))
+    expect(uploadModels).toContain('/profile/upload/2026/10/17/logo_A002.png')
+    expect(uploadModels).toContain('/profile/upload/2026/10/17/banner.png')
+  })
+
   it('站点信息 tab 提供 Logo 与 Banner 上传，并绑定到站点设置键', async () => {
     listSetting.mockResolvedValue({ code: 200, rows: [] })
     getRegistrationSwitch.mockResolvedValue({ code: 200, data: false })

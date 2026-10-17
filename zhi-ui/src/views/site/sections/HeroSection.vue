@@ -46,6 +46,7 @@ import { computed } from 'vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteTemplate } from '@/config/siteTemplates'
 import { useScrollReveal } from '@/composables/useScrollReveal'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 
 /** config（模块配置）缺省字段回退当前行业模板的品牌文案包 */
 const props = defineProps<{ config?: Record<string, any> }>()
@@ -74,7 +75,7 @@ const secondary = computed(() => ({
 
 /** 首页 Banner 大图（站点设置上传）；为空时回退模板母题插画 */
 const bannerUrl = computed(() =>
-  String((settings.value as Record<string, unknown>)?.site_banner || '').trim()
+  normalizeUploadUrl((settings.value as Record<string, unknown>)?.site_banner)
 )
 
 const motifSvg = computed(() => tpl.value.motif(tpl.value.color))

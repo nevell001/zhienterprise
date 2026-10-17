@@ -1,5 +1,6 @@
 import { computed } from 'vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 
 /**
  * 认证页（登录 / 注册 / 找回密码）的品牌信息。
@@ -18,7 +19,8 @@ export function useAuthBrand() {
 
   const brandLogo = computed(() => {
     const s = settings.value as Record<string, unknown>
-    return String(s.site_logo || s.blog_avatar || '').trim()
+    // 兼容历史绝对地址（http://zhi-admin:8080/profile/...）→ 站内相对路径
+    return normalizeUploadUrl(s.site_logo || s.blog_avatar)
   })
 
   const brandInitial = computed(() => brandName.value.slice(0, 1))

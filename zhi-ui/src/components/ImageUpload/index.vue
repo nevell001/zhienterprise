@@ -121,7 +121,7 @@ import { ref, computed, watch, getCurrentInstance, onMounted, onUnmounted, nextT
 import { ElMessage } from '@/plugins/element-plus-service'
 import request from '@/utils/request'
 import { getToken } from '@/utils/auth'
-import { isExternal } from '@/utils/validate'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 import Sortable from 'sortablejs'
 
 const props = defineProps({
@@ -186,7 +186,6 @@ const dialogVisible = ref(false)
 const fileTypes = computed<string[]>(() => props.fileType as string[])
 // 图片上传
 const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
-const baseUrl = baseApi
 const uploadImgUrl = ref(baseApi + props.action) // 上传的图片服务器地址
 const headers = ref({ Authorization: 'Bearer ' + getToken() })
 const fileList = ref([])
@@ -229,14 +228,13 @@ watch(
     if (val) {
       // 首先将值转为数组
       const list = Array.isArray(val) ? val : String(val).split(',')
-      // 然后将数组转为对象数组
+      // 然后将数组转为对象数组。
+      // 历史数据里可能存了后端返回的绝对地址（如 http://zhi-admin:8080/profile/...，
+      // 容器名浏览器解析不了），统一收敛成站内相对路径再渲染。
       fileList.value = list.map(item => {
         if (typeof item === 'string') {
-          if (item.indexOf(baseUrl) === -1 && !isExternal(item)) {
-            item = { name: baseUrl + item, url: baseUrl + item }
-          } else {
-            item = { name: item, url: item }
-          }
+          const path = normalizeUploadUrl(item)
+          item = { name: path, url: path }
         }
         return item
       })
@@ -316,13 +314,13 @@ function handleUploadSuccess(res: any, file: any) {
 
 // 成功响应落地：供 el-upload 回调与裁剪手动上传共用
 function applyUploadSuccess(res: any) {
-  // 保存完整的URL用于显示（包含baseUrl），文件名使用原始路径
-  const fullUrl = res.url || res.fileName
-  // 如果URL不包含baseUrl，添加baseUrl
-  const displayUrl = fullUrl.indexOf(baseUrl) === 0 ? fullUrl : baseUrl + fullUrl
+  // 只认服务端相对路径：后端 `url` 是「请求 Host + 路径」的绝对地址，经 Docker/Vite
+  // 代理会变成 http://zhi-admin:8080/... 这类浏览器无法解析的地址（图片 404）。
+  // fileName = /profile/upload/...，dev 由 Vite、prod 由 nginx 代理 /profile。
+  const path = normalizeUploadUrl(res.fileName || res.url)
   uploadList.value.push({
     name: res.fileName || res.url,
-    url: displayUrl
+    url: path
   })
   uploadedSuccessfully()
 }
@@ -452,12 +450,8 @@ function listToString(list, separator) {
   separator = separator || ','
   for (const i in list) {
     if (undefined !== list[i].url && list[i].url.indexOf('blob:') !== 0) {
-      let url = list[i].url
-      // 如果URL包含baseUrl，移除它，保存相对路径到数据库
-      if (url.indexOf(baseUrl) === 0) {
-        url = url.substring(baseUrl.length)
-      }
-      strs += url + separator
+      // 入库统一相对路径（兼容历史绝对地址/带 baseApi 前缀的旧值）
+      strs += normalizeUploadUrl(list[i].url) + separator
     }
   }
   return strs !== '' ? strs.substr(0, strs.length - 1) : ''

@@ -3,6 +3,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { handleThemeStyle } from '@/utils/theme'
 import { getToken } from '@/utils/auth'
 import type { Config } from '@/api/system/config'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 
 /**
  * 初始化站点个性化设置
@@ -78,10 +79,11 @@ export async function initSiteSettings(): Promise<void> {
  * @param logoUrl Logo URL
  */
 function applyLogo(logoUrl: string): void {
+  const normalized = normalizeUploadUrl(logoUrl)
   const logoElements = document.querySelectorAll('.sidebar-logo-container img, .navbar-brand img')
   logoElements.forEach((element: Element) => {
     const imgElement = element as HTMLImageElement
-    imgElement.src = logoUrl
+    imgElement.src = normalized
     imgElement.style.height = '32px' // 设置合适的高度
     imgElement.style.width = 'auto' // 自动宽度
   })

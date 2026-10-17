@@ -128,6 +128,7 @@ import { useUserStore } from '@/stores/user'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteNav, type SiteNavItem } from '@/api/site/nav'
 import { DEFAULT_HEADER_NAV } from '@/config/siteNav'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 
 const route = useRoute()
 const router = useRouter()
@@ -139,7 +140,7 @@ const blogSettings = computed(() => siteSettingsStore.siteSettings)
 /** 站点 Logo：自定义 site_logo 优先，回退站点头像；都为空则用内联图形标记 */
 const brandLogo = computed(() => {
   const s = blogSettings.value as Record<string, unknown>
-  return String(s?.site_logo || s?.blog_avatar || '').trim()
+  return normalizeUploadUrl(s?.site_logo || s?.blog_avatar)
 })
 const businessLabel = computed(
   () => String(blogSettings.value.business_label || '').trim() || '核心业务'
@@ -262,10 +263,12 @@ const handleUserCommand = async (command: string) => {
 }
 
 .ent-logo-img {
-  width: 26px;
+  /* 固定高度 + 自适应宽度：企业 Logo 多为横版（图形 + 文字），
+     固定方框会把长图压成一条线；方形/竖版 Logo 由 max-width 与 contain 兜底。 */
+  width: auto;
+  max-width: 168px;
   height: 26px;
   object-fit: contain;
-  border-radius: 6px;
 }
 
 .ent-logo {

@@ -291,6 +291,7 @@ import { sanitizeArticleContent } from '@/utils/sanitize'
 import { createRequestGuard } from '@/utils/requestGuard'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 
 // JSON-LD 结构化数据随路由卸载移除，避免残留到下一页
 onUnmounted(() => {
@@ -475,7 +476,9 @@ const loadArticleDetail = async () => {
           '@type': 'Organization',
           name: siteName,
           logo: (() => {
-            const logo = (siteSettings.value as any).site_logo || siteSettings.value.blog_avatar
+            const logo = normalizeUploadUrl(
+              (siteSettings.value as any).site_logo || siteSettings.value.blog_avatar
+            )
             return logo ? { '@type': 'ImageObject', url: logo } : undefined
           })()
         }

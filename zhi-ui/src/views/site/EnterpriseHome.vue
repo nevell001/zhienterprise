@@ -293,6 +293,7 @@ import { getArticleList } from '@/api/site'
 import type { Article } from '@/types'
 import { getFrontFriendLinkList } from '@/api/site/friendLink'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { normalizeUploadUrl } from '@/utils/uploadUrl'
 import { getSiteTemplate } from '@/config/siteTemplates'
 import { getHomeSolutions, getSiteMetrics, getSiteOutcomes } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
@@ -313,7 +314,7 @@ const solutions = computed(() => getHomeSolutions(settings.value?.home_solutions
 const tpl = computed(() => getSiteTemplate(settings.value.site_template))
 /** 首页 Banner 大图（站点设置上传）；为空时回退模板母题插画 */
 const bannerUrl = computed(() =>
-  String((settings.value as Record<string, unknown>)?.site_banner || '').trim()
+  normalizeUploadUrl((settings.value as Record<string, unknown>)?.site_banner)
 )
 
 const motifSvg = computed(() => tpl.value.motif(tpl.value.color))
