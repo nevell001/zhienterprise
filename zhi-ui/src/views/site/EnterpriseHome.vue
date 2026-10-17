@@ -832,6 +832,43 @@ const goNewsItem = (id?: number) => id && router.push(`/article/${id}`)
   color: var(--tpl-dark-dim);
 }
 
+/* 数据成果：浅色模式下改为浅底，深色模式保持深色带（与 sections.css 同步） */
+html:not(.dark) .pad.dark {
+  background: var(--tpl-surface);
+}
+
+html:not(.dark) .pad.dark .sec-tag {
+  color: var(--tpl-p-text);
+}
+
+html:not(.dark) .pad.dark h2 {
+  color: var(--tpl-ink-900);
+}
+
+html:not(.dark) .pad.dark p {
+  color: var(--tpl-ink-500);
+}
+
+html:not(.dark) .pad.dark .numgrid {
+  background: var(--tpl-border);
+}
+
+html:not(.dark) .pad.dark .numcell {
+  background: var(--tpl-bg);
+}
+
+html:not(.dark) .pad.dark .numcell b {
+  color: var(--tpl-ink-900);
+}
+
+html:not(.dark) .pad.dark .numcell b i {
+  color: var(--tpl-p);
+}
+
+html:not(.dark) .pad.dark .numcell span {
+  color: var(--tpl-ink-500);
+}
+
 /* ---------- ⑤ Logo 墙 ---------- */
 .logos {
   display: grid;

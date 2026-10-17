@@ -384,54 +384,55 @@
 }
 
 /* ---------- ④ 数据成果（深色区块） ---------- */
+/* 数据成果：浅色模式用浅底（产品要求浅色首页整体保持浅色） */
 .tpl-site .pad.dark {
-  background: var(--tpl-dark);
+  background: var(--tpl-surface);
 }
 
 .tpl-site .pad.dark .sec-tag {
-  color: var(--tpl-p-d);
+  color: var(--tpl-p-text);
 }
 
 .tpl-site .pad.dark h2 {
-  color: var(--tpl-white);
+  color: var(--tpl-ink-900);
 }
 
 .tpl-site .pad.dark p {
-  color: var(--tpl-dark-dim);
+  color: var(--tpl-ink-500);
 }
 
 .tpl-site .numgrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
-  background: rgba(255, 255, 255, 0.13);
+  background: var(--tpl-border);
   border-radius: var(--tpl-r-lg);
   overflow: hidden;
 }
 
 .tpl-site .numcell {
-  background: var(--tpl-dark);
+  background: var(--tpl-bg);
   padding: var(--mo-sp-11) var(--mo-sp-9);
 }
 
 .tpl-site .numcell b {
   display: block;
   font-size: var(--mo-fs-6xl);
-  color: var(--tpl-white);
+  color: var(--tpl-ink-900);
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
 .tpl-site .numcell b i {
   font-style: normal;
-  color: var(--tpl-p-d);
+  color: var(--tpl-p);
 }
 
 .tpl-site .numcell span {
   display: block;
   margin-top: var(--mo-sp-3);
   font-size: var(--mo-fs-sm);
-  color: var(--tpl-dark-dim);
+  color: var(--tpl-ink-500);
 }
 
 /* ---------- ⑤ Logo 墙 ---------- */
@@ -951,4 +952,41 @@ html.motion-off .tpl-site .eh-title .line {
   .tpl-site .bd-points {
     grid-template-columns: 1fr;
   }
+}
+
+/* 数据成果：深色模式保持深色对比带 */
+.tpl-site.dark .pad.dark {
+  background: var(--tpl-dark);
+}
+
+.tpl-site.dark .pad.dark .sec-tag {
+  color: var(--tpl-p-d);
+}
+
+.tpl-site.dark .pad.dark h2 {
+  color: var(--tpl-white);
+}
+
+.tpl-site.dark .pad.dark p {
+  color: var(--tpl-dark-dim);
+}
+
+.tpl-site.dark .pad.dark .numgrid {
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.tpl-site.dark .pad.dark .numcell {
+  background: var(--tpl-dark);
+}
+
+.tpl-site.dark .pad.dark .numcell b {
+  color: var(--tpl-white);
+}
+
+.tpl-site.dark .pad.dark .numcell b i {
+  color: var(--tpl-p-d);
+}
+
+.tpl-site.dark .pad.dark .numcell span {
+  color: var(--tpl-dark-dim);
 }
