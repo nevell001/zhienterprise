@@ -897,12 +897,11 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 
 -- ========== 初始化站点系统数据 ==========
 
--- 初始化完整的站点设置数据（45项配置）
+-- 初始化完整的站点设置数据（43项配置）
 INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '知企建站系统', '站点名称', NOW(), NOW()),
 ('blog_desc', '企业官网 · 内容管理与品牌门户', '站点描述', NOW(), NOW()),
-('blog_author', 'admin', '站长', NOW(), NOW()),
 ('blog_keywords', '企业官网,建站系统,企业网站建设,数字化转型,Vue,Spring Boot', '站点关键词', NOW(), NOW()),
 ('blog_copyright', 'Copyright © 2025-2026 知企建站系统. All rights reserved.', '版权信息', NOW(), NOW()),
 ('blog_beian', '陕ICP备12345678号', '备案信息', NOW(), NOW()),
@@ -915,7 +914,6 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('grafana_url', '', 'Grafana 监控地址', NOW(), NOW()),
 ('actuator_url', '', 'Actuator 监控地址', NOW(), NOW()),
 ('blog_avatar', '', '站点头像', NOW(), NOW()),
-('blog_signature', '以数字化，服务企业成长', '站长签名', NOW(), NOW()),
 ('blog_start_time', '2025-01-01', '站点创建时间', NOW(), NOW()),
 
 -- 社交媒体设置

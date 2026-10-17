@@ -212,8 +212,7 @@
       </div>
       <div class="footer-bottom">
         <p v-if="isCopyrightEnabled">
-          © {{ currentYear }}
-          {{ siteSettings.blog_author || siteSettings.blog_name || '知企建站系统' }} · 保留所有权利
+          © {{ currentYear }} {{ siteSettings.blog_name || '知企建站系统' }} · 保留所有权利
         </p>
         <p v-if="isBeianEnabled && siteSettings.blog_beian" class="beian-info">
           <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">

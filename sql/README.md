@@ -70,6 +70,18 @@
 ⚠️ **但"幂等"不等于"会修复已有行"**：`INSERT IGNORE` + 按标题判存在只会**跳过**已存在的数据。
 若需改动既有数据行，应编写一次性数据补丁脚本（`99_fix_*.sql` 命名约定）按需执行。
 
+⚠️ **脚本里删掉某个种子键 ≠ 已有库会清掉它**：`zhi_setting` 的旧行仍留在表中（脚本只做
+`INSERT IGNORE`，从不对账删除）。这在**功能层面无害** —— 后台设置列表会把这些行一并返回，
+但前端 `SettingController` 的 `managedKeys` 白名单已不含该键，不会渲染成字段、也不会被保存；
+前台公开设置同样只取白名单内的键。因此项目惯例是**只删种子、不写 DELETE**
+（`wechat_qr`、`blog_author`、`blog_signature` 均如此），避免在生产库上执行非必要删除。
+若确需彻底清理，按 `99_fix_*.sql` 约定写一次性补丁并自行评估影响：
+
+```sql
+DELETE FROM zhi_setting WHERE config_key IN ('blog_author', 'blog_signature');
+DELETE FROM sys_config  WHERE config_key IN ('blog_author', 'blog_signature');
+```
+
 ⚠️ **`CREATE TABLE IF NOT EXISTS` 也不等于"会补列"**：表已存在时整段建表语句被跳过，后来新增的列
 不会凭空出现。因此**新增列必须同时写两处** —— ①`CREATE TABLE` 里给新装用；②文件后半段的
 `SET @has_x := (SELECT COUNT(*) FROM information_schema.COLUMNS …)` + `PREPARE/EXECUTE` 补齐块里

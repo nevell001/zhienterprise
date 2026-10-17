@@ -22,7 +22,6 @@ describe('SiteSettings Store 测试', () => {
     it('应该有默认的博客设置', () => {
       const store = useSiteSettingsStore()
       expect(store.siteSettings.blog_name).toBe('知企建站系统')
-      expect(store.siteSettings.blog_author).toBe('nevell')
       expect(store.siteSettings.comment_enabled).toBe(true)
       expect(store.siteSettings.sidebar_enabled).toBe(true)
     })
@@ -54,19 +53,6 @@ describe('SiteSettings Store 测试', () => {
       store.updateSiteSettings({ blog_avatar: '/avatar/test.jpg' })
       const avatar = store.getSiteAvatar
       expect(avatar).toMatch(/\?t=\d+|&t=\d+/)
-    })
-  })
-
-  describe('getSiteAuthor getter', () => {
-    it('应该返回博客作者', () => {
-      const store = useSiteSettingsStore()
-      expect(store.getSiteAuthor).toBe('nevell')
-    })
-
-    it('当作者为空时应该返回默认值', () => {
-      const store = useSiteSettingsStore()
-      store.updateSiteSettings({ blog_author: '' })
-      expect(store.getSiteAuthor).toBe('nevell')
     })
   })
 
@@ -276,9 +262,11 @@ describe('SiteSettings Store 测试', () => {
       }
     })
 
-    it('站长名称（blog_author）仍在：页脚版权署名与结构化数据依赖它', () => {
+    it('blog_author（站长）也已移除：页脚版权署名改用站点名称', () => {
       const store = useSiteSettingsStore()
-      expect(store.siteSettings.blog_author).toBeDefined()
+      expect(store.siteSettings.blog_author).toBeUndefined()
+      // 署名的新取值来源必须仍在
+      expect(store.siteSettings.blog_name).toBeDefined()
     })
   })
 

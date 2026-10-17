@@ -41,14 +41,6 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="站长" prop="blog_author">
-              <el-input
-                v-model="settingsMap.blog_author"
-                placeholder="请输入站长名称"
-                maxlength="50"
-                show-word-limit
-              />
-            </el-form-item>
             <el-form-item label="版权信息" prop="blog_copyright">
               <el-input
                 v-model="settingsMap.blog_copyright"
@@ -970,7 +962,6 @@ const defaultSettings: Record<string, any> = {
   // 站点信息
   blog_name: '知企建站系统',
   blog_desc: '欢迎来到我的站点',
-  blog_author: '站长',
   blog_copyright: '',
   blog_beian: '',
   blog_url: '',
@@ -1032,7 +1023,6 @@ const defaultSettings: Record<string, any> = {
 const managedKeys = [
   'blog_name',
   'blog_desc',
-  'blog_author',
   'blog_copyright',
   'blog_beian',
   'blog_url',

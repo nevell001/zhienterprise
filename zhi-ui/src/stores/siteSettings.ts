@@ -5,7 +5,6 @@ import { processAvatarUrl } from '@/api/site/avatar'
 interface SiteSettingsState {
   blog_name: string
   blog_desc: string
-  blog_author: string
   blog_avatar: string | null
   blog_copyright: string
   blog_beian: string
@@ -55,7 +54,6 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       // 基本设置
       blog_name: '知企建站系统',
       blog_desc: '欢迎来到我的站点',
-      blog_author: 'nevell',
       blog_avatar: null,
       blog_copyright: '',
       blog_beian: '',
@@ -122,7 +120,6 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       }
     },
 
-    getSiteAuthor: (state: SiteSettingsStoreState) => state.siteSettings.blog_author || 'nevell',
     getSiteName: (state: SiteSettingsStoreState) => state.siteSettings.blog_name || '知企建站系统',
 
     // 功能开关辅助方法（全站唯一判定口径）：

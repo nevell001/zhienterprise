@@ -188,6 +188,7 @@ describe('SiteSetting 视图（行为）', () => {
 
     const labels = wrapper.findAll('.fi-label').map(el => el.text())
     for (const label of [
+      '站长',
       '作者职位',
       '个人简介',
       '位置信息',
