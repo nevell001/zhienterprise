@@ -1184,6 +1184,19 @@ DELIMITER ;
 CALL sp_insert_sample_articles();
 DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 
+-- 老库升级：补齐 zhi_article.slug 列（幂等，伪静态别名）
+-- ⚠️ 必须放在下方「文章标签关联」种子之前：该语句的 ON 子句引用 zhi_article.slug，
+--    而早于 slug 特性建库的存量库缺此列 → 前向引用会在 ON 子句抛 ERROR 1054 并中断后续全部语句。
+--    CREATE TABLE（含 slug）只对全新库生效，因此存量库必须先补列再用列。
+SET @has_article_slug := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'slug');
+SET @add_article_slug := IF(@has_article_slug = 0,
+    'ALTER TABLE `zhi_article` ADD COLUMN `slug` varchar(100) DEFAULT NULL COMMENT ''URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID）''',
+    'SELECT 1');
+PREPARE add_article_slug_stmt FROM @add_article_slug;
+EXECUTE add_article_slug_stmt;
+DEALLOCATE PREPARE add_article_slug_stmt;
+
 -- 插入文章标签关联数据（建立文章与标签的多对多关系）
 -- 收敛式写法：按「文章 slug + 标签名」解析 id 后插入；老库自增 id 漂移时
 -- 不会把标签挂到别的文章上（旧版固定 (1,1)..(9,3) 在 id 偏移的库里会串行污染）
@@ -2562,16 +2575,6 @@ SET @add_article_seo_description := IF(@has_article_seo_description = 0,
 PREPARE add_article_seo_description_stmt FROM @add_article_seo_description;
 EXECUTE add_article_seo_description_stmt;
 DEALLOCATE PREPARE add_article_seo_description_stmt;
-
--- 老库升级：补齐 zhi_article.slug 列（幂等，伪静态别名）
-SET @has_article_slug := (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_article' AND COLUMN_NAME = 'slug');
-SET @add_article_slug := IF(@has_article_slug = 0,
-    'ALTER TABLE `zhi_article` ADD COLUMN `slug` varchar(100) DEFAULT NULL COMMENT ''URL 别名（伪静态 /blog/article/{slug}，留空用数字 ID）''',
-    'SELECT 1');
-PREPARE add_article_slug_stmt FROM @add_article_slug;
-EXECUTE add_article_slug_stmt;
-DEALLOCATE PREPARE add_article_slug_stmt;
 
 -- 老库升级：补齐 zhi_article 业务详情结构化字段（幂等，模块化建站 M5：卖点宫格/规格表/图集/流程条）
 SET @has_article_selling_points := (SELECT COUNT(*) FROM information_schema.COLUMNS
