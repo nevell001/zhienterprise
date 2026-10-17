@@ -179,12 +179,22 @@ public class FrontMessageController extends BaseController
             return error("网站地址长度不能超过" + MAX_WEBSITE_LENGTH + "个字符");
         }
 
-        // 提交冷却：同一访客（登录用户按 userId，匿名按 IP）在间隔内只允许一条留言
+        // 提交冷却：同一访客（登录用户按 userId，匿名按 IP）在间隔内只允许一条留言。
+        // 语义要求（AGENTS.md）：冷却检查必须在验证码**之前**，否则拒绝时会烧掉一次性验证码。
+        // 原子性：改用 SET NX EX 抢占，替代原先 exists()+set() 的 check-then-set ——
+        // 原写法在"检查"与"设置"之间隔着验证码校验与一次 DB insert，并发请求都能通过检查。
         String cooldownKey = COOLDOWN_KEY_PREFIX + visitorKey(message, request);
         long cooldownRemain = remainingCooldownSeconds(cooldownKey);
         if (cooldownRemain > 0)
         {
             return error("留言太频繁啦，请 " + cooldownRemain + " 秒后再试");
+        }
+        boolean cooldownClaimed = unifiedCacheManager.setIfAbsent(cooldownKey,
+                System.currentTimeMillis(), SUBMIT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        if (!cooldownClaimed)
+        {
+            // 与上面的存在性检查之间被并发抢占：按冷却中处理
+            return error("留言太频繁啦，请 " + SUBMIT_INTERVAL_SECONDS + " 秒后再试");
         }
 
         // 图形验证码 + 填写时限：仅在验证码启用时生效（与登录/注册同一开关）
@@ -192,6 +202,8 @@ public class FrontMessageController extends BaseController
                 message.getCode(), message.getUuid());
         if (captchaAgeSeconds >= 0 && captchaAgeSeconds < MIN_FILL_SECONDS)
         {
+            // 回滚冷却占位：本次并未真正提交，不能因填写过快而让访客白等 60 秒
+            unifiedCacheManager.delete(cooldownKey);
             return error("提交过快，请认真填写后再提交");
         }
 
@@ -215,11 +227,12 @@ public class FrontMessageController extends BaseController
                 message.getNickname(), message.getStatus(), reviewSetting);
 
         int rows = messageService.insertMessage(message);
-        if (rows > 0)
+        if (rows <= 0)
         {
-            unifiedCacheManager.set(cooldownKey, System.currentTimeMillis(),
-                    SUBMIT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+            // 落库失败：释放冷却占位，否则访客既没发出去、还要白等 60 秒
+            unifiedCacheManager.delete(cooldownKey);
         }
+        // 成功时冷却占位已在上方 setIfAbsent 时建立，无需再 set（重复 set 会重置 TTL）
         return toAjax(rows);
     }
 

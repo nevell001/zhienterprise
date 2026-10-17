@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.zhi.system.domain.SysConfig;
 import com.zhi.system.service.IEmailService;
@@ -24,6 +25,7 @@ import com.zhi.common.constant.CacheConstants;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.enums.BusinessType;
+import com.zhi.common.exception.ServiceException;
 import com.zhi.system.domain.Setting;
 import com.zhi.system.domain.MailConfigForm;
 import com.zhi.system.service.ISettingService;
@@ -137,8 +139,16 @@ public class SettingController extends BaseController
 
     /**
      * 通过设置键修改设置值
+     *
+     * <p>加 {@code @Transactional} 的原因：本方法一次性写两张表 —— `zhi_setting` 与
+     * `sys_config` 镜像。二者非原子时，若镜像同步失败，会出现"设置已保存但前台读的是旧值"
+     * 的不一致状态（前台公开设置以 sys_config 为主数据源）。事务保证要么都成功、要么都回滚。</p>
+     *
+     * <p>注意：事务必须加在**这两个 public 入口**上，而不是私有方法 {@code applySettingUpdateByKey}
+     * —— Spring AOP 的同类内部调用不走代理，私有方法上的 {@code @Transactional} 不会生效。</p>
      */
     @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
+    @Transactional(rollbackFor = Exception.class)
     @SiteCacheEvict(value = CacheConstants.SETTINGS_ALL)
     @Log(title = "站点设置", businessType = BusinessType.UPDATE)
     @PutMapping("/updateByKey")
@@ -151,6 +161,7 @@ public class SettingController extends BaseController
      * 通过设置键修改设置值 (POST方法支持)
      */
     @PreAuthorize("@ss.hasPermi('zhi:setting:edit')")
+    @Transactional(rollbackFor = Exception.class)
     @SiteCacheEvict(value = CacheConstants.SETTINGS_ALL)
     @Log(title = "站点设置", businessType = BusinessType.UPDATE)
     @PostMapping("/updateByKey")
@@ -229,7 +240,15 @@ public class SettingController extends BaseController
         catch (Exception e)
         {
             logger.error("同步更新 sys_config 表失败: {}", settingKey, e);
-            return AjaxResult.error("站点设置已保存，但同步到公开配置失败，前台可能不会生效，请重试");
+            // 必须**抛出**而非返回错误对象：调用方带 @Transactional，只有异常逃逸出事务边界
+            // 才会回滚已写入的 zhi_setting。若在此吞掉异常，事务会照常提交 —— 那就保留了
+            // "zhi_setting 已改、sys_config 未同步"的不一致状态，正是本次要修的问题。
+            // 用 ServiceException：GlobalExceptionHandler 会把它面向用户的 message 回传
+            // （RuntimeException 兜底已被改为固定文案，用它会丢失可操作的提示）。
+            ServiceException ex = new ServiceException(
+                "站点设置同步到公开配置失败（已回滚，前台不会生效），请重试");
+            ex.initCause(e);
+            throw ex;
         }
 
         return toAjax(result);

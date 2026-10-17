@@ -235,13 +235,16 @@ public class EmailServiceImpl implements IEmailService
 
         String failKey = VERIFY_FAIL_PREFIX + email + ":" + codeType;
 
-        // 已锁定，直接拒绝（防止爆破）
+        // 锁定状态（软锁定）：达到失败阈值后**仍允许正确验证码通过**，只阻断继续爆破。
+        // 原实现把锁检查放在比对之前直接 return false，导致攻击者只要知道受害者邮箱，
+        // 连发 5 次错误码即可让受害者的**正确验证码也被拒**（自助流程 DoS）。
         Object failCountObj = redisTemplate.opsForValue().get(failKey);
         int failCount = failCountObj == null ? 0 : ((Number) failCountObj).intValue();
-        if (failCount >= emailCodeConfig.getMaxVerifyAttempts())
+        boolean locked = failCount >= emailCodeConfig.getMaxVerifyAttempts();
+        if (locked)
         {
-            log.warn("验证码已锁定：email={}, type={}, failCount={}", email, codeType, failCount);
-            return false;
+            log.warn("验证码处于锁定状态，仅接受正确验证码：email={}, type={}, failCount={}",
+                    email, codeType, failCount);
         }
 
         // 查询最新的未使用验证码
@@ -265,6 +268,11 @@ public class EmailServiceImpl implements IEmailService
         if (!code.equals(emailCode.getCode()))
         {
             log.warn("验证码验证失败：验证码不匹配 email={}, type={}", email, codeType);
+            if (locked)
+            {
+                // 锁定期内不再累加计数（避免过期时间被无限续期），也无需重复告警
+                return false;
+            }
             recordVerifyFail(failKey);
             return false;
         }

@@ -1,6 +1,7 @@
 package com.zhi.system.service.impl;
 
 import com.zhi.common.config.EmailCodeConfig;
+import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.system.domain.EmailCode;
 import com.zhi.system.mapper.EmailCodeMapper;
 import com.zhi.system.service.IEmailService;
@@ -20,6 +21,7 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -93,14 +95,45 @@ class EmailServiceImplTest {
         verify(emailCodeMapper, never()).markCodeAsUsed(eq(1L), any(Date.class));
     }
 
+    /**
+     * 软锁定守卫：达到失败阈值后，**正确的验证码仍必须通过**。
+     * 原实现把锁检查放在比对之前直接拒绝，攻击者只要知道受害者邮箱、连发 5 次错误码，
+     * 就能让受害者本人的正确验证码也被拒（自助注册/重置流程 DoS）。
+     */
     @Test
-    void verifyCodeShouldRejectImmediatelyWhenLocked() {
+    void verifyCodeShouldStillAcceptCorrectCodeWhenLocked() {
         when(valueOperations.get(anyString())).thenReturn(5L);
+        EmailCode valid = new EmailCode();
+        valid.setId(1L);
+        valid.setCode("123456");
+        valid.setExpireTime(new java.util.Date(ModernDateUtils.now().getTime() + 5 * 60_000L));
+        when(emailCodeMapper.selectLatestUnusedCode("test@example.com", IEmailService.CODE_TYPE_REGISTER))
+            .thenReturn(valid);
 
         boolean result = emailService.verifyCode("test@example.com", "123456", IEmailService.CODE_TYPE_REGISTER);
 
+        assertTrue(result, "锁定期间正确验证码必须放行，否则可被用来锁死他人账号");
+        verify(emailCodeMapper).markCodeAsUsed(eq(1L), any(Date.class));
+    }
+
+    /**
+     * 锁定期间错误验证码仍须拒绝，且不得继续累加计数（否则过期时间被无限续期，锁永不释放）。
+     */
+    @Test
+    void verifyCodeShouldRejectWrongCodeWhenLockedWithoutExtendingLock() {
+        when(valueOperations.get(anyString())).thenReturn(5L);
+        EmailCode valid = new EmailCode();
+        valid.setId(1L);
+        valid.setCode("123456");
+        valid.setExpireTime(new java.util.Date(ModernDateUtils.now().getTime() + 5 * 60_000L));
+        when(emailCodeMapper.selectLatestUnusedCode("test@example.com", IEmailService.CODE_TYPE_REGISTER))
+            .thenReturn(valid);
+
+        boolean result = emailService.verifyCode("test@example.com", "000000", IEmailService.CODE_TYPE_REGISTER);
+
         assertFalse(result);
-        verify(emailCodeMapper, never()).selectLatestUnusedCode(anyString(), anyString());
+        verify(valueOperations, never()).increment(anyString());
+        verify(emailCodeMapper, never()).markCodeAsUsed(anyLong(), any(Date.class));
     }
 
     @Test

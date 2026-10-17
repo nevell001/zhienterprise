@@ -212,6 +212,42 @@ class ArticleServiceImplTest {
     }
 
     /**
+     * 回归守卫：写方法必须真正带 @Transactional。
+     * 2026-10-14 的 slug 伪静态提交在 insertArticle 上方插入了一段 javadoc，把原有的
+     * @Transactional 与 insertArticle 隔开，注解因此漂移到了紧随其后的只读方法
+     * selectArticleBySlug 上 —— 文章写入与标签关联失去同一事务：processTagAssociations
+     * 抛异常时文章已落库却不回滚，接口返回失败、库里留下幽灵文章，重试又被标题唯一校验拒绝。
+     * 用反射断言注解确实绑在方法上（而非文件里出现过），避免同类漂移再次发生。
+     */
+    @Test
+    void writeMethodsMustBeTransactional() {
+        // 只覆盖「一次调用内写多张表、必须原子」的方法（文章 + 标签关联）。
+        // 单语句的 updateArticleTopStatus/likeArticle 等由 DB 单语句原子性保证，不在此列。
+        String[] writeMethods = { "insertArticle", "updateArticle", "deleteArticleByIds",
+            "deleteArticleById", "insertArticleTagRelations", "updateArticleTagRelations",
+            "deleteArticleTagRelations", "updateArticleStatus" };
+        for (String name : writeMethods) {
+            boolean found = java.util.Arrays.stream(ArticleServiceImpl.class.getDeclaredMethods())
+                .filter(m -> m.getName().equals(name))
+                .anyMatch(m -> m.isAnnotationPresent(
+                    org.springframework.transaction.annotation.Transactional.class));
+            assertTrue(found, name + " 必须带 @Transactional（写路径要与标签关联保持原子）");
+        }
+    }
+
+    /**
+     * 回归守卫：只读查询不得带 @Transactional —— 防止注解再次漂移到 selectArticleBySlug。
+     */
+    @Test
+    void selectArticleBySlugMustNotBeTransactional() {
+        boolean found = java.util.Arrays.stream(ArticleServiceImpl.class.getDeclaredMethods())
+            .filter(m -> m.getName().equals("selectArticleBySlug"))
+            .anyMatch(m -> m.isAnnotationPresent(
+                org.springframework.transaction.annotation.Transactional.class));
+        assertFalse(found, "selectArticleBySlug 是只读查询，不应带 @Transactional（注解漂移的典型症状）");
+    }
+
+    /**
      * 测试更新文章 - 标题非空校验
      */
     @Test

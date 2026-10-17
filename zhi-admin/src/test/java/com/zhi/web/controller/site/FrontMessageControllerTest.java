@@ -62,6 +62,10 @@ class FrontMessageControllerTest
 
         // 默认：验证码未启用（无法判定填写耗时），且没有冷却中的提交
         lenient().when(captchaService.validateAndGetAgeSeconds(any(), any())).thenReturn(-1L);
+        // 默认：冷却原子抢占成功（即"当前无冷却"）。Mockito 对 boolean 默认返回 false，
+        // 不显式打桩会让所有正常提交路径都被判为"冷却中"。
+        lenient().when(unifiedCacheManager.setIfAbsent(anyString(), any(), anyLong(), any(TimeUnit.class)))
+            .thenReturn(true);
 
         FrontMessageController controller = new FrontMessageController();
         ReflectionTestUtils.setField(controller, "messageService", messageService);
@@ -380,14 +384,17 @@ class FrontMessageControllerTest
     }
 
     @Test
-    void addShouldSetCooldownKeyAfterSuccessfulInsert() throws Exception
+    void addShouldAtomicallyClaimCooldownBeforeInsert() throws Exception
     {
         when(settingService.selectSettingValueByKey("comment_review")).thenReturn("false");
         when(messageService.insertMessage(any(Message.class))).thenReturn(1);
+        when(unifiedCacheManager.setIfAbsent(anyString(), any(), anyLong(), any(TimeUnit.class)))
+            .thenReturn(true);
 
         perform(validMessage()).andExpect(jsonPath("$.code").value(200));
 
-        verify(unifiedCacheManager).set(
+        // 冷却改为原子抢占（SET NX EX），不再使用 exists()+set() 的 check-then-set
+        verify(unifiedCacheManager).setIfAbsent(
             argThat(key -> key != null && key.startsWith("zhi:message:cooldown:")),
             any(),
             eq(60L),
@@ -399,10 +406,50 @@ class FrontMessageControllerTest
     {
         when(settingService.selectSettingValueByKey("comment_review")).thenReturn("false");
         when(messageService.insertMessage(any(Message.class))).thenReturn(0);
+        when(unifiedCacheManager.setIfAbsent(anyString(), any(), anyLong(), any(TimeUnit.class)))
+            .thenReturn(true);
 
         perform(validMessage()).andExpect(jsonPath("$.code").value(500));
 
-        verify(unifiedCacheManager, never()).set(anyString(), any(), anyLong(), any(TimeUnit.class));
+        // 落库失败必须释放已抢占的冷却占位，否则访客没发出去还要白等 60 秒
+        verify(unifiedCacheManager).delete(
+            argThat((String key) -> key != null && key.startsWith("zhi:message:cooldown:")));
+    }
+
+    /**
+     * 并发绕过守卫：SET NX 抢占失败（说明另一并发请求已占位）时必须拒绝，
+     * 不能因为"存在性检查刚好没命中"就放行。
+     */
+    @Test
+    void addShouldRejectWhenAtomicClaimLosesRace() throws Exception
+    {
+        when(unifiedCacheManager.setIfAbsent(anyString(), any(), anyLong(), any(TimeUnit.class)))
+            .thenReturn(false);
+
+        perform(validMessage())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("留言太频繁啦，请 60 秒后再试"));
+
+        verify(messageService, never()).insertMessage(any(Message.class));
+    }
+
+    /**
+     * 填写过快被拒时，必须回滚冷却占位 —— 本次并未真正提交。
+     */
+    @Test
+    void addShouldRollbackCooldownClaimWhenSubmittedTooFast() throws Exception
+    {
+        when(unifiedCacheManager.setIfAbsent(anyString(), any(), anyLong(), any(TimeUnit.class)))
+            .thenReturn(true);
+        when(captchaService.validateAndGetAgeSeconds(any(), any())).thenReturn(1L);
+
+        perform(validMessage())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("提交过快，请认真填写后再提交"));
+
+        verify(unifiedCacheManager).delete(
+            argThat((String key) -> key != null && key.startsWith("zhi:message:cooldown:")));
+        verify(messageService, never()).insertMessage(any(Message.class));
     }
 
     @Test

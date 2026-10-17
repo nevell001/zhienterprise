@@ -417,12 +417,14 @@ class SettingControllerTest {
     }
 
     /**
-     * 回归护栏：zhi_setting 写入成功但 sys_config 同步抛异常时，
-     * 必须如实返回错误（前台公开设置以 sys_config 为主数据源，同步失败=前台不生效），
-     * 不能像以前那样吞掉异常仍返回 200 伪装成功。
+     * 回归护栏：zhi_setting 写入成功但 sys_config 同步抛异常时，必须**抛出异常**让事务回滚。
+     *
+     * <p>前台公开设置以 sys_config 为主数据源 —— 若此处吞掉异常并返回错误对象，调用方的
+     * {@code @Transactional} 会照常提交，留下"zhi_setting 已改、sys_config 未同步"的不一致状态。
+     * 因此必须让异常逃逸出事务边界（由 GlobalExceptionHandler 转成面向用户的提示）。</p>
      */
     @Test
-    void testUpdateSettingByKey_Post_SyncFailure_ReturnsError() throws Exception {
+    void testUpdateSettingByKey_Post_SyncFailure_RollsBack() throws Exception {
         when(settingService.updateSettingValueByKey("blog_name", "新博客名称")).thenReturn(1);
         when(configService.selectConfigList(any(com.zhi.system.domain.SysConfig.class)))
             .thenReturn(new ArrayList<>());
@@ -433,11 +435,14 @@ class SettingControllerTest {
         params.put("settingKey", "blog_name");
         params.put("settingValue", "新博客名称");
 
-        mockMvc.perform(post("/system/setting/updateByKey")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(params)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(500));
+        // 异常必须逃逸（而非被吞成响应体），否则事务不会回滚
+        Exception thrown = org.junit.jupiter.api.Assertions.assertThrows(Exception.class, () ->
+            mockMvc.perform(post("/system/setting/updateByKey")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(params))));
+        org.junit.jupiter.api.Assertions.assertTrue(
+            thrown.getMessage() != null && thrown.getMessage().contains("已回滚"),
+            "异常信息应说明已回滚，实际: " + thrown.getMessage());
     }
 
     /**

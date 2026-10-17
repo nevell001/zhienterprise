@@ -49,6 +49,25 @@ public class UnifiedCacheManager {
     }
 
     /**
+     * 原子"仅当键不存在时设置"（Redis SET NX EX）。
+     *
+     * 用于冷却/防重复提交等 check-then-set 场景：先 exists() 再 set() 之间存在竞态，
+     * 并发请求都能通过检查。此方法把"判断+占位"合成一次原子操作。
+     *
+     * @return true 表示抢占成功（此前不存在）；false 表示键已存在、抢占失败
+     */
+    public boolean setIfAbsent(String key, Object value, long ttl, TimeUnit timeUnit) {
+        try {
+            Boolean ok = redisTemplate.opsForValue().setIfAbsent(key, value, ttl, timeUnit);
+            return Boolean.TRUE.equals(ok);
+        } catch (Exception e) {
+            log.error("Failed to setIfAbsent cache: key={}", key, e);
+            // Redis 故障时保守返回 false（视为已占用），避免放行超出频控的请求
+            return false;
+        }
+    }
+
+    /**
      * 设置缓存（永不过期）
      */
     public void set(String key, Object value) {

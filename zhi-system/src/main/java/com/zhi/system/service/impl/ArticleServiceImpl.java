@@ -159,14 +159,6 @@ public class ArticleServiceImpl implements IArticleService
 
 
     /**
-     * 新增博客文章
-     *
-     * @param article 博客文章
-     * @return 结果
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    /**
      * 按别名查询文章（仅命中已发布且未删除的文章）
      */
     public Article selectArticleBySlug(String slug)
@@ -194,6 +186,22 @@ public class ArticleServiceImpl implements IArticleService
         article.setSlug(slug);
     }
 
+    /**
+     * 新增博客文章
+     *
+     * 必须清缓存：新增文章后前台搜索（zhi:search:*，10 分钟 TTL）与热门列表
+     * （zhi:hot:*）都会返回旧结果 —— 此前该方法无任何失效注解，新发布内容最长
+     * 10 分钟"搜不到"。
+     *
+     * 注意 keyPattern 才是按通配符清除（deleteByPattern → Redis SCAN MATCH），
+     * value() 是**字面**删除、不支持通配符，因此这里只依赖 keyPattern。
+     *
+     * @param article 博客文章
+     * @return 结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @SiteCacheEvict(keyPattern = "zhi:*")
     public int insertArticle(Article article)
     {
         validateArticleContent(article);
@@ -322,7 +330,7 @@ public class ArticleServiceImpl implements IArticleService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @SiteCacheEvict(value = {"zhi:article:*", "zhi:article:list:*", "zhi:hot:*"}, keyPattern = "zhi:*")
+    @SiteCacheEvict(keyPattern = "zhi:*")
     public int updateArticle(Article article)
     {
         if (article.getId() == null) {
@@ -366,7 +374,7 @@ public class ArticleServiceImpl implements IArticleService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @SiteCacheEvict(value = {"zhi:article:*", "zhi:article:list:*", "zhi:hot:*"}, keyPattern = "zhi:*")
+    @SiteCacheEvict(keyPattern = "zhi:*")
     public int deleteArticleByIds(Long[] ids)
     {
         // 先删除标签关联
@@ -378,12 +386,15 @@ public class ArticleServiceImpl implements IArticleService
 
     /**
      * 删除博客文章信息
-     * 
+     *
+     * 必须清缓存：删除后前台列表/搜索/热门仍会返回该文章（缓存未失效）。
+     *
      * @param id 博客文章主键
      * @return 结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @SiteCacheEvict(keyPattern = "zhi:*")
     public int deleteArticleById(Long id)
     {
         // 先删除标签关联
@@ -570,8 +581,15 @@ public class ArticleServiceImpl implements IArticleService
      * @param status 状态
      * @return 结果
      */
+    /**
+     * 批量修改文章状态（发布/下架）
+     *
+     * 必须清缓存：状态变更直接决定文章是否出现在前台列表与搜索结果，
+     * 失效缺失会让"已下架的文章仍可搜到 / 新发布的文章搜不到"，直到 TTL 到期。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @SiteCacheEvict(keyPattern = "zhi:*")
     public int updateArticleStatus(List<Long> ids, Integer status) {
         if (ids == null || ids.isEmpty()) {
             return 0;
