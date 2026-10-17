@@ -371,327 +371,335 @@
         <el-tab-pane label="官网内容" name="content">
           <el-form :model="settingsMap" label-width="90px">
             <el-alert
-              title="以下内容维护企业官网各页面的展示数据。修改后请保存；清空全部行时前台显示内置示例，也可按分区「恢复默认」。"
+              title="以下内容维护企业官网各页面的展示数据。按标签分组维护：首页内容 / 荣誉与历程 / 联系与问答 / 页面文案。修改后请保存；清空全部行时前台显示内置示例，也可按分区「恢复默认」。"
               type="info"
               :closable="false"
               class="tab-alert"
             />
 
-            <div class="content-sections">
-              <ContentSectionCard
-                title="首页 · 信任指标条"
-                desc="首页 Hero 下方的数字指标，建议 2–4 项"
-                :icon="TrendCharts"
-                :count="settingsMap.site_metrics?.length ?? 0"
-              >
-                <template #actions>
-                  <el-button
-                    link
-                    type="primary"
-                    size="small"
-                    @click="resetContentSection('site_metrics')"
-                  >
-                    恢复默认
-                  </el-button>
-                </template>
-                <ContentFieldsEditor
-                  :items="settingsMap.site_metrics"
-                  :fields="METRIC_FIELDS"
-                  add-label="添加指标"
-                  @add="addContentRow('site_metrics', { value: '', label: '' })"
-                  @remove="i => removeContentRow('site_metrics', i)"
-                  @move="(i, d) => moveContentRow('site_metrics', i, d)"
-                />
-              </ContentSectionCard>
-
-              <ContentSectionCard
-                title="首页 · 数据成果"
-                desc="深色数据区块里的成果数字，留空则前台回退内置示例"
-                :icon="DataAnalysis"
-                :count="settingsMap.site_outcomes?.length ?? 0"
-              >
-                <template #actions>
-                  <el-button
-                    link
-                    type="primary"
-                    size="small"
-                    @click="resetContentSection('site_outcomes')"
-                  >
-                    恢复默认
-                  </el-button>
-                </template>
-                <ContentFieldsEditor
-                  :items="settingsMap.site_outcomes"
-                  :fields="OUTCOME_FIELDS"
-                  add-label="添加成果"
-                  @add="addContentRow('site_outcomes', { mark: '', suffix: '', label: '' })"
-                  @remove="i => removeContentRow('site_outcomes', i)"
-                  @move="(i, d) => moveContentRow('site_outcomes', i, d)"
-                />
-              </ContentSectionCard>
-
-              <ContentSectionCard
-                title="首页 · 解决方案精选"
-                desc="首页推荐的核心业务 / 解决方案卡片"
-                :icon="Grid"
-                :count="settingsMap.home_solutions?.length ?? 0"
-              >
-                <template #actions>
-                  <el-button
-                    link
-                    type="primary"
-                    size="small"
-                    @click="resetContentSection('home_solutions')"
-                  >
-                    恢复默认
-                  </el-button>
-                </template>
-                <ContentFieldsEditor
-                  :items="settingsMap.home_solutions"
-                  :fields="SOLUTION_FIELDS"
-                  add-label="添加方案"
-                  @add="addContentRow('home_solutions', { title: '', desc: '' })"
-                  @remove="i => removeContentRow('home_solutions', i)"
-                  @move="(i, d) => moveContentRow('home_solutions', i, d)"
-                />
-              </ContentSectionCard>
-
-              <ContentSectionCard
-                title="荣誉资质墙"
-                desc="关于页 / 荣誉页展示的证书与奖项"
-                :icon="Trophy"
-                :count="settingsMap.site_honors?.length ?? 0"
-              >
-                <template #actions>
-                  <el-button
-                    link
-                    type="primary"
-                    size="small"
-                    @click="resetContentSection('site_honors')"
-                  >
-                    恢复默认
-                  </el-button>
-                </template>
-                <ContentFieldsEditor
-                  :items="settingsMap.site_honors"
-                  :fields="HONOR_FIELDS"
-                  add-label="添加荣誉"
-                  @add="
-                    addContentRow('site_honors', {
-                      name: '',
-                      issuer: '',
-                      year: '',
-                      cat: '资质证书'
-                    })
-                  "
-                  @remove="i => removeContentRow('site_honors', i)"
-                  @move="(i, d) => moveContentRow('site_honors', i, d)"
-                />
-              </ContentSectionCard>
-
-              <ContentSectionCard
-                title="发展历程时间轴"
-                desc="关于页时间轴：阶段 + 事件，按时间顺序排列"
-                :icon="Clock"
-                :count="settingsMap.site_history?.length ?? 0"
-              >
-                <template #actions>
-                  <el-button
-                    link
-                    type="primary"
-                    size="small"
-                    @click="resetContentSection('site_history')"
-                  >
-                    恢复默认
-                  </el-button>
-                </template>
-
-                <div
-                  v-for="(st, si) in settingsMap.site_history || []"
-                  :key="`stage-${si}`"
-                  class="history-stage"
+            <el-tabs v-model="contentTab" class="content-tabs">
+              <el-tab-pane label="首页内容" name="home">
+                <ContentSectionCard
+                  title="首页 · 信任指标条"
+                  desc="首页 Hero 下方的数字指标，建议 2–4 项"
+                  :icon="TrendCharts"
+                  :count="settingsMap.site_metrics?.length ?? 0"
                 >
-                  <div class="history-stage__head">
-                    <div class="history-stage__fields">
-                      <label class="content-field">
-                        <span class="content-field__label">年份区间</span>
-                        <el-input v-model="st.range" placeholder="如 2011 - 2014" />
-                      </label>
-                      <label class="content-field">
-                        <span class="content-field__label">阶段名</span>
-                        <el-input v-model="st.name" placeholder="如 初创期" />
-                      </label>
-                      <label class="content-field content-field--grow">
-                        <span class="content-field__label">阶段主题</span>
-                        <el-input v-model="st.theme" placeholder="一句话概括这一阶段" />
-                      </label>
-                    </div>
-                    <div class="content-ops">
-                      <el-button
-                        link
-                        :disabled="si === 0"
-                        title="上移阶段"
-                        aria-label="上移阶段"
-                        @click="moveContentRow('site_history', si, -1)"
-                      >
-                        <el-icon><Top /></el-icon>
-                      </el-button>
-                      <el-button
-                        link
-                        :disabled="si === (settingsMap.site_history?.length ?? 1) - 1"
-                        title="下移阶段"
-                        aria-label="下移阶段"
-                        @click="moveContentRow('site_history', si, 1)"
-                      >
-                        <el-icon><Bottom /></el-icon>
-                      </el-button>
-                      <el-button
-                        link
-                        type="danger"
-                        title="删除阶段"
-                        aria-label="删除阶段"
-                        @click="removeContentRow('site_history', si)"
-                      >
-                        <el-icon><Delete /></el-icon>
-                      </el-button>
-                    </div>
-                  </div>
-
-                  <div class="history-events">
-                    <div
-                      v-for="(ev, ei) in st.events"
-                      :key="`event-${si}-${ei}`"
-                      class="history-event"
+                  <template #actions>
+                    <el-button
+                      link
+                      type="primary"
+                      size="small"
+                      @click="resetContentSection('site_metrics')"
                     >
-                      <label class="content-field history-event__year">
-                        <span class="content-field__label">年份</span>
-                        <el-input v-model="ev.year" placeholder="如 2013" />
-                      </label>
-                      <label class="content-field history-event__title">
-                        <span class="content-field__label">事件标题</span>
-                        <el-input v-model="ev.title" placeholder="关键里程碑" />
-                      </label>
-                      <label class="content-field content-field--grow">
-                        <span class="content-field__label">事件描述</span>
-                        <el-input v-model="ev.desc" placeholder="一句话说明" />
-                      </label>
-                      <el-checkbox v-model="ev.honor" class="history-event__honor">
-                        荣誉节点
-                      </el-checkbox>
-                      <el-button
-                        link
-                        type="danger"
-                        title="删除事件"
-                        aria-label="删除事件"
-                        @click="removeHistoryEvent(si, ei)"
+                      恢复默认
+                    </el-button>
+                  </template>
+                  <ContentFieldsEditor
+                    :items="settingsMap.site_metrics"
+                    :fields="METRIC_FIELDS"
+                    add-label="添加指标"
+                    @add="addContentRow('site_metrics', { value: '', label: '' })"
+                    @remove="i => removeContentRow('site_metrics', i)"
+                    @move="(i, d) => moveContentRow('site_metrics', i, d)"
+                  />
+                </ContentSectionCard>
+
+                <ContentSectionCard
+                  title="首页 · 数据成果"
+                  desc="深色数据区块里的成果数字，留空则前台回退内置示例"
+                  :icon="DataAnalysis"
+                  :count="settingsMap.site_outcomes?.length ?? 0"
+                >
+                  <template #actions>
+                    <el-button
+                      link
+                      type="primary"
+                      size="small"
+                      @click="resetContentSection('site_outcomes')"
+                    >
+                      恢复默认
+                    </el-button>
+                  </template>
+                  <ContentFieldsEditor
+                    :items="settingsMap.site_outcomes"
+                    :fields="OUTCOME_FIELDS"
+                    add-label="添加成果"
+                    @add="addContentRow('site_outcomes', { mark: '', suffix: '', label: '' })"
+                    @remove="i => removeContentRow('site_outcomes', i)"
+                    @move="(i, d) => moveContentRow('site_outcomes', i, d)"
+                  />
+                </ContentSectionCard>
+
+                <ContentSectionCard
+                  title="首页 · 解决方案精选"
+                  desc="首页推荐的核心业务 / 解决方案卡片"
+                  :icon="Grid"
+                  :count="settingsMap.home_solutions?.length ?? 0"
+                >
+                  <template #actions>
+                    <el-button
+                      link
+                      type="primary"
+                      size="small"
+                      @click="resetContentSection('home_solutions')"
+                    >
+                      恢复默认
+                    </el-button>
+                  </template>
+                  <ContentFieldsEditor
+                    :items="settingsMap.home_solutions"
+                    :fields="SOLUTION_FIELDS"
+                    add-label="添加方案"
+                    @add="addContentRow('home_solutions', { title: '', desc: '' })"
+                    @remove="i => removeContentRow('home_solutions', i)"
+                    @move="(i, d) => moveContentRow('home_solutions', i, d)"
+                  />
+                </ContentSectionCard>
+              </el-tab-pane>
+
+              <el-tab-pane label="荣誉与历程" name="trust">
+                <ContentSectionCard
+                  title="荣誉资质墙"
+                  desc="关于页 / 荣誉页展示的证书与奖项"
+                  :icon="Trophy"
+                  :count="settingsMap.site_honors?.length ?? 0"
+                >
+                  <template #actions>
+                    <el-button
+                      link
+                      type="primary"
+                      size="small"
+                      @click="resetContentSection('site_honors')"
+                    >
+                      恢复默认
+                    </el-button>
+                  </template>
+                  <ContentFieldsEditor
+                    :items="settingsMap.site_honors"
+                    :fields="HONOR_FIELDS"
+                    add-label="添加荣誉"
+                    @add="
+                      addContentRow('site_honors', {
+                        name: '',
+                        issuer: '',
+                        year: '',
+                        cat: '资质证书'
+                      })
+                    "
+                    @remove="i => removeContentRow('site_honors', i)"
+                    @move="(i, d) => moveContentRow('site_honors', i, d)"
+                  />
+                </ContentSectionCard>
+
+                <ContentSectionCard
+                  title="发展历程时间轴"
+                  desc="关于页时间轴：阶段 + 事件，按时间顺序排列"
+                  :icon="Clock"
+                  :count="settingsMap.site_history?.length ?? 0"
+                >
+                  <template #actions>
+                    <el-button
+                      link
+                      type="primary"
+                      size="small"
+                      @click="resetContentSection('site_history')"
+                    >
+                      恢复默认
+                    </el-button>
+                  </template>
+
+                  <div
+                    v-for="(st, si) in settingsMap.site_history || []"
+                    :key="`stage-${si}`"
+                    class="history-stage"
+                  >
+                    <div class="history-stage__head">
+                      <div class="history-stage__fields">
+                        <label class="content-field">
+                          <span class="content-field__label">年份区间</span>
+                          <el-input v-model="st.range" placeholder="如 2011 - 2014" />
+                        </label>
+                        <label class="content-field">
+                          <span class="content-field__label">阶段名</span>
+                          <el-input v-model="st.name" placeholder="如 初创期" />
+                        </label>
+                        <label class="content-field content-field--grow">
+                          <span class="content-field__label">阶段主题</span>
+                          <el-input v-model="st.theme" placeholder="一句话概括这一阶段" />
+                        </label>
+                      </div>
+                      <div class="content-ops">
+                        <el-button
+                          link
+                          :disabled="si === 0"
+                          title="上移阶段"
+                          aria-label="上移阶段"
+                          @click="moveContentRow('site_history', si, -1)"
+                        >
+                          <el-icon><Top /></el-icon>
+                        </el-button>
+                        <el-button
+                          link
+                          :disabled="si === (settingsMap.site_history?.length ?? 1) - 1"
+                          title="下移阶段"
+                          aria-label="下移阶段"
+                          @click="moveContentRow('site_history', si, 1)"
+                        >
+                          <el-icon><Bottom /></el-icon>
+                        </el-button>
+                        <el-button
+                          link
+                          type="danger"
+                          title="删除阶段"
+                          aria-label="删除阶段"
+                          @click="removeContentRow('site_history', si)"
+                        >
+                          <el-icon><Delete /></el-icon>
+                        </el-button>
+                      </div>
+                    </div>
+
+                    <div class="history-events">
+                      <div
+                        v-for="(ev, ei) in st.events"
+                        :key="`event-${si}-${ei}`"
+                        class="history-event"
                       >
-                        <el-icon><Delete /></el-icon>
+                        <label class="content-field history-event__year">
+                          <span class="content-field__label">年份</span>
+                          <el-input v-model="ev.year" placeholder="如 2013" />
+                        </label>
+                        <label class="content-field history-event__title">
+                          <span class="content-field__label">事件标题</span>
+                          <el-input v-model="ev.title" placeholder="关键里程碑" />
+                        </label>
+                        <label class="content-field content-field--grow">
+                          <span class="content-field__label">事件描述</span>
+                          <el-input v-model="ev.desc" placeholder="一句话说明" />
+                        </label>
+                        <el-checkbox v-model="ev.honor" class="history-event__honor">
+                          荣誉节点
+                        </el-checkbox>
+                        <el-button
+                          link
+                          type="danger"
+                          title="删除事件"
+                          aria-label="删除事件"
+                          @click="removeHistoryEvent(si, ei)"
+                        >
+                          <el-icon><Delete /></el-icon>
+                        </el-button>
+                      </div>
+                      <el-button size="small" text type="primary" @click="addHistoryEvent(si)">
+                        + 添加事件
                       </el-button>
                     </div>
-                    <el-button size="small" text type="primary" @click="addHistoryEvent(si)">
-                      + 添加事件
-                    </el-button>
                   </div>
-                </div>
 
-                <p v-if="!settingsMap.site_history?.length" class="content-empty">
-                  暂无阶段，前台会显示内置示例。
-                </p>
-                <el-button plain :icon="Plus" @click="addHistoryStage()">添加阶段</el-button>
-              </ContentSectionCard>
+                  <p v-if="!settingsMap.site_history?.length" class="content-empty">
+                    暂无阶段，前台会显示内置示例。
+                  </p>
+                  <el-button plain :icon="Plus" @click="addHistoryStage()">添加阶段</el-button>
+                </ContentSectionCard>
+              </el-tab-pane>
 
-              <ContentSectionCard
-                title="联系我们 · 分渠道咨询"
-                desc="联系页的电话 / 微信 / 邮箱等咨询入口"
-                :icon="ChatDotRound"
-                :count="settingsMap.site_channels?.length ?? 0"
-              >
-                <template #actions>
-                  <el-button
-                    link
-                    type="primary"
-                    size="small"
-                    @click="resetContentSection('site_channels')"
-                  >
-                    恢复默认
-                  </el-button>
-                </template>
-                <ContentFieldsEditor
-                  :items="settingsMap.site_channels"
-                  :fields="CHANNEL_FIELDS"
-                  add-label="添加渠道"
-                  @add="addContentRow('site_channels', { name: '', desc: '' })"
-                  @remove="i => removeContentRow('site_channels', i)"
-                  @move="(i, d) => moveContentRow('site_channels', i, d)"
-                />
-              </ContentSectionCard>
-
-              <ContentSectionCard
-                title="联系我们 · 常见问题"
-                desc="同步输出 FAQPage 结构化数据，利于搜索收录"
-                :icon="ChatLineSquare"
-                :count="settingsMap.site_faq?.length ?? 0"
-              >
-                <template #actions>
-                  <el-button
-                    link
-                    type="primary"
-                    size="small"
-                    @click="resetContentSection('site_faq')"
-                  >
-                    恢复默认
-                  </el-button>
-                </template>
-                <ContentFieldsEditor
-                  :items="settingsMap.site_faq"
-                  :fields="FAQ_FIELDS"
-                  add-label="添加问题"
-                  @add="addContentRow('site_faq', { q: '', a: '' })"
-                  @remove="i => removeContentRow('site_faq', i)"
-                  @move="(i, d) => moveContentRow('site_faq', i, d)"
-                />
-              </ContentSectionCard>
-
-              <ContentSectionCard
-                title="模板页头文案"
-                desc="各页面的眉题 / 标题 / 副题；留空跟随默认（核心业务页跟随栏目名称，关于页跟随站点名称/描述）"
-                :icon="Document"
-                :count="Object.keys(settingsMap.site_page_copy || {}).length"
-              >
-                <template #actions>
-                  <el-button link type="primary" size="small" @click="resetPageCopy">
-                    恢复默认
-                  </el-button>
-                </template>
-                <div
-                  v-for="(pc, pk) in settingsMap.site_page_copy || {}"
-                  :key="pk"
-                  class="page-copy-row"
+              <el-tab-pane label="联系与问答" name="contact">
+                <ContentSectionCard
+                  title="联系我们 · 分渠道咨询"
+                  desc="联系页的电话 / 微信 / 邮箱等咨询入口"
+                  :icon="ChatDotRound"
+                  :count="settingsMap.site_channels?.length ?? 0"
                 >
-                  <span class="page-copy-row__name">{{ PAGE_COPY_LABELS[pk] || pk }}</span>
-                  <div class="page-copy-row__fields">
-                    <label class="content-field">
-                      <span class="content-field__label">眉题</span>
-                      <el-input
-                        v-model="pc.eyebrow"
-                        :placeholder="`默认：${DEFAULT_PAGE_COPY[pk]?.eyebrow ?? '跟随页面'}`"
-                      />
-                    </label>
-                    <label class="content-field">
-                      <span class="content-field__label">标题</span>
-                      <el-input
-                        v-model="pc.title"
-                        :placeholder="`默认：${DEFAULT_PAGE_COPY[pk]?.title ?? '跟随页面'}`"
-                      />
-                    </label>
-                    <label class="content-field content-field--grow">
-                      <span class="content-field__label">副题</span>
-                      <el-input v-model="pc.subtitle" placeholder="留空使用默认文案" />
-                    </label>
+                  <template #actions>
+                    <el-button
+                      link
+                      type="primary"
+                      size="small"
+                      @click="resetContentSection('site_channels')"
+                    >
+                      恢复默认
+                    </el-button>
+                  </template>
+                  <ContentFieldsEditor
+                    :items="settingsMap.site_channels"
+                    :fields="CHANNEL_FIELDS"
+                    add-label="添加渠道"
+                    @add="addContentRow('site_channels', { name: '', desc: '' })"
+                    @remove="i => removeContentRow('site_channels', i)"
+                    @move="(i, d) => moveContentRow('site_channels', i, d)"
+                  />
+                </ContentSectionCard>
+
+                <ContentSectionCard
+                  title="联系我们 · 常见问题"
+                  desc="同步输出 FAQPage 结构化数据，利于搜索收录"
+                  :icon="ChatLineSquare"
+                  :count="settingsMap.site_faq?.length ?? 0"
+                >
+                  <template #actions>
+                    <el-button
+                      link
+                      type="primary"
+                      size="small"
+                      @click="resetContentSection('site_faq')"
+                    >
+                      恢复默认
+                    </el-button>
+                  </template>
+                  <ContentFieldsEditor
+                    :items="settingsMap.site_faq"
+                    :fields="FAQ_FIELDS"
+                    add-label="添加问题"
+                    @add="addContentRow('site_faq', { q: '', a: '' })"
+                    @remove="i => removeContentRow('site_faq', i)"
+                    @move="(i, d) => moveContentRow('site_faq', i, d)"
+                  />
+                </ContentSectionCard>
+              </el-tab-pane>
+
+              <el-tab-pane label="页面文案" name="copy">
+                <ContentSectionCard
+                  title="模板页头文案"
+                  desc="各页面的眉题 / 标题 / 副题；留空跟随默认（核心业务页跟随栏目名称，关于页跟随站点名称/描述）"
+                  :icon="Document"
+                  :count="Object.keys(settingsMap.site_page_copy || {}).length"
+                >
+                  <template #actions>
+                    <el-button link type="primary" size="small" @click="resetPageCopy">
+                      恢复默认
+                    </el-button>
+                  </template>
+                  <div
+                    v-for="(pc, pk) in settingsMap.site_page_copy || {}"
+                    :key="pk"
+                    class="page-copy-row"
+                  >
+                    <span class="page-copy-row__name">{{ PAGE_COPY_LABELS[pk] || pk }}</span>
+                    <div class="page-copy-row__fields">
+                      <label class="content-field">
+                        <span class="content-field__label">眉题</span>
+                        <el-input
+                          v-model="pc.eyebrow"
+                          :placeholder="`默认：${DEFAULT_PAGE_COPY[pk]?.eyebrow ?? '跟随页面'}`"
+                        />
+                      </label>
+                      <label class="content-field">
+                        <span class="content-field__label">标题</span>
+                        <el-input
+                          v-model="pc.title"
+                          :placeholder="`默认：${DEFAULT_PAGE_COPY[pk]?.title ?? '跟随页面'}`"
+                        />
+                      </label>
+                      <label class="content-field content-field--grow">
+                        <span class="content-field__label">副题</span>
+                        <el-input v-model="pc.subtitle" placeholder="留空使用默认文案" />
+                      </label>
+                    </div>
                   </div>
-                </div>
-              </ContentSectionCard>
-            </div>
+                </ContentSectionCard>
+              </el-tab-pane>
+            </el-tabs>
           </el-form>
         </el-tab-pane>
 
@@ -988,6 +996,8 @@ const settingsStore = useSettingsStore()
 
 const loading = ref(false)
 const activeTab = ref('basic')
+/** 官网内容子标签：首页内容 / 荣誉与历程 / 联系与问答 / 页面文案 */
+const contentTab = ref('home')
 const settingsMap = ref<Record<string, any>>({})
 const originalSettings = ref<Record<string, any>>({})
 
@@ -1952,8 +1962,16 @@ html.dark .feature-group__icon {
 }
 
 /* ---------- 官网内容编辑器 ---------- */
-.content-sections {
+.content-tabs {
   margin-top: 12px;
+}
+
+.content-tabs :deep(.el-tabs__content) {
+  overflow: visible;
+}
+
+.content-tabs :deep(.el-tab-pane > .content-section:first-child) {
+  margin-top: 0;
 }
 
 .content-field {

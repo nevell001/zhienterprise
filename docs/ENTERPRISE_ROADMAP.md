@@ -420,3 +420,9 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
 - **定时发布不清缓存**：`publishScheduledArticles` 补 `@SiteCacheEvict(keyPattern = "zhi:*")`，并加入缓存失效契约测试的写方法清单。
 - **草稿污染 PV/UV**：`getArticleDetail` 原先先计数再校验发布状态；调整为「发布/删除校验 → 计数」，草稿/已删除 ID 直接访问不再增加浏览量或写访问明细。
 - **验证**：后端全量 `mvn clean verify` 89 测试通过（ArticleController 31 / ArticleServiceImpl 72 / 缓存契约 3 / FrontController 20）；前端 216 文件 / 1896 测试、lint/format/typecheck/build 全绿。
+
+## 二十三、官网内容按标签页分组（2026-10-17）
+
+- 官网内容从「8 张卡片纵向铺开」改为 **4 个标签页**：首页内容（指标/成果/方案）、荣誉与历程（荣誉墙/时间轴）、联系与问答（渠道/FAQ）、页面文案（5 个模板页）。
+- 标签页内仍复用 `ContentSectionCard` + `ContentFieldsEditor`，字段标签、排序、恢复默认、折叠能力不变；数据模型与保存链路完全不变。
+- 验证：`el-tabs` 实测标签为「首页内容 / 荣誉与历程 / 联系与问答 / 页面文案」，切换后对应分区显示；`index.test.ts` 新增标签分组断言。

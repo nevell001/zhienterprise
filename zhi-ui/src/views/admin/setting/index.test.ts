@@ -76,7 +76,11 @@ function mountPage() {
       stubs: {
         'el-card': { template: '<div class="card"><slot /></div>' },
         'el-tabs': { template: '<div><slot /></div>' },
-        'el-tab-pane': { template: '<div class="pane"><slot /></div>' },
+        // label 走属性而非插槽：渲染出来才能断言标签页分组
+        'el-tab-pane': {
+          props: ['label'],
+          template: '<div class="pane">{{ label }}<slot /></div>'
+        },
         'el-form': { template: '<form><slot /></form>' },
         // label 走属性而非插槽，桩要渲染出来才能按字段名断言存在/不存在
         'el-form-item': {
@@ -451,6 +455,16 @@ describe('SiteSetting 视图（行为）', () => {
 
     expect(updateSettingValueByKey).toHaveBeenCalledWith('sys.account.registerUser', 'false')
     expect(ElMessage.success).toHaveBeenCalled()
+  })
+
+  it('官网内容用标签页分组维护（首页内容 / 荣誉与历程 / 联系与问答 / 页面文案）', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const text = wrapper.text()
+    for (const label of ['首页内容', '荣誉与历程', '联系与问答', '页面文案']) {
+      expect(text).toContain(label)
+    }
   })
 
   it('官网内容按分区卡片渲染，每个分区带标题、说明与字段标签', async () => {
