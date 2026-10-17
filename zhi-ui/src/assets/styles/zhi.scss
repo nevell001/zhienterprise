@@ -103,9 +103,9 @@ h6 {
   }
 }
 
-/* 暗色模式：表格表头跟随主题暗色（默认 Tech Blue 主题）。
-   mo-blog 主题在 themes/mo-blog.scss 中已用 html.dark.theme-mo-blog
-   更高优先级选择器单独覆盖，此处不影响。 */
+/* 暗色模式：表格表头兜底（未命中更具体规则时）。Mo-Blog 是当前唯一且默认挂载的皮肤，
+   它在 themes/mo-blog.scss 中用 html.dark.theme-mo-blog（特异性更高）单独覆盖，优先生效；
+   本组规则作为无皮肤类或其它皮肤时的兜底。 */
 html.dark .el-table .el-table__header-wrapper th,
 html.dark .el-table .el-table__fixed-header-wrapper th,
 html.dark .el-table th.el-table__cell {

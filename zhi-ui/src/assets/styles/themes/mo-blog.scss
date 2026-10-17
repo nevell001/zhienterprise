@@ -991,7 +991,9 @@ html.dark.theme-mo-blog .site-layout .footer-col a:hover {
 }
 
 html.dark.theme-mo-blog .site-layout .footer-wave {
-  color: var(--mo-n900);
+  /* 暗色下 --mo-n900 已被重映射为**背景色**，用作文字色即 1.0:1 不可见。
+     改用暗色文字色阶（--mo-n200 = --el-text-color-primary）。 */
+  color: var(--mo-n200);
 }
 
 html.dark.theme-mo-blog .site-layout .footer-logo {
@@ -1555,7 +1557,10 @@ html.dark.theme-mo-blog .editor-topbar .back-btn {
 }
 
 html.dark.theme-mo-blog .title-input .el-input__inner {
-  color: var(--mo-n900) !important;
+  /* 同 footer-wave：暗色下 --mo-n900 是背景色，作文字色不可见。
+     （该前缀为死选择器，实际生效的是 article/index.vue 的 html.dark 规则；
+     此处仅修正遗留写法，避免清理时误将其当作正确范例。） */
+  color: var(--mo-n200) !important;
 }
 
 html.dark.theme-mo-blog .editor-toolbar {

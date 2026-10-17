@@ -79,7 +79,12 @@
             <el-dropdown trigger="click" @command="handleUserCommand">
               <div class="user-info">
                 <div class="user-avatar-wrapper">
-                  <img v-if="userStore.avatar" :src="userStore.avatar" class="user-avatar" />
+                  <img
+                    v-if="userStore.avatar"
+                    :src="userStore.avatar"
+                    class="user-avatar"
+                    alt="用户头像"
+                  />
                   <div v-else class="avatar-placeholder">
                     <el-icon :size="16"><UserFilled /></el-icon>
                   </div>

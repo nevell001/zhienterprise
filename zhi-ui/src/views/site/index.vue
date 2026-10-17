@@ -504,6 +504,10 @@ onMounted(async () => {
   aspect-ratio: 3 / 1;
   background-position: center;
   background-size: cover;
+  /* 说明：首页封面走 CSS background（而非 <img loading="lazy">），因为需要 background-size:cover
+     与 3:1 裁剪对齐。CSS 背景图无法延迟加载 —— 这是**有意的取舍**：每页仅 5 张卡片，
+     首屏收益可忽略；其余列表（ArticleCard / 归档 / 资讯 / 企业首页等 8 处）均已用 loading="lazy"。
+     若将来首页卡片数显著增加，再考虑改为 <img> + object-fit: cover。 */
 }
 
 .mo-home-page .article-card .body {

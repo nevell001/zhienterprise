@@ -69,15 +69,9 @@
     <div class="drawer-item">
       <span>界面主题</span>
       <span class="comp-style theme-select">
-        <el-select
-          :model-value="settingsStore.appTheme"
-          size="small"
-          style="width: 112px"
-          @change="appThemeChange"
-        >
-          <el-option label="默认主题" value="default" />
-          <el-option label="Mo-Blog" value="mo-blog" />
-        </el-select>
+        <!-- Mo-Blog 是当前唯一皮肤且恒为默认，原先的「默认主题 / Mo-Blog」二选一里
+             "Mo-Blog" 会被 normalizeAppTheme 静默归一为 default（选了没反应），故移除该无效选项 -->
+        <el-tag size="small" type="info">Mo-Blog（默认）</el-tag>
       </span>
     </div>
     <el-divider />
@@ -153,7 +147,7 @@ import { getCurrentInstance } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
-import { APP_THEME_STORAGE_KEY, handleThemeStyle, type AppTheme } from '@/utils/theme'
+import { APP_THEME_STORAGE_KEY, handleThemeStyle } from '@/utils/theme'
 
 const { proxy } = getCurrentInstance()
 const appStore = useAppStore()
@@ -195,10 +189,6 @@ function dynamicTitleChange() {
 function themeChange(val) {
   settingsStore.theme = val
   handleThemeStyle(val)
-}
-
-function appThemeChange(val: AppTheme) {
-  settingsStore.setAppTheme(val)
 }
 
 function handleTheme(val) {

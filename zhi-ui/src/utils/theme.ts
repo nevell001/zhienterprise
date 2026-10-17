@@ -1,6 +1,16 @@
 /**
- * 应用主题：Mo-Blog 主题已移除，仅保留默认主题。
- * 保留类型与函数签名以兼容既有调用（设置存储里的历史偏好经 normalize 归一为 default）。
+ * 应用主题：Mo-Blog 是当前唯一的皮肤，并作为默认值挂载。
+ *
+ * 背景（真实缺陷）：`theme-mo-blog` 类此前只被 remove、全仓库无处 add，导致
+ * `themes/mo-blog.scss` 里 **519 处**以 `.theme-mo-blog` / `html.dark.theme-mo-blog`
+ * 为前缀的规则**永不生效** —— 其中包含 `--el-*` 变量映射（主色、圆角、边框、文字色、
+ * 页底）、登录页暗色适配、文章详情页大量样式。表现为：
+ *   ① 站点设置 `theme_color` 种子值本就是 Mo-Blog 的 `#4f46e5`（`mo-blog.scss:30` 的
+ *      `--mo-p600`），说明这套外观才是设计意图，却因类未挂载而未被完整应用；
+ *   ② 布局漏底 —— `.theme-mo-blog .site-layout { background: var(--mo-n50) }` 不生效，
+ *      页面落到 body 默认白底（企业模板首屏白字压浅底即由此而来）。
+ *
+ * 现改为挂载该类。`AppTheme` 仍保留类型与存储键以兼容历史偏好读写。
  */
 export type AppTheme = 'default'
 
@@ -27,8 +37,8 @@ export function applyAppTheme(
   storage: Storage | undefined = localStorage
 ): void {
   const nextTheme = normalizeAppTheme(theme)
-  // Mo-Blog 已下线：无论存储的历史偏好是什么，都摘除其皮肤类
-  root.classList.remove(MO_BLOG_CLASS)
+  // Mo-Blog 是唯一皮肤，恒定挂载；下方 519 处规则依赖它生效
+  root.classList.add(MO_BLOG_CLASS)
 
   try {
     storage?.setItem(APP_THEME_STORAGE_KEY, nextTheme)

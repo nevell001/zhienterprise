@@ -45,24 +45,25 @@ describe('Settings Store 测试', () => {
       expect(store.theme).toBe('#FF0000')
     })
 
-    it('历史 mo-blog 偏好应归一化为 default（主题已移除）', () => {
+    it('历史 mo-blog 偏好应归一化为 default（Mo-Blog 为唯一皮肤）', () => {
       localStorage.setItem('app-theme', 'mo-blog')
       const store = useSettingsStore()
       expect(store.appTheme).toBe('default')
     })
 
-    it('布局设置中的历史 mo-blog 偏好同样归一化且不挂皮肤类', () => {
+    it('布局设置中的历史 mo-blog 偏好归一化为 default，但皮肤类仍挂载', () => {
       localStorage.setItem('layout-setting', JSON.stringify({ appTheme: 'mo-blog' }))
       const store = useSettingsStore()
       expect(store.appTheme).toBe('default')
-      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(false)
+      // Mo-Blog 是唯一皮肤，恒挂载（否则 mo-blog.scss 519 处规则失效）
+      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
     })
 
-    it('设置应用主题时历史值归一化为 default', () => {
+    it('设置应用主题时历史值归一化为 default，皮肤类仍挂载', () => {
       const store = useSettingsStore()
       store.setAppTheme('mo-blog')
       expect(store.appTheme).toBe('default')
-      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(false)
+      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
     })
 
     it('切换主题后应同步 layout-setting，刷新不再回退', () => {

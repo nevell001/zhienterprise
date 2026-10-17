@@ -65,10 +65,35 @@ const files = [
   ...collectVueFiles(resolve(__dirname, '../../components'))
 ].sort()
 
+/**
+ * 主题样式表（.scss）也必须纳入扫描 —— 此前只收集 .vue，导致 mo-blog.scss /
+ * theme-dark.css 里的同类违规「恰好命中正则却从未被扫描」：
+ * 实测 mo-blog.scss 有 2 处暗色下用 --mo-n900（背景色阶）作文字色。
+ */
+const themeScssFiles = ['themes/mo-blog.scss', 'themes/site-templates.scss', 'theme-dark.css']
+  .map(rel => resolve(__dirname, '../../assets/styles', rel))
+  .filter(f => {
+    try {
+      return statSync(f).isFile()
+    } catch {
+      return false
+    }
+  })
+
+const scanFiles = [...files, ...themeScssFiles]
+
+/**
+ * 装饰性图形例外：.footer-wave 是 SVG 波浪分隔条（fill="currentColor"），
+ * 其 color 是**填充色**而非文字色 —— 浅色下取 --mo-n50、暗色下取 --mo-n900，
+ * 正是为了让它与相邻区块底色衔接。给 SVG 图形设"背景色"是正确用法，不属违规。
+ */
+const DECORATIVE_SHAPE_SELECTORS = ['.footer-wave']
+
 const violations = (pattern: RegExp) =>
-  files.flatMap(file =>
+  scanFiles.flatMap(file =>
     parseRules(readFileSync(file, 'utf8'))
       .filter(rule => rule.selector.includes('html.dark') && pattern.test(rule.body))
+      .filter(rule => !DECORATIVE_SHAPE_SELECTORS.some(sel => rule.selector.includes(sel)))
       .map(rule => `${file.replace(`${siteRoot}/`, '')} → ${rule.selector.replace(/\s+/g, ' ')}`)
   )
 
@@ -131,6 +156,40 @@ const templatesScss = readFileSync(
 )
 const navFile = join(__dirname, '../../components/enterprise/EnterpriseNav.vue')
 
+/**
+ * 皮肤类挂载契约（跨文件检查，故为源码级）：
+ * `themes/mo-blog.scss` 有 500+ 处以 `.theme-mo-blog` / `html.dark.theme-mo-blog` 为前缀的规则
+ * （含 --el-* 变量映射、登录页暗色适配、文章详情页样式、`.site-layout` 页底）。
+ * 这些规则**只在 `<html>` 挂了该类时才生效** —— 一旦 `utils/theme.ts` 退回到"只 remove 不 add"，
+ * 全部规则静默失效（这正是此前企业模板首屏白字压浅底的成因）。
+ * 两端必须同时成立：CSS 里有规则 + JS 里有 add。
+ */
+describe('Mo-Blog 皮肤类挂载契约', () => {
+  const themeTs = readFileSync(join(__dirname, '../../utils/theme.ts'), 'utf8')
+
+  it('utils/theme.ts 必须 add MO_BLOG_CLASS（不能只 remove）', () => {
+    expect(
+      /classList\.add\(\s*MO_BLOG_CLASS\s*\)/.test(themeTs),
+      'theme.ts 必须挂载 .theme-mo-blog；只 remove 会让 mo-blog.scss 的数百条规则全部失效'
+    ).toBe(true)
+    expect(
+      /classList\.remove\(\s*MO_BLOG_CLASS\s*\)/.test(themeTs),
+      'theme.ts 不应再 remove .theme-mo-blog（该皮肤是唯一且默认的）'
+    ).toBe(false)
+  })
+
+  it('mo-blog.scss 中确实存在依赖该前缀的规则（说明挂载是必要的）', () => {
+    const moBlogScss = readFileSync(
+      join(__dirname, '../../assets/styles/themes/mo-blog.scss'),
+      'utf8'
+    )
+    const prefixed = parseRules(moBlogScss).filter(r => r.selector.includes('.theme-mo-blog'))
+    expect(prefixed.length, '未找到 .theme-mo-blog 前缀规则，皮肤类可能已无必要').toBeGreaterThan(
+      100
+    )
+  })
+})
+
 describe('模板层 --tpl-* 深浅模式约定', () => {
   it('site-templates.scss 必须为 html.dark 下的模板层重映射核心色阶', () => {
     const rule = parseRules(templatesScss).find(r => {
@@ -168,5 +227,31 @@ describe('模板层 --tpl-* 深浅模式约定', () => {
         .map(rule => `${file.replace(`${siteRoot}/`, '')} → ${rule.selector.replace(/\s+/g, ' ')}`)
     )
     expect(bad).toEqual([])
+  })
+
+  /**
+   * 回归守卫：--tpl-on-hero 必须随深浅模式取值。
+   * 企业模板的 .eh-hero 在亮色下没有深色底（浅底），此时若沿用基类的 #ffffff 反白，
+   * 导航文字与 Hero 同色（实测 1.04:1，整块不可见）；暗色下 Hero 才是深色面，需要白字。
+   * 此前 TPL_KEY_TOKENS 只锁 5 个 token、漏掉 --tpl-on-hero，所以该缺陷长期未被告警。
+   */
+  it('--tpl-on-hero 必须按深浅模式分别取值（亮色不得沿用白色反白）', () => {
+    const rules = parseRules(templatesScss)
+    const lightRule = rules.find(r =>
+      r.selector.split(',').some(s => /^html:not\(\.dark\)\s*\.tpl-site$/.test(s.trim()))
+    )
+    expect(
+      lightRule,
+      '缺少亮色覆盖块：须用 html:not(.dark) .tpl-site 把 --tpl-on-hero 改为深墨，否则亮色下导航白字压浅底不可见'
+    ).toBeTruthy()
+    expect(lightRule?.body, '--tpl-on-hero 在亮色下必须取深色文字令牌（而非白色）').toContain(
+      '--tpl-on-hero: var(--tpl-ink-900)'
+    )
+
+    // 暗色侧：基类仍为白色，且深色重映射块不得把 --tpl-on-hero 改成深色
+    const baseRule = rules.find(r => r.selector.split(',').some(s => s.trim() === '.tpl-site'))
+    expect(baseRule?.body, '基类 --tpl-on-hero 应为 #ffffff，供暗色模式使用').toContain(
+      '--tpl-on-hero: #ffffff'
+    )
   })
 })

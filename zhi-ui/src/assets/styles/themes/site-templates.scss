@@ -25,8 +25,11 @@
   --tpl-dark: #0b0f19;
   --tpl-dark-2: #141b2a;
   --tpl-dark-dim: #9ca3af;
-  /* 透明导航（over-hero）浮于深色 Hero 之上的文字色：独立令牌，
-     禁止直接用 --tpl-white（深浅模式约定见 dark-mode-tokens 测试） */
+  /* 透明导航（over-hero）浮于 Hero 之上的文字色：独立令牌，
+     禁止直接用 --tpl-white（深浅模式约定见 dark-mode-tokens 测试）。
+     ⚠️ 该令牌必须随深浅模式取值：企业模板的 .eh-hero 在亮色下是**浅底**
+     （见下方 html:not(.dark) 覆盖），此时反白会让导航与 Hero 同色（实测 1.04:1，整块不可见）。
+     亮色用深墨（--tpl-ink-900），暗色才用白。 */
   --tpl-on-hero: #ffffff;
   --tpl-grid: 1280px;
   --tpl-r-sm: 6px;
@@ -36,6 +39,14 @@
   --tpl-sh-sm: 0 1px 2px rgba(11, 15, 25, 0.06), 0 1px 3px rgba(11, 15, 25, 0.04);
   --tpl-sh-md: 0 8px 24px rgba(11, 15, 25, 0.1), 0 2px 6px rgba(11, 15, 25, 0.04);
   --tpl-serif: inherit;
+}
+
+/* 亮色模式下 Hero 是浅底，透明导航不能再反白 —— 用深墨保证对比度。
+   暗色模式不覆盖此令牌，保持基类 #ffffff（深底 + 白字）。
+   选择器需同时覆盖 <html> 与页面根容器，理由同下方深色重映射块。 */
+html:not(.dark) .tpl-site,
+html:not(.dark).tpl-site {
+  --tpl-on-hero: var(--tpl-ink-900);
 }
 
 /* ---------- 1. 管理咨询：指针罗盘 · 方向与决断 ---------- */

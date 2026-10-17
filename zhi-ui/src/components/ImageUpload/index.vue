@@ -38,7 +38,11 @@
     </div>
 
     <el-dialog v-model="dialogVisible" title="预览" width="800px" append-to-body>
-      <img :src="dialogImageUrl" style="display: block; max-width: 100%; margin: 0 auto" />
+      <img
+        :src="dialogImageUrl"
+        alt="图片预览"
+        style="display: block; max-width: 100%; margin: 0 auto"
+      />
     </el-dialog>
 
     <!-- 裁剪弹窗（crop 开启时生效） -->
@@ -71,7 +75,7 @@
         <el-col :xs="24" :md="8" :style="{ height: '380px' }" class="crop-preview-col">
           <div class="crop-preview-box" :style="previewBoxOuterStyle">
             <div :style="previewBoxInnerStyle">
-              <img :src="previews.url" :style="previews.img" />
+              <img :src="previews.url" :style="previews.img" alt="裁剪预览" />
             </div>
           </div>
         </el-col>

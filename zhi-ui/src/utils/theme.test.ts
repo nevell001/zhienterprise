@@ -207,26 +207,41 @@ describe('theme 工具测试', () => {
       expect(normalizeAppTheme(undefined)).toBe('default')
     })
 
-    it('申请 mo-blog 也保持 default 且不挂皮肤类（主题已下线）', () => {
+    /**
+     * 回归守卫：`.theme-mo-blog` 必须**被挂载**。
+     * 此前它只被 remove、全仓库无处 add，导致 mo-blog.scss 里 519 处以它为前缀的规则
+     * （--el-* 变量映射、登录页暗色适配、文章页样式、.site-layout 页底）永不生效。
+     */
+    it('必须挂载 theme-mo-blog 皮肤类（否则 519 处规则全部失效）', () => {
+      const root = createRootStub()
+      const storage = window.localStorage
+      storage.clear()
+
+      applyAppTheme('default', root, storage)
+
+      expect(root.classList.contains('theme-mo-blog')).toBe(true)
+      expect(storage.getItem(APP_THEME_STORAGE_KEY)).toBe('default')
+    })
+
+    it('历史 mo-blog 偏好归一为 default，但皮肤类仍然挂载', () => {
       const root = createRootStub()
       const storage = window.localStorage
       storage.clear()
 
       applyAppTheme('mo-blog', root, storage)
 
-      expect(root.classList.contains('theme-mo-blog')).toBe(false)
+      expect(root.classList.contains('theme-mo-blog')).toBe(true)
       expect(storage.getItem(APP_THEME_STORAGE_KEY)).toBe('default')
     })
 
-    it('应该切回 default 并移除 mo-blog class', () => {
+    it('重复调用不发生类名漂移（幂等）', () => {
       const root = createRootStub()
-      root.classList.add('theme-mo-blog')
       const storage = window.localStorage
 
       applyAppTheme('default', root, storage)
+      applyAppTheme('default', root, storage)
 
-      expect(root.classList.contains('theme-mo-blog')).toBe(false)
-      expect(storage.getItem(APP_THEME_STORAGE_KEY)).toBe('default')
+      expect(root.classList.contains('theme-mo-blog')).toBe(true)
     })
   })
 })
