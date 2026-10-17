@@ -86,12 +86,6 @@ export const siteRoutes: RouteRecordRaw[] = [
     meta: { title: '友链申请' }
   },
   {
-    path: '/archive',
-    component: () => import('@/views/site/archive/index.vue'),
-    name: 'PublicSiteArchive',
-    meta: { title: '文章归档' }
-  },
-  {
     path: '/about',
     component: () => import('@/views/site/about.vue'),
     name: 'PublicAbout',

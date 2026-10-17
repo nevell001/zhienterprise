@@ -185,7 +185,6 @@
             <router-link v-if="isCustomHomePage" to="/news">文章</router-link>
             <router-link v-if="isCategoryNavEnabled" to="/category">分类</router-link>
             <router-link v-if="isTagNavEnabled" to="/tag">标签</router-link>
-            <router-link v-if="isArchiveNavEnabled" to="/archive">归档</router-link>
             <router-link to="/about">关于</router-link>
             <router-link v-if="isFriendLinkApplyEnabled" to="/friend-links/apply">
               友链申请
@@ -413,7 +412,7 @@ const isBeianEnabled = computed(() => siteSettingsStore.isFeatureEnabled('beian_
 const isGuestbookEnabled = computed(() => siteSettingsStore.isFeatureEnabled('guestbook_enabled'))
 
 // 企业官网模式：home_page_slug 非空时首页被自定义页面接管，文章列表迁到 /news，
-// 导航补「文章」入口；分类/标签/归档三个入口由下方开关控制（裁剪导航用）
+// 导航补「文章」入口；分类/标签两个入口由下方开关控制（裁剪导航用）
 const isCustomHomePage = computed(() =>
   hasCustomHomePage(siteSettingsStore.siteSettings.home_page_slug)
 )
@@ -421,9 +420,6 @@ const isCategoryNavEnabled = computed(() =>
   siteSettingsStore.isFeatureEnabled('nav_category_enabled')
 )
 const isTagNavEnabled = computed(() => siteSettingsStore.isFeatureEnabled('nav_tag_enabled'))
-const isArchiveNavEnabled = computed(() =>
-  siteSettingsStore.isFeatureEnabled('nav_archive_enabled')
-)
 // 企业官网模板模式（home_layout=business）：导航补「核心业务」入口，名称可配
 const isBusinessNavEnabled = computed(
   () => String(siteSettingsStore.siteSettings.home_layout || '') === 'business'
@@ -443,7 +439,6 @@ const menus = computed(() =>
     guestbookEnabled: isGuestbookEnabled.value,
     categoryEnabled: isCategoryNavEnabled.value,
     tagEnabled: isTagNavEnabled.value,
-    archiveEnabled: isArchiveNavEnabled.value,
     businessEnabled: isBusinessNavEnabled.value,
     businessLabel: businessNavLabel.value,
     contactEnabled: isBusinessNavEnabled.value,

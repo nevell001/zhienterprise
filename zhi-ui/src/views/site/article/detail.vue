@@ -89,16 +89,6 @@
 
             <div class="article-actions">
               <el-button
-                v-if="isFeatureEnabled('like_enabled')"
-                :loading="likeLoading"
-                :type="article.isLiked ? 'success' : 'primary'"
-                plain
-                @click="handleLike"
-              >
-                👍 点赞 {{ article.likeCount || 0 }}
-              </el-button>
-              <ShareButton v-if="isFeatureEnabled('share_enabled')" :article="article" />
-              <el-button
                 :type="article.isBookmarked ? 'warning' : 'default'"
                 plain
                 @click="handleBookmark"
@@ -316,16 +306,10 @@ import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import SiteLayout from '@/components/SiteLayout.vue'
 import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
-import ShareButton from '@/components/ShareButton.vue'
 import SitePager from '@/components/SitePager.vue'
 import { DocumentCopy } from '@element-plus/icons-vue'
 import { getArticleDetail, getRelatedArticles } from '@/api/site/article'
-import {
-  getArticleLikeStatus,
-  toggleArticleLike,
-  toggleCommentLike,
-  getCommentLikedStatuses
-} from '@/api/site/like'
+import { toggleCommentLike, getCommentLikedStatuses } from '@/api/site/like'
 import { toggleBookmark } from '@/api/site/bookmark'
 
 import {
@@ -380,7 +364,6 @@ const commentPage = ref(1)
 const commentSort = ref<'newest' | 'oldest'>('newest')
 const COMMENT_PAGE_SIZE = 10
 const loading = ref(false)
-const likeLoading = ref(false)
 const commentSubmitting = ref(false)
 const isLoggedIn = ref(false)
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
@@ -533,9 +516,6 @@ const loadArticleDetail = async () => {
       // 获取评论列表
       await loadComments()
 
-      // 登录用户：回显文章点赞状态
-      fetchArticleLikeStatus()
-
       // 应用文章级 SEO（TDK 优先用文章级字段，回退标题/摘要）
       const siteName = (siteSettings.value as any)?.blog_name || '知企建站系统'
       applySeo({
@@ -681,53 +661,6 @@ const handleCommentPageChange = async (page: number) => {
   const section = document.querySelector('.comment-section')
   if (section) {
     section.scrollIntoView({ behavior: 'smooth' })
-  }
-}
-
-// 查询文章点赞状态（登录后回显）
-const fetchArticleLikeStatus = async () => {
-  if (!isLoggedIn.value || !article.value) return
-  try {
-    const response = await getArticleLikeStatus(article.value.id)
-    const data = response?.data
-    if (data) {
-      article.value.isLiked = !!data.liked
-      if (typeof data.likeCount === 'number') {
-        article.value.likeCount = data.likeCount
-      }
-    }
-  } catch {
-    // 点赞态回显失败不影响文章展示
-  }
-}
-
-// 点赞文章
-const handleLike = async () => {
-  if (likeLoading.value) return
-
-  try {
-    if (!isLoggedIn.value) {
-      ElMessage.info('请先登录后再进行点赞')
-      router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
-      return
-    }
-    likeLoading.value = true
-
-    // 调用点赞API（支持取消，返回最新状态）
-    const response = await toggleArticleLike(article.value.id)
-    const data = response?.data || {}
-    const liked = !!data.liked
-    article.value.isLiked = liked
-    if (typeof data.likeCount === 'number') {
-      article.value.likeCount = data.likeCount
-    }
-
-    ElMessage.success(liked ? '点赞成功' : '已取消点赞')
-  } catch (error: any) {
-    logger.error('点赞失败:', error)
-    ElMessage.error('操作失败')
-  } finally {
-    likeLoading.value = false
   }
 }
 

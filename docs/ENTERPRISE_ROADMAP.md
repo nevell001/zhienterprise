@@ -213,3 +213,21 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
   「改导航文案 → 建核心业务条目 → 首页出现业务区块 → 发布一条公司动态」的完整闭环；
 - 每阶段保持：`mvn clean install -DskipTests` 通过、`npm run test` 通过、
   `sql/00_init_database.sql` 在全新库与已有库重跑均幂等。
+
+## 五、博客功能下线（2026-10-17）
+
+按「全面转向企业官网」的口径，移除一批博客专属配置（均从设置页、store、`FrontConfigKeys`
+前台白名单、`FrontSettingController` 默认值、SQL 种子五处同步删除，避免键集合漂移）：
+
+| 项目 | 处理 | 说明 |
+| --- | --- | --- |
+| 评论 | **默认关闭**（`comment_enabled=false`） | 保留开关与后台「评论管理」：企业站极少需要评论，但保留可逆性；前台评论区与 `POST /api/comment` 同时失效 |
+| 点赞 / 分享 | 移除 | `like_enabled` / `share_enabled` + 文章详情页点赞、分享按钮（后端点赞接口保留，评论点赞仍被评论区使用） |
+| 右侧栏 | 移除 | `sidebar_enabled` + 文章列表/分类/标签页的三处侧栏渲染与样式 |
+| 归档 | 移除 | `/archive` 页面与路由、`nav_archive_enabled`、导航/页脚「归档」入口 |
+| 站长/社交死键 | 移除 | `blog_author`、`blog_signature`、`author_description`、`zhihu_url` 等无消费方键（页脚版权署名改为只取站点名称） |
+
+**保留项**：分类与标签（核心业务列表用分类做 Tab 筛选、文章用标签）；搜索、留言板、
+友链、浏览量统计（企业站同样需要）。**已有库注意**：种子只做 `INSERT IGNORE`，不会清理
+存量键行 —— 功能层面无害（白名单已不含这些键），如需彻底清理按 `sql/README.md` 的
+`99_fix_*.sql` 约定处理。

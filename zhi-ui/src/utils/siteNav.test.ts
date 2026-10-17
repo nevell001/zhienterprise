@@ -137,24 +137,22 @@ describe('buildNavMenus', () => {
     guestbookEnabled: false,
     categoryEnabled: true,
     tagEnabled: true,
-    archiveEnabled: true,
     businessEnabled: false,
     contactEnabled: false
   }
 
-  it('博客模式（首页未接管）保持 首页/分类/标签/归档，不出现「文章」', () => {
+  it('博客模式（首页未接管）保持 首页/分类/标签，不出现「文章」', () => {
     const menus = buildNavMenus(siteMode)
     expect(menus).toEqual([
       { name: '首页', path: '/' },
       { name: '分类', path: '/category' },
-      { name: '标签', path: '/tag' },
-      { name: '归档', path: '/archive' }
+      { name: '标签', path: '/tag' }
     ])
   })
 
   it('官网模式（首页被接管）紧跟首页补「文章」入口指向 /news', () => {
     const menus = buildNavMenus({ ...siteMode, customHomePage: true })
-    expect(paths(menus)).toEqual(['/', '/news', '/category', '/tag', '/archive'])
+    expect(paths(menus)).toEqual(['/', '/news', '/category', '/tag'])
   })
 
   it('导航开关关闭时对应入口被裁剪', () => {
@@ -162,8 +160,7 @@ describe('buildNavMenus', () => {
       ...siteMode,
       customHomePage: true,
       categoryEnabled: false,
-      tagEnabled: false,
-      archiveEnabled: false
+      tagEnabled: false
     })
     expect(menus).toEqual([
       { name: '首页', path: '/' },
@@ -171,20 +168,13 @@ describe('buildNavMenus', () => {
     ])
   })
 
-  it('留言板开启时插入在自定义页面前、归档后', () => {
+  it('留言板开启时插入在自定义页面前、标签后', () => {
     const menus = buildNavMenus({
       ...siteMode,
       guestbookEnabled: true,
       pages: [{ title: '关于我们', slug: 'about', showInNav: '1' }]
     })
-    expect(paths(menus)).toEqual([
-      '/',
-      '/category',
-      '/tag',
-      '/archive',
-      '/guestbook',
-      '/page/about'
-    ])
+    expect(paths(menus)).toEqual(['/', '/category', '/tag', '/guestbook', '/page/about'])
   })
 
   it('企业官网模板模式下出现「核心业务」入口，名称取 business_label', () => {
@@ -195,12 +185,12 @@ describe('buildNavMenus', () => {
 
   it('businessLabel 缺省时回退「核心业务」，且排在文章入口之后、分类之前', () => {
     const menus = buildNavMenus({ ...siteMode, customHomePage: true, businessEnabled: true })
-    expect(paths(menus)).toEqual(['/', '/news', '/business', '/category', '/tag', '/archive'])
+    expect(paths(menus)).toEqual(['/', '/news', '/business', '/category', '/tag'])
   })
 
   it('企业模板模式下核心业务之后跟「联系我们」', () => {
     const menus = buildNavMenus({ ...siteMode, businessEnabled: true, contactEnabled: true })
-    expect(paths(menus)).toEqual(['/', '/business', '/contact', '/category', '/tag', '/archive'])
+    expect(paths(menus)).toEqual(['/', '/business', '/contact', '/category', '/tag'])
   })
 
   it('只有 show_in_nav=1 且 slug 非空的页面进入导航，标题缺失时回退 slug', () => {

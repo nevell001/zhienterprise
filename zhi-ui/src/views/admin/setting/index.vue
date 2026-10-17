@@ -828,15 +828,17 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
     desc: '读者与内容的互动能力',
     icon: ChatDotRound,
     items: [
-      { key: 'comment_enabled', label: '评论功能', desc: '允许访客在文章下方发表评论' },
+      {
+        key: 'comment_enabled',
+        label: '评论功能',
+        desc: '允许访客在文章下方发表评论（企业官网默认关闭）'
+      },
       {
         key: 'comment_review',
         label: '评论审核',
         desc: '新评论需要管理员审核后才能显示',
         dependsOn: 'comment_enabled'
       },
-      { key: 'like_enabled', label: '点赞功能', desc: '允许访客为文章点赞' },
-      { key: 'share_enabled', label: '分享功能', desc: '允许访客分享文章到社交媒体' },
       {
         key: 'guestbook_enabled',
         label: '留言板',
@@ -871,11 +873,6 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
     desc: '前台页面的结构展示',
     icon: Grid,
     items: [
-      {
-        key: 'sidebar_enabled',
-        label: '显示侧边栏',
-        desc: '在文章列表（/news）、分类、标签页显示右侧栏；企业官网首页模板本身没有侧边栏'
-      },
       { key: 'footer_enabled', label: '显示底部', desc: '在站点页面底部显示页脚信息' },
       { key: 'copyright_enabled', label: '显示版权', desc: '在底部显示版权信息' },
       {
@@ -892,11 +889,6 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
         key: 'nav_tag_enabled',
         label: '导航显示标签',
         desc: '关闭后前台导航与页脚隐藏「标签」入口'
-      },
-      {
-        key: 'nav_archive_enabled',
-        label: '导航显示归档',
-        desc: '关闭后前台导航与页脚隐藏「归档」入口'
       }
     ]
   },
@@ -939,12 +931,8 @@ function isFeatureDisabled(item: FeatureItem): boolean {
 /** 企业官网模式（与 SiteLayout 的 isBusinessNavEnabled 同口径）：导航/页脚改由「导航管理」表驱动 */
 const isEnterpriseMode = computed(() => String(settingsMap.value.home_layout || '') === 'business')
 
-/** 这三个开关只被经典模式的 buildNavMenus / 经典页脚消费，企业模式下完全不参与 */
-const ENTERPRISE_INERT_KEYS = new Set([
-  'nav_category_enabled',
-  'nav_tag_enabled',
-  'nav_archive_enabled'
-])
+/** 这两个开关只被经典模式的 buildNavMenus / 经典页脚消费，企业模式下完全不参与 */
+const ENTERPRISE_INERT_KEYS = new Set(['nav_category_enabled', 'nav_tag_enabled'])
 
 /** 企业模式下隐藏失效开关，避免出现「关了分类，前台导航纹丝不动」的假编辑 */
 const visibleFeatureGroups = computed(() =>
@@ -994,20 +982,16 @@ const defaultSettings: Record<string, any> = {
   // 主题
   theme_color: '#4f46e5',
   // 功能开关
-  comment_enabled: true,
+  comment_enabled: false,
   comment_review: true,
-  like_enabled: true,
   guestbook_enabled: false,
   view_count_enabled: true,
-  share_enabled: true,
   search_enabled: true,
-  sidebar_enabled: true,
   footer_enabled: true,
   copyright_enabled: true,
   beian_enabled: false,
   nav_category_enabled: true,
   nav_tag_enabled: true,
-  nav_archive_enabled: true,
   friend_link_enabled: true,
   friend_link_apply_enabled: false,
   email_notify_enabled: true,
@@ -1054,18 +1038,14 @@ const managedKeys = [
   'theme_color',
   'comment_enabled',
   'comment_review',
-  'like_enabled',
   'guestbook_enabled',
   'view_count_enabled',
-  'share_enabled',
   'search_enabled',
-  'sidebar_enabled',
   'footer_enabled',
   'copyright_enabled',
   'beian_enabled',
   'nav_category_enabled',
   'nav_tag_enabled',
-  'nav_archive_enabled',
   'friend_link_enabled',
   'friend_link_apply_enabled',
   'email_notify_enabled',

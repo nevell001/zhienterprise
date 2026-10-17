@@ -73,13 +73,6 @@ describe('Site Routes 详细测试', () => {
     expect(route?.meta?.title).toBe('友链申请')
   })
 
-  it('归档路由应该有正确的路径和组件', () => {
-    const route = siteRoutes.find(r => r.path === '/archive')
-    expect(route?.path).toBe('/archive')
-    expect(route?.name).toBe('PublicSiteArchive')
-    expect(route?.meta?.title).toBe('文章归档')
-  })
-
   it('关于页面路由应该有正确的路径和组件', () => {
     const route = siteRoutes.find(r => r.path === '/about')
     expect(route?.path).toBe('/about')
@@ -157,8 +150,8 @@ describe('Site Routes 详细测试', () => {
     expect(detail?.meta?.title).toBe('方案详情')
   })
 
-  it('路由总数应该为 25 个', () => {
-    expect(siteRoutes.length).toBe(25)
+  it('路由总数应该为 24 个', () => {
+    expect(siteRoutes.length).toBe(24)
   })
 
   it('不再存在任何 /blog 前缀的页面路由（短路径为唯一规范）', () => {

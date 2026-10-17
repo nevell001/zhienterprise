@@ -897,7 +897,7 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 
 -- ========== 初始化站点系统数据 ==========
 
--- 初始化完整的站点设置数据（43项配置）
+-- 初始化完整的站点设置数据（37项配置）
 INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '知企建站系统', '站点名称', NOW(), NOW()),
@@ -917,30 +917,24 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('blog_start_time', '2025-01-01', '站点创建时间', NOW(), NOW()),
 
 -- 社交媒体设置
-('author_description', '这个人很懒，什么都没留下', '站长描述', NOW(), NOW()),
-('zhihu_url', '', '知乎链接', NOW(), NOW()),
 
 -- 功能开关设置
 ('footer_enabled', 'true', '是否显示底部', NOW(), NOW()),
 ('beian_enabled', 'false', '是否显示页脚ICP备案信息（内容取 blog_beian，非空才显示）', NOW(), NOW()),
 ('copyright_enabled', 'true', '是否显示版权信息', NOW(), NOW()),
-('comment_enabled', 'true', '是否开启评论功能', NOW(), NOW()),
+('comment_enabled', 'false', '是否开启评论功能（企业官网默认关闭）', NOW(), NOW()),
 ('comment_review', 'true', '评论是否需要审核', NOW(), NOW()),
 ('friend_link_enabled', 'true', '前台是否展示友情链接', NOW(), NOW()),
 ('friend_link_apply_enabled', 'false', '前台是否展示友链申请入口（关闭后申请页提示关闭且接口拒绝提交）', NOW(), NOW()),
-('like_enabled', 'true', '是否开启点赞功能', NOW(), NOW()),
 ('guestbook_enabled', 'false', '前台是否展示留言板（关闭后导航隐藏入口、页面提示关闭、留言接口拒绝提交）', NOW(), NOW()),
 ('view_count_enabled', 'true', '是否开启浏览统计', NOW(), NOW()),
-('share_enabled', 'true', '是否开启分享功能', NOW(), NOW()),
 ('search_enabled', 'true', '是否开启搜索功能', NOW(), NOW()),
-('sidebar_enabled', 'true', '是否显示侧边栏', NOW(), NOW()),
 
 -- 企业官网模式：首页显示指定自定义页面（填 slug），留空则首页显示文章列表
 ('home_page_slug', '', '首页显示的自定义页面 slug（留空则首页显示文章列表）', NOW(), NOW()),
--- 顶部导航裁剪（面向企业官网时不展示分类/标签/归档）
+-- 顶部导航裁剪（面向企业官网时可隐藏分类/标签入口；归档入口已随博客功能移除）
 ('nav_category_enabled', 'true', '导航是否显示分类入口', NOW(), NOW()),
 ('nav_tag_enabled', 'true', '导航是否显示标签入口', NOW(), NOW()),
-('nav_archive_enabled', 'true', '导航是否显示归档入口', NOW(), NOW()),
 
 -- 界面样式设置
 ('theme_color', '#4f46e5', '主题颜色', NOW(), NOW()),
@@ -2430,7 +2424,7 @@ ORDER BY config_key;
 SELECT '🛠️  常见问题：' AS trouble_title;
 SELECT 'Q: 忘记密码怎么办？' AS q1, 'A: 删除sys_user表中admin记录，重新运行脚本' AS a1;
 SELECT 'Q: 前端页面空白？' AS q2, 'A: 检查API接口地址是否正确，端口是否被占用' AS a2;
-SELECT 'Q: 评论功能不工作？' AS q3, 'A: 检查comment_enabled设置是否为true' AS a3;
+SELECT 'Q: 评论功能不工作？' AS q3, 'A: 企业官网模式默认关闭评论；如需开启，在后台「功能设置」把评论功能打开（comment_enabled=true）' AS a3;
 SELECT 'Q: 图片上传失败？' AS q4, 'A: 检查文件路径权限和磁盘空间' AS a4;
 SELECT 'Q: 分类文章数量不准确？' AS q5, 'A: 执行 CALL sp_fix_category_article_count(); 修复' AS a5;
 SELECT 'Q: 文章阅读数不增加？' AS q6, 'A: 1. BlogArticleMapper.xml使用IFNULL处理NULL; 2. 确保view_count默认值为0; 3. 执行UPDATE修复现有数据; 4. 重启后端服务' AS a6;

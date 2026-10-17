@@ -36,7 +36,6 @@ const whiteList = [
   '/author/*',
   '/page/*',
   '/friend-links/apply',
-  '/archive',
   '/guestbook',
   '/search',
   '/bookmarks',

@@ -19,11 +19,11 @@ describe('SiteSettings Store 测试', () => {
   })
 
   describe('初始状态', () => {
-    it('应该有默认的博客设置', () => {
+    it('应该有默认的站点设置', () => {
       const store = useSiteSettingsStore()
       expect(store.siteSettings.blog_name).toBe('知企建站系统')
-      expect(store.siteSettings.comment_enabled).toBe(true)
-      expect(store.siteSettings.sidebar_enabled).toBe(true)
+      // 企业官网定位：评论默认关闭（与 SQL 种子一致）
+      expect(store.siteSettings.comment_enabled).toBe(false)
     })
 
     it('lastUpdate 应该初始化为 0', () => {
@@ -72,8 +72,9 @@ describe('SiteSettings Store 测试', () => {
   describe('isFeatureEnabled getter', () => {
     it('应该正确判断功能是否启用', () => {
       const store = useSiteSettingsStore()
-      expect(store.isFeatureEnabled('comment_enabled')).toBe(true)
-      expect(store.isFeatureEnabled('sidebar_enabled')).toBe(true)
+      // 评论默认关闭（企业官网定位），搜索默认开启
+      expect(store.isFeatureEnabled('comment_enabled')).toBe(false)
+      expect(store.isFeatureEnabled('search_enabled')).toBe(true)
     })
 
     it('当功能被禁用时应该返回 false', () => {
@@ -129,34 +130,24 @@ describe('SiteSettings Store 测试', () => {
   })
 
   describe('setSiteSettings action', () => {
-    it('应该设置完整的博客设置', () => {
+    it('应该设置完整的站点设置', () => {
       const store = useSiteSettingsStore()
       const newSettings = {
-        blog_name: '新博客',
+        blog_name: '新站点',
         blog_desc: '新描述',
-        blog_author: '新作者',
         blog_email: 'test@example.com',
         blog_avatar: null,
         blog_copyright: '版权',
         blog_beian: '备案',
         comment_enabled: false,
         comment_review: false,
-        like_enabled: false,
         view_count_enabled: false,
-        share_enabled: false,
         search_enabled: false,
-        sidebar_enabled: false,
         footer_enabled: false,
         copyright_enabled: false,
         beian_enabled: false,
         friend_link_apply_enabled: false,
-        guestbook_enabled: false,
-        author_title: '标题',
-        author_bio: '简介',
-        github_url: 'https://github.com',
-        weibo_url: 'https://weibo.com',
-        author_location: '北京',
-        personal_website: 'https://example.com'
+        guestbook_enabled: false
       }
       store.setSiteSettings(newSettings)
       expect(store.siteSettings).toEqual(newSettings)
@@ -214,11 +205,8 @@ describe('SiteSettings Store 测试', () => {
       const features = [
         'comment_enabled',
         'comment_review',
-        'like_enabled',
         'view_count_enabled',
-        'share_enabled',
         'search_enabled',
-        'sidebar_enabled',
         'footer_enabled',
         'copyright_enabled',
         'beian_enabled',
@@ -235,13 +223,11 @@ describe('SiteSettings Store 测试', () => {
       const store = useSiteSettingsStore()
       store.updateSiteSettings({
         comment_enabled: false,
-        like_enabled: false,
-        sidebar_enabled: false
+        search_enabled: false
       })
 
       expect(store.siteSettings.comment_enabled).toBe(false)
-      expect(store.siteSettings.like_enabled).toBe(false)
-      expect(store.siteSettings.sidebar_enabled).toBe(false)
+      expect(store.siteSettings.search_enabled).toBe(false)
     })
   })
 
@@ -274,12 +260,12 @@ describe('SiteSettings Store 测试', () => {
     const store = useSiteSettingsStore()
     store.setSiteSettings({
       comment_enabled: 'FALSE',
-      like_enabled: ' 0 ',
+      view_count_enabled: ' 0 ',
       search_enabled: undefined
     } as any)
 
     expect(store.isFeatureEnabled('comment_enabled')).toBe(false)
-    expect(store.isFeatureEnabled('like_enabled')).toBe(false)
+    expect(store.isFeatureEnabled('view_count_enabled')).toBe(false)
     expect(store.isFeatureEnabled('search_enabled')).toBe(true)
     expect(store.isFeatureEnabled('nothing_configured')).toBe(true)
   })

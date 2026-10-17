@@ -10,11 +10,8 @@ interface SiteSettingsState {
   blog_beian: string
   comment_enabled: boolean
   comment_review: boolean
-  like_enabled: boolean
   view_count_enabled: boolean
-  share_enabled: boolean
   search_enabled: boolean
-  sidebar_enabled: boolean
   footer_enabled: boolean
   copyright_enabled: boolean
   beian_enabled: boolean
@@ -23,7 +20,6 @@ interface SiteSettingsState {
   home_page_slug: string
   nav_category_enabled: boolean
   nav_tag_enabled: boolean
-  nav_archive_enabled: boolean
   home_layout: string
   business_label: string
   contact_phone: string
@@ -59,13 +55,11 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       blog_beian: '',
 
       // 功能设置
-      comment_enabled: true,
+      // 企业官网定位：评论默认关闭（与 SQL 种子 / 后台默认一致）
+      comment_enabled: false,
       comment_review: true,
-      like_enabled: true,
       view_count_enabled: true,
-      share_enabled: true,
       search_enabled: true,
-      sidebar_enabled: true,
       footer_enabled: true,
       copyright_enabled: true,
       beian_enabled: false,
@@ -76,7 +70,6 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       home_page_slug: '',
       nav_category_enabled: true,
       nav_tag_enabled: true,
-      nav_archive_enabled: true,
       home_layout: 'business',
       business_label: '核心业务',
       contact_phone: '',

@@ -128,60 +128,6 @@
             </button>
           </div>
         </section>
-
-        <aside v-if="isSidebarEnabled">
-          <div class="sidebar-widget">
-            <div class="widget-title">分类导航</div>
-            <div class="cat-list">
-              <router-link :to="listHomePath" class="cat-item active">
-                全部文章
-                <span class="count">{{ total }}</span>
-              </router-link>
-              <router-link
-                v-for="category in categories"
-                :key="category.id"
-                :to="`/category/${category.alias || category.id}`"
-                class="cat-item"
-              >
-                {{ category.name }}
-                <span class="count">{{ category.articleCount || category.count || 0 }}</span>
-              </router-link>
-            </div>
-          </div>
-
-          <div class="sidebar-widget">
-            <div class="widget-title">热门标签</div>
-            <div class="tag-cloud">
-              <router-link
-                v-for="(tag, index) in tags"
-                :key="tag.id || tag.name"
-                :to="`/tag/${tag.id}`"
-                class="tc"
-                :class="{ lg: index % 5 === 0, md: index % 3 === 0 }"
-              >
-                {{ tag.name }}
-              </router-link>
-            </div>
-          </div>
-
-          <div class="sidebar-widget">
-            <div class="widget-title">热门文章</div>
-            <div
-              v-for="(article, index) in popularArticles.slice(0, 5)"
-              :key="article.id"
-              class="hot-item"
-              @click="goToArticle(article.id)"
-            >
-              <span class="rank" :class="{ top: index < 3 }">{{ index + 1 }}</span>
-              <div>
-                <div class="htitle">{{ article.title }}</div>
-                <div class="hmeta">
-                  👁 {{ article.viewCount || 0 }} · 💬 {{ article.commentCount || 0 }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
       </main>
     </div>
   </SiteLayout>
@@ -226,9 +172,7 @@ const pageItems = computed<(number | '…')[]>(() =>
   buildPageItems(totalPages.value, currentPage.value)
 )
 
-// 前台功能开关统一走 store 判定（search_enabled / sidebar_enabled 默认开启）
 const isSearchEnabled = computed(() => siteSettingsStore.isFeatureEnabled('search_enabled'))
-const isSidebarEnabled = computed(() => siteSettingsStore.isFeatureEnabled('sidebar_enabled'))
 
 // —— 企业官网模式：home_page_slug 非空时本页渲染自定义页面，文章列表挪到 /news ——
 const settingsReady = ref(siteSettingsStore.lastUpdate > 0)
@@ -578,14 +522,6 @@ onMounted(async () => {
   color: var(--mo-n500);
 }
 
-.mo-home-page .sidebar-widget {
-  margin-bottom: 18px;
-  padding: var(--mo-sp-5);
-  border: 1px solid var(--mo-n200);
-  border-radius: var(--mo-r-lg);
-  background: #fff;
-}
-
 .mo-home-page .widget-title {
   display: flex;
   align-items: center;
@@ -608,33 +544,6 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: var(--mo-sp-1);
-}
-
-.mo-home-page .cat-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--mo-sp-2) var(--mo-sp-3);
-  border-radius: var(--mo-r-md);
-  color: var(--mo-n600);
-  font-size: 13px;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.mo-home-page .cat-item:hover,
-.mo-home-page .cat-item.active {
-  background: var(--mo-p50);
-  color: var(--mo-p700);
-  font-weight: 500;
-}
-
-.mo-home-page .cat-item .count {
-  padding: 2px 8px;
-  border-radius: var(--mo-r-full);
-  background: var(--mo-n100);
-  color: var(--mo-n600);
-  font-size: 11px;
 }
 
 .mo-home-page .tag-cloud {
@@ -900,28 +809,8 @@ html.dark .mo-home-page .article-card .meta .author {
   color: var(--mo-n400);
 }
 
-html.dark .mo-home-page .sidebar-widget {
-  background: var(--mo-n800);
-  border-color: var(--mo-n700);
-}
-
 html.dark .mo-home-page .widget-title {
   color: var(--mo-n100);
-}
-
-html.dark .mo-home-page .cat-item {
-  color: var(--mo-n400);
-}
-
-html.dark .mo-home-page .cat-item:hover,
-html.dark .mo-home-page .cat-item.active {
-  background: var(--mo-p50);
-  color: var(--mo-p300);
-}
-
-html.dark .mo-home-page .cat-item .count {
-  background: var(--mo-n700);
-  color: var(--mo-n200);
 }
 
 html.dark .mo-home-page .tc {
@@ -981,9 +870,5 @@ html.dark .mo-home-page .search-result-note button {
 html.dark .mo-home-page .avatar-sm,
 html.dark .mo-home-page .rank.top {
   color: var(--mo-p300);
-}
-/* 企业模板模式：自定义页内容为 fixed 导航留出高度 */
-.tpl-page-offset {
-  padding-top: 64px;
 }
 </style>

@@ -136,7 +136,6 @@ const FRONT_EXACT_PATHS = [
   '/history',
   '/category',
   '/tag',
-  '/archive',
   '/guestbook',
   '/search',
   '/bookmarks',

@@ -10,7 +10,6 @@ const forgotPasswordView = readFileSync(resolve(__dirname, 'auth/ForgotPassword.
 const registerView = readFileSync(resolve(__dirname, 'auth/Register.vue'), 'utf8')
 const categoryView = readFileSync(resolve(__dirname, 'category/index.vue'), 'utf8')
 const tagView = readFileSync(resolve(__dirname, 'tag/index.vue'), 'utf8')
-const archiveView = readFileSync(resolve(__dirname, 'archive/index.vue'), 'utf8')
 const aboutView = readFileSync(resolve(__dirname, 'about.vue'), 'utf8')
 const honorsView = readFileSync(resolve(__dirname, 'honors.vue'), 'utf8')
 const historyView = readFileSync(resolve(__dirname, 'history.vue'), 'utf8')
@@ -31,7 +30,6 @@ const publicSiteSurfaces = [
   registerView,
   categoryView,
   tagView,
-  archiveView,
   aboutView
 ]
 
@@ -42,12 +40,11 @@ describe('blog design layout guards', () => {
     expect(homeView).toContain('margin: var(--mo-sp-6) auto 0;')
   })
 
-  it('首页分类导航和热门标签应能跳转到对应列表页', () => {
-    expect(homeView).toContain('class="cat-item active"')
-    // 「全部文章」的目标取决于首页是否被自定义页面接管（/ 或 /news）
-    expect(homeView).toContain(':to="listHomePath"')
-    // 分类链接 alias 伪静态优先，回退数字 ID
-    expect(homeView).toContain(':to="`/category/${category.alias || category.id}`"')
+  it('首页侧边栏已移除，文章卡片标签仍可跳转对应列表页', () => {
+    // 侧边栏（含分类导航/热门标签/最新文章）已随 sidebar_enabled 一并移除
+    expect(homeView).not.toMatch(/class="sidebar"/)
+    expect(homeView).not.toContain('cat-item active')
+    // 文章卡片内的标签仍走 /tag/:id
     expect(homeView).toContain(':to="`/tag/${tag.id}`"')
   })
 
@@ -130,14 +127,6 @@ describe('blog design layout guards', () => {
     expect(aboutView).not.toContain('linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)')
   })
 
-  it('归档页不应保留旧浅紫和深紫独立配色', () => {
-    const archiveLegacyColors = /#f8f9ff|#f5f5ff|#e8e9ff|#e5e5ff|#2e2e45|#3a3a55/i
-
-    expect(archiveView).not.toMatch(archiveLegacyColors)
-    expect(archiveView).toContain('background: var(--mo-n50);')
-    expect(archiveView).toContain('html.dark .archive-page')
-  })
-
   it('博客用户菜单进入管理后台应直接访问后台路由', () => {
     expect(siteLayout).toContain("router.push('/admin/article')")
     expect(siteLayout).not.toContain("window.location.href = '/login?redirect=/admin'")
@@ -196,19 +185,13 @@ describe('blog design layout guards', () => {
 
     expect(categoryView).not.toContain(heavyHeaderGradient)
     expect(tagView).not.toContain(heavyHeaderGradient)
-    expect(archiveView).not.toContain(heavyHeaderGradient)
     expect(categoryView).not.toContain(heavyBadgeGradient)
     expect(tagView).not.toContain(heavyBadgeGradient)
-    expect(archiveView).not.toContain(heavyOverlayGradient)
     expect(categoryView).toContain('background: var(--mo-n50);')
     expect(tagView).toContain('background: var(--mo-n50);')
-    expect(archiveView).toContain('background: var(--mo-n50);')
   })
 
   it('公共博客页面应减少装饰性动效和过大圆角', () => {
-    expect(archiveView).not.toContain('animation: bounce 2s ease-in-out infinite')
-    expect(archiveView).not.toContain('animation: pulse 2s ease-in-out infinite')
-    expect(archiveView).not.toMatch(/border-radius:\s*(1[2-9]|[2-9][0-9])px/)
     expect(categoryView).not.toMatch(/border-radius:\s*(1[2-9]|[2-9][0-9])px/)
     expect(tagView).not.toMatch(/border-radius:\s*(1[2-9]|[2-9][0-9])px/)
   })
@@ -242,14 +225,6 @@ describe('blog design layout guards', () => {
     expect(categoryView).toContain('var(--mo-n50)')
     expect(tagView).toContain('var(--mo-p600)')
     expect(tagView).toContain('var(--mo-n50)')
-  })
-
-  it('归档页应复用全局 mo 主题 token', () => {
-    const themeHardcodes = /#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i
-
-    expect(archiveView).not.toMatch(themeHardcodes)
-    expect(archiveView).toContain('var(--mo-p600)')
-    expect(archiveView).toContain('var(--mo-n50)')
   })
 
   it('博客认证页应复用全局 mo 主题 token', () => {

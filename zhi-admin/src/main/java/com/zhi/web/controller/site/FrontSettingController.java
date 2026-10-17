@@ -151,9 +151,6 @@ public class FrontSettingController extends BaseController {
             case "blog_desc":
                 settings.put(configKey, "欢迎来到我的站点");
                 break;
-            case "blog_author":
-                settings.put(configKey, "nevell");
-                break;
             case "blog_avatar":
                 settings.put(configKey, "");
                 break;
@@ -166,34 +163,14 @@ public class FrontSettingController extends BaseController {
             case "blog_email":
                 settings.put(configKey, "");
                 break;
-            case "github_url":
-                settings.put(configKey, "");
-                break;
-            case "weibo_url":
-                settings.put(configKey, "");
-                break;
-            case "author_location":
-                settings.put(configKey, "");
-                break;
-            case "personal_website":
-                settings.put(configKey, "");
-                break;
             case "comment_enabled":
-                settings.put(configKey, "true");
-                break;
-            case "like_enabled":
-                settings.put(configKey, "true");
+                // 企业官网定位：缺省即关闭（与 SQL 种子一致）
+                settings.put(configKey, "false");
                 break;
             case "view_count_enabled":
                 settings.put(configKey, "true");
                 break;
-            case "share_enabled":
-                settings.put(configKey, "true");
-                break;
             case "search_enabled":
-                settings.put(configKey, "true");
-                break;
-            case "sidebar_enabled":
                 settings.put(configKey, "true");
                 break;
             case "footer_enabled":
@@ -209,9 +186,6 @@ public class FrontSettingController extends BaseController {
                 settings.put(configKey, "true");
                 break;
             case "nav_tag_enabled":
-                settings.put(configKey, "true");
-                break;
-            case "nav_archive_enabled":
                 settings.put(configKey, "true");
                 break;
             case "copyright_enabled":

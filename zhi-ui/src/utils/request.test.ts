@@ -570,7 +570,6 @@ describe('Request 工具函数测试', () => {
         '/tag',
         '/tag/3',
         '/author/1',
-        '/archive',
         '/guestbook',
         '/page/about-us',
         '/friend-links/apply',

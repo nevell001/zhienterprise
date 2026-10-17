@@ -73,110 +73,6 @@
             @page-change="handlePageChange"
           />
         </div>
-
-        <!-- 侧边栏 -->
-        <div v-if="isSidebarEnabled" class="sidebar">
-          <!-- 关于这个标签 -->
-          <div class="sidebar-widget" :style="{ animationDelay: '0.1s' }">
-            <h3 class="widget-title">
-              <el-icon><PriceTag /></el-icon>
-              关于这个标签
-            </h3>
-            <div class="tag-about">
-              <div class="tag-icon">
-                <el-icon><PriceTag /></el-icon>
-              </div>
-              <h4 class="tag-name">
-                {{ tagName || '未命名标签' }}
-              </h4>
-              <p class="tag-desc">
-                {{ tagDescription || '暂无描述' }}
-              </p>
-              <div class="tag-meta">
-                <span class="tag-meta-item">
-                  <el-icon><DocumentCopy /></el-icon>
-                  {{ total }} 篇文章
-                </span>
-                <span class="tag-meta-item">
-                  <el-icon><Calendar /></el-icon>
-                  创建时间 {{ formatDate(tagCreateTime) }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 相关标签 -->
-          <div class="sidebar-widget" :style="{ animationDelay: '0.2s' }">
-            <h3 class="widget-title">
-              <el-icon><Share /></el-icon>
-              相关标签
-            </h3>
-            <div class="related-tags">
-              <router-link
-                v-for="(tag, index) in relatedTags.slice(0, 12)"
-                :key="tag.id"
-                :to="`/tag/${tag.id}`"
-                class="related-tag-item"
-                :class="{ active: tag.id === currentTagId }"
-                :style="{
-                  animationDelay: `${0.3 + index * 0.05}s`,
-                  fontSize: getTagFontSize(tag.article_count) + 'px',
-                  transform: `scale(${getTagScale(tag.article_count)})`
-                }"
-              >
-                {{ tag.name }}
-                <span class="tag-count">({{ tag.article_count }})</span>
-              </router-link>
-            </div>
-          </div>
-
-          <!-- 热门标签 -->
-          <div class="sidebar-widget" :style="{ animationDelay: '0.3s' }">
-            <h3 class="widget-title">
-              <el-icon><StarFilled /></el-icon>
-              热门标签
-            </h3>
-            <div class="popular-tags">
-              <div
-                v-for="(tag, index) in popularTags.slice(0, 10)"
-                :key="tag.id"
-                class="popular-tag-item"
-                :style="{ animationDelay: `${0.4 + index * 0.05}s` }"
-              >
-                <div class="tag-rank">#{{ popularTags.indexOf(tag) + 1 }}</div>
-                <router-link :to="`/tag/${tag.id}`" class="tag-link">
-                  {{ tag.name }}
-                </router-link>
-                <div class="tag-article-count">{{ tag.article_count }}篇</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 最新文章 -->
-          <div class="sidebar-widget" :style="{ animationDelay: '0.4s' }">
-            <h3 class="widget-title">
-              <el-icon><StarFilled /></el-icon>
-              最新文章
-            </h3>
-            <ul class="recent-articles">
-              <li
-                v-for="(article, index) in recentArticles.slice(0, 8)"
-                :key="article.id"
-                class="recent-item"
-                :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
-              >
-                <router-link
-                  :to="`/article/${article.id}`"
-                  class="recent-link"
-                  :title="article.title"
-                >
-                  <span class="recent-date">{{ formatDate(article.createTime, 'MM-dd') }}</span>
-                  <span class="recent-title">{{ article.title }}</span>
-                </router-link>
-              </li>
-            </ul>
-          </div>
-        </div>
       </div>
 
       <!-- 站点底部 -->
@@ -245,9 +141,6 @@ const popularTags = ref([])
 const recentArticles = ref([])
 
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
-
-// 前台功能开关统一走 store 判定（sidebar_enabled 默认开启）
-const isSidebarEnabled = computed(() => siteSettingsStore.isFeatureEnabled('sidebar_enabled'))
 
 // 查询参数
 const queryParams = reactive({
@@ -623,224 +516,17 @@ onMounted(() => {
   padding-bottom: var(--mo-sp-5);
 }
 
-.sidebar {
-  min-width: 0;
-}
-
-.sidebar-widget {
-  background: white;
-  border-radius: var(--mo-r-md);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  padding: var(--mo-sp-5);
-  margin-bottom: var(--mo-sp-5);
-}
-
-.widget-title {
-  font-size: 1.2rem;
-  margin: 0 0 15px 0;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--mo-p600);
-  color: var(--mo-n800);
-}
-
-.tag-about {
-  text-align: center;
-}
-
-.tag-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--mo-p100);
-  color: var(--mo-p600);
-  font-size: var(--mo-fs-2xl);
-  margin-bottom: 15px;
-  margin: 0 auto 15px;
-}
-
-.tag-about .tag-name {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin: 10px 0 8px 0;
-  color: var(--mo-n800);
-}
-
-.tag-about .tag-desc {
-  color: var(--mo-n500);
-  font-size: 0.9rem;
-  margin-bottom: 15px;
-  line-height: 1.5;
-}
-
-.tag-meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mo-sp-2);
-}
-
-.tag-meta .tag-meta-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: var(--mo-n600);
-  background: rgba(102, 102, 102, 0.05);
-  padding: 6px 12px;
-  border-radius: var(--mo-r-sm);
-}
-
-.related-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 15px 0;
-}
-
-.related-tag-item {
-  border: 1px solid var(--mo-p100);
-  background: var(--mo-p50);
-  color: var(--mo-p700);
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: var(--mo-sp-2) var(--mo-sp-3);
-  border-radius: var(--mo-r-md);
-  font-size: 0.85rem;
-  font-weight: 500;
-  position: relative;
-  overflow: hidden;
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-height: 50px;
-}
-
-.related-tag-item:hover,
-.related-tag-item.active {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.tag-count {
-  font-size: var(--mo-fs-xs);
-  opacity: 0.8;
-}
-
-.popular-tags {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.popular-tag-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: var(--mo-sp-2) 0;
-  border-bottom: 1px solid var(--mo-n100);
-}
-
-.popular-tag-item:last-child {
-  border-bottom: none;
-}
-
-.tag-rank {
-  font-weight: bold;
-  color: var(--mo-p600);
-  min-width: 24px;
-  text-align: center;
-}
-
-.tag-link {
-  flex: 1;
-  color: var(--mo-p600);
-  text-decoration: none;
-  font-weight: 500;
-  transition: opacity 0.3s ease;
-}
-
-.tag-link:hover {
-  opacity: 0.8;
-}
-
-.tag-article-count {
-  font-size: 0.8rem;
-  color: var(--mo-n500);
-}
-
-.recent-articles {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.recent-articles .recent-item {
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--mo-n100);
-}
-
-.recent-articles .recent-item:last-child {
-  margin-bottom: 0;
-  border-bottom: none;
-}
-
-.recent-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--mo-n800);
-  text-decoration: none;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  transition: color 0.3s ease;
-}
-
-.recent-link:hover {
-  color: var(--mo-p600);
-}
-
-.recent-date {
-  font-size: 0.8rem;
-  color: var(--mo-n500);
-  min-width: 40px;
-}
-
-.recent-link .recent-title {
-  flex: 1;
-  margin: 0;
-  font-size: 0.9rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 @media (max-width: 1200px) {
   .tag-main {
     max-width: 100%;
     padding: 30px 20px;
     gap: 30px;
   }
-
-  .sidebar {
-    width: auto;
-  }
 }
 
 @media (max-width: 1024px) {
   .tag-main {
     gap: 25px;
-  }
-
-  .sidebar {
-    width: auto;
   }
 }
 
@@ -884,18 +570,6 @@ onMounted(() => {
 
   .main-content {
     order: 1;
-  }
-
-  .sidebar {
-    order: 2;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 15px;
-  }
-
-  .sidebar-widget {
-    margin-bottom: 0;
-    min-height: 200px;
   }
 
   .recent-item {
@@ -962,16 +636,6 @@ onMounted(() => {
   .recent-title {
     font-size: var(--mo-fs-xl);
     margin-bottom: var(--mo-sp-3);
-  }
-
-  .sidebar {
-    grid-template-columns: 1fr;
-    gap: var(--mo-sp-3);
-  }
-
-  .sidebar-widget {
-    padding: 15px;
-    border-radius: var(--mo-r-sm);
   }
 
   .widget-title {
@@ -1043,11 +707,6 @@ html.dark .tag-meta-item {
 html.dark .tag-meta-item:hover {
   background: rgba(79, 70, 229, 0.15);
   color: var(--mo-p300);
-}
-
-html.dark .sidebar-widget {
-  background: var(--mo-n800);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 html.dark .widget-title {
@@ -1126,14 +785,5 @@ html.dark .tag-link {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.recent-item,
-.sidebar-widget,
-.related-tag-item,
-.popular-tag-item,
-.recent-articles .recent-item {
-  opacity: 0;
-  animation: fadeInUp 0.6s ease forwards;
 }
 </style>

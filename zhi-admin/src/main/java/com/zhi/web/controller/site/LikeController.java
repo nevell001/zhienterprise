@@ -14,10 +14,8 @@ import com.zhi.common.annotation.RateLimiter;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.enums.LimitType;
-import com.zhi.common.utils.SiteSwitchUtils;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.system.service.ILikeService;
-import com.zhi.system.service.ISettingService;
 
 /**
  * 站点前台点赞控制器（文章 + 评论，需登录）
@@ -32,9 +30,6 @@ public class LikeController extends BaseController
     @Autowired
     private ILikeService likeService;
 
-    @Autowired
-    private ISettingService settingService;
-
     /**
      * 切换文章点赞
      */
@@ -42,10 +37,6 @@ public class LikeController extends BaseController
     @PostMapping("/article/{articleId}")
     public AjaxResult toggleArticleLike(@PathVariable("articleId") Long articleId)
     {
-        if (SiteSwitchUtils.isOff(settingService.selectSettingValueByKey("like_enabled")))
-        {
-            return error("点赞功能已关闭");
-        }
         Long userId = SecurityUtils.getUserId();
         if (userId == null)
         {
@@ -71,10 +62,6 @@ public class LikeController extends BaseController
     @PostMapping("/comment/{commentId}")
     public AjaxResult toggleCommentLike(@PathVariable("commentId") Long commentId)
     {
-        if (SiteSwitchUtils.isOff(settingService.selectSettingValueByKey("like_enabled")))
-        {
-            return error("点赞功能已关闭");
-        }
         Long userId = SecurityUtils.getUserId();
         if (userId == null)
         {

@@ -3,7 +3,7 @@
  *
  * 导航由「功能开关 + 首页模式 + 自定义页面」共同决定：home_page_slug 非空时
  * 首页被自定义页面接管，文章列表迁到 /news，导航补一个「文章」入口；
- * nav_category_enabled / nav_tag_enabled / nav_archive_enabled 控制分类/标签/归档三个入口
+ * nav_category_enabled / nav_tag_enabled 控制分类/标签两个入口（归档入口已随博客功能移除）
  * （只作用于本函数组装的经典导航；企业官网模式的导航来自「导航管理」表驱动，这三个开关不参与）。
  * 抽成纯函数以便单测直接断言结果。
  */
@@ -25,7 +25,6 @@ export interface BuildNavMenusOptions {
   guestbookEnabled: boolean
   categoryEnabled: boolean
   tagEnabled: boolean
-  archiveEnabled: boolean
   /** 企业官网模板模式（home_layout=business），导航补「核心业务」入口 */
   businessEnabled?: boolean
   /** 核心业务栏目名称（business_label，缺省「核心业务」） */
@@ -136,9 +135,6 @@ export function buildNavMenus(options: BuildNavMenusOptions): NavMenuItem[] {
   }
   if (options.tagEnabled) {
     items.push({ name: '标签', path: '/tag' })
-  }
-  if (options.archiveEnabled) {
-    items.push({ name: '归档', path: '/archive' })
   }
   if (options.guestbookEnabled) {
     items.push({ name: '留言板', path: '/guestbook' })

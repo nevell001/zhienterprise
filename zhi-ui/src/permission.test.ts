@@ -140,10 +140,10 @@ describe('登录页路由守卫（行为）', () => {
     })
     usePermissionStore().routesGenerated = true
 
-    await router.push({ path: '/archive', query: { case: 'valid-front' } })
+    await router.push({ path: '/tag', query: { case: 'valid-front' } })
 
     expect(getInfoSpy).toHaveBeenCalled()
-    expect(router.currentRoute.value.path).toBe('/archive')
+    expect(router.currentRoute.value.path).toBe('/tag')
     expect(userStore.token).toBe('valid-token')
   })
 })

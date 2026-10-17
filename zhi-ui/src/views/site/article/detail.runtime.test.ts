@@ -74,7 +74,6 @@ vi.mock('@/plugins/element-plus-service', () => ({
 const stubs = {
   SiteLayout: { template: '<div class="layout-stub"><slot /></div>' },
   ArticleTOC: { template: '<div />' },
-  ShareButton: { template: '<button type="button" />' },
   'el-skeleton': { template: '<div><slot name="template" /><slot /></div>' },
   'el-skeleton-item': { template: '<div />' },
   'el-icon': { template: '<span><slot /></span>' },

@@ -1,26 +1,6 @@
 import request from '@/utils/request'
 
 /**
- * 切换文章点赞（登录后可用；返回 { liked, likeCount }）
- */
-export function toggleArticleLike(articleId: number): Promise<any> {
-  return request({
-    url: `/api/like/article/${articleId}`,
-    method: 'post'
-  })
-}
-
-/**
- * 查询文章点赞状态（登录后可用；返回 { liked, likeCount }）
- */
-export function getArticleLikeStatus(articleId: number): Promise<any> {
-  return request({
-    url: `/api/like/article/${articleId}/status`,
-    method: 'get'
-  })
-}
-
-/**
  * 切换评论点赞（登录后可用；返回 { liked, likeCount }）
  */
 export function toggleCommentLike(commentId: number): Promise<any> {

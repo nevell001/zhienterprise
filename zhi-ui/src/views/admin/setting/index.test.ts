@@ -153,8 +153,12 @@ describe('SiteSetting 视图（行为）', () => {
 
     // 每个功能开关都带 data-feature，供真实交互
     expect(wrapper.find('[data-feature="comment_enabled"]').exists()).toBe(true)
-    expect(wrapper.find('[data-feature="like_enabled"]').exists()).toBe(true)
     expect(wrapper.find('[data-feature="guestbook_enabled"]').exists()).toBe(true)
+    // 博客式配置已移除（企业官网定位）
+    expect(wrapper.find('[data-feature="like_enabled"]').exists()).toBe(false)
+    expect(wrapper.find('[data-feature="share_enabled"]').exists()).toBe(false)
+    expect(wrapper.find('[data-feature="sidebar_enabled"]').exists()).toBe(false)
+    expect(wrapper.find('[data-feature="nav_archive_enabled"]').exists()).toBe(false)
   })
 
   it('企业官网模式下隐藏三个不参与企业导航的裁剪开关', async () => {
@@ -169,7 +173,7 @@ describe('SiteSetting 视图（行为）', () => {
     expect(wrapper.find('[data-feature="footer_enabled"]').exists()).toBe(true)
   })
 
-  it('经典模式（home_layout≠business）下保留三个导航裁剪开关', async () => {
+  it('经典模式（home_layout≠business）下保留分类/标签两个导航裁剪开关', async () => {
     listSetting.mockResolvedValue({
       code: 200,
       rows: [{ configKey: 'home_layout', configValue: 'article' }]
@@ -179,7 +183,8 @@ describe('SiteSetting 视图（行为）', () => {
 
     expect(wrapper.find('[data-feature="nav_category_enabled"]').exists()).toBe(true)
     expect(wrapper.find('[data-feature="nav_tag_enabled"]').exists()).toBe(true)
-    expect(wrapper.find('[data-feature="nav_archive_enabled"]').exists()).toBe(true)
+    // 归档入口已随博客功能移除，不再有该开关
+    expect(wrapper.find('[data-feature="nav_archive_enabled"]').exists()).toBe(false)
   })
 
   it('「个人信息」页签及其字段已移除（需求：去掉站长设置）', async () => {
@@ -237,12 +242,12 @@ describe('SiteSetting 视图（行为）', () => {
     const wrapper = mountPage()
     await flushPromises()
 
-    // comment_enabled 默认 true，点击 → 关掉并写入 'false'
+    // search_enabled 默认 true，点击 → 关掉并写入 'false'
     // （真实 el-switch 先更新 v-model 再抛 change，stub 按此口径发出新值）
-    await wrapper.find('[data-feature="comment_enabled"]').trigger('click')
+    await wrapper.find('[data-feature="search_enabled"]').trigger('click')
     await flushPromises()
 
-    expect(updateSettingValueByKey).toHaveBeenCalledWith('comment_enabled', 'false')
+    expect(updateSettingValueByKey).toHaveBeenCalledWith('search_enabled', 'false')
     expect(ElMessage.success).toHaveBeenCalled()
   })
 
