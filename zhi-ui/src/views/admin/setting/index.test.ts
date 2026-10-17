@@ -453,6 +453,102 @@ describe('SiteSetting 视图（行为）', () => {
     expect(ElMessage.success).toHaveBeenCalled()
   })
 
+  it('官网内容按分区卡片渲染，每个分区带标题、说明与字段标签', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const text = wrapper.text()
+    for (const title of [
+      '首页 · 信任指标条',
+      '首页 · 数据成果',
+      '首页 · 解决方案精选',
+      '荣誉资质墙',
+      '发展历程时间轴',
+      '联系我们 · 分渠道咨询',
+      '联系我们 · 常见问题',
+      '模板页头文案'
+    ]) {
+      expect(text).toContain(title)
+    }
+    // 字段不再只靠 placeholder，改为显式标签
+    expect(text).toContain('数值')
+    expect(text).toContain('说明')
+    expect(text).toContain('方案名称')
+    expect(text).toContain('颁发方')
+    expect(text).toContain('阶段主题')
+  })
+
+  it('内容行支持上移/下移，数组顺序即前台展示顺序', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const vm = wrapper.vm as unknown as {
+      settingsMap: Record<string, any>
+      moveContentRow: (key: string, index: number, delta: number) => void
+    }
+    const before = vm.settingsMap.site_metrics.map((m: any) => m.label)
+    vm.moveContentRow('site_metrics', 0, 1)
+    const after = vm.settingsMap.site_metrics.map((m: any) => m.label)
+
+    expect(after[0]).toBe(before[1])
+    expect(after[1]).toBe(before[0])
+    expect(after).toHaveLength(before.length)
+  })
+
+  it('分区「恢复默认」把当前分区还原为内置数据', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const vm = wrapper.vm as unknown as {
+      settingsMap: Record<string, any>
+      resetContentSection: (key: string) => void
+    }
+    vm.settingsMap.site_metrics = [{ value: '999', label: '被改坏的内容' }]
+    vm.resetContentSection('site_metrics')
+
+    expect(vm.settingsMap.site_metrics.length).toBeGreaterThan(1)
+    expect(vm.settingsMap.site_metrics[0].label).not.toBe('被改坏的内容')
+  })
+
+  it('新增/删除内容行会同步分区计数', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const vm = wrapper.vm as unknown as {
+      settingsMap: Record<string, any>
+      addContentRow: (key: string, tpl: Record<string, any>) => void
+      removeContentRow: (key: string, index: number) => void
+    }
+    const before = vm.settingsMap.site_channels.length as number
+    vm.addContentRow('site_channels', { name: '', desc: '' })
+    await flushPromises()
+    expect(vm.settingsMap.site_channels).toHaveLength(before + 1)
+    expect(wrapper.text()).toContain(`${before + 1} 项`)
+
+    vm.removeContentRow('site_channels', 0)
+    await flushPromises()
+    expect(vm.settingsMap.site_channels).toHaveLength(before)
+    expect(wrapper.text()).toContain(`${before} 项`)
+  })
+
+  it('页面文案「恢复默认」清空所有分页文案（前台回退内置）', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const vm = wrapper.vm as unknown as {
+      settingsMap: Record<string, any>
+      resetPageCopy: () => void
+    }
+    vm.settingsMap.site_page_copy.contact.title = '被改过的标题'
+    vm.resetPageCopy()
+
+    expect(vm.settingsMap.site_page_copy.contact).toEqual({
+      eyebrow: '',
+      title: '',
+      subtitle: ''
+    })
+  })
+
   it('官网内容页签渲染模板页头文案编辑器（五个模板页面）', async () => {
     const wrapper = mountPage()
     await flushPromises()
