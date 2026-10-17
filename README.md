@@ -21,7 +21,15 @@
 | API 文档 | http://localhost:8080/swagger-ui.html |
 | Prometheus / Grafana | http://localhost:9090 / http://localhost:3001（需 `--profile monitoring` 启用） |
 
-默认账号 `admin`（首次登录请修改默认密码）。
+默认账号 `admin`，默认密码 **`admin123`**（这是若依框架广为人知的默认口令，⚠️ **部署到公网前必须立即修改**；
+`sql/00_init_database.sql:142` 里的 bcrypt 哈希即对应此口令。系统已把 `sys.user.initPassword`
+改为 `CHANGE_ME` 并在首次登录时提示改密，但 `admin` 自身的种子密码仍是 `admin123`）。
+
+若需改用自定义初始口令，请在导入数据库后执行：
+
+```sql
+UPDATE sys_user SET password = '<你的 bcrypt 哈希>' WHERE user_name = 'admin';
+```
 
 ## 🚀 快速开始
 

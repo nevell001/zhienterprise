@@ -26,8 +26,21 @@ stages:
         commands:
           # Gitee Go 镜像缺 libfreetype.so.6，水印测试需要；优先 yum，Ubuntu 镜像用 apt-get，都不行则忽略
           - (command -v yum >/dev/null 2>&1 && yum install -y freetype) || (command -v apt-get >/dev/null 2>&1 && timeout 90 apt-get update -qq && timeout 120 apt-get install -y -qq freetype) || true
-          # 校验 tag 与 pom 版本一致；Gitee Go 构建容器可能检不出 tag（如手动运行），此时仅告警不阻断
-          - TAG_VERSION=$(git tag --points-at HEAD 2>/dev/null | head -1 | sed 's/^v//'); if [ -n "$TAG_VERSION" ]; then POM_VERSION=$(grep -m1 '<version>' pom.xml | sed -E 's/.*<version>([^<]+)<\/version>.*/\1/'); echo "tag=$TAG_VERSION pom=$POM_VERSION"; [ "$TAG_VERSION" = "$POM_VERSION" ] || { echo "tag 与 pom 版本不一致"; exit 1; }; else echo "未检出 tag，跳过版本校验"; fi
+          # 校验 tag 与 pom 版本一致。本流水线**仅由 v* tag 触发**，所以"检不出 tag"不应被当作正常情况
+          # 跳过 —— 那样会让 tag 与 pom 不一致的发布悄悄通过。优先用 Gitee 注入的环境变量，
+          # 再退回 git tag；两者都拿不到就直接失败（与 GitHub release.yml 的强度对齐）。
+          - |
+            TAG_VERSION="${GITEE_TAG_NAME:-${GITEE_REF_NAME:-}}"
+            TAG_VERSION="${TAG_VERSION#v}"
+            if [ -z "$TAG_VERSION" ]; then
+              TAG_VERSION=$(git tag --points-at HEAD 2>/dev/null | head -1 | sed 's/^v//')
+            fi
+            if [ -z "$TAG_VERSION" ]; then
+              echo "::error::未能确定当前 tag，无法校验版本一致性（流水线应由 v* tag 触发）"; exit 1
+            fi
+            POM_VERSION=$(grep -m1 '<version>' pom.xml | sed -E 's/.*<version>([^<]+)<\/version>.*/\1/')
+            echo "tag=$TAG_VERSION pom=$POM_VERSION"
+            [ "$TAG_VERSION" = "$POM_VERSION" ] || { echo "tag 与 pom 版本不一致"; exit 1; }
           - mvn -B clean verify
           # 复制 jar 到仓库根目录，release@gitee 插件按该相对路径下载/挂载附件
           - cp zhi-admin/target/zhi-admin.jar zhi-admin.jar

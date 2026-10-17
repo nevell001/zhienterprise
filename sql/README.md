@@ -59,7 +59,9 @@
 
 ✅ **完全幂等**：可重复执行，不会破坏已有数据
 - `CREATE TABLE IF NOT EXISTS` - 表已存在时跳过
-- `INSERT IGNORE INTO` - 数据已存在时跳过（依赖主键/唯一键）
+- `INSERT IGNORE INTO` - 数据已存在时跳过（**依赖主键或唯一键**：两者任一存在即可幂等，
+  并非"必须显式给主键 id"。例如 `zhi_setting`/`zhi_page`/`zhi_article_tag` 靠唯一键去重，
+  没有显式 id 也完全幂等；真正会重复插入的是**既无显式主键、又无唯一键**的表，见下方案例）
 - 索引通过 `sp_create_index_if_not_exists` 存储过程检查后创建
 - 缺失的列通过 `information_schema.COLUMNS` 检查后 `ALTER TABLE … ADD COLUMN` 补齐
 
@@ -155,6 +157,33 @@ mysql -u root -p -e "CREATE DATABASE zhienterprise CHARACTER SET utf8mb4 COLLATE
 
 # 2. 导入初始化脚本
 mysql -u root -p zhienterprise < sql/00_init_database.sql
+```
+
+#### ⚠️ 排序规则（collation）必须显式指定 `utf8mb4_unicode_ci`
+
+脚本内各表的 `COLLATE` **不统一**：实测 24 处显式声明中，**14 处**为 `utf8mb4_0900_ai_ci`、
+**9 处**为 `utf8mb4_unicode_ci`，其余表继承**建库时**的默认排序规则。因此最终是否混用，
+取决于你用哪种方式建库：
+
+| 建库方式 | 库默认 collation | 结果 |
+| --- | --- | --- |
+| 上面这条 `CREATE DATABASE … utf8mb4_unicode_ci` | `utf8mb4_unicode_ci` | 与脚本内 9 处一致；其余表随库默认 |
+| Docker（`MYSQL_DATABASE`，MySQL 8 默认） | `utf8mb4_0900_ai_ci` | 与脚本内 14 处一致；其余表随库默认 |
+
+**风险在哪**：跨 collation 比较**字符串列**时会报
+`ERROR 1267 (HY000): Illegal mix of collations`。已在真实库复核：本项目关键跨表 JOIN
+（如 `zhi_comment.user_id ⋈ sys_user.user_id`）的键**都是 `bigint`**，数值比较不受
+collation 影响，因此**当前不会触发**。但若将来新增按**字符串列**做 JOIN / 比较的查询，
+混用就会暴露 —— 建议：
+1. 统一用上面这条命令建库（`utf8mb4_unicode_ci`），或全用 Docker 路径，二选一，不要交叉；
+2. 新增表时显式写 `COLLATE`，与既有同类表保持一致；
+3. 新增按字符串列跨表关联的查询前，先确认两边 collation 相同。
+
+排查现有库的分布：
+
+```sql
+SELECT TABLE_COLLATION, COUNT(*) FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = DATABASE() GROUP BY TABLE_COLLATION;
 ```
 
 ### 已有部署（升级）

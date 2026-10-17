@@ -1,6 +1,6 @@
 # AGENTS.md
 
-知企建站系统（ZhiEnterprise）— an enterprise website building system on the RuoYi-Vue 3.9.1 platform. Spring Boot 3.3.0 backend (Java 17, `jakarta.*` namespace, Spring Security 6) + Vue 3 + TypeScript 5.9 frontend. Requires MySQL 8.4 (not 5.x) and Redis 6.2+. Current version: v1.0.0.
+知企建站系统（ZhiEnterprise）— an enterprise website building system on the RuoYi-Vue 3.9.1 platform. Spring Boot 3.5.16 backend (Java 17, `jakarta.*` namespace, Spring Security 6) + Vue 3 + TypeScript 5.9 frontend. Requires MySQL 8.4 (not 5.x) and Redis 6.2+. Current version: v1.0.0.
 
 ## Commands
 
