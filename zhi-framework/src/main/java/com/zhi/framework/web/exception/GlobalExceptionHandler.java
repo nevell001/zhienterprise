@@ -96,24 +96,31 @@ public class GlobalExceptionHandler
 
     /**
      * 拦截未知的运行时异常
+     *
+     * 注意：这里**不得**把 e.getMessage() 回给客户端。该兜底会捕获 JDBC/MyBatis 异常，
+     * 其消息常含表名/列名/SQL 片段（本项目历史上就出现过
+     * "Unknown column 'create_by' in 'field list'"），直接回传等于信息泄漏。
+     * 原始消息只进服务端日志，客户端统一收到固定文案。
      */
     @ExceptionHandler(RuntimeException.class)
     public AjaxResult handleRuntimeException(RuntimeException e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生未知异常.", requestURI, e);
-        return AjaxResult.error(e.getMessage());
+        return AjaxResult.error("系统繁忙，请稍后重试");
     }
 
     /**
      * 系统异常
+     *
+     * 同 handleRuntimeException：原始异常消息只写日志，不回传客户端。
      */
     @ExceptionHandler(Exception.class)
     public AjaxResult handleException(Exception e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生系统异常.", requestURI, e);
-        return AjaxResult.error(e.getMessage());
+        return AjaxResult.error("系统繁忙，请稍后重试");
     }
 
     /**

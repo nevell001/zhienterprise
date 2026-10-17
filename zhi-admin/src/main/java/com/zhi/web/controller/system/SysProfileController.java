@@ -19,6 +19,7 @@ import com.zhi.common.core.domain.model.LoginUser;
 import com.zhi.system.domain.SysConfig;
 import com.zhi.common.enums.BusinessType;
 import com.zhi.common.utils.DateUtils;
+import com.zhi.common.utils.PasswordPolicy;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.file.FileUploadUtils;
@@ -123,6 +124,12 @@ public class SysProfileController extends BaseController
         if (SecurityUtils.matchesPassword(newPassword, password))
         {
             return error("新密码不能与旧密码相同");
+        }
+        // 口令策略：与注册/密码重置共用同一条规则（此前这里同样没有任何强度校验）
+        String policyError = PasswordPolicy.check(newPassword);
+        if (policyError != null)
+        {
+            return error(policyError);
         }
         newPassword = SecurityUtils.encryptPassword(newPassword);
         if (userService.resetUserPwd(userId, newPassword) > 0)

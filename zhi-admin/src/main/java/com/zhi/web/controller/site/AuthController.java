@@ -2,10 +2,13 @@ package com.zhi.web.controller.site;
 
 import java.util.Map;
 import com.zhi.common.annotation.Anonymous;
+import com.zhi.common.annotation.RateLimiter;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.core.domain.model.SiteRegisterBody;
+import com.zhi.common.enums.LimitType;
+import com.zhi.common.utils.PasswordPolicy;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.ip.IpUtils;
@@ -49,6 +52,7 @@ public class AuthController extends BaseController
      * 用户注册
      */
     @Anonymous
+    @RateLimiter(key = "auth:register:", time = 60, count = 10, limitType = LimitType.IP)
     @PostMapping("/register")
     public AjaxResult register(@RequestBody SiteRegisterBody registerBody, HttpServletRequest request)
     {
@@ -69,6 +73,7 @@ public class AuthController extends BaseController
      * 发送注册验证码
      */
     @Anonymous
+    @RateLimiter(key = "auth:register-code:", time = 60, count = 5, limitType = LimitType.IP)
     @PostMapping("/send-register-code")
     public AjaxResult sendRegisterCode(@RequestBody Map<String, String> params, HttpServletRequest request)
     {
@@ -102,6 +107,7 @@ public class AuthController extends BaseController
      * 发送密码重置验证码
      */
     @Anonymous
+    @RateLimiter(key = "auth:reset-code:", time = 60, count = 5, limitType = LimitType.IP)
     @PostMapping("/send-reset-code")
     public AjaxResult sendResetCode(@RequestBody Map<String, String> params, HttpServletRequest request)
     {
@@ -129,6 +135,7 @@ public class AuthController extends BaseController
      * 重置密码
      */
     @Anonymous
+    @RateLimiter(key = "auth:reset-password:", time = 60, count = 10, limitType = LimitType.IP)
     @PostMapping("/reset-password")
     public AjaxResult resetPassword(@RequestBody Map<String, String> params)
     {
@@ -146,6 +153,15 @@ public class AuthController extends BaseController
         if (!newPassword.equals(confirmPassword))
         {
             return AjaxResult.error("两次输入的密码不一致");
+        }
+
+        // 口令策略校验：与注册路径共用同一入口（裸 Map 上 Bean Validation 注解不生效，
+        // 此前这里只判空就写库，可把口令设成单字符）。必须在验证码校验**之前**做，
+        // 否则弱口令会白烧掉一次性的邮箱验证码。
+        String policyError = PasswordPolicy.check(newPassword);
+        if (policyError != null)
+        {
+            return AjaxResult.error(policyError);
         }
 
         // 验证邮箱验证码

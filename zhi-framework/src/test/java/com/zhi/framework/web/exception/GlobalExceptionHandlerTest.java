@@ -133,7 +133,10 @@ class GlobalExceptionHandlerTest
         AjaxResult result = handler.handleRuntimeException(new RuntimeException("数据库错误"), request);
 
         assertThat(codeOf(result)).isEqualTo(HttpStatus.ERROR);
-        assertThat(msgOf(result)).isEqualTo("数据库错误");
+        // 原始消息不得回传客户端：该兜底会捕获 JDBC/MyBatis 异常，其消息常含表名/列名/SQL 片段
+        assertThat(msgOf(result)).isNotEqualTo("数据库错误");
+        assertThat(msgOf(result)).doesNotContain("数据库错误");
+        assertThat(msgOf(result)).isEqualTo("系统繁忙，请稍后重试");
     }
 
     @Test
@@ -142,7 +145,22 @@ class GlobalExceptionHandlerTest
         AjaxResult result = handler.handleException(new java.io.IOException("磁盘不可用"), request);
 
         assertThat(codeOf(result)).isEqualTo(HttpStatus.ERROR);
-        assertThat(msgOf(result)).isEqualTo("磁盘不可用");
+        assertThat(msgOf(result)).doesNotContain("磁盘不可用");
+        assertThat(msgOf(result)).isEqualTo("系统繁忙，请稍后重试");
+    }
+
+    /**
+     * 回归守卫：把「表名/列名等 SQL 细节」这种典型 JDBC 异常消息喂给兜底 handler，
+     * 断言响应体里绝不出现它们 —— 这正是本项目历史上真实发生过的泄漏形态。
+     */
+    @Test
+    void fallbackHandlersMustNotLeakSqlDetails()
+    {
+        String jdbcLike = "Unknown column 'create_by' in 'field list'";
+        assertThat(msgOf(handler.handleRuntimeException(new RuntimeException(jdbcLike), request)))
+                .doesNotContain("create_by").doesNotContain("Unknown column").doesNotContain("field list");
+        assertThat(msgOf(handler.handleException(new Exception(jdbcLike), request)))
+                .doesNotContain("create_by").doesNotContain("Unknown column").doesNotContain("field list");
     }
 
     @Test

@@ -296,6 +296,14 @@ referer:
   # 允许的域名列表（逗号分隔）
   allowed-domains: localhost,127.0.0.1
 
+# 安全相关
+security:
+  cors:
+    # CORS 允许来源（逗号分隔）。留空时：非生产回退为 "*"（本地跨端口调试），
+    # 生产则**拒绝启动**并提示设置环境变量 CORS_ALLOWED_ORIGINS。
+    # 前后端生产同源部署时，CORS 本不需要放开，显式声明即可。
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+
 # Spring Boot Actuator 监控配置
 management:
   # 启用所有端点
