@@ -30,7 +30,13 @@
 
       <ul class="ent-links">
         <li v-for="item in menuItems" :key="item.linkValue" class="has-drop-slot">
-          <router-link :to="item.linkValue || '/'" :class="{ on: isActive(item.linkValue) }">
+          <!-- lv1 是下划线指示器的挂钩（.ent-links a.lv1::after）：导航改成 v-for
+               数据驱动时曾漏掉，导致悬停/当前项下划线永不显示 -->
+          <router-link
+            :to="item.linkValue || '/'"
+            class="lv1"
+            :class="{ on: isActive(item.linkValue) }"
+          >
             {{ item.label }}
           </router-link>
           <div v-if="item.children && item.children.length" class="drop">
@@ -436,7 +442,9 @@ const handleUserCommand = async (command: string) => {
 }
 
 .ent-nav.over-hero .ent-links a.lv1::after {
-  background: var(--tpl-white);
+  /* 必须用随模式取值的 --tpl-on-hero：亮色模式 Hero 是浅底（site-templates.scss
+     的 html:not(.dark) 覆盖），写死白色会让下划线在浅底上不可见（1:1） */
+  background: var(--tpl-on-hero);
 }
 
 /* ---------- 移动端抽屉 ---------- */

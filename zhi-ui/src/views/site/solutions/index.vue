@@ -1,104 +1,107 @@
 <template>
-  <div ref="rootEl" class="tpl-site solutions-board mo-home-page">
-    <!-- 页头（方案文档 §3.3：Hero → 行业筛选 → 定制 CTA） -->
-    <header class="aph">
-      <div class="eh-wrap">
-        <span class="eyebrow rv">Solutions</span>
-        <h1 class="aph-title rv">解决方案</h1>
-        <p class="aph-sub rv d1">按行业，看我们怎么解题。每个方案都基于真实业务场景。</p>
-      </div>
-    </header>
-
-    <main class="pad">
-      <div class="eh-wrap">
-        <!-- 行业 Tab（§3.3 第一层：单选） -->
-        <div class="sol-tabs rv" role="tablist">
-          <button
-            v-for="cat in industryTabs"
-            :key="cat"
-            type="button"
-            class="tag"
-            :class="{ on: activeIndustry === cat }"
-            role="tab"
-            :aria-selected="activeIndustry === cat"
-            @click="activeIndustry = cat"
-          >
-            {{ cat }}
-          </button>
+  <SiteLayout>
+    <div ref="rootEl" class="tpl-site solutions-board mo-home-page">
+      <!-- 页头（方案文档 §3.3：Hero → 行业筛选 → 定制 CTA） -->
+      <header class="aph">
+        <div class="eh-wrap">
+          <span class="eyebrow rv">Solutions</span>
+          <h1 class="aph-title rv">解决方案</h1>
+          <p class="aph-sub rv d1">按行业，看我们怎么解题。每个方案都基于真实业务场景。</p>
         </div>
+      </header>
 
-        <!-- 能力场景（§3.3 第二层：多选标签） -->
-        <div class="sol-scenarios rv" role="group">
-          <button
-            v-for="sc in scenarioTabs"
-            :key="sc"
-            type="button"
-            class="tag"
-            :class="{ on: activeScenarios.includes(sc) }"
-            :aria-pressed="activeScenarios.includes(sc)"
-            @click="toggleScenario(sc)"
-          >
-            {{ sc }}
-          </button>
-          <button
-            v-if="activeScenarios.length"
-            type="button"
-            class="sol-clear"
-            @click="activeScenarios = []"
-          >
-            清除筛选
-          </button>
-        </div>
-
-        <p class="sol-count rv d1">{{ countText }}</p>
-
-        <div v-if="loading" class="sol-board-grid">
-          <div v-for="n in 6" :key="n" class="sol-board-card sol-skeleton"></div>
-        </div>
-        <template v-else>
-          <div v-if="filteredItems.length" class="sol-board-grid">
-            <article
-              v-for="(item, si) in filteredItems"
-              :key="item.id"
-              class="sol-board-card rv"
-              :class="`d${si % 3}`"
-              role="link"
-              tabindex="0"
-              @click="goItem(item.id)"
-              @keydown.enter.prevent="goItem(item.id)"
+      <main class="pad">
+        <div class="eh-wrap">
+          <!-- 行业 Tab（§3.3 第一层：单选） -->
+          <div class="sol-tabs rv" role="tablist">
+            <button
+              v-for="cat in industryTabs"
+              :key="cat"
+              type="button"
+              class="tag"
+              :class="{ on: activeIndustry === cat }"
+              role="tab"
+              :aria-selected="activeIndustry === cat"
+              @click="activeIndustry = cat"
             >
-              <div class="sol-board-tags">
-                <span v-if="item.industry" class="tag">{{ item.industry }}</span>
-                <span v-for="sc in scenariosOf(item)" :key="sc" class="tag tag-plain">
-                  {{ sc }}
-                </span>
-              </div>
-              <h2>{{ item.title }}</h2>
-              <p>{{ item.summary }}</p>
-              <span class="lnk">
-                查看方案
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path
-                    d="M3 8h10M9 4l4 4-4 4"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </span>
-            </article>
+              {{ cat }}
+            </button>
           </div>
-          <el-empty v-else description="该筛选下暂无方案">
-            <el-button type="primary" plain @click="clearFilters">清除筛选</el-button>
-          </el-empty>
-        </template>
-      </div>
-    </main>
-  </div>
+
+          <!-- 能力场景（§3.3 第二层：多选标签） -->
+          <div class="sol-scenarios rv" role="group">
+            <button
+              v-for="sc in scenarioTabs"
+              :key="sc"
+              type="button"
+              class="tag"
+              :class="{ on: activeScenarios.includes(sc) }"
+              :aria-pressed="activeScenarios.includes(sc)"
+              @click="toggleScenario(sc)"
+            >
+              {{ sc }}
+            </button>
+            <button
+              v-if="activeScenarios.length"
+              type="button"
+              class="sol-clear"
+              @click="activeScenarios = []"
+            >
+              清除筛选
+            </button>
+          </div>
+
+          <p class="sol-count rv d1">{{ countText }}</p>
+
+          <div v-if="loading" class="sol-board-grid">
+            <div v-for="n in 6" :key="n" class="sol-board-card sol-skeleton"></div>
+          </div>
+          <template v-else>
+            <div v-if="filteredItems.length" class="sol-board-grid">
+              <article
+                v-for="(item, si) in filteredItems"
+                :key="item.id"
+                class="sol-board-card rv"
+                :class="`d${si % 3}`"
+                role="link"
+                tabindex="0"
+                @click="goItem(item.id)"
+                @keydown.enter.prevent="goItem(item.id)"
+              >
+                <div class="sol-board-tags">
+                  <span v-if="item.industry" class="tag">{{ item.industry }}</span>
+                  <span v-for="sc in scenariosOf(item)" :key="sc" class="tag tag-plain">
+                    {{ sc }}
+                  </span>
+                </div>
+                <h2>{{ item.title }}</h2>
+                <p>{{ item.summary }}</p>
+                <span class="lnk">
+                  查看方案
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M3 8h10M9 4l4 4-4 4"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </article>
+            </div>
+            <el-empty v-else description="该筛选下暂无方案">
+              <el-button type="primary" plain @click="clearFilters">清除筛选</el-button>
+            </el-empty>
+          </template>
+        </div>
+      </main>
+    </div>
+  </SiteLayout>
 </template>
 
 <script setup lang="ts">
+import SiteLayout from '@/components/SiteLayout.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { getArticleList } from '@/api/site'
