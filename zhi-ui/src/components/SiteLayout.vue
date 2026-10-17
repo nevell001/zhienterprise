@@ -103,10 +103,6 @@
                     <el-icon><Setting /></el-icon>
                     管理后台
                   </el-dropdown-item>
-                  <el-dropdown-item command="bookmark">
-                    <el-icon><CollectionTag /></el-icon>
-                    我的收藏
-                  </el-dropdown-item>
                   <el-dropdown-item divided command="logout">
                     <el-icon><SwitchButton /></el-icon>
                     退出登录
@@ -146,11 +142,7 @@
         >
           {{ m.name }}
         </router-link>
-        <template v-if="userStore.token && userStore.name">
-          <router-link to="/bookmarks" class="mobile-nav-link" @click="mobileMenuOpen = false">
-            我的收藏
-          </router-link>
-        </template>
+        <template v-if="userStore.token && userStore.name"></template>
         <router-link v-else to="/login" class="mobile-nav-link" @click="mobileMenuOpen = false">
           登录
         </router-link>
@@ -248,7 +240,6 @@ import {
   Setting,
   UserFilled,
   ArrowDown,
-  CollectionTag,
   SwitchButton,
   Monitor,
   Sunny,
@@ -589,9 +580,7 @@ const goToAdmin = () => {
 }
 
 const handleUserCommand = async (command: string) => {
-  if (command === 'bookmark') {
-    router.push('/bookmarks')
-  } else if (command === 'logout') {
+  if (command === 'logout') {
     try {
       await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
         confirmButtonText: '确定',

@@ -33,12 +33,10 @@ const whiteList = [
   '/tag',
   '/tag/*',
   // 多段路径必须单独列出：* 编译为 [^/]*，只匹配一层
-  '/author/*',
   '/page/*',
   '/friend-links/apply',
   '/guestbook',
   '/search',
-  '/bookmarks',
   '/agreement',
   '/privacy',
   // 404 页必须免登录可达：错误链接/已下线页面要看到「页面不存在」而不是被弹到登录页

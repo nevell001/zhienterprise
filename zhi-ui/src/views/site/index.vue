@@ -81,11 +81,7 @@
                 {{ article.summary || '这篇文章暂时没有摘要，点击进入阅读全文。' }}
               </p>
               <div class="meta">
-                <span
-                  class="author"
-                  :class="{ clickable: article.authorId }"
-                  @click.stop="goAuthor(article.authorId)"
-                >
+                <span class="author">
                   <span class="avatar-sm">{{ (article.authorName || '作').charAt(0) }}</span>
                   {{ article.authorName || '作者' }}
                 </span>
@@ -269,11 +265,6 @@ const fallbackGradient = (id: number) => {
 
 const goToArticle = (id: number) => {
   if (id) router.push(`/article/${id}`)
-}
-
-// 跳转到作者主页
-const goAuthor = (authorId?: number) => {
-  if (authorId) router.push(`/author/${authorId}`)
 }
 
 const scrollToAllArticles = () => {

@@ -138,7 +138,6 @@ const FRONT_EXACT_PATHS = [
   '/tag',
   '/guestbook',
   '/search',
-  '/bookmarks',
   '/agreement',
   '/privacy'
 ]
@@ -148,7 +147,6 @@ const FRONT_PREFIX_PATHS = [
   '/solutions/',
   '/category/',
   '/tag/',
-  '/author/',
   '/page/',
   '/friend-links/'
 ]

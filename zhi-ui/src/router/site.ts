@@ -74,12 +74,6 @@ export const siteRoutes: RouteRecordRaw[] = [
     meta: { title: '标签文章' }
   },
   {
-    path: '/author/:id',
-    component: () => import('@/views/site/author/index.vue'),
-    name: 'PublicSiteAuthor',
-    meta: { title: '作者文章' }
-  },
-  {
     path: '/friend-links/apply',
     component: () => import('@/views/site/friendLink/apply.vue'),
     name: 'PublicSiteFriendLinkApply',
@@ -147,12 +141,6 @@ export const siteRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/site/search/index.vue'),
     name: 'PublicSiteSearch',
     meta: { title: '搜索文章' }
-  },
-  {
-    path: '/bookmarks',
-    component: () => import('@/views/site/bookmark/index.vue'),
-    name: 'PublicSiteBookmarks',
-    meta: { title: '我的收藏' }
   }
 ]
 

@@ -27,8 +27,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler(
                         "/login", "/register", "/forgot-password", "/about",
                         "/news", "/article/**", "/business/**", "/solutions/**", "/contact", "/honors", "/history",
-                        "/category/**", "/tag/**", "/author/**", "/archive", "/guestbook", "/page/**",
-                        "/friend-links/**", "/agreement", "/privacy", "/search", "/bookmarks",
+                        "/category/**", "/tag/**", "/guestbook", "/page/**",
+                        "/friend-links/**", "/agreement", "/privacy", "/search",
                         "/admin/**")
                 .addResourceLocations("classpath:/META-INF/resources/")
                 .addResourceLocations("classpath:/resources/")

@@ -67,7 +67,6 @@ class ControllerPermissionPolicyTest
 
         // ── 设计为「任何登录用户可用」的自助接口（服务端按当前 userId 过滤）──
         "SysProfileController#",                // 个人中心：资料/头像/改密
-        "BookmarkController#",              // 我的收藏
         "LikeController#",                  // 点赞状态与切换
         "NotificationController#",          // 站内通知
         "ArticleController#getMyArticles",  // 我的文章

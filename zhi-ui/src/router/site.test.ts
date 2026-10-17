@@ -59,13 +59,6 @@ describe('Site Routes 详细测试', () => {
     expect(route?.meta?.title).toBe('标签文章')
   })
 
-  it('作者文章路由应该有正确的路径和组件', () => {
-    const route = siteRoutes.find(r => r.path === '/author/:id')
-    expect(route?.path).toBe('/author/:id')
-    expect(route?.name).toBe('PublicSiteAuthor')
-    expect(route?.meta?.title).toBe('作者文章')
-  })
-
   it('友链申请路由应该有正确的路径和组件', () => {
     const route = siteRoutes.find(r => r.path === '/friend-links/apply')
     expect(route?.path).toBe('/friend-links/apply')
@@ -135,12 +128,6 @@ describe('Site Routes 详细测试', () => {
     expect(route?.meta?.title).toBe('搜索文章')
   })
 
-  it('收藏路由应该有正确的路径与标题', () => {
-    const route = siteRoutes.find(r => r.path === '/bookmarks')
-    expect(route?.name).toBe('PublicSiteBookmarks')
-    expect(route?.meta?.title).toBe('我的收藏')
-  })
-
   it('解决方案路由应该有正确的路径与标题（板块列表 + 详情复用）', () => {
     const list = siteRoutes.find(r => r.path === '/solutions')
     expect(list?.name).toBe('PublicSolutionList')
@@ -151,7 +138,7 @@ describe('Site Routes 详细测试', () => {
   })
 
   it('路由总数应该为 24 个', () => {
-    expect(siteRoutes.length).toBe(24)
+    expect(siteRoutes.length).toBe(22)
   })
 
   it('不再存在任何 /blog 前缀的页面路由（短路径为唯一规范）', () => {

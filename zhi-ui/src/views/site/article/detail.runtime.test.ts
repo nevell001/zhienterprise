@@ -18,7 +18,6 @@ const getArticleLikeStatus = vi.fn()
 const getCommentLikedStatuses = vi.fn()
 const toggleCommentLike = vi.fn()
 const toggleArticleLike = vi.fn()
-const toggleBookmark = vi.fn()
 const getSiteSettings = vi.fn()
 const getSiteSettingsAnonymous = vi.fn()
 
@@ -32,10 +31,6 @@ vi.mock('@/api/site/like', () => ({
   toggleArticleLike: (...args: unknown[]) => toggleArticleLike(...args),
   toggleCommentLike: (...args: unknown[]) => toggleCommentLike(...args),
   getCommentLikedStatuses: (...args: unknown[]) => getCommentLikedStatuses(...args)
-}))
-
-vi.mock('@/api/site/bookmark', () => ({
-  toggleBookmark: (...args: unknown[]) => toggleBookmark(...args)
 }))
 
 vi.mock('@/api/site/comment', () => ({

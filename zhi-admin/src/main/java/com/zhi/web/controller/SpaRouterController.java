@@ -36,15 +36,12 @@ public class SpaRouterController {
         "/category/**",
         "/tag",
         "/tag/**",
-        "/author/**",
-        "/archive",
         "/guestbook",
         "/page/**",
         "/friend-links/**",
         "/agreement",
         "/privacy",
-        "/search",
-        "/bookmarks"
+        "/search"
     }, method = { RequestMethod.GET, RequestMethod.HEAD })
     public String spaFrontRouter() {
         return "forward:/index.html";
