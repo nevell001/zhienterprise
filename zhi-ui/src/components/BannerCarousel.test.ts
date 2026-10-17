@@ -125,3 +125,22 @@ describe('BannerCarousel 首页 Banner 轮播', () => {
     expect(activeIndex(wrapper)).toBe(0)
   })
 })
+
+describe('Banner 图片自适应裁切', () => {
+  it('宽幅图与 16:9 容器比例差大时用 contain，避免裁掉画面文字', async () => {
+    const { pickBannerFit } = await import('@/utils/bannerFit')
+    expect(pickBannerFit(3.12, 16 / 9)).toBe('contain')
+  })
+
+  it('比例接近时仍用 cover 铺满', async () => {
+    const { pickBannerFit } = await import('@/utils/bannerFit')
+    expect(pickBannerFit(1.8, 16 / 9)).toBe('cover')
+    expect(pickBannerFit(1.6, 16 / 9)).toBe('cover')
+  })
+
+  it('异常比例回退 cover', async () => {
+    const { pickBannerFit } = await import('@/utils/bannerFit')
+    expect(pickBannerFit(0, 16 / 9)).toBe('cover')
+    expect(pickBannerFit(Number.NaN, 16 / 9)).toBe('cover')
+  })
+})

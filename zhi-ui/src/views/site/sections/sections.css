@@ -102,12 +102,13 @@
 }
 
 .tpl-site .btn-d {
-  background: var(--tpl-ink-900);
-  color: var(--tpl-bg);
+  /* CTA 区块两种模式都是深色底：统一亮底深字，避免浅色下与 --tpl-dark 同色消失 */
+  background: var(--tpl-white);
+  color: var(--tpl-dark);
 }
 
 .tpl-site .btn-d:hover {
-  background: color-mix(in srgb, var(--tpl-ink-900) 80%, var(--tpl-bg));
+  background: color-mix(in srgb, var(--tpl-white) 82%, var(--tpl-p));
   transform: translateY(-2px);
   box-shadow: var(--tpl-sh-md);
 }
@@ -451,9 +452,10 @@
   place-items: center;
   font-size: var(--mo-fs-md);
   font-weight: 500;
-  color: var(--tpl-ink-400);
+  /* ink-400 + 0.6 在浅色白底/深色 #141414 上都只有 ≈2.3:1，占位名字几乎不可见 */
+  color: var(--tpl-ink-500);
   filter: grayscale(1);
-  opacity: 0.6;
+  opacity: 0.85;
   transition:
     opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     color 0.4s,

@@ -500,12 +500,14 @@ const goNewsItem = (id?: number) => id && router.push(`/article/${id}`)
 }
 
 .btn-d {
-  background: var(--tpl-ink-900);
-  color: var(--tpl-bg);
+  /* 反色按钮：CTA 区块在两种模式下都是深色底，统一用亮底深字，
+     避免浅色模式下与 --tpl-dark 同色"消失"、深色模式下却变成亮块。 */
+  background: var(--tpl-white);
+  color: var(--tpl-dark);
 }
 
 .btn-d:hover {
-  background: color-mix(in srgb, var(--tpl-ink-900) 80%, var(--tpl-bg));
+  background: color-mix(in srgb, var(--tpl-white) 82%, var(--tpl-p));
   transform: translateY(-2px);
   box-shadow: var(--tpl-sh-md);
 }
@@ -848,9 +850,10 @@ const goNewsItem = (id?: number) => id && router.push(`/article/${id}`)
   place-items: center;
   font-size: var(--mo-fs-md);
   font-weight: 500;
-  color: var(--tpl-ink-400);
+  /* ink-400 + 0.6 在浅色白底/深色 #141414 上都只有 ≈2.3:1，占位名字几乎不可见 */
+  color: var(--tpl-ink-500);
   filter: grayscale(1);
-  opacity: 0.6;
+  opacity: 0.85;
   transition:
     opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     color 0.4s,

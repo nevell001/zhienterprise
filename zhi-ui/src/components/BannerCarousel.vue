@@ -27,7 +27,9 @@
         :class="{ 'is-active': index === activeIndex }"
         :loading="index === 0 ? 'eager' : 'lazy'"
         decoding="async"
+        :style="{ objectFit: fits[index] || 'cover' }"
         :aria-hidden="index !== activeIndex"
+        @load="onImageLoad($event, index)"
       />
     </div>
 
@@ -58,6 +60,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { shouldSkipMotion } from '@/utils/motionPreference'
+import { pickBannerFit } from '@/utils/bannerFit'
 
 /**
  * 首页 Banner 轮播。
@@ -81,6 +84,17 @@ const props = withDefaults(
 
 const activeIndex = ref(0)
 const paused = ref(false)
+/** 每张图的 object-fit：宽幅/竖幅差异过大时用 contain 避免裁掉画面文字 */
+const fits = ref<Array<'cover' | 'contain'>>([])
+
+function onImageLoad(event: Event, index: number) {
+  const img = event.target as HTMLImageElement | null
+  const track = (img?.parentElement as HTMLElement | null) ?? null
+  const boxRatio = track && track.clientHeight > 0 ? track.clientWidth / track.clientHeight : 16 / 9
+  const imageRatio =
+    img && img.naturalWidth > 0 ? img.naturalWidth / Math.max(img.naturalHeight, 1) : 0
+  fits.value[index] = pickBannerFit(imageRatio, boxRatio)
+}
 let timer: ReturnType<typeof setInterval> | undefined
 let touchStartX: number | null = null
 
@@ -151,6 +165,7 @@ onBeforeUnmount(clearTimer)
   position: absolute;
   inset: 0;
   overflow: hidden;
+  background: var(--tpl-surface, #f7f8fa);
 }
 
 .bc-track {

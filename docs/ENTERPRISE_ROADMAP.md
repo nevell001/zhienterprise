@@ -447,3 +447,13 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
   - 编辑器 `editor-body` 继承旧 mo-blog 深色块的浅色 `--mo-n800` 背景，补 `html.dark .mo-editor-form .editor-body { background: var(--mo-n50) }`。
   - 后台 placeholder 提亮到 `--mo-n500`，深色下可读。
 - **验证**：发布弹窗浅色块扫描只剩主色/禁用按钮；后台 6 页深色 4.5:1 审计 0 处；前台 `/business/10`、`/solutions/7` 深色 4.5:1 审计 0 处，截图核对正常；认证页深色输入框仍为深底（未回退）。
+
+## 二十六、官网首页浅色/深色复查（2026-10-17）
+
+- **方法**：整页 6 段截图（light/dark）、4.5:1 全页对比度扫描、深色下「浅色大块」扫描、关键区块计算值。
+- **修复**：
+  - Logo 墙占位文字在浅/深色下都只有约 2.3:1（`--tpl-ink-400` + opacity .6），改为 `--tpl-ink-500` + opacity .85（`EnterpriseHome.vue` 与 `sections.css` 同步）。
+  - CTA 次要按钮 `.btn-d` 浅色下 `--tpl-ink-900` 与 CTA 深底同色、按钮「消失」；统一为亮底深字（两种模式一致）。
+  - 首页宽幅 Banner 被 16:9 `cover` 裁掉两侧文案：新增 `utils/bannerFit.ts` 自适应 `cover/contain`，`BannerCarousel` 在图片加载后按比例切换，留白由 `--tpl-surface` 承托。
+- **验证**：首页 light/dark 4.5:1 均 0 处低对比；深色下仅保留 CTA 反色白按钮（设计如此）；Logo/CTA/Banner 截图核对正常；Banner 比例单测覆盖。
+- **未改**：新闻卡无封面时的大块占位图（内容侧缺图，非模式问题）。

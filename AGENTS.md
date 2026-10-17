@@ -96,6 +96,12 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
   - 侧栏/顶部菜单的 hover/激活底色、默认文字按钮、info 标签、面包屑（原 `#97a8be`）、导航 CTA 前景色全部令牌化；导航 CTA 用 `--tpl-white`（原 `--tpl-on-hero` 在亮色下是深墨色压在深蓝主色上）。相关规则见 `themes/mo-blog.scss`、`variables.scss`、`EnterpriseNav.vue`。
   - 回归口径：`contrast45` 审计（后台 6 页 + 前台 8 页，浅/深色，阈值 4.5:1，排除禁用态）应为 0；菜单管理页的「链接类型」标签、「编辑/上移/下移/删除」层级在两种模式下都要能区分。
 
+- **官网首页浅/深色回归口径**（2026-10 复查）：首页各区块必须两模式分别实测（整页分段截图 + 4.5:1 对比度 + 深色下浅色块扫描），不要只看 `/` 一页的总体对比度。已知易漏点：
+  - 客户 Logo 墙 `.logocell`：`--tpl-ink-400` + `opacity .6` 在浅色白底/深色 `#141414` 上均约 2.3:1，占位名字几乎不可见；统一改 `--tpl-ink-500` + `opacity .85`（`EnterpriseHome.vue` 与 `sections.css` 两处都要改）。
+  - CTA 次要按钮 `.btn-d`：浅色模板下 `--tpl-ink-900` 与 `--tpl-dark` 同色会「消失」；统一用 `--tpl-white` 底 + `--tpl-dark` 字，深色模式下同样成立。
+  - 首页 Banner：宽幅图（如 1163×373）放进 16:9 容器用 `object-fit: cover` 会裁掉两侧文案；`components/BannerCarousel.vue` 的 `@load` 按图片比例调用 `utils/bannerFit.ts#pickBannerFit()`，比例差 >1.35 倍时改 `contain`，留白用 `--tpl-surface` 承托。
+  - 回归命令：`contrast45` 跑 `/` 的 light/dark；`home-colors` 扫描深色下 `bg 亮度 >0.55` 的非主色块；分段截图逐屏确认 hero/指标/业务/方案/成果/Logo/新闻/CTA/页脚。
+
 - **后台发布页的深色覆盖口径**（2026-10 审计后固化）：发布文章 / 核心业务 / 解决方案共用 `views/admin/article/index.vue` 编辑器。深色规则必须成对覆盖：
   - 全局 `mo-blog.scss` 的后台输入框用 `background: var(--mo-n50)`、文字 `--mo-n700`；**不要**把 `--mo-n600~n900`（深色下是浅色文字色）当背景（曾导致所有后台输入框白底，编辑器标题一并变白）。
   - `html.dark.theme-mo-blog .el-button--default` 必须排除 `.el-button--primary/success/warning/danger/info`：主按钮同时带 `el-button--default` 尺寸类，不排除会把「发布文章」覆盖成灰底。
