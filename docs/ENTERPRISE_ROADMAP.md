@@ -455,5 +455,8 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
   - Logo 墙占位文字在浅/深色下都只有约 2.3:1（`--tpl-ink-400` + opacity .6），改为 `--tpl-ink-500` + opacity .85（`EnterpriseHome.vue` 与 `sections.css` 同步）。
   - CTA 次要按钮 `.btn-d` 浅色下 `--tpl-ink-900` 与 CTA 深底同色、按钮「消失」；统一为亮底深字（两种模式一致）。
   - 首页宽幅 Banner 被 16:9 `cover` 裁掉两侧文案：新增 `utils/bannerFit.ts` 自适应 `cover/contain`，`BannerCarousel` 在图片加载后按比例切换，留白由 `--tpl-surface` 承托。
-- **验证**：首页 light/dark 4.5:1 均 0 处低对比；深色下仅保留 CTA 反色白按钮（设计如此）；Logo/CTA/Banner 截图核对正常；Banner 比例单测覆盖。
+- **浅色专项（第二轮）**：
+  - Banner 改为 `contain` 后上下露出大片纯色（深色不明显、浅色很突兀）→ 增加同图模糊铺底层 `.bc-backdrop`，两种模式都自然。
+  - 已落库的 Hero 标题丢了模板 `<br>`，在「清晰」中间折行；新增 SQL 幂等迁移，仅替换与 5 套模板默认标题完全一致的内容。
+- **验证**：首页 light/dark 4.5:1 均 0 处低对比；深色下仅保留 CTA 反色白按钮（设计如此）；Logo/CTA/Banner/标题截图核对正常；Banner 比例单测覆盖。
 - **未改**：新闻卡无封面时的大块占位图（内容侧缺图，非模式问题）。

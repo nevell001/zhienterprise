@@ -18,6 +18,14 @@
       @keydown.left.prevent="prev"
       @keydown.right.prevent="next"
     >
+      <!-- 宽幅图 contain 时的模糊铺底：避免上下露出大片纯色 -->
+      <img
+        v-if="images[activeIndex]"
+        class="bc-backdrop"
+        :src="images[activeIndex]"
+        alt=""
+        aria-hidden="true"
+      />
       <img
         v-for="(src, index) in images"
         :key="`${index}-${src}`"
@@ -172,6 +180,19 @@ onBeforeUnmount(clearTimer)
   position: relative;
   width: 100%;
   height: 100%;
+}
+
+/* 背景模糊层：cover 铺满；前景图使用 contain 时的留白由它承托 */
+.bc-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(22px) saturate(0.9);
+  transform: scale(1.08);
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .bc-slide {

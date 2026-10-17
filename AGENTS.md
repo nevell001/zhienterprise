@@ -99,7 +99,8 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
 - **官网首页浅/深色回归口径**（2026-10 复查）：首页各区块必须两模式分别实测（整页分段截图 + 4.5:1 对比度 + 深色下浅色块扫描），不要只看 `/` 一页的总体对比度。已知易漏点：
   - 客户 Logo 墙 `.logocell`：`--tpl-ink-400` + `opacity .6` 在浅色白底/深色 `#141414` 上均约 2.3:1，占位名字几乎不可见；统一改 `--tpl-ink-500` + `opacity .85`（`EnterpriseHome.vue` 与 `sections.css` 两处都要改）。
   - CTA 次要按钮 `.btn-d`：浅色模板下 `--tpl-ink-900` 与 `--tpl-dark` 同色会「消失」；统一用 `--tpl-white` 底 + `--tpl-dark` 字，深色模式下同样成立。
-  - 首页 Banner：宽幅图（如 1163×373）放进 16:9 容器用 `object-fit: cover` 会裁掉两侧文案；`components/BannerCarousel.vue` 的 `@load` 按图片比例调用 `utils/bannerFit.ts#pickBannerFit()`，比例差 >1.35 倍时改 `contain`，留白用 `--tpl-surface` 承托。
+  - 首页 Banner：宽幅图（如 1163×373）放进 16:9 容器用 `object-fit: cover` 会裁掉两侧文案；`components/BannerCarousel.vue` 的 `@load` 按图片比例调用 `utils/bannerFit.ts#pickBannerFit()`，比例差 >1.35 倍时改 `contain`；留白由同图的 `.bc-backdrop` 模糊铺底填充（不要只留纯色，浅色模式下会像大片空白）。
+  - 首页 Hero 标题：模板默认 `titleHtml` 含 `<br>`（两行排版）；历史库若丢了 `<br>`，会在「清晰」等词中间自然折行。`sql/00_init_database.sql` 对 5 套模板的旧默认标题做幂等 `REPLACE`，只迁移与默认文案完全一致的内容，自定义标题不受影响。
   - 回归命令：`contrast45` 跑 `/` 的 light/dark；`home-colors` 扫描深色下 `bg 亮度 >0.55` 的非主色块；分段截图逐屏确认 hero/指标/业务/方案/成果/Logo/新闻/CTA/页脚。
 
 - **后台发布页的深色覆盖口径**（2026-10 审计后固化）：发布文章 / 核心业务 / 解决方案共用 `views/admin/article/index.vue` 编辑器。深色规则必须成对覆盖：

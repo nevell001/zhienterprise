@@ -2701,7 +2701,15 @@ UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '精密制造 · 15 年�
 UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '流通效率 · 15 年商贸经验', '流通效率 · 商贸经验') WHERE `sections` LIKE '%流通效率 · 15 年商贸经验%';
 UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '持续创新 · 15 年产品经验', '持续创新 · 产品经验') WHERE `sections` LIKE '%持续创新 · 15 年产品经验%';
 
--- 老库升级：补齐 zhi_friend_link.email 列（幂等，友链申请功能）
+-- 首页 Hero 标题换行修复：模板默认标题含 <br>（按两行排版），历史落库若丢了 <br>
+-- 会在「清晰」等词中间自然折行。仅替换与默认文案完全一致的内容，自定义标题不受影响。
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '把复杂的问题变成<em>清晰的决策</em>', '把复杂的问题<br>变成<em>清晰的决策</em>') WHERE `slug` = 'home' AND `sections` LIKE '%把复杂的问题变成<em>清晰的决策</em>%';
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '让复杂的系统变得<em>简单可靠</em>', '让复杂的系统<br>变得<em>简单可靠</em>') WHERE `slug` = 'home' AND `sections` LIKE '%让复杂的系统变得<em>简单可靠</em>%';
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '让每一道工序都<em>精准可控</em>', '让每一道工序<br>都<em>精准可控</em>') WHERE `slug` = 'home' AND `sections` LIKE '%让每一道工序都<em>精准可控</em>%';
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '让每一笔流转都<em>高效顺畅</em>', '让每一笔流转<br>都<em>高效顺畅</em>') WHERE `slug` = 'home' AND `sections` LIKE '%让每一笔流转都<em>高效顺畅</em>%';
+UPDATE `zhi_page` SET `sections` = REPLACE(`sections`, '让每一次选择都<em>简单安心</em>', '让每一次选择<br>都<em>简单安心</em>') WHERE `slug` = 'home' AND `sections` LIKE '%让每一次选择都<em>简单安心</em>%';
+
+-- 老库升级：补齐 zhi_friend_link.email 列（幂等，友链申请功能）-- 老库升级：补齐 zhi_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_friend_link' AND COLUMN_NAME = 'email');
 SET @add_friend_link_email := IF(@has_friend_link_email = 0,
