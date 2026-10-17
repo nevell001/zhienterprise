@@ -436,3 +436,14 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
   - 官网内容「首页内容」标签顶部新增维护入口提示：Hero 文案在「页面管理 → 首页」维护，本页维护指标/成果/方案。
   - `siteTemplates.test.ts` 守卫模板默认眉题不得出现「N 年」。
 - **验证**：当前首页眉题已迁移为「战略判断 · 长期陪跑」；前端 216 文件 / 1900 测试、lint/format/typecheck/build 全绿。
+
+## 二十五、发布页深色模式覆盖审计（2026-10-17）
+
+- **范围**：后台发布文章、核心业务/解决方案（同一 `article/index.vue` 编辑器）弹窗；前台 `/business/{id}`、`/solutions/{id}` 详情。
+- **发现并修复**：
+  - 全局 `mo-blog` 深色输入框用 `--mo-n700`（深色下是**浅色文字色**）当背景 → 所有后台输入框白底；改为 `--mo-n50` 深底 + `--mo-n700` 文字。
+  - `el-button--default` 深色规则未排除 `.el-button--primary`（主按钮同时带 default 尺寸类）→「发布文章」被灰底覆盖；补齐 `:not(.el-button--primary/...)`。
+  - 遗留 `html.dark.theme-mo-blog .title-input .el-input__inner { color: var(--mo-n200) !important }` 覆盖编辑器标题为深灰，删除，由 `article/index.vue` 的 `--mo-n900` 规则接管。
+  - 编辑器 `editor-body` 继承旧 mo-blog 深色块的浅色 `--mo-n800` 背景，补 `html.dark .mo-editor-form .editor-body { background: var(--mo-n50) }`。
+  - 后台 placeholder 提亮到 `--mo-n500`，深色下可读。
+- **验证**：发布弹窗浅色块扫描只剩主色/禁用按钮；后台 6 页深色 4.5:1 审计 0 处；前台 `/business/10`、`/solutions/7` 深色 4.5:1 审计 0 处，截图核对正常；认证页深色输入框仍为深底（未回退）。

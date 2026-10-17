@@ -55,6 +55,20 @@ describe('mo-blog theme stylesheet', () => {
     expect(stylesheet).toContain('--mo-on-primary: #ffffff')
     // 后台表单标签在深色下不能用浅色主题的 --mo-n300（≈2:1）
     expect(stylesheet).toContain('html.dark.theme-mo-blog .el-form-item__label')
+
+    // 深色后台输入框：必须用深色面作背景（曾把浅色文字色 --mo-n700 当背景，
+    // 导致发布文章/服务/产品的编辑器输入框和标题全部变成白底）
+    expect(stylesheet).toContain('html.dark.theme-mo-blog .el-input__wrapper {')
+    expect(stylesheet).toContain('background: var(--mo-n50);')
+    expect(stylesheet).not.toMatch(
+      /html\.dark\.theme-mo-blog \.el-input__wrapper \{\s*background: var\(--mo-n700\)/
+    )
+
+    // 深色 default 按钮必须排除语义类型：.el-button--primary 也带 --default 尺寸类，
+    // 不能把「发布文章」等主按钮覆盖成灰底
+    expect(stylesheet).toContain(
+      '.el-button--default:not(.is-link):not(.is-text):not(.el-button--primary)'
+    )
     expect(stylesheet).toContain('color: var(--el-text-color-regular)')
   })
 

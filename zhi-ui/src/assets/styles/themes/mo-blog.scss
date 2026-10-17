@@ -1327,9 +1327,11 @@ html.dark.theme-mo-blog .el-table__inner-wrapper::before {
   background: var(--mo-n700);
 }
 
+/* 后台输入框：深色底 + 浅色文字。n700 在深色模式下是浅色文字色，
+   不能当背景（曾导致所有后台输入框变成白底）。 */
 html.dark.theme-mo-blog .el-input__wrapper {
-  background: var(--mo-n700);
-  box-shadow: 0 0 0 1px var(--mo-n600) inset;
+  background: var(--mo-n50);
+  box-shadow: 0 0 0 1px var(--mo-n200) inset;
 }
 
 html.dark.theme-mo-blog .el-input__wrapper.is-focus {
@@ -1340,12 +1342,12 @@ html.dark.theme-mo-blog .el-input__wrapper.is-focus {
 
 html.dark.theme-mo-blog .el-input__inner,
 html.dark.theme-mo-blog .el-textarea__inner {
-  color: var(--mo-n100);
+  color: var(--mo-n700);
 }
 
 html.dark.theme-mo-blog .el-input__inner::placeholder,
 html.dark.theme-mo-blog .el-textarea__inner::placeholder {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 html.dark.theme-mo-blog .el-form-item__label {
@@ -1483,17 +1485,25 @@ html.dark.theme-mo-blog .el-tag:not([class*='el-tag--']) {
   color: var(--mo-n200);
 }
 
-/* 仅实心 default 按钮（表格「更多操作」等）；文字按钮不套灰底 */
-html.dark.theme-mo-blog .el-button--default:not(.is-link):not(.is-text) {
-  background: var(--mo-n700);
-  border-color: var(--mo-n600);
-  color: var(--mo-n200);
+/* 仅实心 default 按钮（表格「更多操作」/弹窗取消等）；文字按钮不套灰底。
+   必须排除语义类型：.el-button--primary 等同时带 el-button--default（尺寸类），
+   否则「发布文章」这类主按钮会被本条灰底规则覆盖成浅色按钮。 */
+html.dark.theme-mo-blog
+  .el-button--default:not(.is-link):not(.is-text):not(.el-button--primary):not(
+    .el-button--success
+  ):not(.el-button--warning):not(.el-button--danger):not(.el-button--info) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+  color: var(--mo-n700);
 }
 
-html.dark.theme-mo-blog .el-button--default:not(.is-link):not(.is-text):hover {
-  background: var(--mo-n600);
-  border-color: var(--mo-n500);
-  color: var(--mo-n100);
+html.dark.theme-mo-blog
+  .el-button--default:not(.is-link):not(.is-text):not(.el-button--primary):not(
+    .el-button--success
+  ):not(.el-button--warning):not(.el-button--danger):not(.el-button--info):hover {
+  background: var(--mo-n100);
+  border-color: var(--mo-n300);
+  color: var(--mo-n700);
 }
 
 html.dark.theme-mo-blog .el-tabs__nav-wrap::after {
@@ -1677,13 +1687,6 @@ html.dark.theme-mo-blog .editor-topbar .back-btn {
   color: var(--mo-n300);
 }
 
-html.dark.theme-mo-blog .title-input .el-input__inner {
-  /* 同 footer-wave：暗色下 --mo-n900 是背景色，作文字色不可见。
-     （该前缀为死选择器，实际生效的是 article/index.vue 的 html.dark 规则；
-     此处仅修正遗留写法，避免清理时误将其当作正确范例。） */
-  color: var(--mo-n200) !important;
-}
-
 html.dark.theme-mo-blog .editor-toolbar {
   background: var(--mo-n900);
   border-bottom-color: var(--mo-n700);
@@ -1815,7 +1818,8 @@ html.dark.theme-mo-blog label[class*='label'] {
    Element Plus 的 .el-input__wrapper 本身没有 border，32px 高度是
    「1px 内描边 + padding 1px」算出来的；再加 1px 实线边框会把控件撑到
    34px，同一个表单里的输入框就和选择器、按钮以及浅色态不一致。 */
-html.dark.theme-mo-blog .el-input__wrapper,
+/* 认证页专用：浅色输入卡是认证页的独立视觉，只作用于认证页作用域，
+   不能再用泛化的 .el-input__wrapper（否则会覆盖后台编辑器/表单的深色输入框）。 */
 html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper,
 html.dark.theme-mo-blog .auth-form .el-input__wrapper,
 html.dark.theme-mo-blog .register-form .el-input__wrapper,
@@ -1831,12 +1835,10 @@ html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper.is-focus {
     0 0 0 3px color-mix(in srgb, var(--mo-p500) 18%, transparent) !important;
 }
 
-html.dark.theme-mo-blog .el-input__inner,
 html.dark.theme-mo-blog .mo-auth-page .el-input__inner {
   color: var(--mo-n100) !important;
 }
 
-html.dark.theme-mo-blog .el-input__inner::placeholder,
 html.dark.theme-mo-blog .mo-auth-page .el-input__inner::placeholder {
   color: var(--mo-n400) !important;
 }

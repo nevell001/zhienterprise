@@ -2305,6 +2305,12 @@ html.dark .mo-editor-form .editor-toolbar {
   border-bottom-color: var(--mo-n200);
 }
 
+/* 编辑主体（分屏/纯编辑/纯预览）容器：旧 mo-blog 深色块用 n800（浅色）
+   当背景，会在这里露出一块浅底，这里统一覆盖为深色。 */
+html.dark .mo-editor-form .editor-body {
+  background: var(--mo-n50);
+}
+
 html.dark .mo-editor-form .edit-pane {
   border-right-color: var(--mo-n200);
 }

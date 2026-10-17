@@ -96,6 +96,12 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
   - 侧栏/顶部菜单的 hover/激活底色、默认文字按钮、info 标签、面包屑（原 `#97a8be`）、导航 CTA 前景色全部令牌化；导航 CTA 用 `--tpl-white`（原 `--tpl-on-hero` 在亮色下是深墨色压在深蓝主色上）。相关规则见 `themes/mo-blog.scss`、`variables.scss`、`EnterpriseNav.vue`。
   - 回归口径：`contrast45` 审计（后台 6 页 + 前台 8 页，浅/深色，阈值 4.5:1，排除禁用态）应为 0；菜单管理页的「链接类型」标签、「编辑/上移/下移/删除」层级在两种模式下都要能区分。
 
+- **后台发布页的深色覆盖口径**（2026-10 审计后固化）：发布文章 / 核心业务 / 解决方案共用 `views/admin/article/index.vue` 编辑器。深色规则必须成对覆盖：
+  - 全局 `mo-blog.scss` 的后台输入框用 `background: var(--mo-n50)`、文字 `--mo-n700`；**不要**把 `--mo-n600~n900`（深色下是浅色文字色）当背景（曾导致所有后台输入框白底，编辑器标题一并变白）。
+  - `html.dark.theme-mo-blog .el-button--default` 必须排除 `.el-button--primary/success/warning/danger/info`：主按钮同时带 `el-button--default` 尺寸类，不排除会把「发布文章」覆盖成灰底。
+  - 编辑器页自身在 `article/index.vue` 的 `html.dark .mo-editor-form` 块里覆盖顶栏/工具栏/编辑主体（`editor-body`）/侧栏/输入框/单选/按钮；旧 `mo-blog.scss` 里的浅色“文章编辑器暗色覆盖”块属历史遗留，新增变量不要依赖它。
+  - 验收口径：发布弹窗内不应出现浅色大块（主色/禁用按钮除外）；后台 `/admin/article`、`/admin/business`、`/admin/solution` 深色 4.5:1 对比度应为 0；前台 `/business/{id}`、`/solutions/{id}` 深色对比度也应为 0。`mo-blog.test.ts` 守卫输入框/默认按钮规则。
+
 - **「主题颜色」（`theme_color`）的适配边界**（2026-10 审计后固化）：
   - 应用链路：`utils/siteSettings.ts#initSiteSettings()` 读取主题色 → `handleThemeStyle()` 把 `--el-color-primary(-light/dark)` + `--mo-on-primary` 写到 `<html>` 内联样式。**读取时必须用 `readConfigValue()`**：`GET /system/config/configKey/theme_color` 经 RuoYi `AjaxResult.success(String)` 返回的是 `{ code, msg: "#409eff" }`（值在 **msg**，没有 data/configValue），直接取 `configValue` 会让主题色/Logo/侧边栏/自定义 CSS 全部静默失效（只有打开设置页才临时生效）——`siteSettings.test.ts` 已锁真实形态。
   - 登录后需再次应用：bootstrap 的 `initSiteSettings` 在无 token 时早退，`UnifiedLogin` 登录成功后会再调一次（不刷新页面也生效）。
