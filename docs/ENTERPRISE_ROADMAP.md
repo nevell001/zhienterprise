@@ -283,3 +283,12 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
 - `/author/:id`（博客作者主页）与 `/bookmarks`（我的收藏）仍存在但已无入口/无收藏来源，属博客遗留。
 - 联系我们页按设计稿应有「咨询表单」，当前只有联系方式卡片/分渠道/地图/FAQ/CTA。
 - sitemap 未收录 `/agreement`、`/privacy`（法务页，是否收录取决于 SEO 策略）。
+
+## 十、需要决策项的落地结果（2026-10-17）
+
+| 决策项 | 结论 | 实施内容 |
+| --- | --- | --- |
+| 博客遗留页面 `/author/:id`、`/bookmarks` | **一并下线** | 删除两个路由/页面（`views/site/author`、`views/site/bookmark`）、SiteLayout「我的收藏」入口、`permission/request/SpaRouterController/WebMvcConfig` 白名单，以及后端 `BookmarkController`+Service+Mapper+Domain+XML 与测试（`zhi_bookmark` 表保留历史数据） |
+| 联系我们页咨询表单 | **复用留言板接口** | 联系页新增「在线咨询」表单（姓名/公司/邮箱/电话/咨询类型/需求描述/图形验证码/隐私同意），提交走 `POST /api/message` 写入 `zhi_message`，后台「留言管理」统一审核回复；新增独立开关 `contact_form_enabled`（默认开启，站点设置「功能设置 → 咨询表单」）；留言板与咨询表单「任一开启」即可提交，读接口仍只受留言板开关控制 |
+| sitemap 法务页 | **两个都收录** | `SeoController.STATIC_PATHS` 增加 `/agreement`、`/privacy`（sitemap 由 31 条增至 33 条） |
+| 版本与推送 | **升 1.1.0 并推送** | 按 `docs/VERSION_MANAGEMENT.md` 更新 13 处版本号（根/子 POM、RuoYiConfig 兜底、package.json/lock、发布流水线 tag、文档），提交推送 Gitee |

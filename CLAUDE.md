@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ZhiEnterprise (知企建站系统) is a full-stack enterprise website building system built on Spring Boot 3.5 + Vue 3 + Element Plus + TypeScript. The backend is a multi-module Maven project based on RuoYi-Vue 3.9.1, upgraded to Jakarta EE and Java 17.
 
-**Current Version**: v1.0.0 (defined in `pom.xml`)
+**Current Version**: v1.1.0 (defined in `pom.xml`)
 
 **Brand Identity**:
 - Brand name: "知企建站系统（ZhiEnterprise）"
@@ -107,9 +107,11 @@ mysql -u root -p zhienterprise < sql/00_init_database.sql
 - `UnifiedAuthController` - Unified login for admin + registered users (JWT)
 
 **Site Feature Toggles** (stored in `zhi_setting` table):
-- `comment_review`, `view_count_enabled`, `like_enabled`, `share_enabled`
-- `search_enabled`, `sidebar_enabled`, `footer_enabled`, `copyright_enabled`
-- 企业官网模式: `home_page_slug` (首页接管自定义页面), `nav_category_enabled`, `nav_tag_enabled`, `nav_archive_enabled` (导航裁剪)
+- `comment_enabled`（企业官网默认关闭）/ `comment_review`, `view_count_enabled`
+- `search_enabled`, `footer_enabled`, `copyright_enabled`, `guestbook_enabled`, `contact_form_enabled`（联系我们页咨询表单，复用留言存储）
+- 品牌图: `site_logo`（优先于 `blog_avatar`）/ `site_banner`（企业首页 Hero）
+- 企业官网模式: `home_page_slug` (首页接管自定义页面), `nav_category_enabled`, `nav_tag_enabled`
+- **已下线**（不要再加回）：`like_enabled` / `share_enabled` / `sidebar_enabled` / `nav_archive_enabled`、`author_*` 系列、`blog_author`；`/author/:id` 与 `/bookmarks` 页面及收藏后端接口也已删除
 - 企业官网模板: `home_layout` (`business`=区块化企业首页, 优先级低于 `home_page_slug`), `business_label` (核心业务栏目名，导航/首页区块共用), `contact_phone`/`contact_address`；模板模式会向前台 `<html>` 挂 `theme-enterprise` 类（`themes/enterprise.scss` 重映射 `--mo-*` 色板为稳重蓝系）
 - 文章伪静态: `zhi_article.slug`（可空、未删除范围内唯一），前台详情按「数字 ID 或 slug」统一解析，sitemap 优先输出别名
 - 分类伪静态: `zhi_category.alias`，`/api/category/{key}` 与 `/api/article/category/{key}` 按「数字 ID 或 alias」统一解析（alias 仅命中启用且未删除的分类），前台链接 alias 优先
@@ -147,7 +149,7 @@ The `comment_review` 站点设置 controls whether new comments default to statu
 Version defined in `pom.xml` (`<version>` and `<app.version>`). When updating:
 1. Update root `pom.xml` `<version>` and `<app.version>`
 2. Update all 6 sub-module parent `<version>` references
-3. Frontend version in `package.json` (and the two `"version"` fields in `package-lock.json`) is aligned with the backend (currently 1.0.0)
+3. Frontend version in `package.json` (and the two `"version"` fields in `package-lock.json`) is aligned with the backend (currently 1.1.0)
 
 See `docs/VERSION_MANAGEMENT.md` for detailed instructions.
 
