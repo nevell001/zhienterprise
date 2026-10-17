@@ -678,6 +678,15 @@ onMounted(async () => {
   border: 1px solid var(--el-color-warning-light-5);
 }
 
+/* 亮色模式提高可读性（同 ArticleCard 角标约定） */
+html:not(.dark) .mo-home-page .flag-top {
+  color: var(--el-color-danger-dark-4);
+}
+
+html:not(.dark) .mo-home-page .flag-rec {
+  color: var(--el-color-warning-dark-4);
+}
+
 .mo-home-page .tag {
   display: inline-flex;
   align-items: center;

@@ -72,6 +72,28 @@ describe('匿名访问站点前台（白名单行为）', () => {
   })
 })
 
+describe('未知路由（匿名访客）', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    authToken.value = undefined
+    setActivePinia(createPinia())
+  })
+
+  it('已下线/错误的链接展示 404，而不是把访客弹到登录页', async () => {
+    // /archive 已随博客功能下线（路由与页面均删除）；错误链接同理
+    await router.push({ path: '/archive', query: { case: 'gone' } })
+    expect(router.currentRoute.value.path).toBe('/404')
+
+    await router.push({ path: '/not-a-real-page', query: { case: 'typo' } })
+    expect(router.currentRoute.value.path).toBe('/404')
+  })
+
+  it('404 页本身免登录可达（否则会被再次重定向回登录页）', async () => {
+    await router.push({ path: '/404', query: { case: 'direct' } })
+    expect(router.currentRoute.value.path).toBe('/404')
+  })
+})
+
 describe('登录页路由守卫（行为）', () => {
   beforeEach(() => {
     vi.clearAllMocks()

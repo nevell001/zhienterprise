@@ -22,6 +22,7 @@
       :options="options"
       :style="styles"
       @text-change="() => $emit('update:modelValue', content)"
+      @ready="setupUploadHandlers"
     />
   </div>
 </template>
@@ -362,29 +363,48 @@ function handleImagePaste(_node: any, delta: any) {
   return delta
 }
 
-// 如果设置了上传地址则自定义图片上传事件
-onMounted(() => {
-  if (props.type === 'url' && quillEditorRef.value) {
+/**
+ * 自定义图片上传事件（工具栏按钮 + 粘贴）。
+ *
+ * 必须等 quill 实例就绪：组件在父级 onMounted 阶段调用 getQuill() 会抛
+ * 「The quill editor hasn't been instantiated yet」，之前放在 onMounted 里
+ * 导致异常被 catch 吞掉、上传处理器从未挂载（工具栏选图片没反应）。
+ * 改由 <quill-editor @ready> 触发，并用 ready 标记避免重复挂载。
+ */
+let uploadHandlersReady = false
+function setupUploadHandlers(readyQuill?: any) {
+  if (uploadHandlersReady || props.type !== 'url') return
+  // @ready 会直接带上 quill 实例；兜底调用时若还没就绪就静默等待（不刷错误日志）
+  let quill = readyQuill
+  if (!quill) {
     try {
-      const quill = quillEditorRef.value.getQuill()
-      const toolbar = quill.getModule('toolbar')
-      if (toolbar) {
-        toolbar.addHandler('image', value => {
-          if (value) {
-            ;(proxy.$refs.uploadRef as any)?.click()
-          } else {
-            quill.format('image', false)
-          }
-        })
-      }
-      quill.root.addEventListener('paste', handlePasteCapture, true)
-    } catch (error) {
-      console.error('初始化编辑器上传处理失败:', error)
+      quill = quillEditorRef.value?.getQuill?.()
+    } catch {
+      return
     }
   }
+  if (!quill) return
+  const toolbar = quill.getModule('toolbar')
+  if (toolbar) {
+    toolbar.addHandler('image', (value: boolean) => {
+      if (value) {
+        ;(proxy.$refs.uploadRef as any)?.click()
+      } else {
+        quill.format('image', false)
+      }
+    })
+  }
+  quill.root.addEventListener('paste', handlePasteCapture, true)
+  uploadHandlersReady = true
+}
+
+onMounted(() => {
+  // 兜底：部分场景 @ready 先于父级挂载完成，等一帧后再尝试一次（函数内部有幂等保护）
+  if (props.type === 'url') setTimeout(setupUploadHandlers, 0)
 })
 
 onUnmounted(() => {
+  uploadHandlersReady = false
   if (props.type === 'url' && quillEditorRef.value) {
     try {
       const quill = quillEditorRef.value.getQuill()

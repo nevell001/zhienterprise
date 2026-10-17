@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Anonymous;
 import com.zhi.common.utils.ModernDateUtils;
+import com.zhi.common.utils.SiteSwitchUtils;
 import com.zhi.system.domain.Article;
 import com.zhi.system.domain.Category;
 import com.zhi.system.domain.Page;
@@ -27,7 +28,8 @@ import com.zhi.system.service.ISettingService;
 public class SeoController
 {
     /** 页面地址集合（站点前台为短路径，与 zhi-ui/src/router/site.ts 一致） */
-    private static final String[] STATIC_PATHS = { "/about", "/honors", "/history", "/category", "/tag", "/archive", "/guestbook" };
+    /** 静态页面清单；/archive 已随博客功能下线（页面与路由均已删除），不得再收录 */
+    private static final String[] STATIC_PATHS = { "/about", "/honors", "/history", "/category", "/tag", "/guestbook" };
 
     @Autowired
     private ISettingService settingService;
@@ -58,6 +60,11 @@ public class SeoController
         // 静态页面
         for (String path : STATIC_PATHS)
         {
+            // 留言板关闭时页面只展示「暂未开放」，收录无意义（SiteSwitchUtils 口径：缺失/其它值视为开启）
+            if ("/guestbook".equals(path) && SiteSwitchUtils.isOff(readSetting("guestbook_enabled")))
+            {
+                continue;
+            }
             writeUrl(out, baseUrl + path, null);
         }
         // 首页被自定义页面接管、或官网模板首页形态时，文章列表页 /news 与首页内容不同，收录；
@@ -134,6 +141,12 @@ public class SeoController
                 for (Page page : pages)
                 {
                     if (page.getSlug() == null || page.getSlug().isEmpty())
+                    {
+                        continue;
+                    }
+                    // 作为首页渲染的页面不再单独收录 /page/{slug}：内容与 "/" 完全重复
+                    String slug = page.getSlug().trim();
+                    if ("home".equals(slug) || slug.equals(homePageSlug == null ? "" : homePageSlug.trim()))
                     {
                         continue;
                     }

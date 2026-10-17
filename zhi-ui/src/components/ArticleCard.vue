@@ -181,6 +181,16 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   border: 1px solid var(--el-color-warning-light-5);
 }
 
+/* 亮色模式：EP 的 warning/danger 基色 + light-9 浅底只有 2.0~2.6:1。
+   改用 dark-4 色阶（≈5.1/6.2:1）；深色模式下 EP 会把 dark-N 反向提亮，同样安全。 */
+html:not(.dark) .card-flag.flag-top {
+  color: var(--el-color-danger-dark-4);
+}
+
+html:not(.dark) .card-flag.flag-rec {
+  color: var(--el-color-warning-dark-4);
+}
+
 .article-card-title {
   margin: 0 0 15px 0;
   font-size: var(--mo-fs-2xl);

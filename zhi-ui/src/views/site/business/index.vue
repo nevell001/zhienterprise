@@ -350,6 +350,46 @@ const goItem = (id?: number) => id && router.push(`/business/${id}`)
   margin-bottom: var(--mo-sp-8);
 }
 
+/* 分类筛选芯片：与企业官网其他页面的 .tag 约定一致（sections.css 同款），
+   显式用 --tpl-* 令牌，避免落到全局旧博客规则 `.theme-mo-blog .tag`
+   （那里用的是 --mo-p50/--mo-p700，深色下 p700 不参与重映射 → 深蓝字贴深底，
+   对比度仅 2:1，筛选栏几乎看不清）。 */
+.biz-tabs .tag {
+  position: relative;
+  display: inline-block;
+  padding: var(--mo-sp-1) var(--mo-sp-3);
+  font-family: inherit;
+  font-size: var(--mo-fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--tpl-p-text);
+  cursor: pointer;
+  background: var(--tpl-p-sub);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+/* 触控目标 ≥44px 用透明内边距扩展，视觉尺寸不变（方案文档 §5.3） */
+.biz-tabs .tag::after {
+  position: absolute;
+  inset: -7px -4px;
+  content: '';
+}
+
+.biz-tabs .tag:hover {
+  border-color: var(--tpl-p);
+}
+
+.biz-tabs .tag.on {
+  color: var(--tpl-white, #fff);
+  background: var(--tpl-p);
+  border-color: var(--tpl-p);
+}
+
 .biz-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

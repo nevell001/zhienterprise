@@ -1,6 +1,7 @@
 package com.zhi.web.controller.site;
 
 import com.zhi.system.domain.Article;
+import com.zhi.system.domain.Page;
 import com.zhi.system.service.IArticleService;
 import com.zhi.system.service.IPageService;
 import com.zhi.system.service.ISettingService;
@@ -34,6 +35,8 @@ class SeoControllerTest
 
     private IArticleService articleService;
 
+    private IPageService pageService;
+
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -44,7 +47,8 @@ class SeoControllerTest
         ReflectionTestUtils.setField(controller, "settingService", settingService);
         articleService = mock(IArticleService.class);
         ReflectionTestUtils.setField(controller, "articleService", articleService);
-        ReflectionTestUtils.setField(controller, "pageService", mock(IPageService.class));
+        pageService = mock(IPageService.class);
+        ReflectionTestUtils.setField(controller, "pageService", pageService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -168,4 +172,47 @@ class SeoControllerTest
         assertTrue(txt.contains("Allow: /"), txt);
         assertTrue(txt.contains("Disallow: /admin"), txt);
     }
+
+    @Test
+    @DisplayName("站点地图不收录已下线的 /archive")
+    void sitemapMustNotIncludeRemovedArchive() throws Exception
+    {
+        String xml = body("/sitemap.xml", "blog.example.com", 443);
+        assertFalse(xml.contains("/archive"), "/archive 页面与路由已删除，收录会产出死链");
+    }
+
+    @Test
+    @DisplayName("作为首页渲染的页面不再重复收录 /page/{slug}")
+    void sitemapSkipsPageRenderedAsHome() throws Exception
+    {
+        when(settingService.selectSettingValueByKey("home_page_slug")).thenReturn("landing");
+
+        Page homeBuilder = new Page();
+        homeBuilder.setSlug("home");
+        Page landing = new Page();
+        landing.setSlug("landing");
+        Page about = new Page();
+        about.setSlug("about");
+        when(pageService.selectPublishedPageList()).thenReturn(List.of(homeBuilder, landing, about));
+
+        String xml = body("/sitemap.xml", "blog.example.com", 443);
+        assertFalse(xml.contains("/page/home"), "builder 首页内容与 \"/\" 重复，不应收录 /page/home");
+        assertFalse(xml.contains("/page/landing"), "被 home_page_slug 接管的页面与 \"/\" 内容重复，不应收录");
+        assertTrue(xml.contains("/page/about"), "普通自定义页面仍需收录");
+    }
+
+
+    @Test
+    @DisplayName("留言板关闭时不收录 /guestbook，开启时收录")
+    void sitemapIncludesGuestbookOnlyWhenEnabled() throws Exception
+    {
+        when(settingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("false");
+        assertFalse(body("/sitemap.xml", "blog.example.com", 443).contains("/guestbook"),
+            "留言板开关关闭时，页面只显示「暂未开放」，不应收录");
+
+        when(settingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("true");
+        assertTrue(body("/sitemap.xml", "blog.example.com", 443).contains("/guestbook"),
+            "留言板开启时应正常收录");
+    }
+
 }

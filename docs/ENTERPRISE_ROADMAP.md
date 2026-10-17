@@ -258,3 +258,28 @@ PageRenderer/registry + 14 类模块组件 + 导航管理（site_nav_item）+
 **保留 / 新增**：面包屑、分类徽标、发布日期与更新日期、阅读量（`view_count_enabled` 开关控制）、摘要导语、封面图、正文、关键词胶囊（SEO 用，保留 `/tag/:id` 跳转）、**相关阅读卡片**（3 列，替代侧栏迷你列表）、**咨询 CTA**（引导到 `/contact`）、上/下一篇。评论区保留但受 `comment_enabled` 开关控制（默认关闭）。
 
 **配套修复**：`ArticleMapper.xml` 的 `SimpleArticleResult` 与 `getPrevArticle` / `getNextArticle` 两条 SQL 漏取 `status`，而 `FrontController#getArticleDetail` 要求 `status != null && equals(1L)` 才输出导航项 —— 结果「上一篇/下一篇」永远不返回（静默失效）。已补 `status` 列与映射，并加 `ArticleNavigationQueryTest` 契约守卫。
+
+## 九、企业官网全面巡检（2026-10-17）
+
+### 巡检方式
+真实运行环境 headless Chrome：26 个前台路由 + 10 个后台页逐页渲染，采集 HTTP 状态、控制台错误、失败请求、断图（`naturalWidth=0`）、横向溢出、导航/页脚存在性；桌面(1440)/移动(390)/深色三态；站内链接全量落地校验；亮/暗模式自动对比度扫描（逐文本节点计算前景/背景对比度）；SEO 端点与 JSON-LD 结构校验；首页 builder 模块完整性校验。
+
+### 结果
+- 26 个前台页全部 200、导航/页脚齐全、无断图、无横向溢出；59 个站内链接全部可达；移动端 16 页无溢出；深色 22 页对比度扫描全绿（修复后）。
+- SEO：`/sitemap.xml`、`/robots.txt`、`/api/rss` 均 200；首页 JSON-LD=Organization+WebSite，文章页=NewsArticle+BreadcrumbList；sitemap 与数据库内容一致（9 篇文章 → 9 条，分类按 alias）。
+- 功能：搜索（`?q=`）、留言板开关、评论开关、友链申请开关、浏览量、相关阅读、上/下一篇、导航表驱动均按配置生效；首页 8 个 builder 模块全部渲染。
+
+### 本次修复
+| 问题 | 修复 |
+| --- | --- |
+| sitemap 收录已下线的 `/archive`、关闭的 `/guestbook`、与首页重复的 `/page/home` | `SeoController` 静态清单与条件收录 + 3 个守卫测试 |
+| 未知/错误 URL 把游客重定向到登录页 | `permission.ts` 未匹配路由 → `/404`，`/404` 加入白名单 + 2 个测试 |
+| `/business` 分类筛选芯片深色下 2:1（落到旧博客 `.tag` 规则） | 页面内用 `--tpl-*` 补齐芯片样式 |
+| 「置顶/推荐」角标亮色下 2.0~2.6:1 | 亮色改用 `--el-color-{danger,warning}-dark-4` |
+| 富文本编辑器的图片上传从未初始化（quill 未就绪） | 改由 `<quill-editor @ready>` 挂载处理器（实测点击图片按钮→触发 file input click） |
+| 404 页深色下文字不可见（写死 `#222`） | 配色改为 `--el-*` / `--mo-on-primary` 令牌 |
+
+### 未处理（待决策）
+- `/author/:id`（博客作者主页）与 `/bookmarks`（我的收藏）仍存在但已无入口/无收藏来源，属博客遗留。
+- 联系我们页按设计稿应有「咨询表单」，当前只有联系方式卡片/分渠道/地图/FAQ/CTA。
+- sitemap 未收录 `/agreement`、`/privacy`（法务页，是否收录取决于 SEO 策略）。

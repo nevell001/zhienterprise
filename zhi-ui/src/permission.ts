@@ -40,7 +40,9 @@ const whiteList = [
   '/search',
   '/bookmarks',
   '/agreement',
-  '/privacy'
+  '/privacy',
+  // 404 页必须免登录可达：错误链接/已下线页面要看到「页面不存在」而不是被弹到登录页
+  '/404'
 ]
 
 const isWhiteList = (path: string): boolean => {
@@ -227,6 +229,13 @@ router.beforeEach(
         }
       } else {
         // 没有token
+        // 未匹配任何路由（错误链接、已下线页面如旧的 /archive）：展示 404，
+        // 不要按「需要登录」处理 —— 那会把普通访客骗到登录页
+        if (to.matched.length === 0 && to.path !== '/404') {
+          next({ path: '/404', replace: true })
+          NProgress.done()
+          return
+        }
         if (isWhiteList(to.path)) {
           // 在免登录白名单，直接进入
           next()
