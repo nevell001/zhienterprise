@@ -215,4 +215,14 @@ class SeoControllerTest
             "留言板开启时应正常收录");
     }
 
+
+    @Test
+    @DisplayName("sitemap 收录协议与隐私页（法务公开内容）")
+    void sitemapIncludesLegalPages() throws Exception
+    {
+        String xml = body("/sitemap.xml", "blog.example.com", 443);
+        assertTrue(xml.contains("/agreement"), "用户协议页应被收录");
+        assertTrue(xml.contains("/privacy"), "隐私政策页应被收录");
+    }
+
 }

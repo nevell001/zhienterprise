@@ -28,8 +28,13 @@ import com.zhi.system.service.ISettingService;
 public class SeoController
 {
     /** 页面地址集合（站点前台为短路径，与 zhi-ui/src/router/site.ts 一致） */
-    /** 静态页面清单；/archive 已随博客功能下线（页面与路由均已删除），不得再收录 */
-    private static final String[] STATIC_PATHS = { "/about", "/honors", "/history", "/category", "/tag", "/guestbook" };
+    /**
+     * 静态页面清单；/archive 已随博客功能下线（页面与路由均已删除），不得再收录。
+     * 协议/隐私页是公开可索引的法务内容，按产品决策一并收录。
+     */
+    private static final String[] STATIC_PATHS = {
+        "/about", "/honors", "/history", "/category", "/tag", "/guestbook", "/agreement", "/privacy"
+    };
 
     @Autowired
     private ISettingService settingService;
