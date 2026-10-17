@@ -18,7 +18,17 @@ const props = withDefaults(defineProps<Props>(), {
   color: ''
 })
 
-const iconName = computed(() => `#icon-${props.iconClass}`)
+/**
+ * 图标缺失时的兜底：菜单/路由里配了不存在的图标名时，`<use>` 会渲染成空白，
+ * 侧栏会出现一块看不见的占位。这里检查 symbol 是否注册，缺失则回退到通用图标。
+ * 真正的错误仍由 `assets/icons/menu-icons.test.ts` 在 CI 拦截。
+ */
+const iconName = computed(() => {
+  if (!props.iconClass) return '#icon-component'
+  const registered =
+    typeof document !== 'undefined' && document.getElementById(`icon-${props.iconClass}`)
+  return registered ? `#icon-${props.iconClass}` : '#icon-component'
+})
 const svgClass = computed(() => {
   if (props.className) {
     return `svg-icon ${props.className}`

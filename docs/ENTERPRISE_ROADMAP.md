@@ -397,3 +397,10 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
   - 深/浅色与窄屏（≤900px 自动单列）适配。
 - **不变**：数据键与 JSON 结构、保存接口、前台回退逻辑完全不变；改版只改编辑态 UI。
 - **测试**：`index.test.ts` 新增分区渲染、行排序、分区恢复默认、计数同步、页面文案恢复默认 5 条行为用例。
+
+## 二十、侧栏菜单图标修复（2026-10-17）
+
+- **现象**：后台侧栏「解决方案管理」没有图标（一块空白），其余菜单正常。
+- **根因**：`sys_menu` 种子给 2012 配的 `lightning` 不在前端 `src/assets/icons/svg/` 图标集中；`SvgIcon` 直接输出 `<use href="#icon-lightning">`，找不到 symbol 即为空，不报错。
+- **修复**：种子与存量库改为 `skill`（灯泡，语义贴合「解决方案」）；SQL 增加幂等 `UPDATE sys_menu SET icon='skill' WHERE menu_id=2012 AND icon='lightning'`。
+- **防回归**：新增 `src/assets/icons/menu-icons.test.ts`（解析 SQL 种子的 sys_menu 图标 ↔ svg 目录比对）；`SvgIcon` 增加缺失兜底（回退 `component` 图标），避免配置错误时再出现空白。
