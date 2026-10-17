@@ -1,0 +1,45 @@
+// Tech Blue 变量
+$--tech-primary: #00d4ff;
+$--tech-primary-dark: #0088aa;
+$--tech-bg: #0a192f;
+$--tech-bg-light: #112240;
+$--tech-text: #ccd6f6;
+$--tech-text-dark: #8892b0;
+
+// 恢复基础颜色变量（兼容旧组件）
+$blue: $--tech-primary;
+$light-blue: #4fc3f7;
+$red: #f56c6c;
+$pink: #e65d6e;
+$green: #67c23a;
+$tiffany: #4ab7bd;
+$yellow: #e6a23c;
+$panGreen: #30b08f;
+
+// 兼容旧版本的变量名
+$base-menu-color-active: $--tech-primary;
+$menuActiveText: $--tech-primary;
+$base-sub-menu-background: $--tech-bg;
+$base-sub-menu-hover: $--tech-bg-light;
+
+// 默认主题变量（暗色侧边栏）
+$menuText: #bfcbd9;
+$menuBg: $--tech-bg-light;
+$menuHover: $--tech-bg;
+
+// 浅色侧边栏主题变量
+$menuLightBg: #ffffff;
+$menuLightHover: #f0f1f5;
+$menuLightText: #303133;
+$menuLightActiveText: $--tech-primary;
+
+// 基础变量
+$base-sidebar-width: 200px;
+$sideBarWidth: 200px;
+
+// 组件变量 (保持与 Element Plus 兼容，但应用主题色)
+$--color-primary: $--tech-primary;
+$--color-success: #67c23a;
+$--color-warning: #e6a23c;
+$--color-danger: #f56c6c;
+$--color-info: #909399;

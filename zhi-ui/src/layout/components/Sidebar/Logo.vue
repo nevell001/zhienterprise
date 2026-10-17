@@ -21,7 +21,7 @@
 import logo from '@/assets/logo/logo.png'
 import { computed } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
-import variables from '@/assets/styles/variables.module.scss'
+import { SIDEBAR_THEME } from '@/assets/styles/sidebarTheme'
 
 defineProps({
   collapse: {
@@ -39,7 +39,7 @@ const getLogoBackground = computed(() => {
   if (settingsStore.isDark) {
     return 'var(--sidebar-bg)'
   }
-  return sideTheme.value === 'theme-dark' ? variables.menuBg : variables.menuLightBg
+  return sideTheme.value === 'theme-dark' ? SIDEBAR_THEME.menuBg : SIDEBAR_THEME.menuLightBg
 })
 
 // 获取Logo文字颜色
@@ -47,7 +47,7 @@ const getLogoTextColor = computed(() => {
   if (settingsStore.isDark) {
     return 'var(--sidebar-text)'
   }
-  return sideTheme.value === 'theme-dark' ? '#fff' : variables.menuLightText
+  return sideTheme.value === 'theme-dark' ? '#fff' : SIDEBAR_THEME.menuLightText
 })
 </script>
 

@@ -191,6 +191,9 @@ html.dark .tpl-site {
   --tpl-p-h: color-mix(in srgb, var(--tpl-p) 78%, #000);
   --tpl-sh-sm: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.35);
   --tpl-sh-md: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+  /* 模板主色（深色系）作实心按钮底时用白字；覆盖 JS 按「界面主题颜色」算出的
+     配对前景色（暗色模式下主题色可能被提亮为浅色，导致白/墨判断不适用于模板）。 */
+  --mo-on-primary: #fff !important;
 }
 
 /* ---------- 滚动入场（移植自 base.css .rv / rv.js 行为约定） ----------

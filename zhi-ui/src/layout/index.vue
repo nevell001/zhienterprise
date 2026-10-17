@@ -84,7 +84,6 @@ defineOptions({
 
 <style lang="scss" scoped>
 @use '@/assets/styles/mixin.scss' as mix;
-@use '@/assets/styles/variables.module.scss' as vars;
 
 .app-wrapper {
   @include mix.clearfix;
@@ -113,7 +112,7 @@ defineOptions({
   top: 0;
   right: 0;
   z-index: 9;
-  width: calc(100% - #{vars.$base-sidebar-width});
+  width: calc(100% - var(--base-sidebar-width, 200px));
   transition: width 0.28s;
 }
 

@@ -409,7 +409,9 @@ const handleUserCommand = async (command: string) => {
   padding: 0 var(--mo-sp-4);
   border-radius: var(--tpl-r-md);
   background: var(--tpl-p);
-  color: var(--tpl-on-hero);
+  /* CTA 是主色实心按钮：前景不能用 over-hero（亮色模式下它是深墨色，
+     压在深蓝主色上只有 2.9:1），模板主色均为深色系，白字达标 */
+  color: var(--tpl-white);
   font-size: var(--mo-fs-sm);
   font-weight: 600;
   text-decoration: none;

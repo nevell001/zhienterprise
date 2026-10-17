@@ -27,6 +27,22 @@ html.dark .mo-home-page {
   color: var(--el-text-color-primary);
 }
 
+/* ===== 暗色模式：Element 主色由主题色提亮派生 =====
+   handleThemeStyle 写的是「亮色模式」主色；深色主题色（如 #334155）直接用在
+   深底上，按钮/链接/聚焦边框都会低对比。这里在暗色下把主色向白混合一档，
+   并同步 light/dark 变体与配对前景色。
+   企业模板页（html.tpl-site）排除在外：继续使用行业模板主色（见 site-templates.scss）。 */
+html.dark:not(.tpl-site) {
+  --el-color-primary: color-mix(in srgb, var(--theme-primary) 55%, #fff) !important;
+  --el-color-primary-light-3: color-mix(in srgb, var(--theme-primary) 45%, #fff) !important;
+  --el-color-primary-light-5: color-mix(in srgb, var(--theme-primary) 32%, #fff) !important;
+  --el-color-primary-light-7: color-mix(in srgb, var(--theme-primary) 26%, #1d1d1d) !important;
+  --el-color-primary-light-8: color-mix(in srgb, var(--theme-primary) 18%, #1d1d1d) !important;
+  --el-color-primary-light-9: color-mix(in srgb, var(--theme-primary) 12%, #1d1d1d) !important;
+  --el-color-primary-dark-2: color-mix(in srgb, var(--theme-primary) 45%, #fff) !important;
+  --mo-on-primary: #06272e !important;
+}
+
 /* Mo-Blog 主题深色：恢复棕色色阶
    注意：n300/n400 在浅色主题里是「次要文字色」（中灰 #d6d3d1 / #a8a29e），
    深色下必须仍是浅灰；曾误映射为 #57534e / #78716c（比卡片背景还深），

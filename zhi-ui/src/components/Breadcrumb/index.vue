@@ -110,7 +110,7 @@ onUnmounted(() => {
   margin-left: 8px;
 
   .no-redirect {
-    color: #97a8be;
+    color: var(--el-text-color-secondary);
     cursor: text;
   }
 }

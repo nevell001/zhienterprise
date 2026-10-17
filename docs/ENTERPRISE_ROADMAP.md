@@ -374,3 +374,14 @@ PageRenderer/registry + 14 类模块组件 + 菜单管理（site_nav_item）+
 - **组件级硬编码清理**：消息框确认按钮、标签/分类选择器、头像上传、富文本编辑器、文章卡片、401/404 错误页、后台文章编辑器与页面示例区块、默认头像占位色，全部改为令牌派生。
 - **防回归守卫**：新增 `src/theme-color-contract.test.ts` 扫描源码，禁止在声明与 ECharts option 中写死品牌色（`var()` fallback 与预设选择器白名单除外）。
 - **验证**：匿名经典模式实测 `--el-color-primary` = 主题色 `#334155`、`--mo-p600` 同步、主按钮 `rgb(51,65,85)`；企业模式仍为模板色 `#185fa5`；统计页 `getChartThemeColors().primary = #334155`；404 容器主色 = 主题色。全量门禁（前端测试/构建 + 后端 `mvn clean verify`）通过。
+
+## 十八、深浅色配色审计与修复（2026-10-17）
+
+- **触发**：菜单管理页「链接类型/编辑」等颜色在深/浅色下观感异常。
+- **根因 1（暗色变量被覆盖）**：`variables.module.scss` 同时被 JS（`import variables from '...module.scss'`）与 `layout/index.vue` 的 scoped 样式引入，Vite 生成 **哈希类名副本**（`html:not(._dark_xxx)` / `html[data-v-xxx]:not(.dark)`）；暗色模式下这些「非 dark」规则命中 `<html>`，把浅色变量覆盖到暗色值上（实测 `--el-text-color-secondary` 在 dark 下仍为 `#78716c`）。
+  - 修复：拆分为 `_vars.scss`（SCSS 变量）+ `variables.scss`（全局 CSS 变量，仅 index.scss 引入）；删除 `variables.module.scss`；侧栏 JS 值改 `sidebarTheme.ts`，宽度用 `--base-sidebar-width`。
+- **根因 2（一刀切暗色规则）**：暗色块里 `.el-tag`、`.el-button--default` 全部灰化 → 标签语义色丢失、文字按钮（编辑/删除）颜色不分；实心主按钮前景色泄漏到 `is-link`。已按 `:not()` 精确作用域修复。
+- **根因 3（未提亮深色）**：深色主题色（`#334155`）直接压在深底上不可读。暗色下 Element 主色改为向白混合派生，并同步 light/dark 变体与配对前景色。
+- **配色校准**：浅色 `success/warning/danger/info/placeholder` 压到 ≥4.5:1；暗色 `effect="dark"` 语义标签改深底+提亮文字；面包屑、侧栏 hover/激活、默认文字按钮、info 标签、导航 CTA 前景全部令牌化。
+- **验证**：后台 6 页 + 前台 8 页（含搜索/分类/文章/关于/联系/登录）在浅色与深色下按 **4.5:1**（排除禁用态）扫描均为 0 处；菜单管理页两种模式截图核对。
+- **说明**：语义色（成功/警告/危险）为全局校准，会影响所有使用这些 Element 语义色的按钮/标签（更深的绿/橙/红），属预期。

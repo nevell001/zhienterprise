@@ -353,15 +353,21 @@ function handleMenuClick(menuItem: SidebarRouteItem, event?: Event) {
 }
 
 .menu-item:hover {
-  background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
-  color: var(--menu-active-text, #409eff) !important;
+  background-color: var(
+    --menu-hover,
+    color-mix(in srgb, var(--el-color-primary) 12%, transparent)
+  ) !important;
+  color: var(--menu-active-text, var(--el-color-primary)) !important;
   transform: translateX(3px);
   transition: all 0.3s ease;
 }
 
 .menu-item.is-active {
-  color: var(--menu-active-text, #409eff);
-  background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
+  color: var(--menu-active-text, var(--el-color-primary));
+  background-color: var(
+    --menu-hover,
+    color-mix(in srgb, var(--el-color-primary) 12%, transparent)
+  ) !important;
 }
 
 .menu-item.is-active::before {
@@ -371,7 +377,7 @@ function handleMenuClick(menuItem: SidebarRouteItem, event?: Event) {
   top: 0;
   bottom: 0;
   width: 4px;
-  background-color: var(--menu-active-text, #409eff);
+  background-color: var(--menu-active-text, var(--el-color-primary));
 }
 
 .menu-title {
@@ -403,18 +409,24 @@ function handleMenuClick(menuItem: SidebarRouteItem, event?: Event) {
 }
 
 .el-sub-menu .el-menu-item {
-  background-color: var(--submenu-bg, rgba(0, 0, 0, 0.02)) !important;
+  background-color: var(--submenu-bg, transparent) !important;
   color: var(--submenu-text, #606266) !important;
 }
 
 .el-sub-menu .el-menu-item:hover {
-  background-color: var(--submenu-hover, rgba(0, 0, 0, 0.06)) !important;
-  color: var(--menu-active-text, #409eff) !important;
+  background-color: var(
+    --submenu-hover,
+    color-mix(in srgb, var(--el-color-primary) 12%, transparent)
+  ) !important;
+  color: var(--menu-active-text, var(--el-color-primary)) !important;
 }
 
 .el-sub-menu .el-menu-item.is-active {
-  background-color: var(--submenu-active, rgba(64, 158, 255, 0.1)) !important;
-  color: var(--menu-active-text, #409eff) !important;
+  background-color: var(
+    --submenu-active,
+    color-mix(in srgb, var(--el-color-primary) 18%, transparent)
+  ) !important;
+  color: var(--menu-active-text, var(--el-color-primary)) !important;
 }
 
 /* 确保子菜单标题可点击 */

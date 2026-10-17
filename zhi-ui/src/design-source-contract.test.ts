@@ -41,7 +41,6 @@ const DARK_HEX_CEILING: Record<string, number> = {
 const LIGHT_ONLY_HEX_CEILING: Record<string, number> = {
   'components/AvatarUpload.vue': 5,
   'components/SiteLayout.vue': 1,
-  'components/Breadcrumb/index.vue': 1,
   'components/Crontab/index.vue': 2,
   'components/Editor/index.vue': 5,
   'components/HeaderSearch/index.vue': 1,

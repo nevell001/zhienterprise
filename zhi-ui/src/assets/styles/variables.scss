@@ -1,3 +1,10 @@
+/* 全局 CSS 变量（主题色/侧栏/语义色 Token）。
+   注意：本文件是 **普通 SCSS**（不是 .module.scss），只能通过 index.scss @use 全局引入；
+   不要再从 JS 里 `import variables from '.../variables.module.scss'`——
+   那会把整个文件当 CSS Module 注入一份哈希类名副本，暗色模式下 `:not(._dark_xxx)`
+   会命中浅色变量，覆盖暗色值（真实踩坑）。
+
+   SCSS 变量直接在本文件声明：Sass 的 `$--xxx` 属于私有成员，@use 不会导出。 */
 // Tech Blue 变量
 $--tech-primary: #00d4ff;
 $--tech-primary-dark: #0088aa;
@@ -44,22 +51,9 @@ $--color-warning: #e6a23c;
 $--color-danger: #f56c6c;
 $--color-info: #909399;
 
-:export {
-  menuText: $menuText;
-  menuActiveText: $menuActiveText;
-  menuBg: $menuBg;
-  menuHover: $menuHover;
-  menuLightBg: $menuLightBg;
-  menuLightHover: $menuLightHover;
-  menuLightText: $menuLightText;
-  menuLightActiveText: $menuLightActiveText;
-  sideBarWidth: $sideBarWidth;
-  // 导出组件颜色
-  colorPrimary: $--color-primary;
-}
-
 // CSS变量定义
 :root {
+  --base-sidebar-width: 200px;
   --tech-primary: #{$--tech-primary};
   --tech-primary-dark: #{$--tech-primary-dark};
   --tech-bg: #{$--tech-bg};
@@ -70,6 +64,10 @@ $--color-info: #909399;
   /* 亮色模式映射到 Tech Blue 简约风格 */
   --sidebar-bg: #{$--tech-bg-light};
   --sidebar-text: #{$--tech-text};
+  /* 侧栏在浅色模式下仍是深色底：菜单/二级菜单文字必须用浅色，
+     此前 --submenu-text 未定义时回退 #606266，在深色侧栏上只有 2.59:1。 */
+  --menu-text: var(--sidebar-text);
+  --submenu-text: color-mix(in srgb, var(--sidebar-text) 88%, transparent);
   --menu-hover: #{$--tech-bg};
 
   --navbar-bg: #ffffff;
@@ -80,6 +78,12 @@ $--color-info: #909399;
      所以与白混合提亮；白色侧边栏（sideTheme=theme-light）见 sidebar.scss 的覆盖。
      用 var(--el-color-primary) 而非写死，handleThemeStyle 换主色时自动跟随。 */
   --menu-active-text: color-mix(in srgb, var(--el-color-primary) 55%, #ffffff);
+  /* 侧栏/子菜单/顶栏的 hover 与激活底色统一从主题色派生；
+     浅色模式下侧栏仍是深色底，因此用半透明主题色叠加，不再写死蓝色。 */
+  --menu-hover: color-mix(in srgb, var(--el-color-primary) 12%, transparent);
+  --submenu-hover: color-mix(in srgb, var(--el-color-primary) 12%, transparent);
+  --submenu-active: color-mix(in srgb, var(--el-color-primary) 18%, transparent);
+  --navbar-hover: color-mix(in srgb, var(--el-color-primary) 12%, transparent);
 
   /* 主色填充控件的前景色。默认主题亮色用 Element Plus 主色 #409eff（白字仅 2.78:1），
      深色用 Tech Blue 亮青 #00d4ff（白字仅 1.77:1），因此默认取深墨色；
@@ -93,11 +97,19 @@ $--color-info: #909399;
    深色值见下方 html.dark。 */
 html:not(.dark) {
   --el-text-color-secondary: #78716c;
+  /* EP placeholder 默认 #a8abb2，白底只有 2.3:1（表单「请选择…」） */
+  --el-text-color-placeholder: #78716c;
   /* EP 的信息色（输入框字数计数 el-input__count、info 标签/按钮）默认 #909399，
      白底只有 3.08:1 */
-  --el-color-info: #78716c;
+  --el-color-info: #6b6561;
   /* EP 的 error 文字默认 #f56c6c，白底只有 2.90:1（校验提示、消息提示） */
   --el-color-error: #b13a3a;
+  /* EP 的 success/warning/danger 默认在白底/浅底上仅 2.0~2.9:1；
+     标签文字、警告/删除按钮白字都不达标。按浅色底（含 light-9 淡底）
+     校准到 ≥4.5:1，同时保证实心按钮白字达标。 */
+  --el-color-success: #3f7a22;
+  --el-color-warning: #96661c;
+  --el-color-danger: #b13a3a;
   /* 主色当文字用在浅色底上时的取值（#409eff on #fff 只有 2.78:1）：
      把主色压暗一档，主题换色时自动跟随；深色模式改用浅色阶（见 html.dark） */
   --mo-primary-text: color-mix(in srgb, var(--el-color-primary) 55%, #000000);

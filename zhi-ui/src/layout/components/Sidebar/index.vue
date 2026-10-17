@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import Logo from './Logo.vue'
 import SidebarItem from './SidebarItem.vue'
-import variables from '@/assets/styles/variables.module.scss'
+import { SIDEBAR_THEME } from '@/assets/styles/sidebarTheme'
 import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
@@ -59,7 +59,7 @@ const getMenuBackground = computed(() => {
   if (settingsStore.isDark) {
     return 'var(--sidebar-bg)'
   }
-  return sideTheme.value === 'theme-dark' ? variables.menuBg : variables.menuLightBg
+  return sideTheme.value === 'theme-dark' ? SIDEBAR_THEME.menuBg : SIDEBAR_THEME.menuLightBg
 })
 
 // 获取菜单文字颜色
@@ -67,7 +67,7 @@ const getMenuTextColor = computed(() => {
   if (settingsStore.isDark) {
     return 'var(--sidebar-text)'
   }
-  return sideTheme.value === 'theme-dark' ? variables.menuText : variables.menuLightText
+  return sideTheme.value === 'theme-dark' ? SIDEBAR_THEME.menuText : SIDEBAR_THEME.menuLightText
 })
 
 const activeMenu = computed(() => {
@@ -133,7 +133,10 @@ onMounted(() => {
     .el-menu-item,
     .el-sub-menu__title {
       &:hover {
-        background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
+        background-color: var(
+          --menu-hover,
+          color-mix(in srgb, var(--el-color-primary) 12%, transparent)
+        ) !important;
       }
     }
 
@@ -141,8 +144,11 @@ onMounted(() => {
       color: v-bind(getMenuTextColor);
 
       &.is-active {
-        color: var(--menu-active-text, #409eff);
-        background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
+        color: var(--menu-active-text, var(--el-color-primary));
+        background-color: var(
+          --menu-hover,
+          color-mix(in srgb, var(--el-color-primary) 12%, transparent)
+        ) !important;
       }
     }
 
