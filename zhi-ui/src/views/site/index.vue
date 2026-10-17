@@ -736,12 +736,13 @@ html.dark .mo-home-page {
   --mo-n300: var(--el-text-color-regular);
   --mo-n200: var(--el-text-color-primary);
   --mo-n100: var(--el-text-color-primary);
-  --mo-p50: rgba(0, 212, 255, 0.12);
-  --mo-p100: rgba(0, 212, 255, 0.2);
-  --mo-p300: var(--el-color-primary);
-  --mo-p500: var(--el-color-primary);
-  --mo-p600: var(--el-color-primary);
-  --mo-p700: var(--el-color-primary);
+  --mo-p50: color-mix(in srgb, var(--theme-primary) 16%, #141414);
+  --mo-p100: color-mix(in srgb, var(--theme-primary) 24%, #141414);
+  --mo-p200: color-mix(in srgb, var(--theme-primary) 34%, #141414);
+  --mo-p300: color-mix(in srgb, var(--theme-primary) 55%, #fff);
+  --mo-p500: color-mix(in srgb, var(--theme-primary) 78%, #fff);
+  --mo-p600: color-mix(in srgb, var(--theme-primary) 88%, #fff);
+  --mo-p700: color-mix(in srgb, var(--theme-primary) 66%, #fff);
   background: var(--el-bg-color);
   color: var(--el-text-color-primary);
 }
@@ -757,12 +758,13 @@ html.dark.theme-mo-blog .mo-home-page {
   --mo-n300: #a8a29e;
   --mo-n200: #d6d3d1;
   --mo-n100: #f5f5f4;
-  --mo-p50: rgba(99, 102, 241, 0.12);
-  --mo-p100: rgba(99, 102, 241, 0.2);
-  --mo-p300: #a5b4fc;
-  --mo-p500: #6366f1;
-  --mo-p600: #4f46e5;
-  --mo-p700: #4338ca;
+  --mo-p50: color-mix(in srgb, var(--theme-primary) 16%, #1c1917);
+  --mo-p100: color-mix(in srgb, var(--theme-primary) 24%, #1c1917);
+  --mo-p200: color-mix(in srgb, var(--theme-primary) 34%, #1c1917);
+  --mo-p300: color-mix(in srgb, var(--theme-primary) 55%, #fff);
+  --mo-p500: color-mix(in srgb, var(--theme-primary) 78%, #fff);
+  --mo-p600: color-mix(in srgb, var(--theme-primary) 88%, #fff);
+  --mo-p700: color-mix(in srgb, var(--theme-primary) 66%, #fff);
   background: var(--mo-n900);
   color: var(--mo-n200);
 }

@@ -53,6 +53,8 @@ export function handleThemeStyle(theme: string): void {
   if (!theme || typeof theme !== 'string') {
     theme = '#409EFF' // 使用Element UI默认主色调作为备用
   }
+  // --mo-p* 色阶由它派生（见 themes/mo-blog.scss），改主题色即整站换色
+  document.documentElement.style.setProperty('--theme-primary', theme)
   document.documentElement.style.setProperty('--el-color-primary', theme)
   for (let i = 1; i <= 9; i++) {
     document.documentElement.style.setProperty(

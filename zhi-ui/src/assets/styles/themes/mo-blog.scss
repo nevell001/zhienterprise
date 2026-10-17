@@ -21,16 +21,21 @@
  */
 
 :root {
-  --mo-p50: #eef2ff;
-  --mo-p100: #e0e7ff;
-  --mo-p200: #c7d2fe;
-  --mo-p300: #a5b4fc;
-  --mo-p400: #818cf8;
-  --mo-p500: #6366f1;
-  --mo-p600: #4f46e5;
-  --mo-p700: #4338ca;
-  --mo-p800: #3730a3;
-  --mo-p900: #312e81;
+  /* 主色色阶由「界面主题 → 主题颜色」派生（handleThemeStyle 写入 --theme-primary）。
+     组件只要用 --mo-p* 就会跟随主题色；企业官网模板作用域会把它覆盖成模板主色
+     （见 themes/enterprise.scss）。不要在组件里再写死 p 色阶字面量。
+     档位按原靛蓝色板的明度比例用 color-mix 还原：50–500 向白混合，700–900 向黑混合。 */
+  --theme-primary: #4f46e5;
+  --mo-p50: color-mix(in srgb, var(--theme-primary) 10%, #fff);
+  --mo-p100: color-mix(in srgb, var(--theme-primary) 17%, #fff);
+  --mo-p200: color-mix(in srgb, var(--theme-primary) 30%, #fff);
+  --mo-p300: color-mix(in srgb, var(--theme-primary) 47%, #fff);
+  --mo-p400: color-mix(in srgb, var(--theme-primary) 68%, #fff);
+  --mo-p500: color-mix(in srgb, var(--theme-primary) 87%, #fff);
+  --mo-p600: var(--theme-primary);
+  --mo-p700: color-mix(in srgb, var(--theme-primary) 85%, #000);
+  --mo-p800: color-mix(in srgb, var(--theme-primary) 70%, #000);
+  --mo-p900: color-mix(in srgb, var(--theme-primary) 62%, #000);
   --mo-n0: #ffffff;
   --mo-n50: #fafaf9;
   --mo-n100: #f5f5f4;

@@ -5,16 +5,10 @@
    自动换装，避免复制一份 mo-blog 皮肤造成两份漂移。 */
 
 html.theme-enterprise {
-  --mo-p50: #eff6ff;
-  --mo-p100: #dbeafe;
-  --mo-p200: #bfdbfe;
-  --mo-p300: #93c5fd;
-  --mo-p400: #60a5fa;
-  --mo-p500: #2563eb;
-  --mo-p600: #1d4ed8;
-  --mo-p700: #1e40af;
-  --mo-p800: #1e3a8a;
-  --mo-p900: #172554;
+  /* 企业官网前台的主色统一取「行业模板」主色（--tpl-p，5 套模板各自不同），
+     通过覆盖 --theme-primary 让整条 --mo-p* 色阶跟随模板；后台不受影响（用主题颜色）。
+     !important 用来压过 handleThemeStyle 写在 <html> 内联的 --theme-primary。 */
+  --theme-primary: var(--tpl-p, #2563eb) !important;
 
   /* 强调色去粉：改用青蓝（sky）系 */
   --mo-a50: #f0f9ff;

@@ -2261,9 +2261,9 @@ html.dark .mo-editor-form {
   --mo-n700: var(--el-text-color-primary);
   --mo-n800: var(--el-text-color-primary);
   --mo-n900: var(--el-text-color-primary);
-  --mo-p50: rgba(0, 212, 255, 0.12);
-  --mo-p100: rgba(0, 212, 255, 0.2);
-  --mo-p200: rgba(0, 212, 255, 0.3);
+  --mo-p50: color-mix(in srgb, var(--theme-primary) 16%, #141414);
+  --mo-p100: color-mix(in srgb, var(--theme-primary) 24%, #141414);
+  --mo-p200: color-mix(in srgb, var(--theme-primary) 34%, #141414);
   /* 强调色文字：p600 不参与深色重映射（浅色主题的深靛蓝在深色底上仅 ≈2:1），
      改为按主题主色即时混出的浅色强调（默认主题=浅青，Mo-Blog=浅靛） */
   --mo-p300: color-mix(in srgb, var(--el-color-primary) 45%, #ffffff);
@@ -2283,9 +2283,9 @@ html.dark.theme-mo-blog .mo-editor-form {
   --mo-n700: #e7e5e4;
   --mo-n800: #f5f5f4;
   --mo-n900: #fafaf9;
-  --mo-p50: rgba(99, 102, 241, 0.12);
-  --mo-p100: rgba(99, 102, 241, 0.2);
-  --mo-p200: rgba(99, 102, 241, 0.3);
+  --mo-p50: color-mix(in srgb, var(--theme-primary) 16%, #292524);
+  --mo-p100: color-mix(in srgb, var(--theme-primary) 24%, #292524);
+  --mo-p200: color-mix(in srgb, var(--theme-primary) 34%, #292524);
   --mo-p300: color-mix(in srgb, var(--el-color-primary) 45%, #ffffff);
 }
 
