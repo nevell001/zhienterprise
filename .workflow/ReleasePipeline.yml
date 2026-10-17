@@ -1,4 +1,4 @@
-# 知企建站系统（ZhiEnterprise）发布流水线：打 v* 开头的 tag 时触发（如 v1.0.0）
+# 知企建站系统（ZhiEnterprise）发布流水线：打 v* 开头的 tag 时触发（如 v1.1.0）
 # 构建测试 + 上传制品 + 发布 Gitee 发行版；部署阶段为骨架，配置好主机组后取消注释即可
 version: '1.0'
 name: release-pipeline
@@ -9,9 +9,9 @@ triggers:
     tags:
       include:
         - v*
-      # 排除 release@gitee 插件自动创建的 v1.0.0 tag，避免流水线被自身触发死循环
+      # 排除 release@gitee 插件自动创建的 v1.1.0 tag，避免流水线被自身触发死循环
       exclude:
-        - v1.0.0.*
+        - v1.1.0.*
 stages:
   - name: backend
     displayName: 后端编译与测试
@@ -97,13 +97,13 @@ stages:
     strategy: naturally
     trigger: auto
     steps:
-      # Gitee Go Release 插件：自动创建仓库「发行版」，复用触发流水线的 v1.0.0 tag
+      # Gitee Go Release 插件：自动创建仓库「发行版」，复用触发流水线的 v1.1.0 tag
       - step: release@gitee
         name: release_gitee
         displayName: Gitee Release
-        releaseName: 知企建站系统 v1.0.0
-        description: 知企建站系统 v1.0.0 发布构建（Gitee Go 流水线自动生成）。
-        tagName: v1.0.0
+        releaseName: 知企建站系统 v1.1.0
+        description: 知企建站系统 v1.1.0 发布构建（Gitee Go 流水线自动生成）。
+        tagName: v1.1.0
         upstreamArtifact:
           - BACKEND_JAR
           - FRONTEND_DIST_PACKAGE
