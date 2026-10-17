@@ -34,7 +34,7 @@
         <div class="fcol">
           <h4>快速导航</h4>
           <template v-for="item in footerNavItems" :key="`${item.linkValue}-${item.label}`">
-            <router-link v-if="item.linkValue === '/business'" :to="item.linkValue || '/'">
+            <router-link v-if="isBusinessItem(item)" :to="item.linkValue || '/'">
               {{ businessLabel }}
             </router-link>
             <router-link v-else :to="item.linkValue || '/'">{{ item.label }}</router-link>
@@ -130,6 +130,9 @@ const rssUrl = computed(() => {
 
 /* ---------- 快速导航：site_nav_item 表驱动（后台「菜单管理」维护） ---------- */
 const footerNavItems = ref<SiteNavItem[]>(DEFAULT_FOOTER_NAV)
+
+/** 与头部导航/后台菜单管理同口径：trim 后精确匹配核心业务入口 */
+const isBusinessItem = (item: SiteNavItem) => (item.linkValue || '').trim() === '/business'
 
 /* ---------- 减弱动效开关（§4.7 用户手动开关，优先级高于系统设置） ---------- */
 const motionOff = ref(getMotionOffStored())

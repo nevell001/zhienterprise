@@ -149,6 +149,12 @@ const businessLabel = computed(
 /* ---------- 导航数据：site_nav_item 表驱动（后台「菜单管理」维护） ---------- */
 const navItems = ref<SiteNavItem[]>(DEFAULT_HEADER_NAV)
 
+/**
+ * 是否为核心业务入口：与后台「菜单管理」的 isControlledLabel 同口径（trim 后精确匹配），
+ * 否则库里带空白的 `/business ` 会出现「后台显示受控、前台不替换」的分叉。
+ */
+const isBusinessItem = (item: SiteNavItem) => (item.linkValue || '').trim() === '/business'
+
 onMounted(async () => {
   try {
     const response = await getSiteNav('header')
@@ -156,7 +162,7 @@ onMounted(async () => {
     if (Array.isArray(tree) && tree.length > 0) {
       // 业务标签动态替换（business_label 设置），CTA 项单列渲染
       navItems.value = tree.map(item =>
-        item.linkValue === '/business' ? { ...item, label: businessLabel.value } : item
+        isBusinessItem(item) ? { ...item, label: businessLabel.value } : item
       )
     }
   } catch {
@@ -165,9 +171,7 @@ onMounted(async () => {
 })
 
 watch(businessLabel, label => {
-  navItems.value = navItems.value.map(item =>
-    item.linkValue === '/business' ? { ...item, label } : item
-  )
+  navItems.value = navItems.value.map(item => (isBusinessItem(item) ? { ...item, label } : item))
 })
 
 const menuItems = computed(() => navItems.value.filter(item => item.linkType !== 'cta'))

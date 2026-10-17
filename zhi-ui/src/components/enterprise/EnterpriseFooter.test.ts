@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { nextTick } from 'vue'
 import EnterpriseFooter from './EnterpriseFooter.vue'
@@ -10,9 +10,15 @@ import { useSiteSettingsStore } from '@/stores/siteSettings'
  * 企业模式曾绕过 SiteLayout 的经典页脚分支，两个开关对 EnterpriseFooter 完全无效。
  */
 
+const { getSiteNav } = vi.hoisted(() => ({ getSiteNav: vi.fn() }))
+
 vi.mock('@/api/site/nav', () => ({
-  getSiteNav: vi.fn().mockResolvedValue({ data: [] })
+  getSiteNav
 }))
+
+beforeEach(() => {
+  getSiteNav.mockResolvedValue({ data: [] })
+})
 
 const stubs = {
   RouterLink: {
@@ -21,11 +27,13 @@ const stubs = {
   }
 }
 
-function mountFooter() {
+function mountFooter(settings: Record<string, unknown> = {}) {
   const pinia = createPinia()
   const wrapper = mount(EnterpriseFooter, {
     global: { plugins: [pinia], stubs }
   })
+  const store = useSiteSettingsStore(pinia)
+  store.updateSiteSettings(settings as never)
   return { wrapper, pinia }
 }
 
@@ -45,6 +53,59 @@ describe('EnterpriseFooter 显示开关', () => {
     await nextTick()
 
     expect(wrapper.find('.ent-footer').exists()).toBe(false)
+  })
+
+  it('快速导航中 /business 项的文案跟随「栏目名称」', async () => {
+    getSiteNav.mockResolvedValue({
+      data: [
+        {
+          id: 1,
+          location: 'footer',
+          parentId: 0,
+          label: '首页',
+          linkType: 'path',
+          linkValue: '/',
+          sort: 1,
+          visible: 1
+        },
+        {
+          id: 2,
+          location: 'footer',
+          parentId: 0,
+          label: '核心业务',
+          linkType: 'path',
+          linkValue: '/business',
+          sort: 2,
+          visible: 1
+        }
+      ]
+    })
+    const { wrapper } = mountFooter({ business_label: '产品中心' })
+    await flushPromises()
+
+    const quickNav = wrapper.findAll('.fcol')[0]
+    expect(quickNav.text()).toContain('产品中心')
+  })
+
+  it('business_label 为空时快速导航回退「核心业务」', async () => {
+    getSiteNav.mockResolvedValue({
+      data: [
+        {
+          id: 2,
+          location: 'footer',
+          parentId: 0,
+          label: '核心业务',
+          linkType: 'path',
+          linkValue: '/business',
+          sort: 2,
+          visible: 1
+        }
+      ]
+    })
+    const { wrapper } = mountFooter({ business_label: '' })
+    await flushPromises()
+
+    expect(wrapper.findAll('.fcol')[0].text()).toContain('核心业务')
   })
 
   it('「显示版权」关闭：仅隐藏版权行，底部链接保留', async () => {

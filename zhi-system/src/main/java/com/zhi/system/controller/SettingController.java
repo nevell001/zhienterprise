@@ -42,6 +42,12 @@ import com.zhi.common.core.page.TableDataInfo;
 @RequestMapping("/system/setting")
 public class SettingController extends BaseController
 {
+    /** 栏目名称设置键（导航/首页/业务页共用，属于短标题文本） */
+    private static final String BUSINESS_LABEL_KEY = "business_label";
+
+    /** 栏目名称最大长度（与前端输入框 maxlength 一致） */
+    private static final int MAX_BUSINESS_LABEL_LENGTH = 20;
+
     /** 注册开关的参数键与取值：两个注册入口都按"仅字面 true 开启"判定 */
     private static final String REGISTER_USER_CONFIG_KEY = "sys.account.registerUser";
 
@@ -186,14 +192,24 @@ public class SettingController extends BaseController
             return AjaxResult.error("邮件配置请使用邮件服务专用设置入口");
         }
 
-        int result = settingService.updateSettingValueByKey(
-            settingKey, setting.getSettingValue());
+        // 栏目名称是导航/首页/业务页的短标题：统一去首尾空白并限制长度。
+        // 后端必须自校验——前端 maxlength 可被直接调接口绕过，超长值会把导航与标题撑坏。
+        String settingValue = setting.getSettingValue();
+        if (BUSINESS_LABEL_KEY.equals(settingKey))
+        {
+            settingValue = settingValue == null ? null : settingValue.trim();
+            if (settingValue != null && settingValue.length() > MAX_BUSINESS_LABEL_LENGTH)
+            {
+                return AjaxResult.error("栏目名称长度不能超过" + MAX_BUSINESS_LABEL_LENGTH + "个字符");
+            }
+            setting.setSettingValue(settingValue);
+        }
+
+        int result = settingService.updateSettingValueByKey(settingKey, settingValue);
         if (result <= 0)
         {
             return toAjax(result);
         }
-
-        String settingValue = setting.getSettingValue();
 
         // 同步 sys_config 表（前台设置的真实读取源）
         try

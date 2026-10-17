@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import EnterpriseNav from './EnterpriseNav.vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
@@ -22,16 +22,22 @@ vi.mock('@/plugins/element-plus-service', () => ({
   ElMessageBox: { confirm: vi.fn() }
 }))
 
+const { getSiteNav } = vi.hoisted(() => ({ getSiteNav: vi.fn() }))
+
 vi.mock('@/api/site/nav', () => ({
-  getSiteNav: vi.fn().mockResolvedValue({ code: 200, data: [] }),
+  getSiteNav,
   // 默认导航常量在 config/siteNav 中定义，这里保留真实导出
   default: {}
 }))
 
-function mountNav() {
+beforeEach(() => {
+  getSiteNav.mockResolvedValue({ code: 200, data: [] })
+})
+
+function mountNav(settings: Record<string, unknown> = {}) {
   const pinia = createPinia()
   setActivePinia(pinia)
-  useSiteSettingsStore().updateSiteSettings({ blog_name: '知企建站系统' } as never)
+  useSiteSettingsStore().updateSiteSettings({ blog_name: '知企建站系统', ...settings } as never)
   return mount(EnterpriseNav, {
     global: {
       plugins: [pinia],
@@ -70,6 +76,91 @@ describe('EnterpriseNav 菜单显示', () => {
     const home = links.find(link => link.attributes('href') === '/')
     expect(home).toBeTruthy()
     expect(home!.classes()).not.toContain('on')
+  })
+
+  it('菜单管理里 /business 项的标签跟随「栏目名称」（business_label）', async () => {
+    getSiteNav.mockResolvedValue({
+      code: 200,
+      data: [
+        {
+          id: 1,
+          location: 'header',
+          parentId: 0,
+          label: '首页',
+          linkType: 'path',
+          linkValue: '/',
+          sort: 1,
+          visible: 1
+        },
+        {
+          id: 2,
+          location: 'header',
+          parentId: 0,
+          label: '核心业务',
+          linkType: 'path',
+          linkValue: '/business',
+          sort: 2,
+          visible: 1
+        }
+      ]
+    })
+    const wrapper = mountNav({ business_label: '产品中心' })
+    await flushPromises()
+
+    const businessLink = wrapper
+      .findAll('.ent-links > li > a')
+      .find(link => link.attributes('href') === '/business')
+    expect(businessLink?.text()).toBe('产品中心')
+  })
+
+  it('business_label 为空时回退「核心业务」', async () => {
+    getSiteNav.mockResolvedValue({
+      code: 200,
+      data: [
+        {
+          id: 2,
+          location: 'header',
+          parentId: 0,
+          label: '核心业务',
+          linkType: 'path',
+          linkValue: '/business',
+          sort: 2,
+          visible: 1
+        }
+      ]
+    })
+    const wrapper = mountNav({ business_label: '   ' })
+    await flushPromises()
+
+    const businessLink = wrapper
+      .findAll('.ent-links > li > a')
+      .find(link => link.attributes('href') === '/business')
+    expect(businessLink?.text()).toBe('核心业务')
+  })
+
+  it('链接值带空白的 /business 同样被栏目名称托管（与后台同口径）', async () => {
+    getSiteNav.mockResolvedValue({
+      code: 200,
+      data: [
+        {
+          id: 2,
+          location: 'header',
+          parentId: 0,
+          label: '核心业务',
+          linkType: 'path',
+          linkValue: ' /business ',
+          sort: 2,
+          visible: 1
+        }
+      ]
+    })
+    const wrapper = mountNav({ business_label: '产品中心' })
+    await flushPromises()
+
+    const businessLink = wrapper
+      .findAll('.ent-links > li > a')
+      .find(link => (link.attributes('href') || '').trim() === '/business')
+    expect(businessLink?.text()).toBe('产品中心')
   })
 
   it('二级菜单（关于我们）的下拉项可渲染', () => {

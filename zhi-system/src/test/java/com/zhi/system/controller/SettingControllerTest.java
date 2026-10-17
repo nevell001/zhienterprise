@@ -271,6 +271,57 @@ class SettingControllerTest {
     }
 
     /**
+     * 栏目名称（business_label）是短标题：保存时去首尾空白（与前台渲染 trim 口径一致）。
+     */
+    @Test
+    void testUpdateByKey_TrimsBusinessLabel() throws Exception {
+        when(settingService.updateSettingValueByKey("business_label", "产品中心")).thenReturn(1);
+
+        List<com.zhi.system.domain.SysConfig> configList = new ArrayList<>();
+        com.zhi.system.domain.SysConfig config = new com.zhi.system.domain.SysConfig();
+        config.setConfigKey("business_label");
+        config.setConfigValue("核心业务");
+        configList.add(config);
+        when(configService.selectConfigList(any(com.zhi.system.domain.SysConfig.class)))
+            .thenReturn(configList);
+        when(configService.updateConfig(any(com.zhi.system.domain.SysConfig.class)))
+            .thenReturn(1);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("settingKey", "business_label");
+        params.put("settingValue", "  产品中心  ");
+
+        mockMvc.perform(post("/system/setting/updateByKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(settingService).updateSettingValueByKey("business_label", "产品中心");
+    }
+
+    /**
+     * 栏目名称超过 20 字符必须拒绝：前端 maxlength 可被直接调接口绕过，
+     * 超长值会撑坏导航与业务页标题。
+     */
+    @Test
+    void testUpdateByKey_RejectsTooLongBusinessLabel() throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        params.put("settingKey", "business_label");
+        params.put("settingValue", "产品".repeat(11));
+
+        mockMvc.perform(post("/system/setting/updateByKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500))
+                .andExpect(jsonPath("$.msg").value("栏目名称长度不能超过20个字符"));
+
+        verify(settingService, never()).updateSettingValueByKey(eq("business_label"), any());
+        verify(configService, never()).selectConfigList(any(com.zhi.system.domain.SysConfig.class));
+    }
+
+    /**
      * 测试通过设置键更新设置值接口 (PUT) - 创建新配置
      */
     @Test

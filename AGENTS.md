@@ -96,6 +96,8 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
   - 首页 Banner 多图统一走 `utils/uploadUrl.ts#parseBannerUrls()`（逗号分隔、去重、上限 5、兼容容器名绝对地址与 `data:` 内联值），渲染统一用 `components/BannerCarousel.vue`（单图不出轮播控件；多图 5s 自动轮播、悬停/聚焦暂停、箭头+圆点+触摸滑动；`html.motion-off` / `prefers-reduced-motion` 时**不自动播放**）。历史单图值无需迁移；`site_banner` 仍是单键字符串，不要改成数组/新表。
 - Vite dev proxies: `/dev-api/*` (strip prefix), `^/api/` → 站点公开接口（原样转发，不改写）, `/profile/` → uploads, `/manage/*` → Actuator. Auto-detects Docker via `DOCKER=true` env var.
 
+- **「栏目名称」（`business_label`）可靠性约定**（2026-10 审计后固化）：单一数据源 `zhi_setting.business_label`（种子「核心业务」；缺行/空值由 `FrontSettingController` 默认值兜底）。消费点：企业头部导航、页脚快速导航、经典导航 `siteNav`、首页核心业务区块 `BizCardsSection`、`/business` 列表与详情页眉题/标题、`site_page_copy.business` 空值兜底、菜单管理里受控标签。写入统一走 `POST/PUT /system/setting/updateByKey`（`@SiteCacheEvict` + `sys_config` 镜像，清空时把镜像置空防旧值复活）；**后端会 trim 并限制 ≤20 字符**（前端 `maxlength` 不是唯一防线）。前后台判定 `/business` 入口一律 **trim 后精确匹配**（`isBusinessItem`），避免库里带空白时出现「后台显示受控、前台不替换」的分叉。新增消费点请复用同一口径：`String(settings.business_label || '').trim() || '核心业务'`。
+
 - **后台「菜单管理」（原名「导航管理」）的链接目标**：`site_nav_item.link_type` 只有 `path` / `url` / `cta` 三种，**没有**「分类」类型；文章分类/标签也统一存成 `path` 的站内路径（分类 `/category/{alias或id}`、标签 `/tag/{id}`）。后台弹窗的分组选择器（常用页面 / 自定义页面 / 文章分类 / 文章标签）只是「自动填 `linkValue` + 标签」的便捷入口，选中项编码为 `fixed:/news`、`page:about`、`cat:12`、`tag:3`，**不要**为分类单独加 `link_type` 或改表结构。菜单名 2026-10 由「导航管理」改为「菜单管理」：`sys_menu` 种子 2011 改名，存量库由 `sql/00_init_database.sql` 里的幂等 `UPDATE sys_menu ... WHERE menu_name='导航管理'` 迁移，历史注释/文档中的旧名属正常引用。
 
 ## Frontend Conventions

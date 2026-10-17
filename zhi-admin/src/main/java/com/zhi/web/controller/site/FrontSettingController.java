@@ -182,6 +182,9 @@ public class FrontSettingController extends BaseController {
             case "home_page_slug":
                 settings.put(configKey, "");
                 break;
+            case "business_label":
+                settings.put(configKey, "核心业务");
+                break;
             case "nav_category_enabled":
                 settings.put(configKey, "true");
                 break;
