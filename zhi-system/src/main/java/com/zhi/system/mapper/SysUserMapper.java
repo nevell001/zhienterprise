@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import com.zhi.common.core.domain.entity.SysUser;
+import com.zhi.system.domain.MediaReference;
 
 /**
  * 用户表 数据层
@@ -208,4 +209,12 @@ public interface SysUserMapper
      * @return 用户角色分布数据
      */
     List<Map<String, Object>> selectUserRoleDistribution();
+
+    /**
+     * 查询用该文件作头像的未删除用户（媒体库删除前检查）
+     *
+     * @param keyword 文件名
+     * @return 引用位置
+     */
+    List<MediaReference> selectMediaReferences(@Param("keyword") String keyword);
 }

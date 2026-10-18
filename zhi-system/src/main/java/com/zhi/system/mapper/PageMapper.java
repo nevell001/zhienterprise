@@ -1,6 +1,8 @@
 package com.zhi.system.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import com.zhi.system.domain.MediaReference;
 import com.zhi.system.domain.Page;
 
 /**
@@ -89,4 +91,12 @@ public interface PageMapper
      * @return 影响行数
      */
     public int deletePageByIds(Long[] ids);
+
+    /**
+     * 查询引用了指定文件名的自定义页面（媒体库删除前检查，含已删除页面）
+     *
+     * @param keyword 文件名
+     * @return 引用位置
+     */
+    public List<MediaReference> selectMediaReferences(@Param("keyword") String keyword);
 }

@@ -2,6 +2,7 @@ package com.zhi.system.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import com.zhi.system.domain.MediaReference;
 import com.zhi.system.domain.Setting;
 
 /**
@@ -76,4 +77,12 @@ public interface SettingMapper
      * @return 影响行数
      */
     public int deleteSettingByIds(Long[] ids);
+
+    /**
+     * 查询引用了指定文件名的站点设置项（媒体库删除前检查）
+     *
+     * @param keyword 文件名
+     * @return 引用位置
+     */
+    public List<MediaReference> selectMediaReferences(@Param("keyword") String keyword);
 }

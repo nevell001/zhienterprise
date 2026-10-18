@@ -1,7 +1,9 @@
 package com.zhi.system.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import com.zhi.system.domain.FriendLink;
+import com.zhi.system.domain.MediaReference;
 
 /**
  * 友情链接Mapper接口
@@ -65,4 +67,12 @@ public interface FriendLinkMapper
      * @return 影响行数
      */
     public int deleteFriendLinkByIds(Long[] ids);
+
+    /**
+     * 查询引用了指定文件名 Logo 的友链（媒体库删除前检查）
+     *
+     * @param keyword 文件名
+     * @return 引用位置
+     */
+    public List<MediaReference> selectMediaReferences(@Param("keyword") String keyword);
 }

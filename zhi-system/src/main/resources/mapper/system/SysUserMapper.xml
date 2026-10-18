@@ -307,4 +307,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		order by count desc
 	</select>
 
+	<!-- 媒体库引用检查：用户头像 -->
+	<select id="selectMediaReferences" resultType="MediaReference">
+		SELECT 'user' AS reference_type, user_id AS reference_id, user_name AS reference_title
+		FROM sys_user
+		WHERE del_flag = '0' AND avatar LIKE CONCAT('%', #{keyword}, '%')
+		LIMIT 100
+	</select>
+
 </mapper> 

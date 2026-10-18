@@ -40,7 +40,17 @@ public class MediaController extends BaseController
     }
 
     /**
-     * 删除上传记录（同时尝试删除物理文件）
+     * 查询文件被哪些内容引用
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:media:list')")
+    @GetMapping("/{id}/references")
+    public AjaxResult references(@PathVariable("id") Long id)
+    {
+        return success(uploadService.selectReferences(id));
+    }
+
+    /**
+     * 删除上传记录（先校验引用，再删除记录与物理文件）
      */
     @PreAuthorize("@ss.hasPermi('zhi:media:remove')")
     @DeleteMapping("/{ids}")
@@ -50,11 +60,6 @@ public class MediaController extends BaseController
         {
             return error("参数不合法");
         }
-        int total = 0;
-        for (Long id : ids)
-        {
-            total += uploadService.deleteUploadById(id);
-        }
-        return toAjax(total);
+        return toAjax(uploadService.deleteUploads(ids));
     }
 }

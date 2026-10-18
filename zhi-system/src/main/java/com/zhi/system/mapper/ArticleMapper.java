@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import com.zhi.system.domain.Article;
+import com.zhi.system.domain.MediaReference;
 
 /**
  * 博客文章Mapper接口
@@ -259,4 +260,12 @@ public interface ArticleMapper
      * @return 结果
      */
     int changeCommentCount(@Param("articleId") Long articleId, @Param("delta") int delta);
+
+    /**
+     * 查询引用了指定文件名的文章（媒体库删除前检查，含回收站内容）
+     *
+     * @param keyword 文件名
+     * @return 引用位置
+     */
+    List<MediaReference> selectMediaReferences(@Param("keyword") String keyword);
 }

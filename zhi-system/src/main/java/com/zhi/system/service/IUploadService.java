@@ -1,6 +1,7 @@
 package com.zhi.system.service;
 
 import java.util.List;
+import com.zhi.system.domain.MediaReference;
 import com.zhi.system.domain.Upload;
 
 /**
@@ -28,10 +29,18 @@ public interface IUploadService
     public List<Upload> selectUploadList(Upload upload);
 
     /**
-     * 根据ID删除上传记录（并尝试删除物理文件）
+     * 查询上传文件被哪些内容引用
      *
-     * @param id 记录ID
-     * @return 结果
+     * @param id 上传记录ID
+     * @return 引用位置集合（记录不存在时为空）
      */
-    public int deleteUploadById(Long id);
+    public List<MediaReference> selectReferences(Long id);
+
+    /**
+     * 批量删除上传记录（先校验引用，再删记录与物理文件）
+     *
+     * @param ids 记录ID集合
+     * @return 删除的记录数
+     */
+    public int deleteUploads(Long[] ids);
 }

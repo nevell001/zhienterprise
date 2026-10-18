@@ -450,4 +450,19 @@
         SET comment_count = GREATEST(IFNULL(comment_count, 0) + #{delta}, 0)
         WHERE id = #{articleId}
     </update>
+
+    <!-- 媒体库引用检查：正文/Markdown 源/封面/图集/卖点/规格表都可能引用上传文件。
+         回收站（del_flag='2'）也算引用，避免恢复后图片 404。 -->
+    <select id="selectMediaReferences" resultType="MediaReference">
+        SELECT 'article' AS reference_type, id AS reference_id, title AS reference_title
+        FROM zhi_article
+        WHERE content LIKE CONCAT('%', #{keyword}, '%')
+           OR content_md LIKE CONCAT('%', #{keyword}, '%')
+           OR cover_url LIKE CONCAT('%', #{keyword}, '%')
+           OR gallery LIKE CONCAT('%', #{keyword}, '%')
+           OR selling_points LIKE CONCAT('%', #{keyword}, '%')
+           OR spec_table LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY id DESC
+        LIMIT 100
+    </select>
 </mapper>

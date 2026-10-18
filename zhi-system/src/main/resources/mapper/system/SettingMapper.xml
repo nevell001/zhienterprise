@@ -97,4 +97,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+    <!-- 媒体库引用检查：Logo/Banner/二维码等图片类设置都存原始路径 -->
+    <select id="selectMediaReferences" resultType="MediaReference">
+        SELECT 'setting' AS reference_type, id AS reference_id, config_key AS reference_title
+        FROM zhi_setting
+        WHERE config_value LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY id
+        LIMIT 100
+    </select>
 </mapper>
