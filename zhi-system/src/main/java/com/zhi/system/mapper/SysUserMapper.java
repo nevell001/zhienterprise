@@ -22,6 +22,15 @@ public interface SysUserMapper
     public List<SysUser> selectUserList(SysUser sysUser);
 
     /**
+     * 查询启用状态的后台系统用户（站内通知、邮件通知的接收人）
+     *
+     * <p>不带数据权限：由访客触发的通知没有登录上下文，不能走 {@code @DataScope}。</p>
+     *
+     * @return 用户信息集合
+     */
+    public List<SysUser> selectEnabledSystemUsers();
+
+    /**
      * 根据条件分页查询已配用户角色列表
      * 
      * @param user 用户信息

@@ -257,6 +257,9 @@ function handleNotificationClick(item: SiteNotification) {
   if (item.type === 'comment' || item.type === 'reply') {
     // 新评论/回复 → 跳到评论管理页（管理员审核）
     router.push('/admin/comment')
+  } else if (item.type === 'message') {
+    // 新留言/咨询 → 跳到留言管理页（审核与回复）
+    router.push('/admin/message')
   } else if (item.articleId) {
     // 审核结果通知 → 跳到文章详情（评论者查看自己的评论）
     window.open(`/article/${item.articleId}`, '_blank')

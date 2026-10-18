@@ -388,7 +388,9 @@ const handleNotifClick = async (n: SiteNotification) => {
       // 标记失败不阻断跳转
     }
   }
-  if (n.articleId) {
+  if (n.type === 'message') {
+    router.push('/admin/message')
+  } else if (n.articleId) {
     router.push(`/article/${n.articleId}`)
   }
 }

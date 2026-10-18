@@ -25,6 +25,7 @@ import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.ip.IpUtils;
 import com.zhi.system.domain.Message;
 import com.zhi.system.service.IMessageService;
+import com.zhi.system.service.INotificationService;
 import com.zhi.system.service.ISettingService;
 import com.zhi.system.service.ICaptchaService;
 
@@ -79,6 +80,9 @@ public class FrontMessageController extends BaseController
 
     @Autowired
     private ICaptchaService captchaService;
+
+    @Autowired
+    private INotificationService notificationService;
 
     @Autowired
     private UnifiedCacheManager unifiedCacheManager;
@@ -236,6 +240,18 @@ public class FrontMessageController extends BaseController
         {
             // 落库失败：释放冷却占位，否则访客既没发出去、还要白等 60 秒
             unifiedCacheManager.delete(cooldownKey);
+        }
+        else
+        {
+            // 询盘/留言通知后台（站内信 + 可选邮件）；通知失败不得影响访客提交结果
+            try
+            {
+                notificationService.notifyNewMessage(message);
+            }
+            catch (Exception e)
+            {
+                logger.warn("留言通知触发失败: messageId={}, error={}", message.getId(), e.getMessage());
+            }
         }
         // 成功时冷却占位已在上方 setIfAbsent 时建立，无需再 set（重复 set 会重置 TTL）
         return toAjax(rows);

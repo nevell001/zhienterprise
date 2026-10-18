@@ -6,6 +6,7 @@ import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.core.domain.model.LoginUser;
 import com.zhi.system.domain.Message;
 import com.zhi.system.service.IMessageService;
+import com.zhi.system.service.INotificationService;
 import com.zhi.system.service.ISettingService;
 import com.zhi.system.service.ICaptchaService;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +49,7 @@ class FrontMessageControllerTest
     private IMessageService messageService;
     private ISettingService settingService;
     private ICaptchaService captchaService;
+    private INotificationService notificationService;
     private UnifiedCacheManager unifiedCacheManager;
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
@@ -58,6 +60,7 @@ class FrontMessageControllerTest
         messageService = mock(IMessageService.class);
         settingService = mock(ISettingService.class);
         captchaService = mock(ICaptchaService.class);
+        notificationService = mock(INotificationService.class);
         unifiedCacheManager = mock(UnifiedCacheManager.class);
 
         // 默认：验证码未启用（无法判定填写耗时），且没有冷却中的提交
@@ -71,6 +74,7 @@ class FrontMessageControllerTest
         ReflectionTestUtils.setField(controller, "messageService", messageService);
         ReflectionTestUtils.setField(controller, "settingService", settingService);
         ReflectionTestUtils.setField(controller, "captchaService", captchaService);
+        ReflectionTestUtils.setField(controller, "notificationService", notificationService);
         ReflectionTestUtils.setField(controller, "unifiedCacheManager", unifiedCacheManager);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -484,6 +488,45 @@ class FrontMessageControllerTest
         perform(message).andExpect(jsonPath("$.code").value(200));
 
         verify(captchaService).validateAndGetAgeSeconds("A1B2", "uuid-abc");
+    }
+
+    @Test
+    void addShouldNotifyAdminsAfterSuccessfulInsert() throws Exception
+    {
+        when(settingService.selectSettingValueByKey("comment_review")).thenReturn("false");
+        when(messageService.insertMessage(any(Message.class))).thenReturn(1);
+
+        perform(validMessage()).andExpect(jsonPath("$.code").value(200));
+
+        verify(notificationService).notifyNewMessage(argThat(m ->
+            "测试访客".equals(m.getNickname()) && "这是一条测试留言".equals(m.getContent())));
+    }
+
+    @Test
+    void addShouldNotNotifyWhenInsertFails() throws Exception
+    {
+        when(settingService.selectSettingValueByKey("comment_review")).thenReturn("false");
+        when(messageService.insertMessage(any(Message.class))).thenReturn(0);
+
+        perform(validMessage()).andExpect(jsonPath("$.code").value(500));
+
+        verify(notificationService, never()).notifyNewMessage(any(Message.class));
+    }
+
+    /**
+     * 通知是旁路能力：即使通知服务抛错，访客的留言已经落库，接口仍必须返回成功。
+     */
+    @Test
+    void addShouldSucceedEvenWhenNotificationFails() throws Exception
+    {
+        when(settingService.selectSettingValueByKey("comment_review")).thenReturn("false");
+        when(messageService.insertMessage(any(Message.class))).thenReturn(1);
+        when(notificationService.notifyNewMessage(any(Message.class)))
+            .thenThrow(new RuntimeException("mail down"));
+
+        perform(validMessage()).andExpect(jsonPath("$.code").value(200));
+
+        verify(messageService).insertMessage(any(Message.class));
     }
 
     private ResultActions perform(Message message) throws Exception

@@ -1,6 +1,7 @@
 package com.zhi.system.service;
 
 import java.util.List;
+import com.zhi.system.domain.Message;
 import com.zhi.system.domain.Notification;
 
 /**
@@ -26,6 +27,14 @@ public interface INotificationService
      * @return 结果
      */
     int createNotification(Notification notification);
+
+    /**
+     * 新留言/咨询到达时通知后台系统用户（站内信；邮件受 email_notify_enabled 开关控制）
+     *
+     * @param message 已落库的留言
+     * @return 成功创建的站内信数量
+     */
+    int notifyNewMessage(Message message);
 
     /**
      * 标记为已读（批量）

@@ -2771,10 +2771,10 @@ CREATE TABLE IF NOT EXISTS zhi_notification (
     id            BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
     recipient_id  BIGINT(20)      NOT NULL                    COMMENT '接收用户ID',
     sender_name   VARCHAR(64)     NOT NULL                    COMMENT '发送者昵称',
-    type          VARCHAR(20)     NOT NULL                    COMMENT '通知类型: comment=评论, reply=回复',
+    type          VARCHAR(20)     NOT NULL                    COMMENT '通知类型: comment=评论, reply=回复, message=留言/咨询',
     title         VARCHAR(255)    DEFAULT ''                  COMMENT '通知标题',
-    content       VARCHAR(500)    DEFAULT ''                  COMMENT '通知内容(评论摘要)',
-    article_id    BIGINT(20)      NOT NULL                    COMMENT '关联文章ID',
+    content       VARCHAR(500)    DEFAULT ''                  COMMENT '通知内容(评论/留言摘要)',
+    article_id    BIGINT(20)      DEFAULT NULL                COMMENT '关联文章ID（留言/咨询通知为空）',
     article_title VARCHAR(255)    DEFAULT ''                  COMMENT '关联文章标题',
     comment_id    BIGINT(20)      DEFAULT NULL                COMMENT '关联评论ID',
     is_read       INT(1)          DEFAULT 0                   COMMENT '是否已读: 0=未读, 1=已读',
@@ -2783,6 +2783,17 @@ CREATE TABLE IF NOT EXISTS zhi_notification (
     KEY idx_recipient_read (recipient_id, is_read),
     KEY idx_create_time (create_time)
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='站内信通知表';
+
+-- 老库升级：article_id 放开为可空（留言/咨询通知不关联文章；原 NOT NULL 会让插入失败，幂等）
+SET @notification_article_not_null := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_notification'
+      AND COLUMN_NAME = 'article_id' AND IS_NULLABLE = 'NO');
+SET @alter_notification_article_nullable := IF(@notification_article_not_null > 0,
+    'ALTER TABLE `zhi_notification` MODIFY COLUMN `article_id` BIGINT(20) DEFAULT NULL COMMENT ''关联文章ID（留言/咨询通知为空）''',
+    'SELECT 1');
+PREPARE alter_notification_article_nullable_stmt FROM @alter_notification_article_nullable;
+EXECUTE alter_notification_article_nullable_stmt;
+DEALLOCATE PREPARE alter_notification_article_nullable_stmt;
 
 -- 「关于」内置页面（slug=about）：页面管理列表中直接管理，前台 /blog/about 仅渲染此页（无其他兜底来源）；
 -- 幂等：INSERT IGNORE 依赖 slug 唯一键，重跑不覆盖站长在页面管理里的修改；被逻辑删除的行也会阻止重新插入（删除即删除）

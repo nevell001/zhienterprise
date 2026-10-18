@@ -5,7 +5,7 @@ export interface SiteNotification {
   id: number
   recipientId: number
   senderName: string
-  type: 'comment' | 'reply' | 'audit' | 'reject'
+  type: 'comment' | 'reply' | 'audit' | 'reject' | 'message'
   title: string
   content: string
   articleId: number
