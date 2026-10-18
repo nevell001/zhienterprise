@@ -99,10 +99,10 @@ spring:
   # 文件上传
   servlet:
     multipart:
-      # 单个文件大小
-      max-file-size: 10MB
+      # 单个文件大小（与 application-prod.yml、前端上传组件默认值保持一致）
+      max-file-size: 5MB
       # 设置总上传的文件大小
-      max-request-size: 20MB
+      max-request-size: 10MB
   # MVC 配置
   mvc:
     static-path-pattern: /static/**
