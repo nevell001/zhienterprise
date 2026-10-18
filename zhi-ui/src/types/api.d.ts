@@ -67,6 +67,23 @@ export interface ArticleRevision {
   createTime?: string
 }
 
+/** Markdown 批量导入：单个文件的处理结果 */
+export interface ArticleImportItem {
+  fileName: string
+  success?: boolean
+  title?: string
+  articleId?: number
+  message?: string
+}
+
+/** Markdown 批量导入汇总 */
+export interface ArticleImportResult {
+  total: number
+  imported: number
+  failed: number
+  results: ArticleImportItem[]
+}
+
 /**
  * 用户查询参数
  */

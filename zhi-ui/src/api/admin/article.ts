@@ -1,5 +1,12 @@
 import request from '@/utils/request'
-import type { Article, ArticleParams, ArticleRevision, DataResult, QueryResult } from '@/types'
+import type {
+  Article,
+  ArticleImportResult,
+  ArticleParams,
+  ArticleRevision,
+  DataResult,
+  QueryResult
+} from '@/types'
 
 /**
  * 查询文章列表
@@ -151,6 +158,20 @@ export function restoreArticleRevision(revisionId: number): Promise<any> {
   return request({
     url: `/system/article/revision/${revisionId}/restore`,
     method: 'post'
+  })
+}
+
+/**
+ * 批量导入 Markdown 文件（每个 .md 生成一篇文章）
+ *
+ * 以 FormData 提交；request 拦截器对 FormData 会删除 Content-Type，
+ * 交给浏览器补 multipart 边界（不要手动设置 Content-Type）。
+ */
+export function importMarkdownArticles(data: FormData): Promise<DataResult<ArticleImportResult>> {
+  return request({
+    url: '/system/article/import',
+    method: 'post',
+    data
   })
 }
 

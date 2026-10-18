@@ -191,4 +191,21 @@ describe('Article API 测试', () => {
       })
     })
   })
+
+  describe('importMarkdownArticles', () => {
+    it('应该导出 importMarkdownArticles 函数', () => {
+      expect(articleApi.importMarkdownArticles).toBeDefined()
+      expect(typeof articleApi.importMarkdownArticles).toBe('function')
+    })
+
+    it('以 FormData 提交，且不手动设置 Content-Type', () => {
+      const formData = new FormData()
+      articleApi.importMarkdownArticles(formData)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/article/import',
+        method: 'post',
+        data: formData
+      })
+    })
+  })
 })

@@ -67,6 +67,17 @@
           <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
         </el-col>
         <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:article:add']"
+            type="primary"
+            plain
+            icon="Upload"
+            @click="importOpen = true"
+          >
+            导入 Markdown
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
           <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">
             修改
           </el-button>
@@ -775,6 +786,12 @@
       :article-id="form.id"
       @restored="handleRevisionRestored"
     />
+
+    <ArticleImportDialog
+      v-model="importOpen"
+      :article-type="fixedArticleType"
+      @imported="handleImported"
+    />
   </div>
 </template>
 
@@ -807,6 +824,7 @@ import { listTag } from '@/api/admin/tag'
 import ImageUpload from '@/components/ImageUpload'
 import TagCategorySelector from '@/components/TagCategorySelector.vue'
 import ArticleRevisionDrawer from './components/ArticleRevisionDrawer.vue'
+import ArticleImportDialog from './components/ArticleImportDialog.vue'
 import { parseTime } from '@/utils/zhi'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
@@ -860,6 +878,7 @@ const userStore = useUserStore()
 const articleList = ref([])
 const open = ref(false)
 const revisionOpen = ref(false)
+const importOpen = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
 const recycleMode = ref(false)
@@ -1310,6 +1329,11 @@ async function openSitePreview() {
 async function handleRevisionRestored() {
   if (!form.value.id) return
   await handleUpdate({ id: form.value.id })
+  await getList()
+}
+
+/** Markdown 批量导入后刷新列表 */
+async function handleImported() {
   await getList()
 }
 

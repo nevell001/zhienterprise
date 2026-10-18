@@ -13,9 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -846,5 +848,128 @@ class ArticleControllerTest {
         assertThat(saved.getSpecTable()).isEqualTo(specTable);
         assertThat(saved.getGallery()).isEqualTo(gallery);
         assertThat(saved.getProcessSteps()).isEqualTo(processSteps);
+    }
+
+    /**
+     * Markdown 批量导入：首个「# 标题」作为文章标题并从正文移除，正文渲染成 HTML 双写。
+     */
+    @Test
+    void importMarkdown_usesHeadingAsTitleAndRendersHtml() throws Exception {
+        when(articleService.insertArticle(any(Article.class))).thenReturn(1);
+
+        MockMultipartFile withHeading = new MockMultipartFile("files", "企业新闻.md",
+            "text/markdown", "# 企业新闻\n\n第一段正文".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile noHeading = new MockMultipartFile("files", "no-heading.md",
+            "text/markdown", "只有正文内容".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/system/article/import")
+                .file(withHeading)
+                .file(noHeading)
+                .param("articleType", "business")
+                .param("status", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.imported").value(2))
+                .andExpect(jsonPath("$.data.failed").value(0));
+
+        ArgumentCaptor<Article> captor = ArgumentCaptor.forClass(Article.class);
+        verify(articleService, times(2)).insertArticle(captor.capture());
+        List<Article> saved = captor.getAllValues();
+
+        Article first = saved.get(0);
+        assertThat(first.getTitle()).isEqualTo("企业新闻");
+        assertThat(first.getContentMd()).isEqualTo("第一段正文");
+        assertThat(first.getContent()).isEqualTo("<p>第一段正文</p>\n");
+        assertThat(first.getFormat()).isEqualTo("markdown");
+        assertThat(first.getArticleType()).isEqualTo("business");
+        assertThat(first.getStatus()).isEqualTo(1L);
+
+        // 无一级标题时退化为文件名（去扩展名）
+        assertThat(saved.get(1).getTitle()).isEqualTo("no-heading");
+    }
+
+    /**
+     * 逐文件独立处理：单个文件失败（如标题重复）不影响其他文件，结果按文件返回。
+     */
+    @Test
+    void importMarkdown_reportsPerFileFailureAndKeepsGoing() throws Exception {
+        when(articleService.insertArticle(any(Article.class)))
+            .thenThrow(new IllegalArgumentException("文章标题已存在"))
+            .thenReturn(1);
+
+        MockMultipartFile dup = new MockMultipartFile("files", "dup.md",
+            "text/markdown", "# 已存在标题\n\n正文".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile ok = new MockMultipartFile("files", "ok.md",
+            "text/markdown", "# 新标题\n\n正文".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/system/article/import").file(dup).file(ok))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.imported").value(1))
+                .andExpect(jsonPath("$.data.failed").value(1))
+                .andExpect(jsonPath("$.data.results[0].success").value(false))
+                .andExpect(jsonPath("$.data.results[0].message").value("文章标题已存在"))
+                .andExpect(jsonPath("$.data.results[1].success").value(true));
+    }
+
+    /**
+     * 非 Markdown 扩展名逐个拒绝，不会进入入库流程。
+     */
+    @Test
+    void importMarkdown_rejectsNonMarkdownFile() throws Exception {
+        MockMultipartFile txt = new MockMultipartFile("files", "note.txt",
+            "text/plain", "内容".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/system/article/import").file(txt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.imported").value(0))
+                .andExpect(jsonPath("$.data.results[0].success").value(false))
+                .andExpect(jsonPath("$.data.results[0].message").value("仅支持 .md / .markdown 文件"));
+
+        verify(articleService, never()).insertArticle(any(Article.class));
+    }
+
+    /**
+     * 正文为空的校验在服务层（validateArticleContent）：控制器负责把失败原因按文件回传，
+     * 不能让异常冒泡成整个请求失败（其余文件仍应正常导入）。
+     */
+    @Test
+    void importMarkdown_surfacesServiceValidationFailure() throws Exception {
+        when(articleService.insertArticle(any(Article.class)))
+            .thenThrow(new IllegalArgumentException("文章内容不能为空"));
+
+        MockMultipartFile onlyTitle = new MockMultipartFile("files", "t.md",
+            "text/markdown", "# 只有标题".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/system/article/import").file(onlyTitle))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.imported").value(0))
+                .andExpect(jsonPath("$.data.results[0].success").value(false))
+                .andExpect(jsonPath("$.data.results[0].message").value("文章内容不能为空"));
+
+        verify(articleService).insertArticle(any(Article.class));
+    }
+
+    /**
+     * 请求参数校验：未选文件 / 非法状态直接返回错误，不触碰服务层。
+     */
+    @Test
+    void importMarkdown_rejectsEmptySelectionAndInvalidStatus() throws Exception {
+        MockMultipartFile md = new MockMultipartFile("files", "a.md",
+            "text/markdown", "# 标题\n\n正文".getBytes(StandardCharsets.UTF_8));
+
+        // 未携带任何文件 → 明确提示而非空指针/400
+        mockMvc.perform(multipart("/system/article/import"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500))
+                .andExpect(jsonPath("$.msg").value("请选择要导入的 Markdown 文件"));
+
+        mockMvc.perform(multipart("/system/article/import").file(md).param("status", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500))
+                .andExpect(jsonPath("$.msg").value("导入仅支持「草稿」或「发布」状态"));
+
+        verify(articleService, never()).insertArticle(any(Article.class));
     }
 }

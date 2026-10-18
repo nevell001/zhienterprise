@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.nio.charset.StandardCharsets;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import com.zhi.common.annotation.Log;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
@@ -55,6 +59,11 @@ public class ArticleController extends BaseController
 
     /** 内容类型白名单（zhi_article.article_type）：资讯动态 / 核心业务 / 客户案例 / 解决方案 */
     private static final Set<String> ARTICLE_TYPES = Set.of("news", "business", "case", "solution");
+
+    /** Markdown 批量导入：单次请求最大文件数 */
+    private static final int MAX_IMPORT_FILES = 20;
+    /** 文章标题长度上限（对齐 zhi_article.title varchar(200)） */
+    private static final int MAX_IMPORT_TITLE_LENGTH = 200;
 
     @Autowired
     private IArticleService articleService;
@@ -237,6 +246,179 @@ public class ArticleController extends BaseController
     public AjaxResult purge(@PathVariable("ids") Long[] ids)
     {
         return toAjax(articleService.purgeArticleByIds(ids));
+    }
+
+    /**
+     * Markdown 批量导入：每个 .md 文件生成一篇文章（首个一级标题作为标题，其余为正文）。
+     * <p>逐文件独立处理：单个文件失败不影响其他文件，结果按文件返回给前端展示。
+     * 正文沿用「源码 + 服务端渲染 HTML 双写」的 Markdown 文章约定。</p>
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:article:add')")
+    @Log(title = "文章管理", businessType = BusinessType.IMPORT)
+    @PostMapping("/import")
+    public AjaxResult importMarkdown(@RequestParam(value = "files", required = false) MultipartFile[] files,
+                                     @RequestParam(value = "categoryId", required = false) Long categoryId,
+                                     @RequestParam(value = "articleType", required = false) String articleType,
+                                     @RequestParam(value = "status", required = false, defaultValue = "0") Integer status)
+    {
+        if (files == null || files.length == 0) {
+            return error("请选择要导入的 Markdown 文件");
+        }
+        if (files.length > MAX_IMPORT_FILES) {
+            return error("单次最多导入 " + MAX_IMPORT_FILES + " 个文件");
+        }
+        if (status == null || (status != 0 && status != 1)) {
+            return error("导入仅支持「草稿」或「发布」状态");
+        }
+        String normalizedType = articleType == null ? null : articleType.trim();
+        if (StringUtils.isNotEmpty(normalizedType) && !ARTICLE_TYPES.contains(normalizedType)) {
+            log.warn("无效的 articleType 参数: {}", normalizedType);
+            normalizedType = null;
+        }
+
+        List<Map<String, Object>> results = new ArrayList<>();
+        int imported = 0;
+        for (MultipartFile file : files)
+        {
+            String fileName = file.getOriginalFilename();
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("fileName", fileName);
+            try
+            {
+                String markdown = readMarkdown(file, fileName);
+                String[] parsed = splitMarkdownTitle(markdown);
+                String title = parsed[0] != null ? parsed[0] : fileNameWithoutExtension(fileName);
+                if (title.isEmpty()) {
+                    throw new IllegalArgumentException("无法确定文章标题");
+                }
+                if (title.length() > MAX_IMPORT_TITLE_LENGTH) {
+                    throw new IllegalArgumentException("标题超过 " + MAX_IMPORT_TITLE_LENGTH + " 个字符");
+                }
+
+                Article article = new Article();
+                article.setTitle(title);
+                article.setFormat("markdown");
+                article.setContentMd(parsed[1]);
+                article.setContent(MarkdownUtil.toHtml(parsed[1]));
+                article.setCategoryId(categoryId);
+                article.setArticleType(normalizedType);
+                article.setStatus(status.longValue());
+
+                int rows = articleService.insertArticle(article);
+                if (rows > 0) {
+                    imported++;
+                    item.put("success", true);
+                    item.put("title", title);
+                    item.put("articleId", article.getId());
+                } else {
+                    item.put("success", false);
+                    item.put("message", "写入失败");
+                }
+            }
+            catch (Exception e)
+            {
+                item.put("success", false);
+                item.put("message", e.getMessage() == null ? "导入失败" : e.getMessage());
+            }
+            results.add(item);
+        }
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("total", files.length);
+        data.put("imported", imported);
+        data.put("failed", files.length - imported);
+        data.put("results", results);
+        return AjaxResult.success("导入完成", data);
+    }
+
+    /**
+     * 读取 Markdown 文本：校验扩展名与非空，按 UTF-8 解码并去掉 BOM
+     */
+    private String readMarkdown(MultipartFile file, String fileName)
+    {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("文件为空");
+        }
+        String name = fileName == null ? "" : fileName.toLowerCase();
+        if (!name.endsWith(".md") && !name.endsWith(".markdown")) {
+            throw new IllegalArgumentException("仅支持 .md / .markdown 文件");
+        }
+        String text;
+        try
+        {
+            text = new String(file.getBytes(), StandardCharsets.UTF_8);
+        }
+        catch (java.io.IOException e)
+        {
+            throw new IllegalArgumentException("文件读取失败");
+        }
+        if (!text.isEmpty() && text.charAt(0) == '\uFEFF') {
+            text = text.substring(1);
+        }
+        if (text.trim().isEmpty()) {
+            throw new IllegalArgumentException("文件内容为空");
+        }
+        return text;
+    }
+
+    /**
+     * 拆分 Markdown：只看首个非空行，若为「# 标题」则作为文章标题并从正文移除。
+     *
+     * @return 长度为 2 的数组，[0] 为标题（正文未提供时返回 null），[1] 为正文
+     */
+    private static String[] splitMarkdownTitle(String markdown)
+    {
+        String[] lines = markdown.split("\r\n|\r|\n", -1);
+        int titleLine = -1;
+        String title = null;
+        for (int i = 0; i < lines.length; i++)
+        {
+            String line = lines[i].trim();
+            if (line.isEmpty()) {
+                continue;
+            }
+            if (line.startsWith("# ")) {
+                String candidate = line.substring(2).trim();
+                if (!candidate.isEmpty()) {
+                    title = candidate;
+                    titleLine = i;
+                }
+            }
+            break;
+        }
+        if (title == null) {
+            return new String[] { null, markdown };
+        }
+        StringBuilder body = new StringBuilder();
+        for (int i = titleLine + 1; i < lines.length; i++)
+        {
+            if (body.length() == 0 && lines[i].trim().isEmpty()) {
+                continue;
+            }
+            body.append(lines[i]);
+            if (i < lines.length - 1) {
+                body.append('\n');
+            }
+        }
+        return new String[] { title, body.toString() };
+    }
+
+    /** 取文件名（去掉目录与扩展名）作为无标题 Markdown 的文章标题 */
+    private static String fileNameWithoutExtension(String fileName)
+    {
+        if (fileName == null) {
+            return "";
+        }
+        String name = fileName;
+        int slash = Math.max(name.lastIndexOf('/'), name.lastIndexOf('\\'));
+        if (slash >= 0) {
+            name = name.substring(slash + 1);
+        }
+        int dot = name.lastIndexOf('.');
+        if (dot > 0) {
+            name = name.substring(0, dot);
+        }
+        return name.trim();
     }
 
     /**
