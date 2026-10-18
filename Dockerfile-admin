@@ -45,7 +45,11 @@ RUN mkdir -p /app/uploadPath /app/logs \
 RUN groupadd -r appuser && useradd -r -g appuser -d /app appuser \
     && chown -R appuser:appuser /app
 
-USER appuser
+# 入口脚本以 root 修正日志卷（命名卷可能是 root 属主）后降权到 appuser 运行
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # 启动命令
 CMD ["java", "-jar", "/app/zhi-admin.jar"]

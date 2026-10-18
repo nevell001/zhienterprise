@@ -116,7 +116,7 @@ docker compose -f docker-compose.release.yml --profile monitoring rm -sf prometh
 
 ## 日志
 
-- **应用日志**：容器内 `/app/logs`（挂载到命名卷 `admin_logs`，容器重建不丢），对应宿主 `sys-info.log` / `sys-error.log` / `sys-user.log`（按天滚动，保留 60 天）。查看：
+- **应用日志**：容器内 `/app/logs`（挂载到命名卷 `admin_logs`，容器重建不丢），对应 `sys-info.log` / `sys-error.log` / `sys-user.log`（按天滚动，保留 60 天）。**卷属主由容器入口自动修正**（`docker-entrypoint.sh` 以 root 改属主后降权到 `appuser`），无需手工 `chown`；即使先用 release 模式（以 root 运行）创建过该卷，再切到 prod/dev 也能正常写入。查看：
 
 ```bash
 docker compose -f docker-compose.release.yml exec zhi-admin ls -l /app/logs

@@ -117,7 +117,18 @@ describe('后端日志持久化', () => {
     expect(read('zhi-admin/src/main/resources/logback.xml')).toContain('value="./logs"')
   })
 
-  it('镜像预建 /app/logs，非 root 用户可写命名卷', () => {
-    expect(read('Dockerfile-admin')).toContain('mkdir -p /app/uploadPath /app/logs')
+  it('镜像以 root 入口修正日志卷属主后再降权运行', () => {
+    const dockerfile = read('Dockerfile-admin')
+    expect(dockerfile).toContain('mkdir -p /app/uploadPath /app/logs')
+    // 命名卷首次挂载的属主取决于创建它的容器（release 以 root 运行会留下 root:root），
+    // 只靠镜像里的 chown 覆盖不了既有卷 —— 必须在入口以 root 修正属主后再降权，
+    // 否则 logback 写 ./logs 报 Permission denied，容器启动即退出。
+    expect(dockerfile).toContain('COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh')
+    expect(dockerfile).toContain('ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]')
+    expect(dockerfile).not.toMatch(/^USER appuser$/m)
+
+    const entrypoint = read('docker-entrypoint.sh')
+    expect(entrypoint).toContain('chown -R appuser:appuser /app/logs')
+    expect(entrypoint).toContain('runuser -u appuser')
   })
 })
