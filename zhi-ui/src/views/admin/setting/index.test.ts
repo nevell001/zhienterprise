@@ -210,7 +210,6 @@ describe('SiteSetting 视图（行为）', () => {
       '作者职位',
       '个人简介',
       '位置信息',
-      '联系邮箱',
       'GitHub地址',
       '微博地址',
       '个人网站'
@@ -219,6 +218,15 @@ describe('SiteSetting 视图（行为）', () => {
     }
     // 页签本身也没了
     expect(wrapper.text()).not.toContain('个人信息')
+  })
+
+  it('联系邮箱作为联系方式字段保留', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const labels = wrapper.findAll('.fi-label').map(el => el.text())
+    expect(labels).toContain('联系邮箱')
+    expect(labels).toContain('联系电话')
   })
 
   it('「首页显示」下拉列出已发布的自定义页面', async () => {

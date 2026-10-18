@@ -93,6 +93,15 @@
               />
             </el-form-item>
             <el-divider content-position="left">联系信息（企业官网模板展示）</el-divider>
+            <el-form-item label="联系邮箱" prop="contact_email">
+              <el-input
+                v-model="settingsMap.contact_email"
+                placeholder="如：contact@example.com"
+                maxlength="100"
+                clearable
+                style="max-width: 260px"
+              />
+            </el-form-item>
             <el-form-item label="联系电话" prop="contact_phone">
               <el-input
                 v-model="settingsMap.contact_phone"
@@ -1212,6 +1221,7 @@ const defaultSettings: Record<string, any> = {
   site_history: structuredClone(defaultSiteContent.site_history),
   site_page_copy: defaultSitePageCopy(),
   business_label: '核心业务',
+  contact_email: '',
   contact_phone: '',
   contact_address: '',
   site_template: 'consult',
@@ -1264,6 +1274,7 @@ const managedKeys = [
   'home_page_slug',
   'home_layout',
   'business_label',
+  'contact_email',
   'contact_phone',
   'contact_address',
   'site_template',

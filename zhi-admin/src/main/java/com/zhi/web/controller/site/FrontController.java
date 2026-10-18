@@ -246,9 +246,6 @@ public class FrontController extends BaseController
      */
     private void applyDefaultSettings(Map<String, Object> settingsMap) {
         setDefaultSetting(settingsMap, "blog_avatar", "");
-        setDefaultSetting(settingsMap, "github_url", "");
-        setDefaultSetting(settingsMap, "weibo_url", "");
-        setDefaultSetting(settingsMap, "blog_author", "nevell");
         setDefaultSetting(settingsMap, "blog_name", "知企建站系统");
         setDefaultSetting(settingsMap, "blog_desc", "欢迎来到我的站点");
         setDefaultSetting(settingsMap, "contact_email", "");
