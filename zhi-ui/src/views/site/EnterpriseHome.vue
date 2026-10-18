@@ -160,8 +160,8 @@
       </div>
     </section>
 
-    <!-- ⑤ 客户与案例：Logo 墙（接入友链数据，不足回退占位） -->
-    <section class="pad surface">
+    <!-- ⑤ 客户与案例：Logo 墙（接入友链数据，不足回退占位；受 friend_link_enabled 控制） -->
+    <section v-if="friendLinkEnabled" class="pad surface">
       <div class="eh-wrap">
         <div class="tpl-sec-head rv">
           <div class="sec-tag">客户与案例</div>
@@ -300,6 +300,7 @@ import { logger } from '@/utils/logger'
 const router = useRouter()
 const siteSettingsStore = useSiteSettingsStore()
 const settings = computed(() => siteSettingsStore.siteSettings)
+const friendLinkEnabled = computed(() => siteSettingsStore.isFeatureEnabled('friend_link_enabled'))
 
 // 官网内容（管理后台「官网内容」页签维护；缺失/损坏回退内置占位）
 const siteMetrics = computed(() => getSiteMetrics(settings.value?.site_metrics))
@@ -363,7 +364,7 @@ onMounted(async () => {
   const [business, news, partners] = await Promise.allSettled([
     getArticleList({ pageNum: 1, pageSize: 6, articleType: 'business' }),
     getArticleList({ pageNum: 1, pageSize: 3, articleType: 'news' }),
-    getFrontFriendLinkList()
+    friendLinkEnabled.value ? getFrontFriendLinkList() : Promise.resolve(null)
   ])
   if (business.status === 'fulfilled' && business.value?.code === 200) {
     businessItems.value = (business.value.rows || []) as Article[]
@@ -371,7 +372,7 @@ onMounted(async () => {
   if (news.status === 'fulfilled' && news.value?.code === 200) {
     newsItems.value = (news.value.rows || []) as Article[]
   }
-  if (partners.status === 'fulfilled') {
+  if (friendLinkEnabled.value && partners.status === 'fulfilled' && partners.value) {
     // 友链接口结构宽松处理：数组或 {rows} 均可，只取名称
     const raw: unknown = partners.value
     const list: unknown = Array.isArray(raw)
@@ -388,7 +389,7 @@ onMounted(async () => {
       partnerNames.value = [...names, ...FALLBACK_PARTNERS.slice(names.length)]
     }
   }
-  if (partnerNames.value.length === 0) {
+  if (friendLinkEnabled.value && partnerNames.value.length === 0) {
     partnerNames.value = FALLBACK_PARTNERS
   }
 })
