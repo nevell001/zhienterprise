@@ -110,26 +110,15 @@
           <p v-else class="enh-empty rv">暂无动态，发布资讯后将在这里展示</p>
         </div>
 
-        <!-- 归档侧栏（桌面 ≥1200px，方案文档 §3.4）：年份归档入口 + 标签 -->
+        <!-- 侧栏（桌面 ≥1200px，方案文档 §3.4）：热门标签 -->
         <aside class="enh-side rv d1">
-          <div v-if="archiveYears.length" class="enh-side-block">
-            <h4>归档</h4>
-            <router-link
-              v-for="y in archiveYears"
-              :key="y"
-              class="enh-side-link"
-              to="/blog/archive"
-            >
-              {{ y }} 年
-            </router-link>
-          </div>
           <div v-if="sideTags.length" class="enh-side-block">
             <h4>热门标签</h4>
             <router-link
               v-for="t in sideTags"
               :key="t.id"
               class="enh-side-link"
-              :to="`/blog/tag/${t.id}`"
+              :to="`/tag/${t.id}`"
             >
               {{ t.name }}
             </router-link>
@@ -143,7 +132,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getArticleList, getArticleArchive } from '@/api/site'
+import { getArticleList } from '@/api/site'
 import type { Article } from '@/types'
 import { getTagCloud } from '@/api/site/tag'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
@@ -160,8 +149,7 @@ const page = ref(1)
 const pageSize = 7
 const loading = ref(true)
 
-/* ---------- 归档侧栏（桌面 ≥1200px）：年份聚合 + 热门标签 ---------- */
-const archiveYears = ref<string[]>([])
+/* ---------- 侧栏（桌面 ≥1200px）：热门标签 ---------- */
 const sideTags = ref<{ id: number; name: string }[]>([])
 
 const rootEl = ref<HTMLElement | null>(null)
@@ -197,23 +185,14 @@ const load = async () => {
 
 onMounted(async () => {
   try {
-    const [archiveRes, tagRes] = await Promise.allSettled([getArticleArchive(), getTagCloud()])
-    if (archiveRes.status === 'fulfilled') {
-      const rows = (archiveRes.value as { data?: { date: string }[] })?.data || []
-      // 按年去重，倒序
-      archiveYears.value = Array.from(new Set(rows.map(r => String(r.date).slice(0, 4)))).sort(
-        (a, b) => b.localeCompare(a)
-      )
-    }
-    if (tagRes.status === 'fulfilled') {
-      const tags = (tagRes.value as { data?: { id: number; name: string }[] })?.data || []
-      sideTags.value = (Array.isArray(tags) ? tags : [])
-        .slice(0, 8)
-        .map((t: any) => ({ id: t.id, name: t.name }))
-        .filter((t: any) => t.id && t.name)
-    }
+    const tagRes = await getTagCloud()
+    const tags = (tagRes as { data?: { id: number; name: string }[] })?.data || []
+    sideTags.value = (Array.isArray(tags) ? tags : [])
+      .slice(0, 8)
+      .map((t: any) => ({ id: t.id, name: t.name }))
+      .filter((t: any) => t.id && t.name)
   } catch (error) {
-    logger.error('加载归档侧栏失败:', error)
+    logger.error('加载热门标签失败:', error)
   }
 })
 
