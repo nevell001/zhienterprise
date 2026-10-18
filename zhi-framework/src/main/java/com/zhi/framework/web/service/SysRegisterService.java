@@ -12,6 +12,7 @@ import com.zhi.common.exception.user.CaptchaException;
 import com.zhi.common.exception.user.CaptchaExpireException;
 import com.zhi.common.utils.DateUtils;
 import com.zhi.common.utils.MessageUtils;
+import com.zhi.common.utils.PasswordPolicy;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.framework.manager.AsyncManager;
@@ -42,6 +43,7 @@ public class SysRegisterService
     public String register(RegisterBody registerBody)
     {
         String msg = "", username = registerBody.getUsername(), password = registerBody.getPassword();
+        String policyError = PasswordPolicy.check(password);
         SysUser sysUser = new SysUser();
         sysUser.setUserName(username);
 
@@ -65,10 +67,9 @@ public class SysRegisterService
         {
             msg = "账户长度必须在2到20个字符之间";
         }
-        else if (password.length() < UserConstants.PASSWORD_MIN_LENGTH
-                || password.length() > UserConstants.PASSWORD_MAX_LENGTH)
+        else if (policyError != null)
         {
-            msg = "密码长度必须在5到20个字符之间";
+            msg = policyError;
         }
         else if (!userService.checkUserNameUnique(sysUser))
         {

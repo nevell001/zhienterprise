@@ -11,6 +11,7 @@ import com.zhi.common.exception.user.CaptchaException;
 import com.zhi.common.exception.user.CaptchaExpireException;
 import com.zhi.common.utils.DateUtils;
 import com.zhi.common.utils.MessageUtils;
+import com.zhi.common.utils.PasswordPolicy;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.framework.manager.AsyncManager;
@@ -104,7 +105,14 @@ public class SiteUserService
             return AjaxResult.error("两次输入的密码不一致");
         }
 
-        // 5. 创建注册用户
+        // 5. 口令策略（注册 / 重置 / 改密共用；DTO 的长度约束拦不住全同字符等弱口令）
+        String policyError = PasswordPolicy.check(password);
+        if (policyError != null)
+        {
+            return AjaxResult.error(policyError);
+        }
+
+        // 6. 创建注册用户
         SysUser siteUser = new SysUser();
         siteUser.setUserName(username);
         // 昵称优先使用用户输入的 nickname，如果没有则使用 username
@@ -119,14 +127,14 @@ public class SiteUserService
 
         try
         {
-            // 6. 保存用户
+            // 7. 保存用户
             boolean regFlag = userService.registerUser(siteUser);
             if (!regFlag)
             {
                 return AjaxResult.error("注册失败，请联系系统管理人员");
             }
 
-            // 7. 分配注册用户角色（关键！）
+            // 8. 分配注册用户角色（关键！）
             SysRole siteRole = roleMapper.checkRoleKeyUnique(SITE_USER_ROLE_KEY);
             if (siteRole == null)
             {
@@ -139,7 +147,7 @@ public class SiteUserService
                 log.info("用户注册成功并分配角色：username={}, roleId={}", username, siteRole.getRoleId());
             }
 
-            // 8. 记录注册日志
+            // 9. 记录注册日志
             AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.REGISTER,
                     MessageUtils.message("user.register.success")));
 
