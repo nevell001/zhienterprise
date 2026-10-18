@@ -62,43 +62,77 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">
-          修改
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">
-          删除
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          v-hasPermi="['zhi:article:edit']"
-          type="warning"
-          plain
-          icon="Top"
-          :disabled="multiple"
-          @click="handleBatchTop"
-        >
-          批量置顶
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          v-hasPermi="['zhi:article:edit']"
-          type="warning"
-          plain
-          icon="Star"
-          :disabled="multiple"
-          @click="handleBatchRecommend"
-        >
-          批量推荐
-        </el-button>
-      </el-col>
+      <template v-if="!recycleMode">
+        <el-col :span="1.5">
+          <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">
+            修改
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">
+            删除
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:article:edit']"
+            type="warning"
+            plain
+            icon="Top"
+            :disabled="multiple"
+            @click="handleBatchTop"
+          >
+            批量置顶
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:article:edit']"
+            type="warning"
+            plain
+            icon="Star"
+            :disabled="multiple"
+            @click="handleBatchRecommend"
+          >
+            批量推荐
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="info" plain icon="Delete" @click="toggleRecycleMode">回收站</el-button>
+        </el-col>
+      </template>
+      <template v-else>
+        <el-col :span="1.5">
+          <el-button plain icon="ArrowLeft" @click="toggleRecycleMode">返回列表</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:article:edit']"
+            type="success"
+            plain
+            icon="RefreshLeft"
+            :disabled="multiple"
+            @click="handleRestore"
+          >
+            恢复
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:article:remove']"
+            type="danger"
+            plain
+            icon="Delete"
+            :disabled="multiple"
+            @click="handlePurge"
+          >
+            彻底删除
+          </el-button>
+        </el-col>
+      </template>
       <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
@@ -193,58 +227,87 @@
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      <el-table-column v-if="recycleMode" label="删除时间" align="center" width="160">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.updateTime) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         label="操作"
         align="center"
-        width="280"
+        :width="recycleMode ? 200 : 280"
         class-name="small-padding fixed-width"
       >
         <template #default="scope">
-          <el-button
-            v-hasPermi="['zhi:article:edit']"
-            link
-            type="primary"
-            icon="Edit"
-            @click="handleUpdate(scope.row)"
-          >
-            修改
-          </el-button>
-          <el-button
-            v-hasPermi="['zhi:article:edit']"
-            link
-            type="danger"
-            icon="Top"
-            @click="handleTop(scope.row)"
-          >
-            {{ scope.row.isTop === 1 || scope.row.isTop === '1' ? '取消置顶' : '置顶' }}
-          </el-button>
-          <el-button
-            v-hasPermi="['zhi:article:edit']"
-            link
-            type="warning"
-            icon="Star"
-            @click="handleRecommend(scope.row)"
-          >
-            {{ scope.row.isRecommend === 1 || scope.row.isRecommend === '1' ? '取消推荐' : '推荐' }}
-          </el-button>
-          <el-button
-            v-hasPermi="['zhi:article:edit']"
-            link
-            type="info"
-            icon="Refresh"
-            @click="handleStatusChange(scope.row)"
-          >
-            {{ scope.row.status === 1 || scope.row.status === '1' ? '转为草稿' : '发布' }}
-          </el-button>
-          <el-button
-            v-hasPermi="['zhi:article:remove']"
-            link
-            type="danger"
-            icon="Delete"
-            @click="handleDelete(scope.row)"
-          >
-            删除
-          </el-button>
+          <template v-if="recycleMode">
+            <el-button
+              v-hasPermi="['zhi:article:edit']"
+              link
+              type="success"
+              icon="RefreshLeft"
+              @click="handleRestore(scope.row)"
+            >
+              恢复
+            </el-button>
+            <el-button
+              v-hasPermi="['zhi:article:remove']"
+              link
+              type="danger"
+              icon="Delete"
+              @click="handlePurge(scope.row)"
+            >
+              彻底删除
+            </el-button>
+          </template>
+          <template v-else>
+            <el-button
+              v-hasPermi="['zhi:article:edit']"
+              link
+              type="primary"
+              icon="Edit"
+              @click="handleUpdate(scope.row)"
+            >
+              修改
+            </el-button>
+            <el-button
+              v-hasPermi="['zhi:article:edit']"
+              link
+              type="danger"
+              icon="Top"
+              @click="handleTop(scope.row)"
+            >
+              {{ scope.row.isTop === 1 || scope.row.isTop === '1' ? '取消置顶' : '置顶' }}
+            </el-button>
+            <el-button
+              v-hasPermi="['zhi:article:edit']"
+              link
+              type="warning"
+              icon="Star"
+              @click="handleRecommend(scope.row)"
+            >
+              {{
+                scope.row.isRecommend === 1 || scope.row.isRecommend === '1' ? '取消推荐' : '推荐'
+              }}
+            </el-button>
+            <el-button
+              v-hasPermi="['zhi:article:edit']"
+              link
+              type="info"
+              icon="Refresh"
+              @click="handleStatusChange(scope.row)"
+            >
+              {{ scope.row.status === 1 || scope.row.status === '1' ? '转为草稿' : '发布' }}
+            </el-button>
+            <el-button
+              v-hasPermi="['zhi:article:remove']"
+              link
+              type="danger"
+              icon="Delete"
+              @click="handleDelete(scope.row)"
+            >
+              删除
+            </el-button>
+          </template>
         </template>
       </el-table-column>
     </el-table>
@@ -721,6 +784,8 @@ import {
   listArticle,
   getArticle,
   delArticle,
+  restoreArticle,
+  purgeArticle,
   addArticle,
   updateArticle,
   updateArticleStatus,
@@ -783,6 +848,7 @@ const articleList = ref([])
 const open = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
+const recycleMode = ref(false)
 const ids = ref([])
 const single = ref(true)
 const multiple = ref(true)
@@ -909,14 +975,15 @@ async function getList() {
   try {
     const response = await listArticle({
       ...queryParams.value,
-      articleType: fixedArticleType || queryParams.value.articleType
+      articleType: fixedArticleType || queryParams.value.articleType,
+      delFlag: recycleMode.value ? 2 : 0
     })
     articleList.value = response.rows || []
     total.value = response.total || 0
 
     // 如果搜索结果为空，显示提示信息
     if (articleList.value.length === 0) {
-      ElMessage.info('未找到符合条件的文章')
+      ElMessage.info(recycleMode.value ? '回收站是空的' : '未找到符合条件的文章')
     }
   } catch (error: any) {
     console.error('获取文章列表失败:', error)
@@ -1368,25 +1435,109 @@ const submitForm = async (targetStatus?: 0 | 1 | 2) => {
   })
 }
 
-/** 删除按钮操作 */
+/** 删除按钮操作（逻辑删除，移入回收站） */
 async function handleDelete(row) {
   const articleIds = row.id || ids.value
 
   try {
-    await ElMessageBox.confirm('是否确认删除文章编号为"' + articleIds + '"的数据项？', '删除确认', {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    await ElMessageBox.confirm(
+      '是否确认将文章编号为"' + articleIds + '"的数据项移入回收站？可在回收站中恢复。',
+      '删除确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
 
     loading.value = true
     await delArticle(articleIds)
-    ElMessage.success('删除成功')
+    ElMessage.success('已移入回收站')
     await getList()
   } catch (error: any) {
     if (error !== 'cancel' && error !== 'close') {
       console.error('删除失败:', error)
       ElMessage.error('删除失败: ' + (error.message || '未知错误'))
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+/** 切换列表 / 回收站视图 */
+function toggleRecycleMode() {
+  recycleMode.value = !recycleMode.value
+  queryParams.value.pageNum = 1
+  ids.value = []
+  single.value = true
+  multiple.value = true
+  getList()
+}
+
+/** 从回收站恢复 */
+async function handleRestore(row) {
+  const articleIds = row?.id ? [row.id] : ids.value
+  if (!articleIds.length) {
+    ElMessage.warning('请选择要恢复的文章')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `是否确认恢复选中的 ${articleIds.length} 篇文章？恢复后重新出现在列表中。`,
+      '恢复确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+
+    loading.value = true
+    await restoreArticle(articleIds)
+    ElMessage.success('恢复成功')
+    ids.value = []
+    await getList()
+  } catch (error: any) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('恢复失败:', error)
+      // 标题被在线文章占用时后端会返回明确原因
+      const errorMsg = error.response?.data?.msg || error.message || '恢复失败'
+      ElMessage.error(errorMsg)
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+/** 彻底删除（不可恢复） */
+async function handlePurge(row) {
+  const articleIds = row?.id ? [row.id] : ids.value
+  if (!articleIds.length) {
+    ElMessage.warning('请选择要彻底删除的文章')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `是否确认彻底删除选中的 ${articleIds.length} 篇文章？此操作不可恢复，标签关联也会一并清除。`,
+      '彻底删除确认',
+      {
+        confirmButtonText: '彻底删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    loading.value = true
+    await purgeArticle(articleIds)
+    ElMessage.success('已彻底删除')
+    ids.value = []
+    await getList()
+  } catch (error: any) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('彻底删除失败:', error)
+      ElMessage.error('彻底删除失败: ' + (error.message || '未知错误'))
     }
   } finally {
     loading.value = false

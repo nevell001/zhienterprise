@@ -40,6 +40,8 @@ export interface ArticleParams extends PageParams {
   industry?: string
   /** 能力场景（solution 筛选，模糊匹配） */
   scenario?: string
+  /** 删除标记：0 正常（默认），2 回收站 */
+  delFlag?: number
 }
 
 /**

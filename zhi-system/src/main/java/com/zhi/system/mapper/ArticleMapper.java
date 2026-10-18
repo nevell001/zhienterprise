@@ -69,12 +69,28 @@ public interface ArticleMapper
     public int deleteArticleById(Long id);
 
     /**
-     * 批量删除博客文章
+     * 批量删除博客文章（逻辑删除，进入回收站）
      * 
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
     public int deleteArticleByIds(Long[] ids);
+
+    /**
+     * 批量恢复回收站中的文章
+     *
+     * @param ids 需要恢复的数据主键集合
+     * @return 结果
+     */
+    public int restoreArticleByIds(Long[] ids);
+
+    /**
+     * 批量彻底删除回收站中的文章（物理删除）
+     *
+     * @param ids 需要彻底删除的数据主键集合
+     * @return 结果
+     */
+    public int purgeArticleByIds(Long[] ids);
 
     /**
      * 根据标题查询博客文章

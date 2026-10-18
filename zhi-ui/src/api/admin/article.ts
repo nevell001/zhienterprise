@@ -56,11 +56,31 @@ export function updateArticle(data: Partial<Article> | Record<string, any>): Pro
 }
 
 /**
- * 删除文章
+ * 删除文章（逻辑删除，进入回收站）
  */
 export function delArticle(ids: number | number[]): Promise<any> {
   return request({
     url: '/system/article/' + ids,
+    method: 'delete'
+  })
+}
+
+/**
+ * 从回收站恢复文章
+ */
+export function restoreArticle(ids: number | number[]): Promise<any> {
+  return request({
+    url: '/system/article/restore/' + ids,
+    method: 'put'
+  })
+}
+
+/**
+ * 彻底删除回收站中的文章（物理删除，不可恢复）
+ */
+export function purgeArticle(ids: number | number[]): Promise<any> {
+  return request({
+    url: '/system/article/purge/' + ids,
     method: 'delete'
   })
 }

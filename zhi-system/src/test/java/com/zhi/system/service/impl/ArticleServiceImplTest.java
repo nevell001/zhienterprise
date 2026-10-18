@@ -253,7 +253,8 @@ class ArticleServiceImplTest {
         // 只覆盖「一次调用内写多张表、必须原子」的方法（文章 + 标签关联）。
         // 单语句的 updateArticleTopStatus/likeArticle 等由 DB 单语句原子性保证，不在此列。
         String[] writeMethods = { "insertArticle", "updateArticle", "deleteArticleByIds",
-            "deleteArticleById", "insertArticleTagRelations", "updateArticleTagRelations",
+            "deleteArticleById", "restoreArticleByIds", "purgeArticleByIds",
+            "insertArticleTagRelations", "updateArticleTagRelations",
             "deleteArticleTagRelations", "updateArticleStatus" };
         for (String name : writeMethods) {
             boolean found = java.util.Arrays.stream(ArticleServiceImpl.class.getDeclaredMethods())
@@ -490,13 +491,12 @@ class ArticleServiceImplTest {
     }
 
     /**
-     * 测试批量删除文章 - 成功
+     * 测试批量删除文章 - 成功（逻辑删除，保留标签关联）
      */
     @Test
     void testDeleteArticleByIds_Success() {
         // 模拟数据
         when(articleMapper.deleteArticleByIds(any(Long[].class))).thenReturn(2);
-        when(articleTagMapper.deleteByArticleId(anyLong())).thenReturn(1);
 
         // 执行测试
         int result = articleService.deleteArticleByIds(new Long[]{1L, 2L});
@@ -504,7 +504,105 @@ class ArticleServiceImplTest {
         // 验证结果
         assertEquals(2, result);
         verify(articleMapper).deleteArticleByIds(any(Long[].class));
-        verify(articleTagMapper, atLeastOnce()).deleteByArticleId(anyLong());
+        // 回收站语义：标签关联必须保留，恢复后无需重建
+        verify(articleTagMapper, never()).deleteByArticleId(anyLong());
+    }
+
+    /**
+     * 测试从回收站恢复 - 成功
+     */
+    @Test
+    void testRestoreArticleByIds_Success() {
+        Article deleted = new Article();
+        deleted.setId(1L);
+        deleted.setTitle("已删除文章");
+        deleted.setDelFlag(2L);
+
+        when(articleMapper.selectArticleById(1L)).thenReturn(deleted);
+        when(articleMapper.selectArticleByTitle("已删除文章")).thenReturn(null);
+        when(articleMapper.restoreArticleByIds(any(Long[].class))).thenReturn(1);
+
+        int result = articleService.restoreArticleByIds(new Long[]{1L});
+
+        assertEquals(1, result);
+        verify(articleMapper).restoreArticleByIds(new Long[]{1L});
+    }
+
+    /**
+     * 测试从回收站恢复 - 标题已被在线文章占用时拒绝
+     */
+    @Test
+    void testRestoreArticleByIds_TitleConflict() {
+        Article deleted = new Article();
+        deleted.setId(1L);
+        deleted.setTitle("重复标题");
+        deleted.setDelFlag(2L);
+
+        Article alive = new Article();
+        alive.setId(2L);
+        alive.setTitle("重复标题");
+
+        when(articleMapper.selectArticleById(1L)).thenReturn(deleted);
+        when(articleMapper.selectArticleByTitle("重复标题")).thenReturn(alive);
+
+        com.zhi.common.exception.ServiceException exception = assertThrows(
+                com.zhi.common.exception.ServiceException.class,
+                () -> articleService.restoreArticleByIds(new Long[]{1L}));
+
+        assertTrue(exception.getMessage().contains("标题已被占用"));
+        verify(articleMapper, never()).restoreArticleByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试从回收站恢复 - 忽略不在回收站中的 ID
+     */
+    @Test
+    void testRestoreArticleByIds_SkipsAliveArticles() {
+        Article alive = new Article();
+        alive.setId(1L);
+        alive.setTitle("在线文章");
+        alive.setDelFlag(0L);
+
+        when(articleMapper.selectArticleById(1L)).thenReturn(alive);
+
+        int result = articleService.restoreArticleByIds(new Long[]{1L});
+
+        assertEquals(0, result);
+        verify(articleMapper, never()).restoreArticleByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试彻底删除 - 仅处理回收站中的文章，并清理标签关联
+     */
+    @Test
+    void testPurgeArticleByIds_OnlyPurgesDeleted() {
+        Article deleted = new Article();
+        deleted.setId(1L);
+        deleted.setDelFlag(2L);
+
+        Article alive = new Article();
+        alive.setId(2L);
+        alive.setDelFlag(0L);
+
+        when(articleMapper.selectArticleById(1L)).thenReturn(deleted);
+        when(articleMapper.selectArticleById(2L)).thenReturn(alive);
+        when(articleMapper.purgeArticleByIds(any(Long[].class))).thenReturn(1);
+
+        int result = articleService.purgeArticleByIds(new Long[]{1L, 2L});
+
+        assertEquals(1, result);
+        verify(articleTagMapper).deleteByArticleId(1L);
+        verify(articleTagMapper, never()).deleteByArticleId(2L);
+        verify(articleMapper).purgeArticleByIds(new Long[]{1L});
+    }
+
+    /**
+     * 测试彻底删除 - 空参数
+     */
+    @Test
+    void testPurgeArticleByIds_Empty() {
+        assertEquals(0, articleService.purgeArticleByIds(new Long[0]));
+        verify(articleMapper, never()).purgeArticleByIds(any(Long[].class));
     }
 
     /**

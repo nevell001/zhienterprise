@@ -92,6 +92,22 @@ public interface IArticleService
     public int deleteArticleById(Long id);
 
     /**
+     * 从回收站恢复文章
+     *
+     * @param ids 需要恢复的文章主键
+     * @return 结果
+     */
+    public int restoreArticleByIds(Long[] ids);
+
+    /**
+     * 彻底删除回收站中的文章（不可恢复）
+     *
+     * @param ids 需要彻底删除的文章主键
+     * @return 结果
+     */
+    public int purgeArticleByIds(Long[] ids);
+
+    /**
      * 增加文章浏览量（无去重，兼容旧调用）
      * 
      * @param id 文章ID

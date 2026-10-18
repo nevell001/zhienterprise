@@ -176,7 +176,7 @@ public class ArticleController extends BaseController
     }
 
     /**
-     * 删除文章
+     * 删除文章（逻辑删除，进入回收站）
      */
     @PreAuthorize("@ss.hasPermi('zhi:article:remove')")
     @Log(title = "文章管理", businessType = BusinessType.DELETE)
@@ -184,6 +184,28 @@ public class ArticleController extends BaseController
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
         return toAjax(articleService.deleteArticleByIds(ids));
+    }
+
+    /**
+     * 从回收站恢复文章
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:article:edit')")
+    @Log(title = "文章管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/restore/{ids}")
+    public AjaxResult restore(@PathVariable("ids") Long[] ids)
+    {
+        return toAjax(articleService.restoreArticleByIds(ids));
+    }
+
+    /**
+     * 彻底删除回收站中的文章（物理删除，不可恢复）
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:article:remove')")
+    @Log(title = "文章管理", businessType = BusinessType.DELETE)
+    @DeleteMapping("/purge/{ids}")
+    public AjaxResult purge(@PathVariable("ids") Long[] ids)
+    {
+        return toAjax(articleService.purgeArticleByIds(ids));
     }
 
     /**

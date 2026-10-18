@@ -104,11 +104,14 @@ class ArticleMapperTest {
             Article viewCountArticle = articleMapper.selectArticleById(testArticle.getId());
             assertEquals(oldViewCount + 1, viewCountArticle.getViewCount(), "浏览量增加失败");
 
-            // 测试删除
+            // 测试删除（逻辑删除，进入回收站）
             int deleteResult = articleMapper.deleteArticleById(testArticle.getId());
             assertEquals(1, deleteResult, "删除文章失败");
             Article deletedArticle = articleMapper.selectArticleById(testArticle.getId());
-            assertNull(deletedArticle, "删除文章后仍然能查询到");
+            assertNotNull(deletedArticle, "逻辑删除后行仍应存在（回收站）");
+            assertEquals(2L, deletedArticle.getDelFlag(), "删除标记应为 2（回收站）");
+            assertNull(articleMapper.selectArticleByTitle("修改后的标题"),
+                    "回收站中的文章不应再占用标题");
         } catch (Exception e) {
             e.printStackTrace();
             fail("测试失败: " + e.getMessage());
@@ -137,17 +140,58 @@ class ArticleMapperTest {
             articleMapper.insertArticle(article1);
             articleMapper.insertArticle(article2);
             
-            // 批量删除
+            // 批量删除（逻辑删除）
             int deleteResult = articleMapper.deleteArticleByIds(new Long[]{article1.getId(), article2.getId()});
             assertTrue(deleteResult >= 1, "批量删除文章失败");
-            
-            // 验证删除结果
-            assertNull(articleMapper.selectArticleById(article1.getId()), "文章1未被删除");
-            assertNull(articleMapper.selectArticleById(article2.getId()), "文章2未被删除");
+
+            // 默认列表不再返回，回收站视图（delFlag=2）能查到
+            assertEquals(0, articleMapper.selectArticleList(new Article()).size(),
+                    "默认列表必须排除回收站文章");
+            Article recycleQuery = new Article();
+            recycleQuery.setDelFlag(2L);
+            assertEquals(2, articleMapper.selectArticleList(recycleQuery).size(),
+                    "回收站视图应返回已删除文章");
         } catch (Exception e) {
             e.printStackTrace();
             fail("批量删除测试失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 回收站往返：软删除 → 恢复 → 彻底删除。
+     */
+    @Test
+    void recycleBinRoundTrip() {
+        Article article = new Article();
+        article.setTitle("回收站往返测试");
+        article.setContent("内容");
+        article.setStatus(1L);
+        article.setCategoryId(1L);
+        articleMapper.insertArticle(article);
+
+        assertEquals(1, articleMapper.deleteArticleByIds(new Long[]{article.getId()}));
+        assertEquals(2L, articleMapper.selectArticleById(article.getId()).getDelFlag());
+
+        assertEquals(1, articleMapper.restoreArticleByIds(new Long[]{article.getId()}));
+        assertEquals(0L, articleMapper.selectArticleById(article.getId()).getDelFlag(),
+                "恢复后应回到未删除状态，前台列表重新可见");
+        assertEquals(1, articleMapper.selectArticleList(new Article()).stream()
+                .filter(a -> a.getId().equals(article.getId())).count());
+
+        assertEquals(1, articleMapper.deleteArticleById(article.getId()));
+        assertEquals(1, articleMapper.purgeArticleByIds(new Long[]{article.getId()}));
+        assertNull(articleMapper.selectArticleById(article.getId()),
+                "彻底删除后行应被物理移除");
+
+        // 不在回收站的 ID 不允许被彻底删除
+        Article alive = new Article();
+        alive.setTitle("在线文章");
+        alive.setContent("内容");
+        alive.setStatus(1L);
+        articleMapper.insertArticle(alive);
+        assertEquals(0, articleMapper.purgeArticleByIds(new Long[]{alive.getId()}),
+                "purge 只能删除回收站中的文章");
+        assertNotNull(articleMapper.selectArticleById(alive.getId()));
     }
 
     /**

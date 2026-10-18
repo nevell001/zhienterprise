@@ -162,6 +162,7 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
   - 状态/置顶/推荐接口的 `ids` 必须经 `parseTagIds` 转 `List<Long>`：Jackson 把 JSON 数字反序列化成 `Integer`，直接 `(List<Long>)` 强转会在 service 迭代时 `ClassCastException`；`status/isTop/isRecommend` 缺失时返回明确错误而非静默 0 行。
   - 定时发布任务 `ScheduledArticlePublishTask` 调用的 `publishScheduledArticles` 必须带 `@SiteCacheEvict(keyPattern = "zhi:*")`（已加入 `ArticleCacheEvictionContractTest` 的写方法清单），否则到点发布后前台搜索/热门列表仍可能是旧缓存。
   - 前台文章详情（`FrontController.getArticleDetail`）必须**先校验 status=1 且 del_flag=0，再增加浏览量/写访问明细**；草稿/已删除 ID 被直接访问时不得污染 PV/UV（`FrontControllerTest` 守卫）。
+  - **文章删除是逻辑删除（回收站）**：`DELETE /system/article/{ids}` 只把 `del_flag` 置 `'2'`（`update_time` 即删除时间），**不删** `zhi_article_tag` 关联；`PUT /system/article/restore/{ids}`（权限 `zhi:article:edit`）恢复前用 `selectArticleByTitle`（只查 `del_flag=0`）校验标题冲突，冲突抛 `ServiceException` 并保持回收站状态；`DELETE /system/article/purge/{ids}`（权限 `zhi:article:remove`）才物理删除，且只处理 `del_flag='2'` 的行并清理标签关联，避免误传在线 ID。后台列表用 `?delFlag=2` 查回收站（`ArticleMapper.selectArticleList` 的 `<choose>`：显式传 `delFlag` 按其过滤、否则默认 `del_flag=0`），前端 `views/admin/article/index.vue` 的「回收站」模式同时承载文章 / 核心业务 / 解决方案三个栏目。恢复/彻底删除与其他写路径一样必须带 `@Transactional` + `@SiteCacheEvict(keyPattern = "zhi:*")`（`ArticleCacheEvictionContractTest` / `ArticleServiceImplTest` 守卫）。
 
 - **「系统工具」菜单默认隐藏**：代码生成 / 系统接口属研发工具，不面向客户。`sys_menu` 里 3（系统工具）的 `visible='1'`（隐藏），种子与存量库迁移都在 `sql/00_init_database.sql` 的「配置系统工具菜单」段（`UPDATE sys_menu SET visible='1' WHERE menu_id=3`）。菜单与权限仍保留：子路由可通过 URL 直达，需要恢复时在「菜单管理 → 系统工具」把「可见」打开即可，**不要删除菜单或撤回 `tool:*` 权限**。
 

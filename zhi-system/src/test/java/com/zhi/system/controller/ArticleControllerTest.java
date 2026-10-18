@@ -170,6 +170,36 @@ class ArticleControllerTest {
     }
 
     /**
+     * 回收站：批量恢复
+     */
+    @Test
+    void testRestoreArticles() throws Exception {
+        when(articleService.restoreArticleByIds(any(Long[].class))).thenReturn(2);
+
+        mockMvc.perform(put("/system/article/restore/1,2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(articleService).restoreArticleByIds(any(Long[].class));
+    }
+
+    /**
+     * 回收站：彻底删除（物理删除）
+     */
+    @Test
+    void testPurgeArticles() throws Exception {
+        when(articleService.purgeArticleByIds(any(Long[].class))).thenReturn(1);
+
+        mockMvc.perform(delete("/system/article/purge/1,2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(articleService).purgeArticleByIds(any(Long[].class));
+    }
+
+    /**
      * 测试更新文章状态接口
      */
     @Test

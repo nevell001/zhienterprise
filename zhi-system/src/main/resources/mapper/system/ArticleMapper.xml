@@ -73,7 +73,10 @@
             <if test="isTop != null "> and ba.is_top = #{isTop}</if>
             <if test="isRecommend != null "> and ba.is_recommend = #{isRecommend}</if>
             <if test="status != null "> and ba.status = #{status}</if>
-            <if test="delFlag != null "> and ba.del_flag = #{delFlag}</if>
+            <choose>
+                <when test="delFlag != null"> and ba.del_flag = #{delFlag}</when>
+                <otherwise> and ba.del_flag = 0</otherwise>
+            </choose>
             <if test="viewCount != null "> and ba.view_count = #{viewCount}</if>
             <if test="likeCount != null "> and ba.like_count = #{likeCount}</if>
             <if test="commentCount != null "> and ba.comment_count = #{commentCount}</if>
@@ -95,7 +98,10 @@
             <if test="articleType != null and articleType != ''"> and ba.article_type = #{articleType}</if>
             <if test="categoryId != null "> and ba.category_id = #{categoryId}</if>
             <if test="authorId != null "> and ba.author_id = #{authorId}</if>
-            <if test="delFlag != null "> and ba.del_flag = #{delFlag}</if>
+            <choose>
+                <when test="delFlag != null"> and ba.del_flag = #{delFlag}</when>
+                <otherwise> and ba.del_flag = 0</otherwise>
+            </choose>
         </where>
         order by ba.create_time desc, ba.id desc
     </select>
@@ -282,12 +288,31 @@
         ORDER BY id ASC LIMIT 1
     </select>
 
-    <delete id="deleteArticleById" parameterType="Long">
-        delete from zhi_article where id = #{id}
-    </delete>
+    <!-- 逻辑删除：进入回收站；标签关联保留，恢复后无需重建 -->
+    <update id="deleteArticleById" parameterType="Long">
+        update zhi_article set del_flag = '2', update_time = now()
+        where del_flag = 0 and id = #{id}
+    </update>
 
-    <delete id="deleteArticleByIds" parameterType="String">
-        delete from zhi_article where id in 
+    <update id="deleteArticleByIds" parameterType="String">
+        update zhi_article set del_flag = '2', update_time = now()
+        where del_flag = 0 and id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="restoreArticleByIds" parameterType="String">
+        update zhi_article set del_flag = '0', update_time = now()
+        where del_flag = '2' and id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="purgeArticleByIds" parameterType="String">
+        delete from zhi_article
+        where del_flag = '2' and id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

@@ -22,6 +22,7 @@ import com.zhi.system.domain.ArticleTag;
 import com.zhi.system.domain.Tag;
 import com.zhi.system.service.IArticleService;
 import com.zhi.common.exception.DuplicateArticleTitleException;
+import com.zhi.common.exception.ServiceException;
 
 /**
  * 博客文章Service业务层处理
@@ -371,8 +372,10 @@ public class ArticleServiceImpl implements IArticleService
     }
 
     /**
-     * 批量删除博客文章
-     * 
+     * 批量删除博客文章（逻辑删除，进入回收站）
+     *
+     * 保留标签关联：恢复时无需重建。彻底删除走 {@link #purgeArticleByIds(Long[])}。
+     *
      * @param ids 需要删除的博客文章主键
      * @return 结果
      */
@@ -381,15 +384,11 @@ public class ArticleServiceImpl implements IArticleService
     @SiteCacheEvict(keyPattern = "zhi:*")
     public int deleteArticleByIds(Long[] ids)
     {
-        // 先删除标签关联
-        for (Long id : ids) {
-            articleTagMapper.deleteByArticleId(id);
-        }
         return articleMapper.deleteArticleByIds(ids);
     }
 
     /**
-     * 删除博客文章信息
+     * 删除博客文章信息（逻辑删除，进入回收站）
      *
      * 必须清缓存：删除后前台列表/搜索/热门仍会返回该文章（缓存未失效）。
      *
@@ -401,9 +400,68 @@ public class ArticleServiceImpl implements IArticleService
     @SiteCacheEvict(keyPattern = "zhi:*")
     public int deleteArticleById(Long id)
     {
-        // 先删除标签关联
-        articleTagMapper.deleteByArticleId(id);
         return articleMapper.deleteArticleById(id);
+    }
+
+    /**
+     * 从回收站恢复文章
+     *
+     * 恢复前校验标题：软删除期间标题可能已被新文章占用（唯一索引只约束未删除行）。
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @SiteCacheEvict(keyPattern = "zhi:*")
+    public int restoreArticleByIds(Long[] ids)
+    {
+        if (ids == null || ids.length == 0) {
+            return 0;
+        }
+        List<Long> restorable = new ArrayList<>();
+        for (Long id : ids) {
+            Article article = articleMapper.selectArticleById(id);
+            if (article == null || !Long.valueOf(2L).equals(article.getDelFlag())) {
+                continue;
+            }
+            Article exist = articleMapper.selectArticleByTitle(article.getTitle());
+            if (exist != null && !exist.getId().equals(id)) {
+                throw new ServiceException(
+                        "文章「" + article.getTitle() + "」的标题已被占用，无法恢复");
+            }
+            restorable.add(id);
+        }
+        if (restorable.isEmpty()) {
+            return 0;
+        }
+        return articleMapper.restoreArticleByIds(restorable.toArray(new Long[0]));
+    }
+
+    /**
+     * 彻底删除回收站中的文章（物理删除，不可恢复）
+     *
+     * 只处理确实处于回收站的行，避免误传在线文章 ID 时先删掉其标签关联。
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @SiteCacheEvict(keyPattern = "zhi:*")
+    public int purgeArticleByIds(Long[] ids)
+    {
+        if (ids == null || ids.length == 0) {
+            return 0;
+        }
+        List<Long> purgable = new ArrayList<>();
+        for (Long id : ids) {
+            Article article = articleMapper.selectArticleById(id);
+            if (article != null && Long.valueOf(2L).equals(article.getDelFlag())) {
+                purgable.add(id);
+            }
+        }
+        if (purgable.isEmpty()) {
+            return 0;
+        }
+        for (Long id : purgable) {
+            articleTagMapper.deleteByArticleId(id);
+        }
+        return articleMapper.purgeArticleByIds(purgable.toArray(new Long[0]));
     }
 
     @Override

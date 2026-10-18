@@ -100,6 +100,36 @@ describe('Article API 测试', () => {
     })
   })
 
+  describe('restoreArticle', () => {
+    it('应该导出 restoreArticle 函数', () => {
+      expect(articleApi.restoreArticle).toBeDefined()
+      expect(typeof articleApi.restoreArticle).toBe('function')
+    })
+
+    it('应该调用回收站恢复接口', () => {
+      articleApi.restoreArticle([1, 2, 3])
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/article/restore/1,2,3',
+        method: 'put'
+      })
+    })
+  })
+
+  describe('purgeArticle', () => {
+    it('应该导出 purgeArticle 函数', () => {
+      expect(articleApi.purgeArticle).toBeDefined()
+      expect(typeof articleApi.purgeArticle).toBe('function')
+    })
+
+    it('应该调用彻底删除接口', () => {
+      articleApi.purgeArticle(123)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/article/purge/123',
+        method: 'delete'
+      })
+    })
+  })
+
   describe('updateArticleViewCount', () => {
     it('应该导出 updateArticleViewCount 函数', () => {
       expect(articleApi.updateArticleViewCount).toBeDefined()

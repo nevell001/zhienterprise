@@ -36,6 +36,7 @@ class ArticleCacheEvictionContractTest
     /** 写文章的方法：新增/修改/删除/状态变更都会影响前台列表与搜索结果 */
     private static final String[] WRITE_METHODS = {
         "insertArticle", "updateArticle", "deleteArticleByIds", "deleteArticleById",
+        "restoreArticleByIds", "purgeArticleByIds",
         "updateArticleStatus", "updateArticleTopStatus", "updateArticleRecommendStatus",
         "publishScheduledArticles"
     };
