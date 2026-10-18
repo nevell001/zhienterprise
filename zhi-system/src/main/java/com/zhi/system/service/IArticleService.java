@@ -3,6 +3,7 @@ package com.zhi.system.service;
 import java.util.List;
 import java.util.Map;
 import com.zhi.system.domain.Article;
+import com.zhi.system.domain.ArticleRevision;
 
 /**
  * 博客文章Service接口
@@ -74,6 +75,32 @@ public interface IArticleService
      * @return 结果
      */
     public int updateArticle(Article article);
+
+    /**
+     * 查询文章的修订历史（不含正文，按版本号倒序）
+     *
+     * @param articleId 文章ID
+     * @return 版本列表
+     */
+    public List<ArticleRevision> selectArticleRevisions(Long articleId);
+
+    /**
+     * 查询单个修订版本（含正文）
+     *
+     * @param revisionId 版本ID
+     * @return 版本详情
+     */
+    public ArticleRevision selectArticleRevision(Long revisionId);
+
+    /**
+     * 恢复到指定历史版本
+     *
+     * 回滚前会把当前内容保存为新版本，便于再次撤销。
+     *
+     * @param revisionId 版本ID
+     * @return 结果
+     */
+    public int restoreArticleRevision(Long revisionId);
 
     /**
      * 批量删除博客文章

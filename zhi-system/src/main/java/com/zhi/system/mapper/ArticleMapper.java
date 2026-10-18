@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import com.zhi.system.domain.Article;
+import com.zhi.system.domain.ArticleRevision;
 import com.zhi.system.domain.MediaReference;
 
 /**
@@ -268,4 +269,12 @@ public interface ArticleMapper
      * @return 引用位置
      */
     List<MediaReference> selectMediaReferences(@Param("keyword") String keyword);
+
+    /**
+     * 用历史版本恢复文章内容字段（类型/状态/置顶/推荐/发布时间保持不变）
+     *
+     * @param revision 历史版本
+     * @return 结果
+     */
+    int restoreArticleFromRevision(ArticleRevision revision);
 }

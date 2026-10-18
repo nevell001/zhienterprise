@@ -122,6 +122,37 @@ public class ArticleController extends BaseController
     }
 
     /**
+     * 查询文章的修订历史（不含正文）
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:article:query')")
+    @GetMapping("/revisions/{articleId}")
+    public AjaxResult revisions(@PathVariable("articleId") Long articleId)
+    {
+        return success(articleService.selectArticleRevisions(articleId));
+    }
+
+    /**
+     * 获取单个修订版本详情（含正文）
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:article:query')")
+    @GetMapping("/revision/{revisionId}")
+    public AjaxResult revision(@PathVariable("revisionId") Long revisionId)
+    {
+        return success(articleService.selectArticleRevision(revisionId));
+    }
+
+    /**
+     * 恢复到指定历史版本
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:article:edit')")
+    @Log(title = "文章管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/revision/{revisionId}/restore")
+    public AjaxResult restoreRevision(@PathVariable("revisionId") Long revisionId)
+    {
+        return toAjax(articleService.restoreArticleRevision(revisionId));
+    }
+
+    /**
      * 新增文章
      */
     @PreAuthorize("@ss.hasPermi('zhi:article:add')")

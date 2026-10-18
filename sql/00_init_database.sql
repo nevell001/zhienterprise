@@ -660,6 +660,40 @@ CREATE TABLE IF NOT EXISTS `zhi_article_tag` (
   UNIQUE KEY `uk_article_tag` (`article_id`,`tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章标签关联表';
 
+-- 文章修订历史表（每次保存内容快照，后台可查看/回滚；仅保留最近 20 个版本）
+CREATE TABLE IF NOT EXISTS `zhi_article_revision` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '版本ID',
+  `article_id` bigint NOT NULL COMMENT '文章ID',
+  `revision_no` int NOT NULL COMMENT '版本号（同一文章从 1 递增）',
+  `title` varchar(200) NOT NULL COMMENT '标题快照',
+  `summary` varchar(500) DEFAULT NULL COMMENT '摘要快照',
+  `content` longtext COMMENT '正文 HTML 快照',
+  `content_md` longtext COMMENT 'Markdown 源码快照',
+  `format` varchar(10) DEFAULT 'html' COMMENT '内容格式 html|markdown',
+  `cover_url` varchar(255) DEFAULT NULL COMMENT '封面图快照',
+  `category_id` bigint DEFAULT NULL COMMENT '分类快照',
+  `article_type` varchar(20) DEFAULT 'news' COMMENT '内容类型快照',
+  `industry` varchar(50) DEFAULT NULL COMMENT '所属行业快照',
+  `scenario` varchar(255) DEFAULT NULL COMMENT '能力场景快照',
+  `seo_title` varchar(200) DEFAULT NULL COMMENT 'SEO 标题快照',
+  `seo_keywords` varchar(255) DEFAULT NULL COMMENT 'SEO 关键词快照',
+  `seo_description` varchar(500) DEFAULT NULL COMMENT 'SEO 描述快照',
+  `slug` varchar(100) DEFAULT NULL COMMENT 'URL 别名快照',
+  `selling_points` json DEFAULT NULL COMMENT '卖点宫格快照',
+  `spec_table` json DEFAULT NULL COMMENT '规格参数表快照',
+  `gallery` json DEFAULT NULL COMMENT '图集快照',
+  `process_steps` json DEFAULT NULL COMMENT '流程步骤快照',
+  `status` tinyint DEFAULT '0' COMMENT '保存时状态',
+  `is_top` tinyint DEFAULT '0' COMMENT '保存时是否置顶',
+  `is_recommend` tinyint DEFAULT '0' COMMENT '保存时是否推荐',
+  `editor_id` bigint DEFAULT NULL COMMENT '编辑人ID',
+  `editor_name` varchar(50) DEFAULT NULL COMMENT '编辑人名称',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '保存时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_article_revision_no` (`article_id`, `revision_no`),
+  KEY `idx_article_revision_article` (`article_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章修订历史表';
+
 -- 博客评论表
 CREATE TABLE IF NOT EXISTS `zhi_comment` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',

@@ -348,6 +348,9 @@
           </span>
           <el-button plain size="small" @click="setEditorViewMode('preview')">预览</el-button>
           <el-button plain size="small" @click="openSitePreview">站点预览</el-button>
+          <el-button v-if="form.id" plain size="small" @click="revisionOpen = true">
+            修订历史
+          </el-button>
           <el-button plain size="small" @click="submitForm(0)">存为草稿</el-button>
           <el-button type="primary" size="small" @click="submitForm(1)">发布</el-button>
         </div>
@@ -765,6 +768,13 @@
         </div>
       </el-form>
     </el-dialog>
+
+    <ArticleRevisionDrawer
+      v-if="form.id"
+      v-model="revisionOpen"
+      :article-id="form.id"
+      @restored="handleRevisionRestored"
+    />
   </div>
 </template>
 
@@ -796,6 +806,7 @@ import { listCategory } from '@/api/admin/category'
 import { listTag } from '@/api/admin/tag'
 import ImageUpload from '@/components/ImageUpload'
 import TagCategorySelector from '@/components/TagCategorySelector.vue'
+import ArticleRevisionDrawer from './components/ArticleRevisionDrawer.vue'
 import { parseTime } from '@/utils/zhi'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
@@ -848,6 +859,7 @@ const articleTypeTag = (type?: string) =>
 const userStore = useUserStore()
 const articleList = ref([])
 const open = ref(false)
+const revisionOpen = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
 const recycleMode = ref(false)
@@ -1292,6 +1304,13 @@ async function openSitePreview() {
         : 'AdminArticlePreview'
   const { href } = router.resolve({ name: routeName, params: { id: form.value.id } })
   window.open(href, '_blank')
+}
+
+/** 恢复历史版本后刷新编辑器内容与列表 */
+async function handleRevisionRestored() {
+  if (!form.value.id) return
+  await handleUpdate({ id: form.value.id })
+  await getList()
 }
 
 const submitForm = async (targetStatus?: 0 | 1 | 2) => {

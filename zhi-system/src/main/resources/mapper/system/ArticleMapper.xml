@@ -455,6 +455,30 @@
         WHERE id = #{articleId}
     </update>
 
+    <!-- 历史版本回滚：只覆盖内容字段，保留当前类型/状态/置顶/推荐/发布时间 -->
+    <update id="restoreArticleFromRevision" parameterType="ArticleRevision">
+        update zhi_article
+        set title = #{title},
+            summary = #{summary},
+            content = #{content},
+            content_md = #{contentMd},
+            format = #{format},
+            cover_url = #{coverUrl},
+            category_id = #{categoryId},
+            industry = #{industry},
+            scenario = #{scenario},
+            seo_title = #{seoTitle},
+            seo_keywords = #{seoKeywords},
+            seo_description = #{seoDescription},
+            slug = #{slug},
+            selling_points = #{sellingPoints},
+            spec_table = #{specTable},
+            gallery = #{gallery},
+            process_steps = #{processSteps},
+            update_time = now()
+        where id = #{articleId} and del_flag = 0
+    </update>
+
     <!-- 媒体库引用检查：正文/Markdown 源/封面/图集/卖点/规格表都可能引用上传文件。
          回收站（del_flag='2'）也算引用，避免恢复后图片 404。 -->
     <select id="selectMediaReferences" resultType="MediaReference">

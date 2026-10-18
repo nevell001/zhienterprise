@@ -47,6 +47,27 @@ export interface ArticleParams extends PageParams {
 }
 
 /**
+ * 文章修订历史
+ *
+ * 列表接口不返回正文（content/contentMd 等），查看详情时再按 id 获取。
+ */
+export interface ArticleRevision {
+  id: number
+  articleId: number
+  revisionNo: number
+  title: string
+  summary?: string
+  content?: string
+  contentMd?: string
+  format?: string
+  articleType?: string
+  status?: number
+  editorId?: number
+  editorName?: string
+  createTime?: string
+}
+
+/**
  * 用户查询参数
  */
 export interface UserParams extends PageParams {

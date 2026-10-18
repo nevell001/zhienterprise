@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.ArticleRevisionMapper">
+
+    <resultMap type="ArticleRevision" id="ArticleRevisionResult">
+        <id     property="id"             column="id"              />
+        <result property="articleId"      column="article_id"      />
+        <result property="revisionNo"     column="revision_no"     />
+        <result property="title"          column="title"           />
+        <result property="summary"        column="summary"         />
+        <result property="content"        column="content"         />
+        <result property="contentMd"      column="content_md"      />
+        <result property="format"         column="format"          />
+        <result property="coverUrl"       column="cover_url"       />
+        <result property="categoryId"     column="category_id"     />
+        <result property="articleType"    column="article_type"    />
+        <result property="industry"       column="industry"        />
+        <result property="scenario"       column="scenario"        />
+        <result property="seoTitle"       column="seo_title"       />
+        <result property="seoKeywords"    column="seo_keywords"    />
+        <result property="seoDescription" column="seo_description" />
+        <result property="slug"           column="slug"            />
+        <result property="sellingPoints"  column="selling_points"  />
+        <result property="specTable"      column="spec_table"      />
+        <result property="gallery"        column="gallery"         />
+        <result property="processSteps"   column="process_steps"   />
+        <result property="status"         column="status"          />
+        <result property="isTop"          column="is_top"          />
+        <result property="isRecommend"    column="is_recommend"    />
+        <result property="editorId"       column="editor_id"       />
+        <result property="editorName"     column="editor_name"     />
+        <result property="createTime"     column="create_time"     />
+    </resultMap>
+
+    <sql id="selectRevisionColumns">
+        id, article_id, revision_no, title, summary, content, content_md, format, cover_url,
+        category_id, article_type, industry, scenario, seo_title, seo_keywords, seo_description,
+        slug, selling_points, spec_table, gallery, process_steps, status, is_top, is_recommend,
+        editor_id, editor_name, create_time
+    </sql>
+
+    <!-- 列表不返回正文大字段，避免打开抽屉时拉取几十份全文 -->
+    <select id="selectRevisionList" resultMap="ArticleRevisionResult">
+        select id, article_id, revision_no, title, summary, article_type, status, editor_id,
+               editor_name, create_time
+        from zhi_article_revision
+        where article_id = #{articleId}
+        order by revision_no desc
+    </select>
+
+    <select id="selectRevisionById" parameterType="Long" resultMap="ArticleRevisionResult">
+        select <include refid="selectRevisionColumns"/>
+        from zhi_article_revision
+        where id = #{id}
+    </select>
+
+    <select id="selectLatestRevision" resultMap="ArticleRevisionResult">
+        select <include refid="selectRevisionColumns"/>
+        from zhi_article_revision
+        where article_id = #{articleId}
+        order by revision_no desc
+        limit 1
+    </select>
+
+    <insert id="insertRevision" parameterType="ArticleRevision" useGeneratedKeys="true" keyProperty="id">
+        insert into zhi_article_revision
+        (article_id, revision_no, title, summary, content, content_md, format, cover_url, category_id,
+         article_type, industry, scenario, seo_title, seo_keywords, seo_description, slug,
+         selling_points, spec_table, gallery, process_steps, status, is_top, is_recommend,
+         editor_id, editor_name, create_time)
+        values
+        (#{articleId}, #{revisionNo}, #{title}, #{summary}, #{content}, #{contentMd}, #{format},
+         #{coverUrl}, #{categoryId}, #{articleType}, #{industry}, #{scenario}, #{seoTitle},
+         #{seoKeywords}, #{seoDescription}, #{slug}, #{sellingPoints}, #{specTable}, #{gallery},
+         #{processSteps}, #{status}, #{isTop}, #{isRecommend}, #{editorId}, #{editorName}, #{createTime})
+    </insert>
+
+    <delete id="deleteRevisionsUpTo">
+        delete from zhi_article_revision
+        where article_id = #{articleId} and revision_no &lt;= #{revisionNo}
+    </delete>
+
+    <delete id="deleteRevisionsByArticleIds" parameterType="String">
+        delete from zhi_article_revision
+        where article_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

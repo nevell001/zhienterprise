@@ -38,7 +38,7 @@ class ArticleCacheEvictionContractTest
         "insertArticle", "updateArticle", "deleteArticleByIds", "deleteArticleById",
         "restoreArticleByIds", "purgeArticleByIds",
         "updateArticleStatus", "updateArticleTopStatus", "updateArticleRecommendStatus",
-        "publishScheduledArticles"
+        "publishScheduledArticles", "restoreArticleRevision"
     };
 
     @Test

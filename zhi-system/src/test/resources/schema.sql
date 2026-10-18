@@ -76,3 +76,35 @@ CREATE TABLE IF NOT EXISTS zhi_article_tag (
     tag_id BIGINT NOT NULL,
     PRIMARY KEY (article_id, tag_id)
 );
+
+-- 文章修订历史表
+CREATE TABLE IF NOT EXISTS zhi_article_revision (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    article_id BIGINT NOT NULL,
+    revision_no INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    summary VARCHAR(500),
+    content LONGTEXT,
+    content_md LONGTEXT,
+    format VARCHAR(10) DEFAULT 'html',
+    cover_url VARCHAR(500),
+    category_id BIGINT,
+    article_type VARCHAR(20) DEFAULT 'news',
+    industry VARCHAR(50),
+    scenario VARCHAR(255),
+    seo_title VARCHAR(200),
+    seo_keywords VARCHAR(255),
+    seo_description VARCHAR(500),
+    slug VARCHAR(100),
+    selling_points LONGTEXT,
+    spec_table LONGTEXT,
+    gallery LONGTEXT,
+    process_steps LONGTEXT,
+    status BIGINT DEFAULT 0,
+    is_top BIGINT DEFAULT 0,
+    is_recommend BIGINT DEFAULT 0,
+    editor_id BIGINT,
+    editor_name VARCHAR(100),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (article_id, revision_no)
+);

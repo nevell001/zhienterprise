@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import com.zhi.common.utils.DateUtils;
+import com.zhi.common.utils.SecurityUtils;
+import com.zhi.common.core.domain.model.LoginUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +18,11 @@ import com.zhi.common.cache.annotation.SiteCacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.zhi.system.mapper.ArticleMapper;
+import com.zhi.system.mapper.ArticleRevisionMapper;
 import com.zhi.system.mapper.ArticleTagMapper;
 import com.zhi.system.mapper.TagMapper;
 import com.zhi.system.domain.Article;
+import com.zhi.system.domain.ArticleRevision;
 import com.zhi.system.domain.ArticleTag;
 import com.zhi.system.domain.Tag;
 import com.zhi.system.service.IArticleService;
@@ -35,8 +40,14 @@ public class ArticleServiceImpl implements IArticleService
 {
     private static final Logger logger = LoggerFactory.getLogger(ArticleServiceImpl.class);
 
+    /** 每篇文章保留的历史版本数量，超出后清理最旧的版本 */
+    private static final int MAX_REVISIONS = 20;
+
     @Autowired
     private ArticleMapper articleMapper;
+
+    @Autowired
+    private ArticleRevisionMapper articleRevisionMapper;
 
     @Autowired
     private ArticleTagMapper articleTagMapper;
@@ -217,6 +228,7 @@ public class ArticleServiceImpl implements IArticleService
         try {
             int result = articleMapper.insertArticle(article);
             processTagAssociations(article);
+            saveRevision(article.getId(), false);
             return result;
         } catch (Exception e) {
             handleInsertException(e);
@@ -361,7 +373,11 @@ public class ArticleServiceImpl implements IArticleService
         try {
             // 标签关联统一由 controller 层在显式传入 tagIds 时处理（updateArticleTagRelations），
             // 此处不再无条件删除，避免 API 调用方漏传 tagIds 时清空文章标签
-            return articleMapper.updateArticle(article);
+            int result = articleMapper.updateArticle(article);
+            if (result > 0) {
+                saveRevision(article.getId(), false);
+            }
+            return result;
         } catch (Exception e) {
             // 检查是否为数据库唯一索引冲突
             if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
@@ -369,6 +385,129 @@ public class ArticleServiceImpl implements IArticleService
             }
             throw e;
         }
+    }
+
+    @Override
+    public List<ArticleRevision> selectArticleRevisions(Long articleId)
+    {
+        if (articleId == null) {
+            return new ArrayList<>();
+        }
+        return articleRevisionMapper.selectRevisionList(articleId);
+    }
+
+    @Override
+    public ArticleRevision selectArticleRevision(Long revisionId)
+    {
+        if (revisionId == null) {
+            return null;
+        }
+        return articleRevisionMapper.selectRevisionById(revisionId);
+    }
+
+    /**
+     * 恢复到历史版本：先保存当前内容，再用版本快照覆盖内容字段。
+     *
+     * 只回滚内容相关字段，保留当前内容类型/状态/置顶/推荐/定时发布时间，
+     * 避免回滚把文章移到别的栏目或改变发布状态。
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @SiteCacheEvict(keyPattern = "zhi:*")
+    public int restoreArticleRevision(Long revisionId)
+    {
+        ArticleRevision revision = articleRevisionMapper.selectRevisionById(revisionId);
+        if (revision == null) {
+            throw new ServiceException("历史版本不存在");
+        }
+        Article article = articleMapper.selectArticleById(revision.getArticleId());
+        if (article == null) {
+            throw new ServiceException("文章不存在");
+        }
+        if (!Long.valueOf(0L).equals(article.getDelFlag())) {
+            throw new ServiceException("文章在回收站中，请先恢复文章再回滚版本");
+        }
+        if (revision.getTitle() != null) {
+            Article exist = articleMapper.selectArticleByTitle(revision.getTitle());
+            if (exist != null && !exist.getId().equals(article.getId())) {
+                throw new ServiceException(
+                        "标题「" + revision.getTitle() + "」已被其他文章占用，无法恢复到该版本");
+            }
+        }
+        if (revision.getSlug() != null && !revision.getSlug().trim().isEmpty()) {
+            Article slugExist = articleMapper.selectArticleBySlug(revision.getSlug().trim());
+            if (slugExist != null && !slugExist.getId().equals(article.getId())) {
+                throw new ServiceException(
+                        "文章别名「" + revision.getSlug() + "」已被其他文章占用，无法恢复到该版本");
+            }
+        }
+        // 回滚前先记录当前内容，用户可再次恢复到回滚前的版本
+        saveRevision(article.getId(), true);
+        return articleMapper.restoreArticleFromRevision(revision);
+    }
+
+    /**
+     * 保存文章内容快照。
+     *
+     * @param articleId 文章ID
+     * @param force     true=无论内容是否变化都记录（回滚前保护当前内容）
+     */
+    private void saveRevision(Long articleId, boolean force)
+    {
+        if (articleId == null) {
+            return;
+        }
+        Article current = articleMapper.selectArticleById(articleId);
+        if (current == null) {
+            return;
+        }
+        ArticleRevision latest = articleRevisionMapper.selectLatestRevision(articleId);
+        if (!force && latest != null && sameRevisionContent(current, latest)) {
+            return;
+        }
+        ArticleRevision revision = ArticleRevision.fromArticle(current);
+        revision.setRevisionNo(latest == null ? 1 : latest.getRevisionNo() + 1);
+        try {
+            LoginUser loginUser = SecurityUtils.getLoginUser();
+            if (loginUser != null && loginUser.getUser() != null) {
+                revision.setEditorId(loginUser.getUser().getUserId());
+                revision.setEditorName(loginUser.getUser().getNickName());
+            }
+        } catch (Exception e) {
+            // 定时任务等无登录上下文的写路径不记录编辑人
+            logger.debug("保存修订历史时无法获取登录用户: {}", e.getMessage());
+        }
+        revision.setCreateTime(DateUtils.getNowDate());
+        articleRevisionMapper.insertRevision(revision);
+
+        // 列表只查元数据，超出保留数量时删掉最旧的版本
+        List<ArticleRevision> history = articleRevisionMapper.selectRevisionList(articleId);
+        if (history.size() > MAX_REVISIONS) {
+            ArticleRevision cutoff = history.get(MAX_REVISIONS);
+            articleRevisionMapper.deleteRevisionsUpTo(articleId, cutoff.getRevisionNo());
+        }
+    }
+
+    /** 内容是否与最新版本一致（状态/置顶/推荐变化不产生新版本） */
+    private boolean sameRevisionContent(Article article, ArticleRevision revision)
+    {
+        return Objects.equals(article.getTitle(), revision.getTitle())
+                && Objects.equals(article.getSummary(), revision.getSummary())
+                && Objects.equals(article.getContent(), revision.getContent())
+                && Objects.equals(article.getContentMd(), revision.getContentMd())
+                && Objects.equals(article.getFormat(), revision.getFormat())
+                && Objects.equals(article.getCoverUrl(), revision.getCoverUrl())
+                && Objects.equals(article.getCategoryId(), revision.getCategoryId())
+                && Objects.equals(article.getIndustry(), revision.getIndustry())
+                && Objects.equals(article.getScenario(), revision.getScenario())
+                && Objects.equals(article.getSeoTitle(), revision.getSeoTitle())
+                && Objects.equals(article.getSeoKeywords(), revision.getSeoKeywords())
+                && Objects.equals(article.getSeoDescription(), revision.getSeoDescription())
+                && Objects.equals(article.getSlug(), revision.getSlug())
+                && Objects.equals(article.getSellingPoints(), revision.getSellingPoints())
+                && Objects.equals(article.getSpecTable(), revision.getSpecTable())
+                && Objects.equals(article.getGallery(), revision.getGallery())
+                && Objects.equals(article.getProcessSteps(), revision.getProcessSteps());
     }
 
     /**
@@ -461,6 +600,7 @@ public class ArticleServiceImpl implements IArticleService
         for (Long id : purgable) {
             articleTagMapper.deleteByArticleId(id);
         }
+        articleRevisionMapper.deleteRevisionsByArticleIds(purgable.toArray(new Long[0]));
         return articleMapper.purgeArticleByIds(purgable.toArray(new Long[0]));
     }
 

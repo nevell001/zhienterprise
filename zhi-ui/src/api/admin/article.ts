@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { Article, ArticleParams, DataResult, QueryResult } from '@/types'
+import type { Article, ArticleParams, ArticleRevision, DataResult, QueryResult } from '@/types'
 
 /**
  * 查询文章列表
@@ -124,6 +124,36 @@ export function updateArticleRecommendStatus(
     data
   })
 }
+/**
+ * 查询文章的修订历史（不含正文，按版本号倒序）
+ */
+export function listArticleRevisions(articleId: number): Promise<DataResult<ArticleRevision[]>> {
+  return request({
+    url: `/system/article/revisions/${articleId}`,
+    method: 'get'
+  })
+}
+
+/**
+ * 获取单个修订版本详情（含正文）
+ */
+export function getArticleRevision(revisionId: number): Promise<DataResult<ArticleRevision>> {
+  return request({
+    url: '/system/article/revision/' + revisionId,
+    method: 'get'
+  })
+}
+
+/**
+ * 恢复到指定历史版本（当前内容会先保存为新版本）
+ */
+export function restoreArticleRevision(revisionId: number): Promise<any> {
+  return request({
+    url: `/system/article/revision/${revisionId}/restore`,
+    method: 'post'
+  })
+}
+
 /**
  * 批量更新文章状态（发布 / 草稿 / 定时）
  *

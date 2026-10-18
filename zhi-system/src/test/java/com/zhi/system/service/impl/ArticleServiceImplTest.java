@@ -3,6 +3,7 @@ package com.zhi.system.service.impl;
 import com.zhi.system.domain.Article;
 import com.zhi.system.domain.Tag;
 import com.zhi.system.mapper.ArticleMapper;
+import com.zhi.system.mapper.ArticleRevisionMapper;
 import com.zhi.system.mapper.ArticleTagMapper;
 import com.zhi.system.mapper.TagMapper;
 import com.zhi.system.service.IArticleTagService;
@@ -44,6 +45,9 @@ class ArticleServiceImplTest {
 
     @Mock
     private ArticleMapper articleMapper;
+
+    @Mock
+    private ArticleRevisionMapper articleRevisionMapper;
 
     @Mock
     private ArticleTagMapper articleTagMapper;
