@@ -18,7 +18,6 @@ import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.core.domain.model.LoginUser;
 import com.zhi.system.domain.SysConfig;
 import com.zhi.common.enums.BusinessType;
-import com.zhi.common.utils.DateUtils;
 import com.zhi.common.utils.PasswordPolicy;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
@@ -134,10 +133,8 @@ public class SysProfileController extends BaseController
         newPassword = SecurityUtils.encryptPassword(newPassword);
         if (userService.resetUserPwd(userId, newPassword) > 0)
         {
-            // 更新缓存用户密码&密码最后更新时间
-            loginUser.getUser().setPwdUpdateDate(DateUtils.getNowDate());
-            loginUser.getUser().setPassword(newPassword);
-            tokenService.setLoginUser(loginUser);
+            // 口令已变更：旧会话必须全部失效，否则已泄露的 token 在过期前仍可继续使用
+            tokenService.deleteLoginUserByUserId(userId);
             return success();
         }
         return error("修改密码异常，请联系管理员");
@@ -157,43 +154,7 @@ public class SysProfileController extends BaseController
             recordUpload(file, avatar);
             if (userService.updateUserAvatar(loginUser.getUserId(), avatar))
             {
-                // 同时更新站点设置中的头像，确保前台首页显示最新头像
-                settingService.updateSettingValueByKey("blog_avatar", avatar);
-
-                // 同时更新 sys_config 表中的 blog_avatar（前台API从这里读取）
-                try {
-                    // 先尝试获取现有配置
-                    SysConfig config = new SysConfig();
-                    config.setConfigKey("blog_avatar");
-                    SysConfig existingConfig = configService.selectConfigList(config).stream()
-                        .filter(c -> "blog_avatar".equals(c.getConfigKey()))
-                        .findFirst()
-                        .orElse(null);
-
-                    if (existingConfig != null) {
-                        // 更新现有配置
-                        existingConfig.setConfigValue(avatar);
-                        configService.updateConfig(existingConfig);
-                        logger.info("已更新 sys_config 表中的 blog_avatar: {}", avatar);
-                    } else {
-                        // 创建新配置
-                        config.setConfigName("站点头像");
-                        config.setConfigValue(avatar);
-                        config.setConfigType("Y");
-                        configService.insertConfig(config);
-                        logger.info("已在 sys_config 表中创建 blog_avatar: {}", avatar);
-                    }
-                } catch (Exception e) {
-                    logger.error("更新 sys_config 表中的 blog_avatar 失败", e);
-                }
-
-                // 清除站点设置缓存，确保前台能立即看到新头像
-                try {
-                    unifiedCacheManager.delete(CacheConstants.SETTINGS_ALL);
-                    logger.info("已清除站点设置缓存");
-                } catch (Exception e) {
-                    logger.error("清除站点设置缓存失败", e);
-                }
+                syncGlobalAvatarIfSystemUser(loginUser, avatar);
 
                 String oldAvatar = loginUser.getUser().getAvatar();
                 if (StringUtils.isNotEmpty(oldAvatar))
@@ -209,6 +170,61 @@ public class SysProfileController extends BaseController
             }
         }
         return error("上传图片异常，请联系管理员");
+    }
+
+    /**
+     * 系统用户（user_type='00'）的头像同时作为站点全局头像（blog_avatar）。
+     *
+     * 注册用户（'01'）只能更新自己的头像 —— 此前该同步对所有登录用户无条件执行，
+     * 任一前台注册用户上传头像都会覆盖全站品牌图。
+     *
+     * @return 是否执行了全站同步
+     */
+    boolean syncGlobalAvatarIfSystemUser(LoginUser loginUser, String avatar)
+    {
+        if (loginUser == null || loginUser.getUser() == null
+                || !"00".equals(loginUser.getUser().getUserType()))
+        {
+            return false;
+        }
+
+        settingService.updateSettingValueByKey("blog_avatar", avatar);
+
+        // 同时更新 sys_config 表中的 blog_avatar（前台API从这里读取）
+        try {
+            // 先尝试获取现有配置
+            SysConfig config = new SysConfig();
+            config.setConfigKey("blog_avatar");
+            SysConfig existingConfig = configService.selectConfigList(config).stream()
+                .filter(c -> "blog_avatar".equals(c.getConfigKey()))
+                .findFirst()
+                .orElse(null);
+
+            if (existingConfig != null) {
+                // 更新现有配置
+                existingConfig.setConfigValue(avatar);
+                configService.updateConfig(existingConfig);
+                logger.info("已更新 sys_config 表中的 blog_avatar: {}", avatar);
+            } else {
+                // 创建新配置
+                config.setConfigName("站点头像");
+                config.setConfigValue(avatar);
+                config.setConfigType("Y");
+                configService.insertConfig(config);
+                logger.info("已在 sys_config 表中创建 blog_avatar: {}", avatar);
+            }
+        } catch (Exception e) {
+            logger.error("更新 sys_config 表中的 blog_avatar 失败", e);
+        }
+
+        // 清除站点设置缓存，确保前台能立即看到新头像
+        try {
+            unifiedCacheManager.delete(CacheConstants.SETTINGS_ALL);
+            logger.info("已清除站点设置缓存");
+        } catch (Exception e) {
+            logger.error("清除站点设置缓存失败", e);
+        }
+        return true;
     }
 
     /**
