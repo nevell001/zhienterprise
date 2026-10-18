@@ -200,7 +200,19 @@ WHERE TABLE_SCHEMA = DATABASE() GROUP BY TABLE_COLLATION;
 
 ### 已有部署（升级）
 
-直接重跑 00 脚本即可（表/列/索引/菜单/权限自动补齐）：
+**完整升级（推荐）**：Release 的 `deploy-assets.zip` 现在包含整个 `sql/` 目录（`00` + 全部 `99_*.sql` + 本 README），
+并用部署包内的脚本按固定顺序执行：
+
+```bash
+cd /opt/zhienterprise
+./scripts/upgrade.sh
+```
+
+顺序是硬约定：`99_rename_blog_to_zhi.sql`（如存在，必须先于 00）→ `00_init_database.sql` →
+其余 `99_*.sql`（按文件名排序）。所有脚本幂等，重复执行为 0 行变化；脚本会在升级前自动备份、
+升级后重启后端并等待健康检查。详见 [docs/BACKUP_RESTORE.md](../docs/BACKUP_RESTORE.md)。
+
+**只补结构**：如果本次只更新了 `00`（新增表/列/索引/菜单/权限），也可以直接重跑它：
 
 ```bash
 # 在 Docker 环境
@@ -211,6 +223,8 @@ mysql -u root -p zhienterprise < sql/00_init_database.sql
 ```
 
 这会自动补齐缺失的表/索引/触发器（如 `zhi_notification`、FULLTEXT 索引），**不会**删除或覆盖任何已有数据。
+注意：`00` 只负责结构/种子补齐，不会执行 `99_*.sql` 里的一次性数据修复（表改名、导航去重等），
+版本升级时不要漏掉它们。
 
 ⚠️ 「不会覆盖」的另一面是**也不会清理**：如果这台站在后台改过导航标签，历史上又重跑过旧版种子，
 导航里已经躺着重复菜单，重跑 00 之后它们还在 —— 需要另外跑一次

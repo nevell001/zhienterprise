@@ -171,28 +171,25 @@ sudo ls -l /opt/zhienterprise/.env    # 应为 -rw------- deploy deploy
 
 ### 2.6 `[P1]` 备份与恢复演练
 
+仓库/Release 包内已提供可直接使用的脚本：`scripts/backup.sh`（MySQL + `uploadPath`，带校验和与保留期）、
+`scripts/restore.sh`（校验备份、恢复前安全备份、停应用、恢复、健康检查）与 `scripts/upgrade.sh`
+（按固定顺序执行 `00` + `99_*.sql`）。完整操作手册见 [BACKUP_RESTORE.md](BACKUP_RESTORE.md)。
+
 ```bash
+# 备份目录与日志先交给部署用户（/var/backups 默认只有 root 可写）
+sudo install -d -o deploy -g deploy -m 700 /var/backups/zhienterprise
+sudo install -o deploy -g deploy -m 640 /dev/null /var/log/zhienterprise-backup.log
+
 # 每天 03:30 备份数据库 + 上传目录，保留 14 天
 sudo tee /etc/cron.d/zhienterprise-backup >/dev/null <<'EOF'
-30 3 * * * deploy /opt/zhienterprise/scripts/backup.sh >> /var/log/zhienterprise-backup.log 2>&1
+30 3 * * * deploy cd /opt/zhienterprise && ./scripts/backup.sh >> /var/log/zhienterprise-backup.log 2>&1
 EOF
-```
-
-`backup.sh` 要点：
-
-```bash
-set -euo pipefail
-STAMP=$(date +%F)
-OUT=/var/backups/zhienterprise
-mkdir -p "$OUT"
-docker exec zhienterprise-mysql mysqldump --single-transaction -uroot -p"$DB_ROOT_PASSWORD" zhienterprise | gzip > "$OUT/db-$STAMP.sql.gz"
-tar czf "$OUT/upload-$STAMP.tar.gz" -C /opt/zhienterprise uploadPath
-find "$OUT" -type f -mtime +14 -delete
 ```
 
 - 备份**必须异地**（对象存储/另一台机器），否则服务器被删就一起没了；
 - 上传前加密（`age`/`gpg`）或选服务端加密的存储桶；
-- **每季度真做一次恢复演练**：在测试环境 `gunzip -c db-*.sql.gz | mysql zhienterprise` 并打开页面确认。
+- **每季度真做一次恢复演练**：在测试环境执行 `./scripts/restore.sh <备份目录> --yes`，
+  确认后台可登录、页面与图片正常，并记录恢复耗时。
 
 ### 2.7 `[P1]` 运行时可观测与告警
 
