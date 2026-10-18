@@ -37,9 +37,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl tzdata \
 # 复制编译好的 JAR 包
 COPY --from=builder /app/zhi-admin/target/zhi-admin.jar /app/zhi-admin.jar
 
-# 创建上传目录
-RUN mkdir -p /app/uploadPath \
-    && chmod 755 /app/uploadPath
+# 创建上传与日志目录（/app/logs 由 admin_logs 命名卷挂载，需在镜像里先建好并授权）
+RUN mkdir -p /app/uploadPath /app/logs \
+    && chmod 755 /app/uploadPath /app/logs
 
 # 创建非 root 用户运行应用（安全最佳实践）
 RUN groupadd -r appuser && useradd -r -g appuser -d /app appuser \

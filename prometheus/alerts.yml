@@ -1,0 +1,78 @@
+# 知企建站系统告警规则
+#
+# 这些规则由 Prometheus 加载并在 /alerts 页面展示；如需邮件/Webhook 通知，
+# 需额外接入 Alertmanager 并在 prometheus.yml 配置 alerting。不要删除规则，
+# 即使暂时没有 Alertmanager，规则状态也是排查问题的第一手信号。
+groups:
+  - name: zhi-availability
+    rules:
+      - alert: ZhiBackendDown
+        expr: up{job="spring-boot-actuator"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '后端服务不可达'
+          description: 'Prometheus 已连续 2 分钟无法抓取 zhi-admin 的 Actuator 指标，请检查容器状态与 /manage/actuator/health。'
+
+      - alert: ZhiHighHttp5xxRate
+        # 5xx 占全部请求比例；无流量时分母用 0.001 兜底，避免 0/0 产生噪声
+        expr: |
+          sum(rate(http_server_requests_seconds_count{job="spring-boot-actuator",status=~"5.."}[5m]))
+            /
+          clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-actuator"}[5m])), 0.001)
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: '接口 5xx 错误率超过 5%'
+          description: '近 5 分钟 5xx 占比 {{ $value | humanizePercentage }}，请检查后端日志与数据库/Redis 连通性。'
+
+      - alert: ZhiHighHttpLatencyP95
+        # 依赖 management.metrics.distribution.percentiles-histogram.http.server.requests=true
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (rate(http_server_requests_seconds_bucket{job="spring-boot-actuator"}[5m]))
+          ) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: '接口 P95 延迟超过 1 秒'
+          description: '近 10 分钟 P95 为 {{ $value | humanizeDuration }}，请排查慢 SQL、外部调用或负载突增。'
+
+  - name: zhi-runtime
+    rules:
+      - alert: ZhiJvmHeapHigh
+        expr: |
+          sum(jvm_memory_used_bytes{job="spring-boot-actuator",area="heap"})
+            /
+          clamp_min(sum(jvm_memory_max_bytes{job="spring-boot-actuator",area="heap"}), 1)
+          > 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'JVM 堆内存使用率超过 90%'
+          description: '当前堆使用率 {{ $value | humanizePercentage }}，持续高位可能触发 Full GC 或 OOM。'
+
+      - alert: ZhiDbPoolSaturated
+        expr: max(hikaricp_connections_pending{job="spring-boot-actuator"}) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: '数据库连接池出现排队'
+          description: 'HikariCP 等待连接的线程数持续大于 5，请检查慢 SQL 或连接池上限。'
+
+      - alert: ZhiGcPauseHigh
+        # GC 暂停时间占墙钟时间比例（0.1 = 10%）
+        expr: sum(rate(jvm_gc_pause_seconds_sum{job="spring-boot-actuator"}[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: 'GC 暂停时间占比偏高'
+          description: '近 10 分钟 GC 暂停占墙钟时间 {{ $value | humanizePercentage }}，请结合堆使用率排查内存压力。'

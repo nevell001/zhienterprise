@@ -94,6 +94,8 @@ services:
       - "127.0.0.1:9090:9090"  # 仅本地访问，安全考虑
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      # 告警规则由 prometheus.yml 的 rule_files 引用；release 的 deploy-assets.zip 已包含 prometheus/ 目录
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'

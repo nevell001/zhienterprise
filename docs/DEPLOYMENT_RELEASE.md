@@ -109,8 +109,22 @@ docker compose -f docker-compose.release.yml --profile monitoring rm -sf prometh
 
 启用后：
 
-- Prometheus：`http://127.0.0.1:9090`（抓取 `zhi-admin:8080/manage/actuator/prometheus`）
-- Grafana：`http://127.0.0.1:3001`，账号密码来自 `.env` 的 `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD`；已通过 provisioning 自动配置 Prometheus 数据源
+- Prometheus：`http://127.0.0.1:9090`（抓取 `zhi-admin:8080/manage/actuator/prometheus`）。**Alerts 页已内置 6 条告警规则**（服务不可达 / 5xx 比例 / P95 延迟 / 堆内存 / 连接池 / GC），无需手工导入。
+- Grafana：`http://127.0.0.1:3001`，账号密码来自 `.env` 的 `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD`；数据源与仪表盘都已通过 provisioning 自动加载，登录后直接看「知企建站」文件夹里的 **知企建站 · 运行概览**。
+
+> 告警只在 Prometheus 的 Alerts 页可见（未引入 Alertmanager，不发邮件/Webhook）；两个端口都只绑 `127.0.0.1`，公网访问需自行加反向代理或隧道。
+
+## 日志
+
+- **应用日志**：容器内 `/app/logs`（挂载到命名卷 `admin_logs`，容器重建不丢），对应宿主 `sys-info.log` / `sys-error.log` / `sys-user.log`（按天滚动，保留 60 天）。查看：
+
+```bash
+docker compose -f docker-compose.release.yml exec zhi-admin ls -l /app/logs
+docker compose -f docker-compose.release.yml exec zhi-admin tail -f /app/logs/sys-error.log
+```
+
+- **控制台日志**：`docker compose -f docker-compose.release.yml logs -f zhi-admin`；输出走 json-file 驱动，单文件 20MB、最多 5 个（自动轮转，无需手工清理）。
+- **nginx / MySQL / Redis** 日志同样用 `docker compose ... logs <服务名>` 查看。
 
 ## 6. 更新版本
 

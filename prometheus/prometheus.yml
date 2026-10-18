@@ -4,6 +4,10 @@ global:
   external_labels:
     monitor: 'zhienterprise-monitor'
 
+# 告警规则（服务不可达 / 5xx / P95 / 堆内存 / 连接池 / GC）
+rule_files:
+  - /etc/prometheus/alerts.yml
+
 scrape_configs:
   # 监控 Spring Boot Actuator
   - job_name: 'spring-boot-actuator'

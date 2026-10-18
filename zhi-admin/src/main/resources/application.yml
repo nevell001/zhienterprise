@@ -359,6 +359,10 @@ info:
     export:
       prometheus:
         enabled: true
+    distribution:
+      # 输出 http_server_requests_seconds_bucket，供 Grafana/告警计算 P95（仅开启后才有 _bucket）
+      percentiles-histogram:
+        http.server.requests: true
     tags:
       application: ${spring.application.name}
       environment: ${spring.profiles.active}

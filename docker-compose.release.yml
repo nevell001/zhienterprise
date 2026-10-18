@@ -46,9 +46,19 @@ services:
     command: ["java", "-jar", "/app/zhi-admin.jar"]
     ports:
       - "127.0.0.1:8080:8080"  # 仅本地访问，对外走 nginx
+    # logback 用相对路径 ./logs，必须固定工作目录，否则日志会落到 /logs 而不是挂载点
+    working_dir: /app
     volumes:
       - ./deploy/zhi-admin.jar:/app/zhi-admin.jar:ro
       - ./uploadPath:/app/uploadPath
+      # 后端文件日志（logback 写入 /app/logs），命名卷保证容器重建后不丢
+      - admin_logs:/app/logs
+    # 控制台日志走 docker logs；限制单文件大小，避免长期运行撑满磁盘
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
     # 邮件/验证码/上传上限等配置来自 .env；缺了它这些变量在容器里全是空值
     env_file:
       - .env
@@ -132,6 +142,7 @@ volumes:
   redis_data:
   prometheus_data:
   grafana_data:
+  admin_logs:
 
 networks:
   zhi-network:
