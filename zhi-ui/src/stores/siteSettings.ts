@@ -29,6 +29,8 @@ interface SiteSettingsState {
   business_label: string
   contact_phone: string
   contact_address: string
+  /** 联系邮箱（联系我们页展示） */
+  contact_email: string
   site_template: string
   /** 主题颜色（公开接口下发；企业官网模板作用域内仍以模板主色为准） */
   theme_color: string
@@ -83,6 +85,7 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       business_label: '核心业务',
       contact_phone: '',
       contact_address: '',
+      contact_email: '',
       site_template: 'consult',
       theme_color: '',
       site_metrics: '',

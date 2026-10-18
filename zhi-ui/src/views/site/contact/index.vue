@@ -35,7 +35,7 @@
             <div class="tpl-sec-head rv">
               <div class="sec-tag">分渠道咨询</div>
               <h2>按需求选择对接渠道</h2>
-              <p>以下渠道均可通过页面底部电话与邮箱联系，备注对应渠道即可精准触达。</p>
+              <p>以下渠道均可通过页面上的联系方式或在线表单沟通，备注对应渠道即可精准触达。</p>
             </div>
             <div class="ct-grid ct-four rv d1">
               <div v-for="ch in channels" :key="ch.name" class="ct-card">
@@ -438,6 +438,14 @@ const basicItems = computed<ContactItem[]>(() => {
       key: 'address',
       label: '办公地址',
       value: siteSettings.value.contact_address
+    })
+  }
+  if (siteSettings.value.contact_email) {
+    items.push({
+      key: 'email',
+      label: '联系邮箱',
+      value: siteSettings.value.contact_email,
+      href: `mailto:${siteSettings.value.contact_email}`
     })
   }
   return items

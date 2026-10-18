@@ -14,7 +14,7 @@ public final class FrontConfigKeys
      * 前台可匿名访问的站点配置键白名单
      */
     public static final String[] CONFIG_KEYS = {
-        "blog_name", "blog_desc", "blog_email",
+        "blog_name", "blog_desc", "contact_email",
         "blog_avatar", "blog_copyright", "blog_beian",
         // 自定义品牌图：站点 Logo 与首页 Banner（均为 /profile 下的上传地址）
         "site_logo", "site_banner",

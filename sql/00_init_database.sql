@@ -907,7 +907,7 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('blog_beian', '陕ICP备12345678号', '备案信息', NOW(), NOW()),
 
 -- 联系方式设置
-('blog_email', 'admin@example.com', '站点联系邮箱', NOW(), NOW()),
+('contact_email', 'admin@example.com', '站点联系邮箱', NOW(), NOW()),
 ('blog_url', 'http://localhost:3000', '站点访问地址', NOW(), NOW()),
 -- 监控入口（留空表示按站点访问地址自动推导：Prometheus +:9090 / Grafana +:3001 / Actuator 同源）
 ('prometheus_url', '', 'Prometheus 监控地址', NOW(), NOW()),

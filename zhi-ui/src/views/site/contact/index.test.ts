@@ -132,3 +132,27 @@ describe('联系我们 · 咨询表单', () => {
     expect(wrapper.find('.ct-form').exists()).toBe(true)
   })
 })
+
+describe('联系我们 · 联系方式', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    getCodeImg.mockResolvedValue({ captchaEnabled: false })
+  })
+
+  it('配置联系邮箱时展示 mailto 链接', async () => {
+    const wrapper = await mountContact({ contact_email: 'sales@example.com' })
+
+    const emailCard = wrapper.findAll('.ct-card').find(card => card.text().includes('联系邮箱'))
+
+    expect(emailCard).toBeTruthy()
+    expect(emailCard!.text()).toContain('sales@example.com')
+    expect(emailCard!.find('a').attributes('href')).toBe('mailto:sales@example.com')
+  })
+
+  it('未配置邮箱时不渲染联系邮箱项', async () => {
+    const wrapper = await mountContact({ contact_phone: '010-12345678' })
+
+    expect(wrapper.text()).toContain('联系电话')
+    expect(wrapper.text()).not.toContain('联系邮箱')
+  })
+})

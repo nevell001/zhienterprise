@@ -143,7 +143,7 @@ describe('SiteSettings Store 测试', () => {
       const newSettings = {
         blog_name: '新站点',
         blog_desc: '新描述',
-        blog_email: 'test@example.com',
+        contact_email: 'test@example.com',
         blog_avatar: null,
         blog_copyright: '版权',
         blog_beian: '备案',
