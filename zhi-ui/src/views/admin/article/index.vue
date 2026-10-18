@@ -284,6 +284,7 @@
             {{ editorSaveStatusText }}
           </span>
           <el-button plain size="small" @click="setEditorViewMode('preview')">预览</el-button>
+          <el-button plain size="small" @click="openSitePreview">站点预览</el-button>
           <el-button plain size="small" @click="submitForm(0)">存为草稿</el-button>
           <el-button type="primary" size="small" @click="submitForm(1)">发布</el-button>
         </div>
@@ -734,10 +735,11 @@ import { parseTime } from '@/utils/zhi'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const { proxy } = getCurrentInstance()
 const route = useRoute()
+const router = useRouter()
 // 核心业务管理菜单（/admin/business）复用本组件，按路由固定 articleType=business
 const fixedArticleType = route.path.endsWith('/business')
   ? 'business'
@@ -1191,6 +1193,38 @@ const handleFormatChange = (value: string) => {
     form.value.content = renderMarkdown(form.value.contentMd)
   }
 }
+/** 站点预览：在官网真实布局中查看已保存内容（未发布也可查看），新标签打开不打断编辑 */
+async function openSitePreview() {
+  if (!form.value.id) {
+    ElMessage.warning('请先保存草稿后再预览')
+    return
+  }
+  if (editorSaveState.value === 'dirty') {
+    try {
+      await ElMessageBox.confirm(
+        '当前有未保存的修改，预览将展示上次保存的内容。是否继续？',
+        '站点预览',
+        {
+          confirmButtonText: '继续预览',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+    } catch {
+      return
+    }
+  }
+  const articleType = String(form.value.articleType || fixedArticleType)
+  const routeName =
+    articleType === 'business'
+      ? 'AdminBusinessPreview'
+      : articleType === 'solution'
+        ? 'AdminSolutionPreview'
+        : 'AdminArticlePreview'
+  const { href } = router.resolve({ name: routeName, params: { id: form.value.id } })
+  window.open(href, '_blank')
+}
+
 const submitForm = async (targetStatus?: 0 | 1 | 2) => {
   if (!articleRef.value) return
 

@@ -137,8 +137,18 @@ describe('Site Routes 详细测试', () => {
     expect(detail?.meta?.title).toBe('方案详情')
   })
 
-  it('路由总数应该为 24 个', () => {
-    expect(siteRoutes.length).toBe(22)
+  it('未发布内容预览路由存在且不进免登录白名单（meta.preview 标记）', () => {
+    const previews = siteRoutes.filter(r => r.meta?.preview === true)
+    expect(previews.map(r => r.path).sort()).toEqual([
+      '/preview/article/:id',
+      '/preview/business/:id',
+      '/preview/solution/:id'
+    ])
+    expect(previews.every(r => r.path.startsWith('/preview/'))).toBe(true)
+  })
+
+  it('路由总数应该为 25 个', () => {
+    expect(siteRoutes.length).toBe(25)
   })
 
   it('不再存在任何 /blog 前缀的页面路由（短路径为唯一规范）', () => {

@@ -6,6 +6,12 @@
 
       <main class="bd-main eh-wrap">
         <template v-if="article">
+          <ArticlePreviewBanner
+            v-if="isPreview"
+            :status="article.status"
+            :publish-time="article.publishTime"
+            :admin-path="adminPath"
+          />
           <div class="bd-head rv">
             <h1 class="bd-title">{{ article.title }}</h1>
             <div class="bd-meta">
@@ -131,7 +137,8 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SiteLayout from '@/components/SiteLayout.vue'
 import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
-import { getArticleDetail, getArticleList } from '@/api/site/article'
+import ArticlePreviewBanner from '@/components/ArticlePreviewBanner.vue'
+import { getArticleDetail, getArticleList, getArticlePreview } from '@/api/site/article'
 import type { Article } from '@/types'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
@@ -151,6 +158,9 @@ const businessLabel = computed(
 /** solution 文章经 /solutions 路由复用本详情页；列表与详情路径按文章类型分流 */
 const isSolution = computed(() => article.value?.articleType === 'solution')
 const listPath = computed(() => (isSolution.value ? '/solutions' : '/business'))
+/** 后台站点预览路由（/preview/business|solution/:id）走预览接口，不受发布状态限制 */
+const isPreview = computed(() => route.meta.preview === true)
+const adminPath = computed(() => (isSolution.value ? '/admin/solution' : '/admin/business'))
 /** 板块标签：solution 文章显示「解决方案」，其余（business）显示核心业务栏目名 */
 const sectionLabel = computed(() => (isSolution.value ? '解决方案' : businessLabel.value))
 const isViewCountEnabled = computed(() => siteSettingsStore.isFeatureEnabled('view_count_enabled'))
@@ -186,7 +196,11 @@ const processSteps = computed(() =>
 const formatDate = (date?: string) => (date ? parseTime(date, '{y}-{m}-{d}') : '')
 
 // 返回列表与相关推荐跳转都带回进入时的筛选 query，保证「返回可复原」（方案文档 §3.2）
-const goBack = () => router.push({ path: listPath.value, query: { ...route.query } })
+// 预览模式下来源是后台编辑器，返回对应管理列表而不是前台栏目
+const goBack = () =>
+  isPreview.value
+    ? router.push(adminPath.value)
+    : router.push({ path: listPath.value, query: { ...route.query } })
 const goItem = (id?: number) =>
   id && router.push({ path: `${listPath.value}/${id}`, query: { ...route.query } })
 
@@ -208,31 +222,36 @@ onMounted(async () => {
     return
   }
   try {
-    const response = await getArticleDetail(key)
+    // 预览路由走后台预览接口（跳过 status=1 门槛，不增加浏览量）
+    const response = isPreview.value ? await getArticlePreview(key) : await getArticleDetail(key)
     if (response && response.code === 200 && response.data?.article) {
       article.value = response.data.article
       const siteName = settings.value.blog_name || '知企建站系统'
       applySeo({
-        title:
-          article.value.seoTitle ||
-          (article.value.title ? `${article.value.title} - ${siteName}` : siteName),
+        title: isPreview.value
+          ? `【预览】${article.value.title || '未命名内容'}`
+          : article.value.seoTitle ||
+            (article.value.title ? `${article.value.title} - ${siteName}` : siteName),
         description: article.value.seoDescription || article.value.summary || '',
         keywords: article.value.seoKeywords || '',
-        canonical: canonicalUrl()
+        canonical: isPreview.value ? undefined : canonicalUrl(),
+        robots: isPreview.value ? 'noindex,nofollow' : undefined
       })
       // JSON-LD 结构化数据（方案文档 §6.2「产品/服务详情」：Service + 名称/描述/图片/所属企业）
-      setJsonLd('zh-jsonld-service', {
-        '@context': 'https://schema.org',
-        '@type': 'Service',
-        name: article.value.title,
-        description: article.value.seoDescription || article.value.summary || undefined,
-        image: article.value.coverUrl || undefined,
-        provider: {
-          '@type': 'Organization',
-          name: siteName,
-          url: `${window.location.origin}/`
-        }
-      })
+      if (!isPreview.value) {
+        setJsonLd('zh-jsonld-service', {
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: article.value.title,
+          description: article.value.seoDescription || article.value.summary || undefined,
+          image: article.value.coverUrl || undefined,
+          provider: {
+            '@type': 'Organization',
+            name: siteName,
+            url: `${window.location.origin}/`
+          }
+        })
+      }
       const articleId = article.value.id
 
       // 浏览量计数已由详情接口（getArticleDetail）内部完成，与文章详情同口径；本页不得再提交第二个计数请求

@@ -3,6 +3,8 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import BusinessDetail from './detail.vue'
+import { applySeo } from '@/utils/seo'
+import { setJsonLd } from '@/utils/jsonld'
 
 /**
  * 业务/方案共用详情页的行为测试（挂载真实组件 + memory router）。
@@ -10,11 +12,13 @@ import BusinessDetail from './detail.vue'
  * 「返回」带回筛选 query（方案文档 §3.2 返回可复原）、键盘可达。
  */
 const getArticleDetail = vi.fn()
+const getArticlePreview = vi.fn()
 const getArticleList = vi.fn()
 const updateArticleViewCount = vi.fn()
 
 vi.mock('@/api/site/article', () => ({
   getArticleDetail: (...args: unknown[]) => getArticleDetail(...args),
+  getArticlePreview: (...args: unknown[]) => getArticlePreview(...args),
   getArticleList: (...args: unknown[]) => getArticleList(...args),
   updateArticleViewCount: (...args: unknown[]) => updateArticleViewCount(...args)
 }))
@@ -56,6 +60,20 @@ async function mountDetail(initialPath: string) {
       { path: '/solutions/:id', name: 'PublicSolutionDetail', component: BusinessDetail },
       { path: '/business', component: { template: '<div class="list-stub" />' } },
       { path: '/business/:id', name: 'PublicBusinessDetail', component: BusinessDetail },
+      {
+        path: '/preview/business/:id',
+        name: 'AdminBusinessPreview',
+        component: BusinessDetail,
+        meta: { preview: true }
+      },
+      {
+        path: '/preview/solution/:id',
+        name: 'AdminSolutionPreview',
+        component: BusinessDetail,
+        meta: { preview: true }
+      },
+      { path: '/admin/business', component: { template: '<div class="admin-stub" />' } },
+      { path: '/admin/solution', component: { template: '<div class="admin-stub" />' } },
       { path: '/contact', component: { template: '<div />' } }
     ]
   })
@@ -145,5 +163,55 @@ describe('详情页相关推荐与返回行为', () => {
     await flushPromises()
     expect(router.currentRoute.value.path).toBe('/solutions')
     expect(router.currentRoute.value.query.industry).toBe('金融')
+  })
+})
+
+describe('未发布内容站点预览', () => {
+  it('预览路由走后台预览接口，展示预览标识且不进搜索引擎', async () => {
+    getArticlePreview.mockResolvedValue({
+      code: 200,
+      data: {
+        article: articleOf({ id: 7, articleType: 'business', title: '草稿业务', status: 0 })
+      }
+    })
+    getArticleList.mockResolvedValue({ code: 200, rows: [] })
+    const { wrapper } = await mountDetail('/preview/business/7')
+
+    expect(getArticlePreview).toHaveBeenCalledWith('7')
+    expect(getArticleDetail).not.toHaveBeenCalled()
+    expect(wrapper.find('.preview-banner').exists()).toBe(true)
+    expect(wrapper.text()).toContain('预览模式')
+    expect(wrapper.text()).toContain('草稿')
+    expect(applySeo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: '【预览】草稿业务',
+        robots: 'noindex,nofollow',
+        canonical: undefined
+      })
+    )
+    expect(setJsonLd).not.toHaveBeenCalled()
+  })
+
+  it('定时稿预览显示计划发布时间，返回回到对应后台列表', async () => {
+    getArticlePreview.mockResolvedValue({
+      code: 200,
+      data: {
+        article: articleOf({
+          id: 7,
+          articleType: 'solution',
+          title: '方案草稿',
+          status: 2,
+          publishTime: '2030-01-02 03:04:05'
+        })
+      }
+    })
+    getArticleList.mockResolvedValue({ code: 200, rows: [] })
+    const { wrapper, router } = await mountDetail('/preview/solution/7')
+
+    expect(wrapper.text()).toContain('定时发布')
+    expect(wrapper.text()).toContain('2030-01-02 03:04')
+    await wrapper.find('.bd-back').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/admin/solution')
   })
 })

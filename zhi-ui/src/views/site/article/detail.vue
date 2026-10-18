@@ -48,6 +48,12 @@
       </div>
 
       <div v-else class="mo-article-page news-article">
+        <ArticlePreviewBanner
+          v-if="isPreview"
+          :status="article.status"
+          :publish-time="article.publishTime"
+          admin-path="/admin/article"
+        />
         <header class="na-head">
           <!-- 面包屑（方案文档 §3.4：面包屑 → 分类 → 标题） -->
           <SiteBreadcrumb class="article-crumb" :items="breadcrumbItems" />
@@ -150,7 +156,7 @@
           </router-link>
         </nav>
 
-        <section v-if="isFeatureEnabled('comment_enabled')" class="comment-section">
+        <section v-if="!isPreview && isFeatureEnabled('comment_enabled')" class="comment-section">
           <div class="comment-head">
             <h3>💬 评论 ({{ articleCommentCount }})</h3>
             <div v-if="totalComments > 1" class="comment-sort">
@@ -276,8 +282,9 @@ import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import SiteLayout from '@/components/SiteLayout.vue'
 import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
 import SitePager from '@/components/SitePager.vue'
+import ArticlePreviewBanner from '@/components/ArticlePreviewBanner.vue'
 import { DocumentCopy } from '@element-plus/icons-vue'
-import { getArticleDetail, getRelatedArticles } from '@/api/site/article'
+import { getArticleDetail, getArticlePreview, getRelatedArticles } from '@/api/site/article'
 import { toggleCommentLike, getCommentLikedStatuses } from '@/api/site/like'
 
 import {
@@ -320,6 +327,8 @@ const commentSubmitting = ref(false)
 const isLoggedIn = ref(false)
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const isFeatureEnabled = (feature: string) => siteSettingsStore.isFeatureEnabled(feature)
+// 预览路由（/preview/article/:id）复用本页，但走后端受权限保护的预览接口，且不计浏览、不加载评论
+const isPreview = computed(() => route.meta.preview === true)
 
 // 处理文章内容，为标题添加ID并消毒内容
 const processedContent = computed(() => {
@@ -408,8 +417,10 @@ const loadArticleDetail = async () => {
       return
     }
 
-    // 获取文章详情
-    const response = await getArticleDetail(articleKey)
+    // 获取文章详情：预览路由走后台预览接口（跳过 status=1 门槛）
+    const response = isPreview.value
+      ? await getArticlePreview(articleKey)
+      : await getArticleDetail(articleKey)
     // 快速切换文章时，旧详情不能覆盖新详情
     if (!detailGuard.isLatest(detailToken)) return
 
@@ -449,40 +460,49 @@ const loadArticleDetail = async () => {
         relatedArticles.value = []
       }
 
-      // 获取评论列表
-      await loadComments()
+      // 获取评论列表（草稿没有评论，预览时不请求评论接口）
+      if (!isPreview.value) {
+        await loadComments()
+      }
 
       // 应用文章级 SEO（TDK 优先用文章级字段，回退标题/摘要）
       const siteName = (siteSettings.value as any)?.blog_name || '知企建站系统'
       applySeo({
-        title: article.value.seoTitle || `${article.value.title} - ${siteName}`,
+        title: isPreview.value
+          ? `【预览】${article.value.title || '未命名文章'}`
+          : article.value.seoTitle || `${article.value.title} - ${siteName}`,
         description: article.value.seoDescription || article.value.summary || '',
         keywords: article.value.seoKeywords || '',
-        canonical: canonicalUrl((siteSettings.value as any)?.seo_canonical_url)
+        canonical: isPreview.value
+          ? undefined
+          : canonicalUrl((siteSettings.value as any)?.seo_canonical_url),
+        robots: isPreview.value ? 'noindex,nofollow' : undefined
       })
       // JSON-LD 结构化数据（方案文档 §6.2「新闻详情」：NewsArticle/BlogPosting，
       // 关键字段 标题、发布日期、作者、图片、publisher；案例类内容按 Article 输出）
-      setJsonLd('zh-jsonld-article', {
-        '@context': 'https://schema.org',
-        '@type': article.value.articleType === 'case' ? 'Article' : 'NewsArticle',
-        headline: article.value.title,
-        description: article.value.seoDescription || article.value.summary || undefined,
-        image: article.value.coverUrl || undefined,
-        datePublished: article.value.createTime || undefined,
-        dateModified: article.value.updateTime || undefined,
-        // 企业官网不再暴露个人作者：署名统一用站点机构
-        author: { '@type': 'Organization', name: siteName },
-        publisher: {
-          '@type': 'Organization',
-          name: siteName,
-          logo: (() => {
-            const logo = normalizeUploadUrl(
-              (siteSettings.value as any).site_logo || siteSettings.value.blog_avatar
-            )
-            return logo ? { '@type': 'ImageObject', url: logo } : undefined
-          })()
-        }
-      })
+      if (!isPreview.value) {
+        setJsonLd('zh-jsonld-article', {
+          '@context': 'https://schema.org',
+          '@type': article.value.articleType === 'case' ? 'Article' : 'NewsArticle',
+          headline: article.value.title,
+          description: article.value.seoDescription || article.value.summary || undefined,
+          image: article.value.coverUrl || undefined,
+          datePublished: article.value.createTime || undefined,
+          dateModified: article.value.updateTime || undefined,
+          // 企业官网不再暴露个人作者：署名统一用站点机构
+          author: { '@type': 'Organization', name: siteName },
+          publisher: {
+            '@type': 'Organization',
+            name: siteName,
+            logo: (() => {
+              const logo = normalizeUploadUrl(
+                (siteSettings.value as any).site_logo || siteSettings.value.blog_avatar
+              )
+              return logo ? { '@type': 'ImageObject', url: logo } : undefined
+            })()
+          }
+        })
+      }
     } else {
       logger.error('未找到文章数据，响应数据:', response.data)
       article.value = null

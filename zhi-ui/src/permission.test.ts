@@ -54,13 +54,16 @@ describe('匿名访问站点前台（白名单行为）', () => {
 
   // 白名单与路由表必须一一对应：一旦缺项，匿名访问会被重定向到 /login。
   // 从 siteRoutes 派生而非手维护清单——新增前台页面漏加白名单会直接在此跑红
-  // （/solutions 曾因手维护表漏项而整板块匿名不可达）；路由表之外的根路径另列
+  // （/solutions 曾因手维护表漏项而整板块匿名不可达）；路由表之外的根路径另列。
+  // 预览路由（meta.preview）是例外：它只服务登录管理员，故意不在白名单里。
   const publicPages: Array<{ path: string; name: string }> = [
     { path: '/', name: 'PublicRoot' },
-    ...siteRoutes.map(route => ({
-      path: route.path.replace(/:\w+/g, '1'),
-      name: route.name as string
-    }))
+    ...siteRoutes
+      .filter(route => route.meta?.preview !== true)
+      .map(route => ({
+        path: route.path.replace(/:\w+/g, '1'),
+        name: route.name as string
+      }))
   ]
 
   it.each(publicPages)('匿名访问 $path 放行且解析到 $name', async ({ path, name }) => {
@@ -70,6 +73,24 @@ describe('匿名访问站点前台（白名单行为）', () => {
     expect(router.currentRoute.value.path).toBe(path)
     expect(router.currentRoute.value.name).toBe(name)
   })
+})
+
+describe('未发布内容预览（需登录）', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    authToken.value = undefined
+    setActivePinia(createPinia())
+  })
+
+  it.each(['/preview/article/1', '/preview/business/1', '/preview/solution/1'])(
+    '匿名访问 %s 被带到登录页（含回跳地址）',
+    async path => {
+      await router.push({ path, query: { case: path } })
+
+      expect(router.currentRoute.value.path).toBe('/login')
+      expect(String(router.currentRoute.value.query.redirect)).toContain(path)
+    }
+  )
 })
 
 describe('未知路由（匿名访客）', () => {

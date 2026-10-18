@@ -16,6 +16,26 @@ export const siteRoutes: RouteRecordRaw[] = [
     name: 'PublicSiteArticleDetail',
     meta: { title: '文章详情' }
   },
+  // 未发布内容预览：不在 permission.ts 白名单内，未登录访问会被引导到登录页；
+  // 后端接口另有 zhi:article:query 权限校验，预览不对外暴露
+  {
+    path: '/preview/article/:id',
+    component: () => import('@/views/site/article/detail.vue'),
+    name: 'AdminArticlePreview',
+    meta: { title: '文章预览', preview: true }
+  },
+  {
+    path: '/preview/business/:id',
+    component: () => import('@/views/site/business/detail.vue'),
+    name: 'AdminBusinessPreview',
+    meta: { title: '业务预览', preview: true }
+  },
+  {
+    path: '/preview/solution/:id',
+    component: () => import('@/views/site/business/detail.vue'),
+    name: 'AdminSolutionPreview',
+    meta: { title: '方案预览', preview: true }
+  },
   {
     // 核心业务（article_type=business 的文章）：企业官网模板的落地页
     path: '/business',

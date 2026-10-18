@@ -47,6 +47,17 @@ export function getArticleDetail(key: number | string): Promise<DataResult<Artic
 }
 
 /**
+ * 预览未发布文章（草稿/定时稿）。仅后台拥有 zhi:article:query 权限的登录用户可用，
+ * 必须携带 token；返回结构与公开详情接口一致。
+ */
+export function getArticlePreview(id: number | string): Promise<DataResult<ArticleDetailResponse>> {
+  return request({
+    url: '/system/article/preview/' + id,
+    method: 'get'
+  })
+}
+
+/**
  * 更新文章浏览量
  */
 export function updateArticleViewCount(id: number): Promise<ViewCountResponse> {

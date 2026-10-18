@@ -3,12 +3,15 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import ArticleDetail from './detail.vue'
+import { applySeo } from '@/utils/seo'
+import { setJsonLd } from '@/utils/jsonld'
 
 /**
  * 文章详情页评论行为测试（挂载真实组件）。
  * 覆盖：楼层嵌套渲染、顶级评论分页、排序切换、回复 parentId、评论数同步、越界页回退。
  */
 const getArticleDetail = vi.fn()
+const getArticlePreview = vi.fn()
 const getRelatedArticles = vi.fn()
 const getArticleComments = vi.fn()
 const addSiteComment = vi.fn()
@@ -23,6 +26,7 @@ const getSiteSettingsAnonymous = vi.fn()
 
 vi.mock('@/api/site/article', () => ({
   getArticleDetail: (...args: unknown[]) => getArticleDetail(...args),
+  getArticlePreview: (...args: unknown[]) => getArticlePreview(...args),
   getRelatedArticles: (...args: unknown[]) => getRelatedArticles(...args)
 }))
 
@@ -48,6 +52,11 @@ vi.mock('@/api/site/setting', () => ({
 vi.mock('@/utils/seo', () => ({
   applySeo: vi.fn(),
   canonicalUrl: vi.fn(() => 'https://example.com/blog')
+}))
+
+vi.mock('@/utils/jsonld', () => ({
+  setJsonLd: vi.fn(),
+  removeJsonLd: vi.fn()
 }))
 
 const messageSuccess = vi.fn()
@@ -87,15 +96,23 @@ const stubs = {
   }
 }
 
-async function mountDetail() {
+async function mountDetail(path = '/article/1') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
       { path: '/', component: { template: '<div />' } },
-      { path: '/article/:id', name: 'PublicSiteArticleDetail', component: ArticleDetail }
+      { path: '/article/:id', name: 'PublicSiteArticleDetail', component: ArticleDetail },
+      {
+        path: '/preview/article/:id',
+        name: 'AdminArticlePreview',
+        component: ArticleDetail,
+        meta: { preview: true }
+      },
+      { path: '/admin/article', component: { template: '<div />' } },
+      { path: '/contact', component: { template: '<div />' } }
     ]
   })
-  router.push('/article/1')
+  router.push(path)
   await router.isReady()
   return mount(ArticleDetail, {
     global: {
@@ -416,5 +433,41 @@ describe('文章详情页企业官网改造（行为）', () => {
     expect(navItems.length).toBeGreaterThanOrEqual(2)
     expect(wrapper.find('.na-prevnext').text()).toContain('上一篇标题')
     expect(wrapper.find('.na-prevnext').text()).toContain('下一篇标题')
+  })
+})
+
+describe('未发布文章站点预览', () => {
+  it('预览路由调用后台预览接口，跳过评论与结构化数据，并标记 noindex', async () => {
+    getArticlePreview.mockResolvedValue({
+      code: 200,
+      data: {
+        article: {
+          id: 1,
+          title: '未发布草稿',
+          content: '<p>草稿正文</p>',
+          status: 0,
+          createTime: '2026-01-01 10:00:00'
+        },
+        extraInfo: {}
+      }
+    })
+
+    const wrapper = await mountDetail('/preview/article/1')
+    await flushPromises()
+
+    expect(getArticlePreview).toHaveBeenCalledWith('1')
+    expect(getArticleDetail).not.toHaveBeenCalled()
+    expect(getArticleComments).not.toHaveBeenCalled()
+    expect(wrapper.find('.preview-banner').exists()).toBe(true)
+    expect(wrapper.find('.comment-section').exists()).toBe(false)
+    expect(applySeo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: '【预览】未发布草稿',
+        robots: 'noindex,nofollow',
+        canonical: undefined
+      })
+    )
+    // 面包屑结构化数据仍由 SiteBreadcrumb 输出，但文章主体不得向搜索引擎声明
+    expect(setJsonLd).not.toHaveBeenCalledWith('zh-jsonld-article', expect.anything())
   })
 })

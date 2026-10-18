@@ -125,6 +125,8 @@ export interface Article {
   /** 服务/实施流程步骤条 */
   processSteps?: string | { title: string; desc: string }[] | null
   status?: number
+  /** 定时发布时间（status=2 时生效） */
+  publishTime?: string
   isTop?: number
   isRecommend?: number
   tagIds?: number[]
