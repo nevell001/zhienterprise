@@ -116,8 +116,8 @@ docker compose -f docker-compose.release.yml --profile monitoring rm -sf prometh
 
 1. **先备份**：`./scripts/backup.sh`（`upgrade.sh` 也会自动做一次安全备份）。
 2. 下载新版 release 附件，替换 `deploy/zhi-admin.jar`，解压新版 `frontend-dist.zip` 覆盖 `deploy/frontend-dist`。
-3. 用新版 `deploy-assets.zip` 里的 `sql/` 完整覆盖 `deploy/sql/`（**必须包含全部 `99_*.sql`**）。
-4. 执行数据库升级（先跑 `99_rename_blog_to_zhi.sql`（如存在），再跑 `00`，最后跑其余 `99_*.sql`，全部幂等）：
+3. 用新版 `deploy-assets.zip` 里的 `sql/` 完整覆盖 `deploy/sql/`（含 `00` 与其余 `99_*.sql`，如有）。
+4. 执行数据库升级（`00` 补齐结构后，再执行其余 `99_*.sql`，全部幂等）：
 
 ```bash
 ./scripts/upgrade.sh

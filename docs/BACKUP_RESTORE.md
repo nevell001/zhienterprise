@@ -183,7 +183,7 @@ docker compose -f docker-compose.release.yml exec -T mysql \
 Release 的 `deploy-assets.zip` 现在包含：
 
 - `sql/00_init_database.sql` —— 唯一幂等初始化/补结构入口；
-- `sql/99_*.sql` —— 存量数据补丁（表改名、导航去重等），**全部幂等**；
+- `sql/99_*.sql` —— 其余存量数据补丁（如有），**全部幂等**；
 - `scripts/` —— 备份、恢复、升级脚本；
 - `docs/DEPLOYMENT_RELEASE.md` 与本文档。
 
@@ -212,9 +212,8 @@ curl -fsS http://127.0.0.1:8080/manage/actuator/health
 
 `upgrade.sh` 的执行顺序是硬约定：
 
-1. `99_rename_blog_to_zhi.sql`（如存在）—— 旧库 `blog_*` 表改名必须**先于** `00`；
-2. `00_init_database.sql` —— 补齐表、列、索引、种子与数据库例程；
-3. 其余 `99_*.sql`（按文件名排序）—— 一次性数据补丁。
+1. `00_init_database.sql` —— 补齐表、列、索引、种子与数据库例程；
+2. 其余 `99_*.sql`（按文件名排序，没有则跳过）—— 一次性数据补丁。
 
 脚本会先停 `zhi-admin`、执行 SQL、再启动并等待健康检查；失败时后端保持停止状态并给出回滚提示。
 
