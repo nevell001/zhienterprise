@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { constantRoutes } from './src/router'
 
 const CONFIGS = ['nginx.conf', 'nginx-https.conf']
 
@@ -100,6 +101,81 @@ describe('安全响应头与 CORS 边界', () => {
     // CORS 由后端 ResourcesConfig（CORS_ALLOWED_ORIGINS）统一裁决；
     // nginx 再加 ACAO 会让生产空白名单失效（曾对全互联网放开）
     expect(readConfig(name)).not.toMatch(/add_header\s+Access-Control-Allow-Origin/)
+  })
+})
+
+describe('SPA 软 404 守卫', () => {
+  // 跨产物契约：nginx 白名单与 Vue 路由分属两份文件，只能用静态比对覆盖
+  type RouteLike = { path: string; children?: RouteLike[] }
+
+  // 只取叶子路由：父级是 Layout 包装（如 /admin/system/user-auth），本身不是可访问页面
+  const leafPaths = (routes: RouteLike[], parentPath = ''): string[] =>
+    routes.flatMap(route => {
+      const path = route.path.startsWith('/')
+        ? route.path
+        : `${parentPath.replace(/\/$/, '')}/${route.path}`
+      return route.children?.length ? leafPaths(route.children, path) : [path]
+    })
+
+  const toSampleUrl = (path: string): string =>
+    path
+      .replace(/:path\(\.\*\)/g, 'a/b')
+      .replace(/:\w+\(\\d\+\)/g, '1')
+      .replace(/:\w+/g, '1')
+
+  const readSpaRoutePatterns = (source: string): RegExp[] => {
+    const start = source.indexOf('map $uri $zhi_spa_route {')
+    expect(start).toBeGreaterThanOrEqual(0)
+    const end = source.indexOf('\n}', start)
+    expect(end).toBeGreaterThan(start)
+    return source
+      .slice(start, end)
+      .split('\n')
+      .map(line => line.trim().match(/^~(\S+)\s+1;$/)?.[1])
+      .filter((pattern): pattern is string => Boolean(pattern))
+      .map(pattern => new RegExp(pattern))
+  }
+
+  it.each(CONFIGS)('%s 的 SPA 白名单覆盖全部已注册页面路由', name => {
+    const patterns = readSpaRoutePatterns(readConfig(name))
+    const urls = leafPaths(constantRoutes as unknown as RouteLike[]).map(toSampleUrl)
+    const uncovered = urls.filter(url => !patterns.some(re => re.test(url)))
+
+    // 漏掉的路由会被当作未知路径返回 404，表现为刷新/直达页面打不开
+    expect(uncovered).toEqual([])
+  })
+
+  it.each(CONFIGS)('%s 未注册路径不得命中 SPA 白名单', name => {
+    const patterns = readSpaRoutePatterns(readConfig(name))
+    const unknown = [
+      '/no-such-page',
+      '/articles/1',
+      '/article',
+      '/business/1/extra',
+      '/page',
+      '/friend-links/nope',
+      '/adminx'
+    ]
+
+    for (const url of unknown) {
+      expect(
+        patterns.some(re => re.test(url)),
+        url
+      ).toBe(false)
+    }
+  })
+
+  it.each(CONFIGS)('%s 未知路径必须以 404 状态回落 index.html', name => {
+    const source = readConfig(name)
+
+    expect(source).toContain('map $uri $zhi_spa_route {')
+    expect(source).toContain('default 0;')
+    expect(source).toContain('try_files $uri $uri/ @spa;')
+    expect(source).toContain('location @spa {')
+    expect(source).toContain('if ($zhi_spa_route = 0) {')
+    // error_page 不带 =200，保留 404 状态码，同时渲染 SPA 的 404 页
+    expect(source).toContain('error_page 404 /index.html;')
+    expect(source).not.toContain('try_files $uri $uri/ /index.html;')
   })
 })
 
