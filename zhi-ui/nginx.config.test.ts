@@ -9,6 +9,19 @@ function readConfig(name: string): string {
   return readFileSync(resolve(process.cwd(), name), 'utf-8')
 }
 
+function readSpaRoutePatterns(source: string): RegExp[] {
+  const start = source.indexOf('map $uri $zhi_spa_route {')
+  expect(start).toBeGreaterThanOrEqual(0)
+  const end = source.indexOf('\n}', start)
+  expect(end).toBeGreaterThan(start)
+  return source
+    .slice(start, end)
+    .split('\n')
+    .map(line => line.trim().match(/^~(\S+)\s+1;$/)?.[1])
+    .filter((pattern): pattern is string => Boolean(pattern))
+    .map(pattern => new RegExp(pattern))
+}
+
 describe('Nginx 反向代理配置守卫', () => {
   it.each(CONFIGS)('%s 必须放开上传体积上限', name => {
     const source = readConfig(name)
@@ -123,19 +136,6 @@ describe('SPA 软 404 守卫', () => {
       .replace(/:\w+\(\\d\+\)/g, '1')
       .replace(/:\w+/g, '1')
 
-  const readSpaRoutePatterns = (source: string): RegExp[] => {
-    const start = source.indexOf('map $uri $zhi_spa_route {')
-    expect(start).toBeGreaterThanOrEqual(0)
-    const end = source.indexOf('\n}', start)
-    expect(end).toBeGreaterThan(start)
-    return source
-      .slice(start, end)
-      .split('\n')
-      .map(line => line.trim().match(/^~(\S+)\s+1;$/)?.[1])
-      .filter((pattern): pattern is string => Boolean(pattern))
-      .map(pattern => new RegExp(pattern))
-  }
-
   it.each(CONFIGS)('%s 的 SPA 白名单覆盖全部已注册页面路由', name => {
     const patterns = readSpaRoutePatterns(readConfig(name))
     const urls = leafPaths(constantRoutes as unknown as RouteLike[]).map(toSampleUrl)
@@ -176,6 +176,99 @@ describe('SPA 软 404 守卫', () => {
     // error_page 不带 =200，保留 404 状态码，同时渲染 SPA 的 404 页
     expect(source).toContain('error_page 404 /index.html;')
     expect(source).not.toContain('try_files $uri $uri/ /index.html;')
+  })
+})
+
+describe('旧博客 URL 301 映射', () => {
+  type LegacyRewrite = { pattern: RegExp; replacement: string }
+
+  /** 解析 server 级的 `rewrite <regex> <target> permanent;`，按出现顺序（nginx 首个匹配生效） */
+  function readLegacyRewrites(source: string): LegacyRewrite[] {
+    const rewrites: LegacyRewrite[] = []
+    for (const rawLine of source.split('\n')) {
+      const match = rawLine.trim().match(/^rewrite\s+(\S+)\s+(\S+)\s+permanent;$/)
+      if (match) {
+        rewrites.push({ pattern: new RegExp(match[1]), replacement: match[2] })
+      }
+    }
+    return rewrites
+  }
+
+  function resolveLegacy(rewrites: LegacyRewrite[], url: string): string | null {
+    for (const { pattern, replacement } of rewrites) {
+      if (pattern.test(url)) {
+        return url.replace(pattern, replacement)
+      }
+    }
+    return null
+  }
+
+  // 旧路径取自去 /blog 前缀之前的 router/blog.ts；已下线页面按产品口径回落
+  const LEGACY_CASES: Array<[string, string]> = [
+    ['/blog', '/'],
+    ['/blog/', '/'],
+    ['/blog/articles', '/news'],
+    ['/blog/article/42', '/article/42'],
+    ['/blog/article/some-slug/', '/article/some-slug'],
+    ['/blog/business', '/business'],
+    ['/blog/business/7', '/business/7'],
+    ['/blog/contact', '/contact'],
+    ['/blog/category', '/category'],
+    ['/blog/category/3', '/category/3'],
+    ['/blog/tag', '/tag'],
+    ['/blog/tag/5', '/tag/5'],
+    ['/blog/friend-links/apply', '/friend-links/apply'],
+    ['/blog/page/home', '/page/home'],
+    ['/blog/about', '/about'],
+    ['/blog/honors', '/honors'],
+    ['/blog/history', '/history'],
+    ['/blog/guestbook', '/guestbook'],
+    ['/blog/agreement', '/agreement'],
+    ['/blog/privacy', '/privacy'],
+    ['/blog/auth/login', '/login'],
+    ['/blog/auth/register', '/register'],
+    ['/blog/auth/forgot-password', '/forgot-password'],
+    ['/blog/search', '/search'],
+    ['/blog/author/9', '/news'],
+    ['/blog/archive', '/news'],
+    ['/blog/bookmarks', '/'],
+    ['/archive', '/news'],
+    ['/index', '/']
+  ]
+
+  it.each(CONFIGS)('%s 把旧博客 URL 301 到当前短路径', name => {
+    const rewrites = readLegacyRewrites(readConfig(name))
+    for (const [from, to] of LEGACY_CASES) {
+      expect(resolveLegacy(rewrites, from), from).toBe(to)
+    }
+  })
+
+  it.each(CONFIGS)('%s 的 301 目标必须落在 SPA 白名单内', name => {
+    const source = readConfig(name)
+    const patterns = readSpaRoutePatterns(source)
+    const rewrites = readLegacyRewrites(source)
+    for (const [from] of LEGACY_CASES) {
+      const target = resolveLegacy(rewrites, from)
+      expect(target, from).not.toBeNull()
+      // 跳到一个未注册路径等于把旧死链换成新死链
+      expect(
+        patterns.some(re => re.test(target!)),
+        `${from} → ${target}`
+      ).toBe(true)
+    }
+  })
+
+  it.each(CONFIGS)('%s 未知 /blog 子路径不得被 301（保持 404）', name => {
+    const source = readConfig(name)
+    expect(resolveLegacy(readLegacyRewrites(source), '/blog/no-such-page')).toBeNull()
+    expect(readSpaRoutePatterns(source).some(re => re.test('/blog/no-such-page'))).toBe(false)
+  })
+
+  it.each(CONFIGS)('%s 永久重定向必须保留查询串（replacement 不能以 ? 结尾）', name => {
+    // nginx 的 rewrite ... permanent 默认追加原查询串；以 ? 结尾会主动丢弃
+    for (const { pattern, replacement } of readLegacyRewrites(readConfig(name))) {
+      expect(replacement.endsWith('?'), pattern.source).toBe(false)
+    }
   })
 })
 
