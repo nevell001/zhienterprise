@@ -407,6 +407,32 @@ class FrontControllerTest
         return comment;
     }
 
+    /**
+     * 回归：核心业务列表要同时展示客户案例（case），前端以 articleTypes=business,case
+     * 请求；查询参数必须绑定成 List，否则案例内容在站点上没有列表入口。
+     */
+    @Test
+    void articleListShouldBindMultipleArticleTypes() throws Exception
+    {
+        when(articleService.selectArticleList(any())).thenReturn(List.of());
+        try
+        {
+            mockMvc.perform(get("/api/article/list").param("articleTypes", "business,case"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+            ArgumentCaptor<Article> captor = ArgumentCaptor.forClass(Article.class);
+            verify(articleService).selectArticleList(captor.capture());
+            assertEquals(List.of("business", "case"), captor.getValue().getArticleTypes());
+            assertEquals(1L, captor.getValue().getStatus(), "前台列表只能查已发布文章");
+            assertEquals(0L, captor.getValue().getDelFlag(), "前台列表只能查未删除文章");
+        }
+        finally
+        {
+            com.github.pagehelper.PageHelper.clearPage();
+        }
+    }
+
     @Test
     void rssShouldLimitToTenArticles() throws Exception
     {

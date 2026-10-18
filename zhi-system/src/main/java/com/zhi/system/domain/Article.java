@@ -103,6 +103,9 @@ public class Article extends BaseEntity
     /** 内容类型：news 资讯（默认）、business 核心业务、case 客户案例 */
     private String articleType;
 
+    /** 内容类型集合（非数据库字段，用于一次查询多个类型：核心业务列表含 case） */
+    private List<String> articleTypes;
+
     /** SEO 标题（留空回退文章标题） */
     private String seoTitle;
 
@@ -141,6 +144,16 @@ public class Article extends BaseEntity
     public String getArticleType()
     {
         return articleType;
+    }
+
+    public List<String> getArticleTypes()
+    {
+        return articleTypes;
+    }
+
+    public void setArticleTypes(List<String> articleTypes)
+    {
+        this.articleTypes = articleTypes;
     }
 
     public void setSeoTitle(String seoTitle)

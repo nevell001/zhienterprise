@@ -528,7 +528,7 @@
                 </span>
               </div>
               <div v-if="!fixedArticleType" class="schedule-tip">
-                核心业务与客户案例展示在企业官网首页对应区块；资讯动态展示在文章列表
+                核心业务与客户案例展示在官网「核心业务」板块；解决方案展示在「解决方案」板块；资讯动态展示在文章列表
               </div>
             </section>
 
@@ -805,12 +805,14 @@ import { useRoute, useRouter } from 'vue-router'
 const { proxy } = getCurrentInstance()
 const route = useRoute()
 const router = useRouter()
-// 核心业务管理菜单（/admin/business）复用本组件，按路由固定 articleType=business
+// 核心业务/客户案例/解决方案管理菜单复用本组件，按路由固定 articleType
 const fixedArticleType = route.path.endsWith('/business')
   ? 'business'
   : route.path.endsWith('/solution')
     ? 'solution'
-    : ''
+    : route.path.endsWith('/case')
+      ? 'case'
+      : ''
 /** 业务详情结构化（business/case）：编辑态数组，提交时序列化为 JSON */
 const sellingPointsList = ref<{ title: string; desc: string }[]>([])
 const specTableList = ref<{ name: string; value: string }[]>([])
@@ -1283,7 +1285,7 @@ async function openSitePreview() {
   }
   const articleType = String(form.value.articleType || fixedArticleType)
   const routeName =
-    articleType === 'business'
+    articleType === 'business' || articleType === 'case'
       ? 'AdminBusinessPreview'
       : articleType === 'solution'
         ? 'AdminSolutionPreview'

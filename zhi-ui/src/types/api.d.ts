@@ -36,6 +36,8 @@ export interface ArticleParams extends PageParams {
   isTop?: number
   tagId?: number
   articleType?: string
+  /** 内容类型集合（英文逗号分隔，核心业务列表用 business,case 同时取业务与案例） */
+  articleTypes?: string
   /** 所属行业（solution 筛选） */
   industry?: string
   /** 能力场景（solution 筛选，模糊匹配） */

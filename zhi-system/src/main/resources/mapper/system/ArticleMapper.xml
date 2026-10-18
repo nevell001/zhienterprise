@@ -66,6 +66,10 @@
             <if test="content != null  and content != ''"> and ba.content = #{content}</if>
             <if test="coverUrl != null  and coverUrl != ''"> and ba.cover_url = #{coverUrl}</if>
             <if test="articleType != null and articleType != ''"> and ba.article_type = #{articleType}</if>
+            <if test="articleTypes != null and articleTypes.size() > 0">
+                and ba.article_type in
+                <foreach collection="articleTypes" item="type" open="(" separator="," close=")">#{type}</foreach>
+            </if>
             <if test="industry != null and industry != ''"> and ba.industry = #{industry}</if>
             <if test="scenario != null and scenario != ''"> and ba.scenario like concat('%', #{scenario}, '%')</if>
             <if test="categoryId != null "> and ba.category_id = #{categoryId}</if>

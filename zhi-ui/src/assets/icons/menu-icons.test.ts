@@ -60,7 +60,9 @@ describe('菜单图标资源契约', () => {
     }
 
     // 站点管理下的一级菜单（2000 为父级目录）
-    const siteMenuIds = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
+    const siteMenuIds = [
+      2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013
+    ]
     const solutionIcon = iconOf(2012)
     expect(solutionIcon).toBeTruthy()
 

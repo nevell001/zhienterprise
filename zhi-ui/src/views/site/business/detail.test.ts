@@ -74,6 +74,7 @@ async function mountDetail(initialPath: string) {
       },
       { path: '/admin/business', component: { template: '<div class="admin-stub" />' } },
       { path: '/admin/solution', component: { template: '<div class="admin-stub" />' } },
+      { path: '/admin/case', component: { template: '<div class="admin-stub" />' } },
       { path: '/contact', component: { template: '<div />' } }
     ]
   })
@@ -114,7 +115,7 @@ describe('详情页相关推荐与返回行为', () => {
     expect(wrapper.findAll('.bd-rel-card h3').map(h => h.text())).toEqual(['金融数据治理'])
   })
 
-  it('业务详情的相关推荐仍查询 business', async () => {
+  it('业务详情的相关推荐查询整个核心业务板块（business + case）', async () => {
     getArticleDetail.mockResolvedValue({
       code: 200,
       data: { article: articleOf({ id: 3, articleType: 'business', title: '站点托管服务' }) }
@@ -125,8 +126,29 @@ describe('详情页相关推荐与返回行为', () => {
     expect(getArticleList).toHaveBeenCalledWith({
       pageNum: 1,
       pageSize: 4,
-      articleType: 'business'
+      articleTypes: 'business,case'
     })
+  })
+
+  it('客户案例详情经 /business/:id 渲染并推荐同板块内容', async () => {
+    getArticleDetail.mockResolvedValue({
+      code: 200,
+      data: {
+        article: articleOf({ id: 9, articleType: 'case', title: '某制造企业官网升级实践' })
+      }
+    })
+    getArticleList.mockResolvedValue({
+      code: 200,
+      rows: [articleOf({ id: 10, articleType: 'case', title: '另一则案例' })]
+    })
+    const { wrapper } = await mountDetail('/business/9')
+
+    expect(getArticleList).toHaveBeenCalledWith({
+      pageNum: 1,
+      pageSize: 4,
+      articleTypes: 'business,case'
+    })
+    expect(wrapper.findAll('.bd-rel-card h3').map(h => h.text())).toContain('另一则案例')
   })
 
   it('浏览量由详情接口内部计数，页面不重复提交计数请求（曾致 PV 翻倍）', async () => {
@@ -190,6 +212,21 @@ describe('未发布内容站点预览', () => {
       })
     )
     expect(setJsonLd).not.toHaveBeenCalled()
+  })
+
+  it('案例预览返回后台「客户案例管理」而不是核心业务管理', async () => {
+    getArticlePreview.mockResolvedValue({
+      code: 200,
+      data: {
+        article: articleOf({ id: 9, articleType: 'case', title: '案例草稿', status: 0 })
+      }
+    })
+    getArticleList.mockResolvedValue({ code: 200, rows: [] })
+    const { wrapper, router } = await mountDetail('/preview/business/9')
+
+    await wrapper.find('.bd-back').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/admin/case')
   })
 
   it('定时稿预览显示计划发布时间，返回回到对应后台列表', async () => {

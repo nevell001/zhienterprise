@@ -157,10 +157,14 @@ const businessLabel = computed(
 )
 /** solution 文章经 /solutions 路由复用本详情页；列表与详情路径按文章类型分流 */
 const isSolution = computed(() => article.value?.articleType === 'solution')
+const isCase = computed(() => article.value?.articleType === 'case')
 const listPath = computed(() => (isSolution.value ? '/solutions' : '/business'))
 /** 后台站点预览路由（/preview/business|solution/:id）走预览接口，不受发布状态限制 */
 const isPreview = computed(() => route.meta.preview === true)
-const adminPath = computed(() => (isSolution.value ? '/admin/solution' : '/admin/business'))
+const adminPath = computed(() => {
+  if (isSolution.value) return '/admin/solution'
+  return isCase.value ? '/admin/case' : '/admin/business'
+})
 /** 板块标签：solution 文章显示「解决方案」，其余（business）显示核心业务栏目名 */
 const sectionLabel = computed(() => (isSolution.value ? '解决方案' : businessLabel.value))
 const isViewCountEnabled = computed(() => siteSettingsStore.isFeatureEnabled('view_count_enabled'))
@@ -255,12 +259,12 @@ onMounted(async () => {
       const articleId = article.value.id
 
       // 浏览量计数已由详情接口（getArticleDetail）内部完成，与文章详情同口径；本页不得再提交第二个计数请求
-      // 相关推荐：同类型最新（排除自身）；方案详情推荐方案、业务详情推荐业务
+      // 相关推荐：同板块最新（排除自身）；方案推荐方案，业务/案例共享核心业务板块
       try {
         const relRes = await getArticleList({
           pageNum: 1,
           pageSize: 4,
-          articleType: isSolution.value ? 'solution' : 'business'
+          ...(isSolution.value ? { articleType: 'solution' } : { articleTypes: 'business,case' })
         })
         if (relRes?.code === 200) {
           relatedItems.value = ((relRes.rows || []) as Article[])

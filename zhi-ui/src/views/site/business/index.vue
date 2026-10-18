@@ -244,7 +244,8 @@ const load = async (append = false) => {
     const response = await getArticleList({
       pageNum: page.value,
       pageSize,
-      articleType: 'business',
+      // 核心业务板块同时承载客户案例（case），否则案例内容在前台没有入口
+      articleTypes: 'business,case',
       categoryId: activeCatId.value ?? undefined
     })
     if (response && response.code === 200) {

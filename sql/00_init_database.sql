@@ -1368,6 +1368,12 @@ UPDATE sys_menu SET icon = 'star' WHERE menu_id = 2012 AND icon = 'guide';
 
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2012), (2, 2012);
 
+-- 客户案例管理菜单（复用文章管理组件，按路由固定 article_type=case）
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (2013, '客户案例管理', 2000, 5, 'case', 'article/index', '', '', 1, 0, 'C', '0', '0', 'zhi:article:list', 'example', 'admin', NOW(), '', NULL, '客户案例管理菜单（article_type=case 的文章）');
+
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2013), (2, 2013);
+
 -- ========== 模块化建站 M3：菜单管理 ==========
 CREATE TABLE IF NOT EXISTS `site_nav_item` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',

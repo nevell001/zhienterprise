@@ -195,6 +195,46 @@ class ArticleMapperTest {
     }
 
     /**
+     * 核心业务列表按 articleTypes 同时取 business 与 case（客户案例入口）。
+     */
+    @Test
+    void selectArticleListShouldFilterByArticleTypes() {
+        Article business = new Article();
+        business.setTitle("多类型查询-业务");
+        business.setContent("内容");
+        business.setStatus(1L);
+        business.setCategoryId(1L);
+        business.setArticleType("business");
+        articleMapper.insertArticle(business);
+
+        Article caseArticle = new Article();
+        caseArticle.setTitle("多类型查询-案例");
+        caseArticle.setContent("内容");
+        caseArticle.setStatus(1L);
+        caseArticle.setCategoryId(1L);
+        caseArticle.setArticleType("case");
+        articleMapper.insertArticle(caseArticle);
+
+        Article news = new Article();
+        news.setTitle("多类型查询-资讯");
+        news.setContent("内容");
+        news.setStatus(1L);
+        news.setCategoryId(1L);
+        news.setArticleType("news");
+        articleMapper.insertArticle(news);
+
+        Article query = new Article();
+        query.setArticleTypes(List.of("business", "case"));
+        List<String> titles = articleMapper.selectArticleList(query).stream()
+                .map(Article::getTitle)
+                .toList();
+
+        assertTrue(titles.contains("多类型查询-业务"), "business 文章应命中");
+        assertTrue(titles.contains("多类型查询-案例"), "case 文章应命中");
+        assertFalse(titles.contains("多类型查询-资讯"), "news 文章不应命中");
+    }
+
+    /**
      * 测试搜索功能
      */
     @Test

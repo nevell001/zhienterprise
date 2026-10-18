@@ -158,7 +158,8 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
 - **侧栏菜单图标必须存在于 svg 图标集**：`sys_menu.icon` 的值最终渲染为 `<use href="#icon-<name>">`，图标名必须在 `zhi-ui/src/assets/icons/svg/` 里有同名文件；缺失时 svg 为空、菜单出现「看不见的空白」（「解决方案管理」曾配置不存在的 `lightning`，表现为图标不显示；后改 `skill` 又与「媒体管理」的 `component` 形状接近，改 `guide` 又与「菜单管理」重复，最终改用 `star`）。现在由 `zhi-ui/src/assets/icons/menu-icons.test.ts` 解析 SQL 种子的 sys_menu 图标并比对 svg 目录，改菜单数据前会先失败；`SvgIcon` 另外做了缺失兜底（回退 `component` 图标），避免线上再出现空白。修正存量库的幂等语句在 `sql/00_init_database.sql` 的 2012 菜单附近（`UPDATE ... icon='skill' WHERE icon='lightning'`，再 `UPDATE ... icon='guide' WHERE icon='skill'`，再 `UPDATE ... icon='star' WHERE icon='guide'`）。
 
 - **核心业务 / 解决方案（产品与服务）发布链路约定**（2026-10 审计后固化）：
-  - 后台「核心业务管理 / 解决方案管理」复用文章编辑器，按路由固定 `articleType`；固定栏目里**不再显示内容类型单选框**（原样可见会导致发布后文章从当前栏目列表消失），`reset()` 仍用 `fixedArticleType` 兜底。
+  - 后台「核心业务管理 / 客户案例管理 / 解决方案管理」复用文章编辑器，按路由固定 `articleType`（`/admin/business`→business、`/admin/case`→case、`/admin/solution`→solution）；固定栏目里**不再显示内容类型单选框**（原样可见会导致发布后文章从当前栏目列表消失），`reset()` 仍用 `fixedArticleType` 兜底。
+  - `case`（客户案例）与 business 同属核心业务板块：前台 `/business` 列表与详情相关推荐用 `articleTypes=business,case`（`Article.articleTypes` 非数据库字段 + mapper `<foreach>`；`articleType` 仍用于后台单栏目过滤），案例详情的规范入口仍是 `/business/{id}`，预览走 `AdminBusinessPreview` 且返回落到 `/admin/case`。
   - 列表快捷「发布 / 转草稿」必须走 `PUT /system/article/status`（只提交 `ids + status`），**不要**再用 `updateArticle` 传整包字段：局部更新曾把 Markdown 文章的 `format` 默认改成 html，并在 mapper 的无条件 `publish_time = #{publishTime}` 上清掉定时时间。
   - `ArticleController.parseArticleFromParams` 只在请求显式携带 `format` 时覆盖格式；插入时由 `ArticleServiceImpl.setDefaultValues` 补 `html`，避免接口调用方漏传导致 `format=NULL`。
   - 状态/置顶/推荐接口的 `ids` 必须经 `parseTagIds` 转 `List<Long>`：Jackson 把 JSON 数字反序列化成 `Integer`，直接 `(List<Long>)` 强转会在 service 迭代时 `ClassCastException`；`status/isTop/isRecommend` 缺失时返回明确错误而非静默 0 行。
