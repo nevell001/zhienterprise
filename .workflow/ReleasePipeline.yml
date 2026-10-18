@@ -46,7 +46,10 @@ stages:
           - cp zhi-admin/target/zhi-admin.jar zhi-admin.jar
           # 与 GitHub 保持一致：部署配套打包为 zip（sql / nginx / .env 示例 / 部署指南 / compose 编排）
           - (command -v zip >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq zip; }) || true
-          - mkdir -p deploy-assets && cp sql/00_init_database.sql zhi-ui/nginx.conf zhi-ui/nginx-https.conf .env.example docs/DEPLOYMENT_RELEASE.md docker-compose.release.yml docker-compose.base.yml deploy-assets/ && cp -r prometheus grafana deploy-assets/ && cd deploy-assets && zip -qr ../deploy-assets.zip . && cd ..
+          # 运维脚本先做语法检查，坏脚本不允许进发布包
+          - for f in scripts/*.sh; do bash -n "$f" || exit 1; done
+          # 整个 sql 目录（00 + 全部 99_*.sql 补丁 + README）与 scripts 一起发布
+          - mkdir -p deploy-assets && cp -r sql deploy-assets/sql && cp -r scripts deploy-assets/scripts && cp zhi-ui/nginx.conf zhi-ui/nginx-https.conf .env.example docs/DEPLOYMENT_RELEASE.md docs/BACKUP_RESTORE.md docker-compose.release.yml docker-compose.base.yml deploy-assets/ && cp -r prometheus grafana deploy-assets/ && cd deploy-assets && zip -qr ../deploy-assets.zip . && cd ..
         artifacts:
           - name: BACKEND_JAR
             path:

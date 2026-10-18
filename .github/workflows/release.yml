@@ -52,14 +52,23 @@ jobs:
           name: frontend-dist
           path: zhi-ui/dist
           if-no-files-found: error
+      - name: 校验运维脚本语法
+        run: |
+          for f in scripts/*.sh; do
+            bash -n "$f"
+            echo "OK: $f"
+          done
       - name: 准备部署配套
         run: |
           mkdir -p deploy-assets
-          cp sql/00_init_database.sql deploy-assets/
+          # 整个 sql 目录（00 初始化脚本 + 全部 99_*.sql 存量补丁 + README）随包发布，
+          # 客户升级时不会漏掉某个补丁；scripts 为备份/恢复/升级脚本
+          cp -r sql deploy-assets/sql
+          cp -r scripts deploy-assets/scripts
           cp zhi-ui/nginx.conf deploy-assets/
           cp zhi-ui/nginx-https.conf deploy-assets/
           cp .env.example deploy-assets/
-          cp docs/DEPLOYMENT_RELEASE.md deploy-assets/
+          cp docs/DEPLOYMENT_RELEASE.md docs/BACKUP_RESTORE.md deploy-assets/
           # release 编排通过 extends 引用 docker-compose.base.yml，两个文件必须一起发布
           cp docker-compose.release.yml deploy-assets/
           cp docker-compose.base.yml deploy-assets/

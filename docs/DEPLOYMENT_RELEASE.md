@@ -11,16 +11,19 @@
 | --- | --- |
 | `zhi-admin.jar` | 后端可执行包（含 common/framework/system/quartz/generator 全部模块） |
 | `frontend-dist.zip` | 前端构建产物（解压后 `index.html` 在根目录） |
-| `deploy-assets.zip` | 部署配套：数据库脚本、nginx 配置、compose 编排（`docker-compose.release.yml` + `docker-compose.base.yml`）、`.env` 示例、本指南 |
+| `deploy-assets.zip` | 部署配套：`sql/`（`00_init_database.sql` + 全部 `99_*.sql` 存量补丁 + README）、`scripts/`（备份/恢复/升级）、nginx 配置、compose 编排（`docker-compose.release.yml` + `docker-compose.base.yml`）、`.env` 示例、本指南与 [BACKUP_RESTORE.md](BACKUP_RESTORE.md) |
 
 ## 2. 整理目录
 
 ```bash
-mkdir -p deploy/sql deploy/ssl uploadPath prometheus grafana
+mkdir -p deploy/sql deploy/ssl uploadPath prometheus grafana scripts docs
 mv zhi-admin.jar deploy/
 unzip frontend-dist.zip -d deploy/frontend-dist
 unzip deploy-assets.zip -d deploy/tmp
-mv deploy/tmp/00_init_database.sql deploy/sql/
+cp deploy/tmp/sql/* deploy/sql/
+cp deploy/tmp/scripts/* scripts/
+chmod +x scripts/*.sh
+cp deploy/tmp/DEPLOYMENT_RELEASE.md deploy/tmp/BACKUP_RESTORE.md docs/
 mv deploy/tmp/nginx.conf deploy/nginx.conf
 mv deploy/tmp/nginx-https.conf deploy/nginx-https.conf
 mv deploy/tmp/docker-compose.release.yml ./
@@ -41,7 +44,17 @@ deploy/
 ├── nginx-https.conf        # HTTPS 配置（可选，见下文）
 ├── ssl/                    # HTTPS 证书目录（fullchain.pem / privkey.pem）
 └── sql/
-    └── 00_init_database.sql
+    ├── 00_init_database.sql
+    ├── 99_*.sql            # 存量升级补丁（幂等，升级时由 scripts/upgrade.sh 执行）
+    └── README.md
+scripts/
+├── backup.sh               # 备份数据库 + uploadPath
+├── restore.sh              # 恢复（含恢复前安全备份）
+├── upgrade.sh              # 执行 00 + 99 补丁并重启后端
+└── common.sh
+docs/
+├── DEPLOYMENT_RELEASE.md
+└── BACKUP_RESTORE.md       # 备份/恢复/升级/回滚手册
 prometheus/
 └── prometheus.yml
 grafana/
@@ -101,14 +114,23 @@ docker compose -f docker-compose.release.yml --profile monitoring rm -sf prometh
 
 ## 6. 更新版本
 
-1. 下载新版 release 附件，替换 `deploy/zhi-admin.jar`，解压新版 `frontend-dist.zip` 覆盖 `deploy/frontend-dist`。
-2. 重新启动容器：
+1. **先备份**：`./scripts/backup.sh`（`upgrade.sh` 也会自动做一次安全备份）。
+2. 下载新版 release 附件，替换 `deploy/zhi-admin.jar`，解压新版 `frontend-dist.zip` 覆盖 `deploy/frontend-dist`。
+3. 用新版 `deploy-assets.zip` 里的 `sql/` 完整覆盖 `deploy/sql/`（**必须包含全部 `99_*.sql`**）。
+4. 执行数据库升级（先跑 `99_rename_blog_to_zhi.sql`（如存在），再跑 `00`，最后跑其余 `99_*.sql`，全部幂等）：
 
 ```bash
-docker compose -f docker-compose.release.yml up -d --force-recreate zhi-admin zhi-ui
+./scripts/upgrade.sh
 ```
 
-MySQL/Redis 数据卷和 `uploadPath/` 会保留。
+5. 确认健康检查通过后，前台/后台各抽查一遍。
+
+MySQL/Redis 数据卷和 `uploadPath/` 会保留。升级失败、需要回滚时，按
+[BACKUP_RESTORE.md](BACKUP_RESTORE.md) 用升级前备份恢复，并换回上一版 jar/前端产物。
+
+> 只补数据库结构、不换版本时，也只需要 `./scripts/upgrade.sh --no-backup`（已手工备份）或
+> `docker compose -f docker-compose.release.yml exec -T mysql … < deploy/sql/00_init_database.sql`。
+> 完整策略（定时备份、异地保存、每季度恢复演练）见 [BACKUP_RESTORE.md](BACKUP_RESTORE.md)。
 
 ## 注意
 

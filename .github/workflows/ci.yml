@@ -65,7 +65,7 @@ jobs:
           if-no-files-found: error
 
   compose:
-    name: 编排文件校验
+    name: 编排与运维脚本校验
     # 三套环境编排 + 公共片段（docker-compose.base.yml）必须保持可解析；
     # 三套都通过 extends 引用公共片段，改公共段时最容易漏掉某套
     runs-on: ubuntu-24.04
@@ -77,5 +77,11 @@ jobs:
           cp .env.example .env
           for f in docker-compose.base.yml docker-compose.dev.yml docker-compose.prod.yml docker-compose.release.yml; do
             docker compose -f "$f" config -q
+            echo "OK: $f"
+          done
+      - name: 校验运维脚本语法
+        run: |
+          for f in scripts/*.sh; do
+            bash -n "$f"
             echo "OK: $f"
           done
