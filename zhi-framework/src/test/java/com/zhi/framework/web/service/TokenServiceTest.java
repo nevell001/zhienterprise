@@ -1,12 +1,16 @@
 package com.zhi.framework.web.service;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -24,6 +28,7 @@ import com.zhi.common.core.domain.model.LoginUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -222,6 +227,48 @@ class TokenServiceTest
 
         tokenService.delLoginUser("uuid-y");
         verify(unifiedCacheManager).delete(CacheConstants.LOGIN_TOKEN_KEY + "uuid-y");
+    }
+
+    @Test
+    void deleteLoginUserByUserIdInvalidatesOnlyMatchingSessions()
+    {
+        LoginUser first = loginUser("admin");
+        first.setToken("uuid-a");
+        LoginUser second = loginUser("admin");
+        second.setToken("uuid-b");
+        SysUser otherUser = new SysUser();
+        otherUser.setUserName("guest");
+        LoginUser other = new LoginUser(9L, 2L, otherUser, Collections.emptySet());
+        other.setToken("uuid-c");
+
+        String keyA = CacheConstants.LOGIN_TOKEN_KEY + "uuid-a";
+        String keyB = CacheConstants.LOGIN_TOKEN_KEY + "uuid-b";
+        String keyC = CacheConstants.LOGIN_TOKEN_KEY + "uuid-c";
+        when(unifiedCacheManager.keys(CacheConstants.LOGIN_TOKEN_KEY + "*"))
+                .thenReturn(new LinkedHashSet<>(List.of(keyA, keyB, keyC)));
+        when(unifiedCacheManager.get(keyA, LoginUser.class)).thenReturn(first);
+        when(unifiedCacheManager.get(keyB, LoginUser.class)).thenReturn(second);
+        when(unifiedCacheManager.get(keyC, LoginUser.class)).thenReturn(other);
+
+        int removed = tokenService.deleteLoginUserByUserId(1L);
+
+        assertThat(removed).isEqualTo(2);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(unifiedCacheManager).delete(captor.capture());
+        assertThat(captor.getValue()).containsExactlyInAnyOrder(keyA, keyB);
+    }
+
+    @Test
+    void deleteLoginUserByUserIdIgnoresNullAndEmptyCache()
+    {
+        assertThat(tokenService.deleteLoginUserByUserId(null)).isZero();
+        verify(unifiedCacheManager, never()).keys(anyString());
+
+        when(unifiedCacheManager.keys(anyString())).thenReturn(Collections.emptySet());
+        assertThat(tokenService.deleteLoginUserByUserId(1L)).isZero();
+        verify(unifiedCacheManager, never()).delete(anyString());
+        verify(unifiedCacheManager, never()).delete(anyCollection());
     }
 
     @Test

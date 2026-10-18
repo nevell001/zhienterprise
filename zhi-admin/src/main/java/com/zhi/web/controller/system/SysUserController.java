@@ -1,6 +1,9 @@
 package com.zhi.web.controller.system;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
@@ -27,6 +30,7 @@ import com.zhi.common.enums.BusinessType;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.poi.ExcelUtil;
+import com.zhi.framework.web.service.TokenService;
 import com.zhi.system.service.ISysDeptService;
 import com.zhi.system.service.ISysPostService;
 import com.zhi.system.service.ISysRoleService;
@@ -52,6 +56,9 @@ public class SysUserController extends BaseController
 
     @Autowired
     private ISysPostService postService;
+
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * 获取用户列表
@@ -168,8 +175,17 @@ public class SysUserController extends BaseController
         {
             return error("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
+        Set<Long> currentRoleIds = new HashSet<>(roleService.selectRoleListByUserId(user.getUserId()));
+        Long[] requestedRoleIds = user.getRoleIds() == null ? new Long[0] : user.getRoleIds();
+        boolean roleChanged = !currentRoleIds.equals(new HashSet<>(Arrays.asList(requestedRoleIds)));
         user.setUpdateBy(getUsername());
-        return toAjax(userService.updateUser(user));
+        int rows = userService.updateUser(user);
+        if (rows > 0 && (roleChanged || "1".equals(user.getStatus())))
+        {
+            // 角色变化会改变权限集合，禁用会改变登录资格：旧会话必须立即失效
+            tokenService.deleteLoginUserByUserId(user.getUserId());
+        }
+        return toAjax(rows);
     }
 
     /**
@@ -184,7 +200,15 @@ public class SysUserController extends BaseController
         {
             return error("当前用户不能删除");
         }
-        return toAjax(userService.deleteUserByIds(userIds));
+        int rows = userService.deleteUserByIds(userIds);
+        if (rows > 0)
+        {
+            for (Long userId : userIds)
+            {
+                tokenService.deleteLoginUserByUserId(userId);
+            }
+        }
+        return toAjax(rows);
     }
 
     /**
@@ -199,7 +223,12 @@ public class SysUserController extends BaseController
         userService.checkUserDataScope(user.getUserId());
         user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
         user.setUpdateBy(getUsername());
-        return toAjax(userService.resetPwd(user));
+        int rows = userService.resetPwd(user);
+        if (rows > 0)
+        {
+            tokenService.deleteLoginUserByUserId(user.getUserId());
+        }
+        return toAjax(rows);
     }
 
     /**
@@ -213,7 +242,12 @@ public class SysUserController extends BaseController
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
         user.setUpdateBy(getUsername());
-        return toAjax(userService.updateUserStatus(user));
+        int rows = userService.updateUserStatus(user);
+        if (rows > 0 && "1".equals(user.getStatus()))
+        {
+            tokenService.deleteLoginUserByUserId(user.getUserId());
+        }
+        return toAjax(rows);
     }
 
     /**
@@ -242,6 +276,8 @@ public class SysUserController extends BaseController
         userService.checkUserDataScope(userId);
         roleService.checkRoleDataScope(roleIds);
         userService.insertUserAuth(userId, roleIds);
+        // 授权变化后旧会话的权限集合已过期，强制重新登录
+        tokenService.deleteLoginUserByUserId(userId);
         return success();
     }
 

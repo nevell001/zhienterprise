@@ -1,7 +1,10 @@
 package com.zhi.framework.web.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -106,6 +109,40 @@ public class TokenService
             String userKey = getTokenKey(token);
             unifiedCacheManager.delete(userKey);
         }
+    }
+
+    /**
+     * 使指定用户的全部登录会话立即失效（改密、禁用、删除、角色变更后调用）。
+     *
+     * @param userId 用户ID
+     * @return 失效的会话数
+     */
+    public int deleteLoginUserByUserId(Long userId)
+    {
+        if (userId == null)
+        {
+            return 0;
+        }
+        Set<String> keys = unifiedCacheManager.keys(CacheConstants.LOGIN_TOKEN_KEY + "*");
+        if (keys == null || keys.isEmpty())
+        {
+            return 0;
+        }
+        List<String> matched = new ArrayList<>();
+        for (String key : keys)
+        {
+            LoginUser loginUser = unifiedCacheManager.get(key, LoginUser.class);
+            if (loginUser != null && userId.equals(loginUser.getUserId()))
+            {
+                matched.add(key);
+            }
+        }
+        if (!matched.isEmpty())
+        {
+            unifiedCacheManager.delete(matched);
+            log.info("已使 {} 个登录会话失效，userId={}", matched.size(), userId);
+        }
+        return matched.size();
     }
 
     /**

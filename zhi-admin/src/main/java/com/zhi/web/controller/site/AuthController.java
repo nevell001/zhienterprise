@@ -13,6 +13,7 @@ import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.ip.IpUtils;
 import com.zhi.framework.web.service.SiteUserService;
+import com.zhi.framework.web.service.TokenService;
 import com.zhi.system.mapper.SysUserMapper;
 import com.zhi.system.service.IEmailService;
 import com.zhi.system.service.ISysConfigService;
@@ -47,6 +48,9 @@ public class AuthController extends BaseController
 
     @Autowired
     private ISysConfigService configService;
+
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * 用户注册
@@ -182,7 +186,12 @@ public class AuthController extends BaseController
 
             // 重置密码
             String encryptedPassword = SecurityUtils.encryptPassword(newPassword);
-            userService.resetUserPwd(existUser.getUserId(), encryptedPassword);
+            if (userService.resetUserPwd(existUser.getUserId(), encryptedPassword) <= 0)
+            {
+                return AjaxResult.error("密码重置失败，请稍后重试");
+            }
+            // 忘记密码场景常伴随账号被盗：重置后必须让原持有者的会话立即失效
+            tokenService.deleteLoginUserByUserId(existUser.getUserId());
 
             logger.info("密码重置成功：email={}, userId={}", email, existUser.getUserId());
             return AjaxResult.success("密码重置成功，请使用新密码登录");
