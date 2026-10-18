@@ -2,58 +2,21 @@
 
 ## 文件说明
 
-### `99_dedupe_nav_defaults.sql`（存量升级补丁，一次性）
-**只有被旧版导航种子写坏过的库需要跑**（全新安装不需要）：清理「站长改过导航标签后重跑
-`00_init_database.sql`」造成的重复菜单 —— 同一路径下有两条菜单，一条是用户改名的、一条是种子
-按默认标签新插的，00 里那段按标签判重的历史清理抓不到标签不同的这一类。
-
-- 幂等：删除条件要求「同键（位置+父项+链接类型+链接值）存在 id 更小的另一行」，清完即不成立，
-  **第二次执行 0 行变化**。
-- 范围：只删 `parent_id=0` 且标签与链接**逐字段等于种子默认值**、`create_by='admin'` 的行；
-  用户改名的行、自建行、`cta` 与 `path` 同指 `/contact` 的两条合法菜单、二级项都不在范围内。
-- 脚本自带执行前自检（列出会被删的行）与执行后复核（重复分组应为空），**跑之前先看第一段输出**。
-- 执行前备份：`mysqldump --single-transaction <库名> site_nav_item > nav.before.sql`。
-- 用法：`mysql -u root -p <库名> < sql/99_dedupe_nav_defaults.sql`（脚本内没有 `USE`，库名只在命令行出现）。
-
-### `99_rename_blog_to_zhi.sql`（存量升级补丁，一次性）
-**只有存量库需要跑**（全新安装不需要）：把 17 张 `blog_*` 业务表重命名为 `zhi_*`，
-并把 `sys_role.role_key` 的 `blog_user` 改为 `site_user`。
-
-为什么不能靠重跑 `00_init_database.sql`：该脚本用 `CREATE TABLE IF NOT EXISTS` / `INSERT IGNORE`，
-老库里同名对象一律被**跳过**，表名不会自己变。任何涉及「改名/改既有行」的升级都必须写成
-这样的显式补丁（`99_*.sql` 命名约定），并按需执行一次。
-
-- 幂等：每张表都先查 `information_schema`，只有「旧名在、新名不在」才 `RENAME TABLE`；
-  `sys_role` 的更新带 `WHERE` 守卫。**重复执行第二次为 0 行变化**。
-- 范围：只改 17 张表名 + 1 行角色键；不动任何数据行，也不动 `blog_name` 等设置项键。
-- **必须两步、顺序不能反**：
-  ```bash
-  mysql -u root -p <库名> < sql/99_rename_blog_to_zhi.sql   # 1. 改表名/角色键
-  mysql -u root -p <库名> < sql/00_init_database.sql        # 2. 刷新数据库侧例程
-  ```
-  第二步不可省：`RENAME TABLE` **不会改写触发器/函数/存储过程体**，
-  `tr_article_*`、`update_category_article_count`、`sp_fix_category_article_count*`、
-  `sp_verify_category_article_count` 里都写死了 `blog_category` 之类的表名，
-  不重建就会在运行时抛 `Table 'xxx.blog_category' doesn't exist`。
-  00 里这些例程都是 `DROP … IF EXISTS` + `CREATE`，重跑即按新表名重建，且幂等。
-- 执行前建议备份：`mysqldump --single-transaction <库名> zhi_article zhi_setting > rename.before.sql`。
-- 演练注意：用 `CREATE TABLE … LIKE` 复制的 scratch 副本**不含触发器/存储过程**，
-  因此表改名演练必须额外把例程也复制过去（或按上面的两步流程在副本上端到端跑一遍），
-  否则会漏掉「例程体里的旧表名」这类只在运行时暴露的缺陷。
-- 权限串（`blog:*` → `zhi:*`）已由 `00_init_database.sql` 里的幂等 UPDATE 覆盖，无需单独跑；
-  但**已登录用户的权限缓存在 Redis**，改完要重新登录一次才生效。
-
 ### `00_init_database.sql` （幂等版）
-数据库初始化/迁移的**唯一入口**（日常升级只需重跑它），包含：
+数据库初始化的**唯一入口**（日常升级只需重跑它），包含：
 - 所有表结构（系统表 + 站点内容表 + Quartz 表）
 - 所有索引（含 FULLTEXT 全文索引）
 - 站内信通知表 `zhi_notification`
 - 触发器和存储过程
 - 示例数据（管理员账号、菜单、字典等）
+- 导航默认项重复清理（同标签重复、孤儿二级项，以及旧版种子在标签被改名后写回的默认项）
 
 ⚠️ **脚本不建库、不切换库**：目标库只由调用方给出（`mysql … <库名> < sql/00_init_database.sql`，
 或 Docker 的 `MYSQL_DATABASE`，其默认值取自 `.env` 的 `DB_NAME`）。**不要**在里面加 `CREATE DATABASE` / `USE`
 —— 会把调用方给的库名覆盖掉（演练写进主库、`DB_NAME` 失效，见下文案例）。
+
+- 执行前建议备份：`mysqldump --single-transaction <库名> > before_upgrade.sql`。
+- 升级后**已登录用户的权限缓存在 Redis**，需重新登录一次才生效。
 
 ### 特性
 
@@ -120,10 +83,13 @@ DELETE FROM sys_config  WHERE config_key IN ('blog_author', 'blog_signature');
   `link_value='/about'` 定位、子项按 `link_value` 判存），标签只作为「缺失时写什么」的默认值，
   不再作为存在性判据。链接类型必须进键，否则 `path /contact`（联系我们）与 `cta /contact`（咨询合作）
   两条合法菜单会互相顶掉。
-- **存量库怎么清**：跑一次性补丁 `sql/99_dedupe_nav_defaults.sql`（见上文文件说明）。
-  只删「与种子默认项逐字段相同 + `create_by='admin'` + 同键存在更早且标签不同的一行」，
-  用户改名后的行、自建行、二级项一律不动。
-- **重跑 00 修不了它**：新判存键只负责「不再新增重复行」，不会删除既有重复行 —— 又是「幂等 ≠ 会修复已有行」。
+- **存量库怎么清**：重跑 00 即可（清理段 ④ 会删掉这类重复项）。
+  删除范围严格限定为「与种子默认项逐字段相同 + `create_by='admin'` + 同键存在更早且标签不同的一行」，
+  即只清旧版种子自己补回来的那条；用户改名后的行、自建行、`cta` 与 `path` 同指 `/contact`
+  的两条合法菜单、二级项一律不动。想先确认影响行，可执行
+  `SELECT … FROM site_nav_item` 按「同位置+父项+链接」分组检查重复。
+- **重跑 00 现在会修既有重复行**：判存键负责「不再新增」，清理段 ④ 负责「删掉旧版种子写回的默认项」；
+  这仍是幂等的（清完条件即不成立，第二次执行 0 行变化）。
 - 已知行为：种子是「补缺失」而非「保持删除」，站主**主动删掉**的默认项在重跑 00 时会被补回来。
   要永久去掉某条默认菜单，请在「菜单管理」里改标签/链接或改 `visible`，并接受重跑升级脚本可能补回。
 - 验证（三种场景已在 scratch 副本上演练通过，2026-10-16）：全新库 15 行且重跑 0 变化；
@@ -208,8 +174,7 @@ cd /opt/zhienterprise
 ./scripts/upgrade.sh
 ```
 
-顺序是硬约定：`99_rename_blog_to_zhi.sql`（如存在，必须先于 00）→ `00_init_database.sql` →
-其余 `99_*.sql`（按文件名排序）。所有脚本幂等，重复执行为 0 行变化；脚本会在升级前自动备份、
+顺序是硬约定：`00_init_database.sql` → 其余 `99_*.sql`（按文件名排序，没有则跳过）。所有脚本幂等，重复执行为 0 行变化；脚本会在升级前自动备份、
 升级后重启后端并等待健康检查。详见 [docs/BACKUP_RESTORE.md](../docs/BACKUP_RESTORE.md)。
 
 **只补结构**：如果本次只更新了 `00`（新增表/列/索引/菜单/权限），也可以直接重跑它：
@@ -222,13 +187,14 @@ docker exec mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" zhienterprise < /
 mysql -u root -p zhienterprise < sql/00_init_database.sql
 ```
 
-这会自动补齐缺失的表/索引/触发器（如 `zhi_notification`、FULLTEXT 索引），**不会**删除或覆盖任何已有数据。
-注意：`00` 只负责结构/种子补齐，不会执行 `99_*.sql` 里的一次性数据修复（表改名、导航去重等），
-版本升级时不要漏掉它们。
+这会自动补齐缺失的表/索引/触发器（如 `zhi_notification`、FULLTEXT 索引），**不会**覆盖任何已有数据。
+删除操作仅限历史重复项与冗余关联：重复分类（仅删未被文章引用的副本）、重复友链、重复/孤儿导航项
+（保留最早一行）、旧版种子在标签被改名后写回的默认导航项（逐字段匹配种子元组且 `create_by='admin'`），
+以及旧版分配给注册用户角色的后台菜单关联；均不涉及站长的业务数据。
+注意：`00` 不会执行其余 `99_*.sql` 里的一次性数据补丁（如有），版本升级时不要漏掉它们。
 
-⚠️ 「不会覆盖」的另一面是**也不会清理**：如果这台站在后台改过导航标签，历史上又重跑过旧版种子，
-导航里已经躺着重复菜单，重跑 00 之后它们还在 —— 需要另外跑一次
-`sql/99_dedupe_nav_defaults.sql`（见上文，先跑它的自检再决定）。
+⚠️ 如果这台站在后台改过导航标签、历史上又重跑过旧版种子，导航里可能躺着标签不同的重复菜单 ——
+重跑 00 时清理段 ④ 会一并删掉这类重复项，不需要再跑额外补丁。
 
 ### 在 Docker 中执行
 

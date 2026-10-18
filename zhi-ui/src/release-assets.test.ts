@@ -105,10 +105,8 @@ describe('发布包必须携带全部数据库补丁与运维脚本', () => {
     expect(source).toContain('docs/BACKUP_RESTORE.md')
   })
 
-  it('sql/ 下存在 99 存量补丁', () => {
-    const patches = readdirSync(resolve(ROOT, 'sql')).filter(name => /^99_.*\.sql$/.test(name))
-
-    expect(patches.length).toBeGreaterThan(0)
+  it('sql/ 下存在 00 初始化脚本', () => {
+    expect(existsSync(resolve(ROOT, 'sql', '00_init_database.sql'))).toBe(true)
   })
 
   it.each(SCRIPTS)('scripts/%s 语法合法且随包存在', script => {
@@ -141,14 +139,12 @@ describe('备份 / 恢复 / 升级脚本的关键约定', () => {
     expect(source).toContain('gunzip -c')
   })
 
-  it('升级顺序必须是 rename → 00 → 其余 99', () => {
+  it('升级顺序必须是 00 → 其余 99', () => {
     const source = read('scripts/upgrade.sh')
-    const renameIndex = source.indexOf('run_sql "$SQL_DIR/99_rename_blog_to_zhi.sql"')
     const initIndex = source.indexOf('run_sql "$SQL_DIR/00_init_database.sql"')
     const remainingIndex = source.indexOf('find "$SQL_DIR" -maxdepth 1 -type f -name \'99_*.sql\'')
 
-    expect(renameIndex).toBeGreaterThan(-1)
-    expect(initIndex).toBeGreaterThan(renameIndex)
+    expect(initIndex).toBeGreaterThan(-1)
     expect(remainingIndex).toBeGreaterThan(initIndex)
   })
 })
@@ -207,22 +203,20 @@ describe('运维脚本行为（假 docker）', () => {
     expect(calls).toContain('up -d zhi-admin zhi-ui')
   })
 
-  it('upgrade.sh 按 rename → 00 → 其余 99 执行并重启后端', () => {
+  it('upgrade.sh 按 00 → 其余 99 执行并重启后端', () => {
     const box = sandbox()
     const sqlDir = join(box.dir, 'sql')
     mkdirSync(sqlDir)
-    for (const name of ['99_rename_blog_to_zhi.sql', '00_init_database.sql', '99_z_fix.sql']) {
+    for (const name of ['00_init_database.sql', '99_z_fix.sql']) {
       writeFileSync(join(sqlDir, name), `-- ${name}\nSELECT 1;\n`)
     }
 
     const result = runScript('upgrade.sh', ['--yes', '--no-backup'], box)
 
     expect(result.status, result.stderr).toBe(0)
-    const rename = result.stdout.indexOf('执行 99_rename_blog_to_zhi.sql')
     const init = result.stdout.indexOf('执行 00_init_database.sql')
     const patch = result.stdout.indexOf('执行 99_z_fix.sql')
-    expect(rename).toBeGreaterThan(-1)
-    expect(init).toBeGreaterThan(rename)
+    expect(init).toBeGreaterThan(-1)
     expect(patch).toBeGreaterThan(init)
     expect(readFileSync(box.calls, 'utf-8')).toContain('stop zhi-admin')
   })

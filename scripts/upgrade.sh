@@ -10,9 +10,8 @@
 #           也可用 SQL_DIR=/path/to/sql 指定。
 #
 # 执行顺序（顺序是硬约定）：
-#   1. 99_rename_blog_to_zhi.sql（如存在）—— 旧表改名必须先于 00，否则例程体会引用旧表名；
-#   2. 00_init_database.sql —— 唯一幂等入口，补齐表/列/索引/种子；
-#   3. 其余 99_*.sql（按文件名排序）—— 一次性数据补丁，全部幂等。
+#   1. 00_init_database.sql —— 唯一幂等入口：补齐表/列/索引/种子；
+#   2. 其余 99_*.sql（按文件名排序）—— 一次性数据补丁，全部幂等。
 #
 # 全部脚本必须幂等（重复执行 0 行变化）。升级前会自动备份，升级后重启 zhi-admin 并等待健康检查。
 
@@ -54,7 +53,7 @@ require_mysql_running
 [ -f "$SQL_DIR/00_init_database.sql" ] || die "SQL 目录缺少 00_init_database.sql：$SQL_DIR"
 
 log "SQL 目录：$SQL_DIR"
-log "将执行：99_rename_blog_to_zhi.sql（如存在）→ 00_init_database.sql → 其余 99_*.sql"
+log "将执行：00_init_database.sql → 其余 99_*.sql"
 
 if [ "$ASSUME_YES" -ne 1 ]; then
   echo "即将升级数据库 [$DB_NAME]，执行前会自动备份。"
@@ -79,13 +78,9 @@ run_sql() {
     mysql -uroot --default-character-set=utf8mb4 "$DB_NAME" < "$file"
 }
 
-# 旧版安装的 blog_* → zhi_* 改名补丁必须先跑；对已升级的库它是幂等空操作
-run_sql "$SQL_DIR/99_rename_blog_to_zhi.sql"
-
 run_sql "$SQL_DIR/00_init_database.sql"
 
 while IFS= read -r patch; do
-  [ "$(basename "$patch")" = "99_rename_blog_to_zhi.sql" ] && continue
   run_sql "$patch"
 done < <(find "$SQL_DIR" -maxdepth 1 -type f -name '99_*.sql' | sort)
 

@@ -1289,17 +1289,6 @@ INSERT IGNORE INTO `zhi_friend_link` (`id`, `name`, `url`, `logo`, `description`
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2000, '站点管理', 0, 1, 'admin', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '', NULL, '站点管理目录');
 
--- 存量升级：一级菜单路径去 blog（admin/blog → admin），幂等，可重复执行
-UPDATE sys_menu SET path = 'admin' WHERE menu_id = 2000 AND path = 'admin/blog';
-
--- 存量升级：菜单组件路径去 blog 前缀（blog/article/index → article/index），
--- 与前端视图目录 views/admin/blog/* → views/admin/* 同步；幂等，可重复执行
-UPDATE sys_menu SET component = SUBSTRING(component, 6) WHERE component LIKE 'blog/%';
-
--- 存量升级：菜单权限串去 blog 前缀（blog:* → zhi:*），幂等，可重复执行。
--- 注意：已登录用户的权限缓存在 Redis 里，升级后需重新登录才会生效。
-UPDATE sys_menu SET perms = REPLACE(perms, 'blog:', 'zhi:') WHERE perms LIKE 'blog:%';
-
 -- 文章管理
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2001, '文章管理', 2000, 1, 'article', 'article/index', '', '', 1, 0, 'C', '0', '0', 'zhi:article:list', 'edit', 'admin', NOW(), '', NULL, '文章管理菜单');
@@ -1460,6 +1449,37 @@ WHERE NOT EXISTS (
   SELECT 1 FROM `site_nav_item` c
   WHERE c.`parent_id` = p.id AND c.`link_type` = 'path' AND c.`link_value` = t.link_value
 );
+
+-- ④ 清理「站长改过标签后，旧版种子又插回的默认项」（存量库修复，幂等）
+-- ①②③ 只认标签相同的重复行；旧版种子按标签判存时，站长把 /business 的标签改成「咨询业务」后
+-- 重跑本脚本，会再插一条默认标签「核心业务」的顶栏/页脚项 —— 链接相同但标签不同，上面的清理看不见。
+-- 只删「与种子默认项逐字段相同（位置+标签+链接类型+链接值）且 create_by='admin'」的行，
+-- 且要求同键（位置+父项+链接类型+链接值）存在 id 更小、标签不同的另一行（即站长改名的那条）；
+-- 用户改名行、自建行、path/cta 同指 /contact 的合法组合、二级项一律不动。
+-- 全新库与已清理过的库无匹配行，重复执行为 0 行变化。
+DELETE dup FROM `site_nav_item` dup
+JOIN (
+      SELECT 'header' AS `location`, '首页' AS `label`, 'path' AS `link_type`, '/' AS `link_value`
+  UNION ALL SELECT 'header', '核心业务', 'path', '/business'
+  UNION ALL SELECT 'header', '解决方案', 'path', '/solutions'
+  UNION ALL SELECT 'header', '新闻动态', 'path', '/news'
+  UNION ALL SELECT 'header', '关于我们', 'path', '/about'
+  UNION ALL SELECT 'header', '联系我们', 'path', '/contact'
+  UNION ALL SELECT 'header', '咨询合作', 'cta',    '/contact'
+  UNION ALL SELECT 'footer', '首页',     'path', '/'
+  UNION ALL SELECT 'footer', '核心业务', 'path', '/business'
+  UNION ALL SELECT 'footer', '解决方案', 'path', '/solutions'
+  UNION ALL SELECT 'footer', '新闻动态', 'path', '/news'
+  UNION ALL SELECT 'footer', '关于我们', 'path', '/about'
+) s
+  ON s.`location` = dup.`location` AND s.`label` = dup.`label`
+ AND s.`link_type` = dup.`link_type` AND s.`link_value` = dup.`link_value`
+JOIN `site_nav_item` keep
+  ON keep.`location` = dup.`location` AND keep.`parent_id` = dup.`parent_id`
+ AND keep.`link_type` = dup.`link_type` AND keep.`link_value` = dup.`link_value`
+ AND keep.`id` < dup.`id`
+ AND keep.`label` <> dup.`label`
+WHERE dup.`parent_id` = 0 AND dup.`create_by` = 'admin';
 
 -- 菜单管理菜单与权限（原名「导航管理」）
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -2795,20 +2815,10 @@ PREPARE alter_notification_article_nullable_stmt FROM @alter_notification_articl
 EXECUTE alter_notification_article_nullable_stmt;
 DEALLOCATE PREPARE alter_notification_article_nullable_stmt;
 
--- 「关于」内置页面（slug=about）：页面管理列表中直接管理，前台 /blog/about 仅渲染此页（无其他兜底来源）；
+-- 「关于」内置页面（slug=about）：页面管理列表中直接管理，前台 /about 仅渲染此页（无其他兜底来源）；
 -- 幂等：INSERT IGNORE 依赖 slug 唯一键，重跑不覆盖站长在页面管理里的修改；被逻辑删除的行也会阻止重新插入（删除即删除）
 INSERT IGNORE INTO `zhi_page` (`title`, `slug`, `summary`, `content`, `status`, `show_in_nav`, `sort`, `create_by`, `create_time`, `update_time`)
 VALUES ('关于我们', 'about', '企业简介', '<p>XX科技有限公司（占位）面向行业客户提供产品与服务一体化解决方案，覆盖咨询诊断、方案设计、实施交付与长期陪跑。</p><p>我们相信，好的服务来自对企业业务的真实理解。多年来，团队始终专注于把复杂的问题变成清晰可执行的方案，帮助客户实现可量化的业务改进。</p><ul><li>方法论驱动：诊断先行，方案可落地</li><li>全程陪跑：从实施到运营的长期服务</li><li>可量化成果：只交付能被验证的改变</li></ul><p>如需了解详细案例与合作方式，欢迎通过「联系我们」页面与我们取得联系。</p>', '1', '0', 0, 'admin', NOW(), NOW());
-
--- 品牌化迁移：旧版 about 种子内容（博客风）升级为企业简介占位（仅当内容仍为旧种子时生效，不覆盖站长修改）
--- 幂等保护：仅当存量旧库还保留 blog_page 表时才执行（全新安装走到这里会因 Unknown table 报错，使整脚本以非 0 退出码收尾）
-SET @has_blog_page := (SELECT COUNT(*) FROM information_schema.TABLES
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_page');
-SET @upgrade_blog_about := IF(@has_blog_page = 0, 'SELECT 1',
-    'UPDATE `blog_page` SET `content` = ''<p>XX科技有限公司（占位）面向行业客户提供产品与服务一体化解决方案，覆盖咨询诊断、方案设计、实施交付与长期陪跑。</p><p>我们相信，好的服务来自对企业业务的真实理解。多年来，团队始终专注于把复杂的问题变成清晰可执行的方案，帮助客户实现可量化的业务改进。</p><ul><li>方法论驱动：诊断先行，方案可落地</li><li>全程陪跑：从实施到运营的长期服务</li><li>可量化成果：只交付能被验证的改变</li></ul><p>如需了解详细案例与合作方式，欢迎通过「联系我们」页面与我们取得联系。</p>'' WHERE `slug` = ''about'' AND `content` LIKE ''%这是一个基于Spring Boot + Vue.js构建的现代化企业建站系统%''');
-PREPARE upgrade_blog_about_stmt FROM @upgrade_blog_about;
-EXECUTE upgrade_blog_about_stmt;
-DEALLOCATE PREPARE upgrade_blog_about_stmt;
 
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;
