@@ -72,3 +72,54 @@ describe('Nginx 反向代理配置守卫', () => {
     expect(depth).toBe(0)
   })
 })
+
+describe('安全响应头与 CORS 边界', () => {
+  const countOf = (source: string, needle: string) => source.split(needle).length - 1
+
+  it.each(CONFIGS)('%s 在 server 与自带 add_header 的 location 都下发基础安全头', name => {
+    const source = readConfig(name)
+
+    // server + 静态资源 + /profile/ + /health；/api/ 已不自带 add_header，继承 server 级配置
+    expect(
+      countOf(source, 'add_header X-Content-Type-Options nosniff always;')
+    ).toBeGreaterThanOrEqual(4)
+    expect(countOf(source, 'add_header X-Frame-Options SAMEORIGIN always;')).toBeGreaterThanOrEqual(
+      4
+    )
+    expect(
+      countOf(source, 'add_header Referrer-Policy strict-origin-when-cross-origin always;')
+    ).toBeGreaterThanOrEqual(4)
+  })
+
+  it('HSTS 只在 HTTPS 配置下发（HTTP 响应中的 HSTS 会被浏览器忽略）', () => {
+    expect(readConfig('nginx-https.conf')).toContain('Strict-Transport-Security')
+    expect(readConfig('nginx.conf')).not.toContain('Strict-Transport-Security')
+  })
+
+  it.each(CONFIGS)('%s 不得覆盖后端 CORS 白名单', name => {
+    // CORS 由后端 ResourcesConfig（CORS_ALLOWED_ORIGINS）统一裁决；
+    // nginx 再加 ACAO 会让生产空白名单失效（曾对全互联网放开）
+    expect(readConfig(name)).not.toMatch(/add_header\s+Access-Control-Allow-Origin/)
+  })
+})
+
+describe('上传体积上限必须跨产物一致', () => {
+  // 跨产物契约：nginx / dev / prod / 前端提示分属不同文件，只能静态比对
+  const yml = (name: string) =>
+    readFileSync(resolve(process.cwd(), '..', 'zhi-admin/src/main/resources', name), 'utf-8')
+
+  it.each(['application.yml', 'application-prod.yml'])('%s 使用 5MB 单文件 / 10MB 请求', name => {
+    const source = yml(name)
+
+    expect(source).toContain('max-file-size: 5MB')
+    expect(source).toContain('max-request-size: 10MB')
+  })
+
+  it.each(CONFIGS)('%s 的 client_max_body_size 不小于后端请求上限', name => {
+    const source = readConfig(name)
+    const nginxLimit = Number(source.match(/client_max_body_size\s+(\d+)m;/)?.[1])
+    const requestLimit = Number(yml('application.yml').match(/max-request-size:\s*(\d+)MB/)?.[1])
+
+    expect(nginxLimit).toBeGreaterThanOrEqual(requestLimit)
+  })
+})

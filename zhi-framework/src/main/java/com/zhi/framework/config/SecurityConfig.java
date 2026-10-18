@@ -106,9 +106,10 @@ public class SecurityConfig
         return httpSecurity
             // CSRF禁用，因为不使用session
             .csrf(csrf -> csrf.disable())
-            // 禁用HTTP响应标头
+            // HTTP 响应标头：缓存控制保持关闭（公开内容需要可缓存）；点击劫持用 sameOrigin 防护
             .headers((headersCustomizer) -> {
-                headersCustomizer.cacheControl(cache -> cache.disable()).frameOptions(options -> options.disable());
+                headersCustomizer.cacheControl(cache -> cache.disable())
+                        .frameOptions(options -> options.sameOrigin());
             })
             // 认证失败处理类
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
