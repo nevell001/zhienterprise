@@ -30,9 +30,14 @@
 
       <ul class="ent-links">
         <li v-for="item in menuItems" :key="item.linkValue" class="has-drop-slot">
+          <!-- 外链项（linkType=url）渲染原生 <a>，避免 router-link 解析外站地址 -->
+          <a v-if="item.linkType === 'url'" :href="item.linkValue" target="_blank" rel="noopener">
+            {{ item.label }}
+          </a>
           <!-- lv1 是下划线指示器的挂钩（.ent-links a.lv1::after）：导航改成 v-for
                数据驱动时曾漏掉，导致悬停/当前项下划线永不显示 -->
           <router-link
+            v-else
             :to="item.linkValue || '/'"
             class="lv1"
             :class="{ on: isActive(item.linkValue) }"
@@ -40,13 +45,18 @@
             {{ item.label }}
           </router-link>
           <div v-if="item.children && item.children.length" class="drop">
-            <router-link
-              v-for="child in item.children"
-              :key="child.linkValue"
-              :to="child.linkValue || '/'"
-            >
-              {{ child.label }}
-            </router-link>
+            <!-- 子项同样可配外链（后台菜单管理不限层级） -->
+            <template v-for="child in item.children" :key="child.linkValue">
+              <a
+                v-if="child.linkType === 'url'"
+                :href="child.linkValue"
+                target="_blank"
+                rel="noopener"
+              >
+                {{ child.label }}
+              </a>
+              <router-link v-else :to="child.linkValue || '/'">{{ child.label }}</router-link>
+            </template>
           </div>
         </li>
       </ul>
@@ -90,15 +100,27 @@
 
     <!-- 移动端全屏抽屉（方案文档 §1.1：导航项纵向排布，底部固定 CTA） -->
     <div v-show="mobileOpen" class="ent-drawer">
-      <router-link
-        v-for="item in menuItems"
-        :key="item.linkValue"
-        :to="item.linkValue || '/'"
-        class="ent-drawer-link"
-        @click="mobileOpen = false"
-      >
-        {{ item.label }}
-      </router-link>
+      <!-- 外链项渲染原生 <a>，避免 router-link 解析外站地址（与桌面端同口径） -->
+      <template v-for="item in menuItems" :key="item.linkValue">
+        <a
+          v-if="item.linkType === 'url'"
+          :href="item.linkValue"
+          target="_blank"
+          rel="noopener"
+          class="ent-drawer-link"
+          @click="mobileOpen = false"
+        >
+          {{ item.label }}
+        </a>
+        <router-link
+          v-else
+          :to="item.linkValue || '/'"
+          class="ent-drawer-link"
+          @click="mobileOpen = false"
+        >
+          {{ item.label }}
+        </router-link>
+      </template>
       <router-link
         v-if="!userStore.token"
         to="/login"

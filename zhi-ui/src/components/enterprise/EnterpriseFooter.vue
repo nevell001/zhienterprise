@@ -34,7 +34,10 @@
         <div class="fcol">
           <h4>快速导航</h4>
           <template v-for="item in footerNavItems" :key="`${item.linkValue}-${item.label}`">
-            <router-link v-if="isBusinessItem(item)" :to="item.linkValue || '/'">
+            <a v-if="item.linkType === 'url'" :href="item.linkValue" target="_blank" rel="noopener">
+              {{ item.label }}
+            </a>
+            <router-link v-else-if="isBusinessItem(item)" :to="item.linkValue || '/'">
               {{ businessLabel }}
             </router-link>
             <router-link v-else :to="item.linkValue || '/'">{{ item.label }}</router-link>
