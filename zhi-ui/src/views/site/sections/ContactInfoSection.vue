@@ -30,7 +30,8 @@ const cfg = computed(() => props.config ?? {})
 const basicItems = computed(() => {
   const items: { key: string; label: string; value: string; href?: string }[] = []
   const phone = str(cfg.value.contact_phone) || str(blogSettings.value.contact_phone)
-  const email = str(cfg.value.contact_email)
+  // 邮箱仅认板块配置与站点设置 contact_email（后端 FrontConfigKeys 白名单内唯一邮箱键）
+  const email = str(cfg.value.contact_email) || str(blogSettings.value.contact_email)
   const address = str(cfg.value.contact_address) || str(blogSettings.value.contact_address)
   if (phone) {
     items.push({

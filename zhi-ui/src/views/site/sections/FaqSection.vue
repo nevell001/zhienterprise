@@ -39,10 +39,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getSiteFaqs } from '@/utils/siteContent'
-import { setJsonLd } from '@/utils/jsonld'
+import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 
 const props = defineProps<{ config?: Record<string, any> }>()
 
@@ -73,4 +73,9 @@ const updateJsonLd = () => {
 }
 
 watch(items, updateJsonLd, { immediate: true })
+
+// 离开页面时移除 FAQPage 结构化数据，避免残留污染后续页面 SEO
+onBeforeUnmount(() => {
+  removeJsonLd('zh-jsonld-faqpage')
+})
 </script>

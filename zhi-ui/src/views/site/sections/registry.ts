@@ -54,7 +54,16 @@ export function parseSections(raw: unknown): (SiteSection & { component: Compone
     }
   }
   if (!Array.isArray(list)) return []
-  return (list as SiteSection[])
-    .filter(s => s && typeof s.type === 'string' && s.visible !== false && SECTION_REGISTRY[s.type])
-    .map(s => ({ ...s, component: SECTION_REGISTRY[s.type] }))
+  return (
+    list as (Omit<SiteSection, 'visible'> & {
+      visible?: boolean | number | string
+    })[]
+  )
+    .filter(s => {
+      if (!s || typeof s.type !== 'string' || !SECTION_REGISTRY[s.type]) return false
+      // visible 兼容三种形态：false / 0 / '0' 均视为隐藏（历史数据可能写数字或字符串）
+      const v = s.visible
+      return v !== false && v !== 0 && v !== '0'
+    })
+    .map(s => ({ ...s, visible: true as const, component: SECTION_REGISTRY[s.type] as any }))
 }
