@@ -300,8 +300,10 @@ import { applySeo, canonicalUrl } from '@/utils/seo'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 import { normalizeUploadUrl } from '@/utils/uploadUrl'
 
-// JSON-LD 结构化数据随路由卸载移除，避免残留到下一页
+// JSON-LD 结构化数据随路由卸载移除，避免残留到下一页；
+// 同时使加载中的陈旧响应失效（SEO/JSON-LD 不写回已离开的页面）
 onUnmounted(() => {
+  detailGuard.invalidate()
   removeJsonLd('zh-jsonld-article')
 })
 

@@ -211,7 +211,8 @@ const loadHomePage = async () => {
   homePageLoading.value = true
   homePageNotFound.value = false
   try {
-    const response = await getPublishedPageBySlug(slug)
+    // silent：home_page_slug 指向被删页面/老库缺列时静默降级，不弹全局错误 toast
+    const response = await getPublishedPageBySlug(slug, { silent: true })
     if (!response || response.code !== 200 || !response.data) {
       homePage.value = null
       homePageNotFound.value = true

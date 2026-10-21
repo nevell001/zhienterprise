@@ -122,7 +122,7 @@ describe('博客首页运行时渲染', () => {
     const wrapper = mountHome()
     await flushPromises()
 
-    expect(vi.mocked(getPublishedPageBySlug)).toHaveBeenCalledWith('company')
+    expect(vi.mocked(getPublishedPageBySlug)).toHaveBeenCalledWith('company', { silent: true })
     expect(wrapper.text()).toContain('星海科技')
     expect(wrapper.text()).toContain('欢迎来到星海科技')
     // 文章列表没有被渲染，且首页模式隐藏了 Page 标签与更新/浏览元信息

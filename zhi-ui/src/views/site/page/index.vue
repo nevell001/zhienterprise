@@ -31,6 +31,7 @@ import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { getPublishedPageBySlug, type SitePage } from '@/api/site/page'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { createRequestGuard } from '@/utils/requestGuard'
 import { logger } from '@/utils/logger'
 
 const route = useRoute()
@@ -55,9 +56,14 @@ const slug = computed(() => {
   return value ? String(value) : ''
 })
 
+// 陈旧响应守卫：详见 loadPage 内注释
+const pageGuard = createRequestGuard()
+
 const loadPage = async () => {
   const currentSlug = slug.value
   if (!currentSlug) {
+    // slug 清空即作废在途请求，防止旧响应稍后覆盖 404 态
+    pageGuard.invalidate()
     page.value = null
     notFound.value = true
     loading.value = false
@@ -66,8 +72,13 @@ const loadPage = async () => {
 
   loading.value = true
   notFound.value = false
+  const token = pageGuard.next()
   try {
-    const response = await getPublishedPageBySlug(currentSlug)
+    // silent：slug 可选内容缺失属正常态（前台已有 404 面板），不弹全局错误 toast
+    const response = await getPublishedPageBySlug(currentSlug, { silent: true })
+    // 陈旧响应守卫：/page/:slug 路由复用组件（router-view 无 :key），
+    // 快速切换 slug 时慢的旧响应不得覆盖新页面（内容与 SEO 同理）
+    if (!pageGuard.isLatest(token)) return
     if (!response || response.code !== 200 || !response.data) {
       page.value = null
       notFound.value = true
@@ -83,12 +94,14 @@ const loadPage = async () => {
       canonical: canonicalUrl()
     })
   } catch (error) {
+    if (!pageGuard.isLatest(token)) return
     // 后端返回「页面不存在或未发布」时会 reject，这里降级为友好的 404 提示
     logger.error('加载自定义页面失败:', error)
     page.value = null
     notFound.value = true
   } finally {
-    loading.value = false
+    // 仅由最新一次请求收尾 loading，避免旧响应提前关掉新请求的加载态
+    if (pageGuard.isLatest(token)) loading.value = false
   }
 }
 
@@ -97,4 +110,9 @@ watch(slug, () => {
 })
 
 onMounted(loadPage)
+
+// 卸载后作废在途请求：慢响应不再写回状态/SEO，避免污染下一页面
+onUnmounted(() => {
+  pageGuard.invalidate()
+})
 </script>

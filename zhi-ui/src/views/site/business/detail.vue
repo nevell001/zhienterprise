@@ -133,13 +133,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SiteLayout from '@/components/SiteLayout.vue'
 import SiteBreadcrumb from '@/components/SiteBreadcrumb.vue'
 import ArticlePreviewBanner from '@/components/ArticlePreviewBanner.vue'
 import { getArticleDetail, getArticleList, getArticlePreview } from '@/api/site/article'
 import type { Article } from '@/types'
+import { createRequestGuard } from '@/utils/requestGuard'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
@@ -218,6 +219,9 @@ const breadcrumbItems = computed(() => [
   { label: article.value?.title || '详情' }
 ])
 
+// 陈旧响应守卫：详情加载期间快速切换路由时，旧响应不得覆盖新页（SEO/JSON-LD 同理）
+const detailGuard = createRequestGuard()
+
 onMounted(async () => {
   // 路由参数兼容数字 ID（历史链接）与 slug 伪静态链接，由后端统一解析
   const key = String(router.currentRoute.value.params.id || '')
@@ -225,9 +229,11 @@ onMounted(async () => {
     loading.value = false
     return
   }
+  const detailToken = detailGuard.next()
   try {
     // 预览路由走后台预览接口（跳过 status=1 门槛，不增加浏览量）
     const response = isPreview.value ? await getArticlePreview(key) : await getArticleDetail(key)
+    if (!detailGuard.isLatest(detailToken)) return
     if (response && response.code === 200 && response.data?.article) {
       article.value = response.data.article
       const siteName = settings.value.blog_name || '知企建站系统'

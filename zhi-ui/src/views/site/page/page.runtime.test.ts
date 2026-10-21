@@ -54,7 +54,7 @@ describe('自定义页面（行为）', () => {
     const wrapper = mountPage()
     await flushPromises()
 
-    expect(getPublishedPageBySlug).toHaveBeenCalledWith('about-me')
+    expect(getPublishedPageBySlug).toHaveBeenCalledWith('about-me', { silent: true })
     expect(wrapper.findComponent(SiteLayout).exists()).toBe(true)
     expect(wrapper.text()).toContain('关于我')
   })
