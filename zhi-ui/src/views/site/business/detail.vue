@@ -222,13 +222,13 @@ const breadcrumbItems = computed(() => [
 // 陈旧响应守卫：详情加载期间快速切换路由时，旧响应不得覆盖新页（SEO/JSON-LD 同理）
 const detailGuard = createRequestGuard()
 
-onMounted(async () => {
-  // 路由参数兼容数字 ID（历史链接）与 slug 伪静态链接，由后端统一解析
-  const key = String(router.currentRoute.value.params.id || '')
+/** 按路由标识加载详情（路由参数变化时复用，见下方 watch） */
+const loadDetail = async (key: string) => {
   if (!key) {
     loading.value = false
     return
   }
+  loading.value = true
   const detailToken = detailGuard.next()
   try {
     // 预览路由走后台预览接口（跳过 status=1 门槛，不增加浏览量）
@@ -272,23 +272,45 @@ onMounted(async () => {
           pageSize: 4,
           ...(isSolution.value ? { articleType: 'solution' } : { articleTypes: 'business,case' })
         })
+        if (!detailGuard.isLatest(detailToken)) return
         if (relRes?.code === 200) {
           relatedItems.value = ((relRes.rows || []) as Article[])
             .filter(item => item.id !== articleId)
             .slice(0, 3)
         }
       } catch {
-        relatedItems.value = []
+        if (detailGuard.isLatest(detailToken)) relatedItems.value = []
       }
     }
   } catch (error) {
+    if (!detailGuard.isLatest(detailToken)) return
     logger.error('加载业务详情失败:', error)
   } finally {
-    loading.value = false
+    if (detailGuard.isLatest(detailToken)) loading.value = false
   }
+}
+
+onMounted(() => {
+  // 路由参数兼容数字 ID（历史链接）与 slug 伪静态链接，由后端统一解析
+  loadDetail(String(route.params.id || ''))
 })
 
+// /business/:id 与 /solutions/:id 共用本组件，路由参数变化时组件实例被复用：
+// 相关推荐跳转、浏览器前进/后退都必须重新加载，否则正文/面包屑停在上一条内容
+watch(
+  () => route.params.id,
+  newId => {
+    if (!newId) return
+    article.value = null
+    relatedItems.value = []
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    loadDetail(String(newId))
+  }
+)
+
 onBeforeUnmount(() => {
+  // 卸载后作废在途响应，避免 SEO/JSON-LD 写回到下一页面
+  detailGuard.invalidate()
   removeJsonLd('zh-jsonld-service')
 })
 </script>

@@ -92,6 +92,8 @@ async function mountDetail(initialPath: string) {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // jsdom 未实现 scrollTo：路由切换时的滚动置顶在测试里打桩
+  vi.stubGlobal('scrollTo', vi.fn())
   updateArticleViewCount.mockResolvedValue({ code: 200 })
 })
 
@@ -174,6 +176,34 @@ describe('详情页相关推荐与返回行为', () => {
     await flushPromises()
     expect(router.currentRoute.value.path).toBe('/solutions/8')
     expect(router.currentRoute.value.query.industry).toBe('金融')
+  })
+
+  it('路由参数变化时重新加载详情（相关推荐点击后正文随之更新）', async () => {
+    getArticleDetail.mockImplementation((key: string) =>
+      Promise.resolve({
+        code: 200,
+        data: {
+          article:
+            key === '8'
+              ? articleOf({ id: 8, articleType: 'solution', title: '金融数据治理' })
+              : articleOf({ id: 7, articleType: 'solution', title: '制造业数字化' })
+        }
+      })
+    )
+    getArticleList.mockResolvedValue({
+      code: 200,
+      rows: [articleOf({ id: 8, title: '金融数据治理', summary: '统一数据标准' })]
+    })
+    const { wrapper, router } = await mountDetail('/solutions/7')
+    expect(wrapper.text()).toContain('制造业数字化')
+
+    await wrapper.find('.bd-rel-card').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.path).toBe('/solutions/8')
+    expect(getArticleDetail).toHaveBeenLastCalledWith('8')
+    expect(wrapper.text()).toContain('金融数据治理')
+    expect(wrapper.text()).not.toContain('制造业数字化')
   })
 
   it('返回列表带回筛选 query（返回可复原）', async () => {
