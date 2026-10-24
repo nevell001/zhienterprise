@@ -37,7 +37,13 @@ const stubs = {
   },
   ArticleEmptyState: true,
   ArticleListSkeleton: true,
-  SitePager: true,
+  // 点击即请求下一页，便于验证翻页竞态
+  SitePager: {
+    props: ['total', 'pageSize', 'pageNum'],
+    emits: ['page-change'],
+    template:
+      '<button type="button" class="pager-next" @click="$emit(\'page-change\', pageNum + 1)">下一页</button>'
+  },
   'el-icon': true,
   'el-button': true
 }
@@ -109,5 +115,41 @@ describe('分类页路由切换', () => {
     await flushPromises()
     expect(wrapper.find('.category-title').text()).toBe('分类二')
     expect(wrapper.findAll('.card-stub').map(card => card.text())).toEqual(['分类2文章'])
+  })
+
+  it('切换分类后，旧分类迟到的翻页响应不会追加到新列表', async () => {
+    const slowPage = deferred<{
+      code: number
+      rows: { id: number; title: string }[]
+      total: number
+    }>()
+    getCategoryDetail.mockImplementation((key: string) =>
+      Promise.resolve({ data: { id: Number(key), name: `分类${key}` } })
+    )
+    getArticleList.mockImplementation((params: { categoryId?: number; pageNum?: number }) => {
+      if (params.categoryId === 1 && params.pageNum === 2) return slowPage.promise
+      return Promise.resolve({
+        code: 200,
+        rows: [
+          { id: params.categoryId || 0, title: `分类${params.categoryId}第${params.pageNum}页` }
+        ],
+        total: params.categoryId === 1 ? 30 : 1
+      })
+    })
+
+    const { wrapper, router } = await mountCategory('/category/1')
+    expect(wrapper.findAll('.card-stub').map(card => card.text())).toEqual(['分类1第1页'])
+
+    // 分类 1 的第 2 页在途；此时切到分类 2
+    await wrapper.find('.pager-next').trigger('click')
+    await router.push('/category/2')
+    await flushPromises()
+    expect(wrapper.find('.category-title').text()).toBe('分类2')
+    expect(wrapper.findAll('.card-stub').map(card => card.text())).toEqual(['分类2第1页'])
+
+    // 旧分类第 2 页此刻才返回：不得追加到分类 2 的列表
+    slowPage.resolve({ code: 200, rows: [{ id: 1, title: '分类1第2页' }], total: 30 })
+    await flushPromises()
+    expect(wrapper.findAll('.card-stub').map(card => card.text())).toEqual(['分类2第1页'])
   })
 })

@@ -35,7 +35,13 @@ const stubs = {
   },
   ArticleEmptyState: true,
   ArticleListSkeleton: true,
-  SitePager: true,
+  // 点击即请求下一页，便于验证翻页竞态
+  SitePager: {
+    props: ['total', 'pageSize', 'pageNum'],
+    emits: ['page-change'],
+    template:
+      '<button type="button" class="pager-next" @click="$emit(\'page-change\', pageNum + 1)">下一页</button>'
+  },
   'el-icon': true,
   'el-button': true
 }
@@ -103,5 +109,37 @@ describe('标签页路由切换', () => {
     await flushPromises()
     expect(wrapper.find('.tag-title').text()).toBe('标签二')
     expect(wrapper.findAll('.card-stub').map(card => card.text())).toEqual(['标签2文章'])
+  })
+
+  it('切换标签后，旧标签迟到的翻页响应不会追加到新列表', async () => {
+    const slowPage = deferred<{
+      rows: { id: number; title: string }[]
+      total: number
+    }>()
+    getTagDetail.mockImplementation((id: number) =>
+      Promise.resolve({ data: { id, name: `标签${id}` } })
+    )
+    getArticlesByTag.mockImplementation((id: number, params: { pageNum?: number }) => {
+      if (id === 1 && params.pageNum === 2) return slowPage.promise
+      return Promise.resolve({
+        rows: [{ id, title: `标签${id}第${params.pageNum}页` }],
+        total: id === 1 ? 30 : 1
+      })
+    })
+
+    const { wrapper, router } = await mountTag('/tag/1')
+    expect(wrapper.findAll('.card-stub').map(card => card.text())).toEqual(['标签1第1页'])
+
+    // 标签 1 的第 2 页在途；此时切到标签 2
+    await wrapper.find('.pager-next').trigger('click')
+    await router.push('/tag/2')
+    await flushPromises()
+    expect(wrapper.find('.tag-title').text()).toBe('标签2')
+    expect(wrapper.findAll('.card-stub').map(card => card.text())).toEqual(['标签2第1页'])
+
+    // 旧标签第 2 页此刻才返回：不得追加到标签 2 的列表
+    slowPage.resolve({ rows: [{ id: 1, title: '标签1第2页' }], total: 30 })
+    await flushPromises()
+    expect(wrapper.findAll('.card-stub').map(card => card.text())).toEqual(['标签2第1页'])
   })
 })

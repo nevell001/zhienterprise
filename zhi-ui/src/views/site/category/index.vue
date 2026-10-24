@@ -241,16 +241,16 @@ const resetToAllCategories = (token?: number) => {
   loadCategoryArticles(false, undefined, token)
 }
 
-// 加载更多文章
+// 加载更多文章（各自取新 token：切换分类后迟到的旧分页不能追加到新列表）
 const loadMoreArticles = () => {
   if (loadingMore.value || articleList.value.length >= total.value) return
-  loadCategoryArticles(true, queryParams.pageNum + 1)
+  loadCategoryArticles(true, queryParams.pageNum + 1, categoryGuard.next())
 }
 
 // 分页处理
 const handlePageChange = page => {
   queryParams.pageNum = page
-  loadCategoryArticles()
+  loadCategoryArticles(false, undefined, categoryGuard.next())
 }
 
 // 日期格式化

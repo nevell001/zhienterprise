@@ -237,16 +237,16 @@ const loadTagDetail = async (token: number) => {
   }
 }
 
-// 加载更多文章
+// 加载更多文章（各自取新 token：切换标签后迟到的旧分页不能追加到新列表）
 const loadMoreArticles = () => {
   if (loadingMore.value || articleList.value.length >= total.value) return
-  loadTagArticles(true, queryParams.pageNum + 1)
+  loadTagArticles(true, queryParams.pageNum + 1, tagGuard.next())
 }
 
 // 分页处理
 const handlePageChange = page => {
   queryParams.pageNum = page
-  loadTagArticles()
+  loadTagArticles(false, undefined, tagGuard.next())
 }
 
 // 日期格式化
