@@ -84,8 +84,9 @@ describe('blog design layout guards', () => {
   it('分类和标签页主布局不应横向溢出', () => {
     expect(categoryView).toContain('min-width: 0;')
     expect(tagView).toContain('min-width: 0;')
-    expect(categoryView).toContain('grid-template-columns: minmax(0, 1fr) 300px;')
-    expect(tagView).toContain('grid-template-columns: minmax(0, 1fr) 300px;')
+    // 博客侧栏移除后主区域为单列（语义仍是 minmax(0, 1fr)，避免内容撑破容器）
+    expect(categoryView).toContain('grid-template-columns: minmax(0, 1fr);')
+    expect(tagView).toContain('grid-template-columns: minmax(0, 1fr);')
     expect(categoryView).not.toContain('minmax(380px, 1fr)')
     expect(tagView).not.toContain('minmax(380px, 1fr)')
     expect(categoryView).toContain('minmax(min(100%, 380px), 1fr)')

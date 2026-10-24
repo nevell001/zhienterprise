@@ -31,6 +31,14 @@ const articleOf = (id: number, title: string, articleType: string) => ({
   articleType
 })
 
+function deferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>(r => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+
 async function mountList(initialPath = '/business') {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -128,5 +136,42 @@ describe('分类筛选与 URL 双向同步', () => {
     expect(getArticleList).toHaveBeenLastCalledWith(
       expect.objectContaining({ categoryId: 3, pageNum: 1 })
     )
+  })
+})
+
+describe('列表筛选竞态', () => {
+  it('快速切换分类时慢的旧筛选响应不覆盖新结果', async () => {
+    const slowAll = deferred<{
+      code: number
+      rows: ReturnType<typeof articleOf>[]
+      total: number
+    }>()
+    getCategoryList.mockResolvedValue({
+      code: 200,
+      data: [{ id: 3, name: '运维服务', alias: 'ops' }]
+    })
+    getArticleList.mockImplementation((params: { categoryId?: number }) => {
+      // 首次「全部」请求故意挂起，模拟慢响应
+      if (params.categoryId === undefined) return slowAll.promise
+      return Promise.resolve({
+        code: 200,
+        rows: [articleOf(9, '运维服务内容', 'business')],
+        total: 1
+      })
+    })
+
+    const { wrapper } = await mountList()
+    const opsTab = wrapper.findAll('.biz-tabs .tag').find(t => t.text() === '运维服务')
+    expect(opsTab).toBeTruthy()
+
+    await opsTab!.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('运维服务内容')
+
+    // 「全部」的慢响应此刻才返回：不得覆盖筛选后的列表
+    slowAll.resolve({ code: 200, rows: [articleOf(1, '全部内容', 'business')], total: 1 })
+    await flushPromises()
+    expect(wrapper.text()).toContain('运维服务内容')
+    expect(wrapper.text()).not.toContain('全部内容')
   })
 })

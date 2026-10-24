@@ -182,7 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import SiteLayout from '@/components/SiteLayout.vue'
 import { getArticleList } from '@/api/site'
@@ -193,6 +193,7 @@ import { DEFAULT_PAGE_COPY, getPageCopy } from '@/utils/siteContent'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { parseTime } from '@/utils/zhi'
 import { logger } from '@/utils/logger'
+import { createRequestGuard } from '@/utils/requestGuard'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
 const router = useRouter()
@@ -233,12 +234,16 @@ const activeCatName = computed(
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
 
+// 翻页/加载更多与筛选切换共用同一序号：慢响应不得覆盖新页或新筛选结果
+const listGuard = createRequestGuard()
+
 const loadMore = async () => {
   page.value++
   await load(true)
 }
 
 const load = async (append = false) => {
+  const token = listGuard.next()
   loading.value = true
   try {
     const response = await getArticleList({
@@ -248,6 +253,7 @@ const load = async (append = false) => {
       articleTypes: 'business,case',
       categoryId: activeCatId.value ?? undefined
     })
+    if (!listGuard.isLatest(token)) return
     if (response && response.code === 200) {
       const rows = (response.rows || []) as Article[]
       items.value = append ? [...items.value, ...rows] : rows
@@ -257,13 +263,18 @@ const load = async (append = false) => {
       total.value = 0
     }
   } catch (error) {
+    if (!listGuard.isLatest(token)) return
     logger.error('加载核心业务列表失败:', error)
     items.value = []
     total.value = 0
   } finally {
-    loading.value = false
+    if (listGuard.isLatest(token)) loading.value = false
   }
 }
+
+onBeforeUnmount(() => {
+  listGuard.invalidate()
+})
 
 const loadCategories = async () => {
   try {
