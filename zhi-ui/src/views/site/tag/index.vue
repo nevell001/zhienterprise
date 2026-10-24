@@ -103,6 +103,7 @@ import { getSiteSettingsAnonymous } from '@/api/site/setting'
 
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { logger } from '@/utils/logger'
+import { createRequestGuard } from '@/utils/requestGuard'
 import {
   ArrowLeft,
   Calendar,
@@ -113,6 +114,9 @@ import {
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
+
+// 陈旧响应守卫：/tag/:id 复用同一组件，快速切换标签时慢响应不得覆盖新标签
+const tagGuard = createRequestGuard()
 
 const siteSettingsStore = useSiteSettingsStore()
 
@@ -150,8 +154,8 @@ const queryParams = reactive({
   status: 1 // 只显示已发布的文章
 })
 
-// 获取标签文章列表
-const loadTagArticles = async (append = false, page?: number) => {
+// 获取标签文章列表（token：路由切换驱动的请求，用于丢弃陈旧响应）
+const loadTagArticles = async (append = false, page?: number, token?: number) => {
   // 加载更多时页码只有在成功后提交，失败重试不会跳页
   const requestedPage = page ?? queryParams.pageNum
   try {
@@ -169,6 +173,7 @@ const loadTagArticles = async (append = false, page?: number) => {
     } else {
       response = await getArticleList({ ...queryParams, pageNum: requestedPage })
     }
+    if (token !== undefined && !tagGuard.isLatest(token)) return
 
     // 处理不同的响应格式
     let newArticles = []
@@ -206,18 +211,22 @@ const loadTagArticles = async (append = false, page?: number) => {
       total.value = totalCount
     }
   } catch (error) {
+    if (token !== undefined && !tagGuard.isLatest(token)) return
     logger.error('获取标签文章失败:', error)
     ElMessage.error('获取文章列表失败')
   } finally {
-    loading.value = false
-    loadingMore.value = false
+    if (token === undefined || tagGuard.isLatest(token)) {
+      loading.value = false
+      loadingMore.value = false
+    }
   }
 }
 
-// 获取标签详情
-const loadTagDetail = async () => {
+// 获取标签详情（token：路由切换驱动的请求，用于丢弃陈旧响应）
+const loadTagDetail = async (token: number) => {
   try {
     const response = await getTagDetail(queryParams.tagId)
+    if (!tagGuard.isLatest(token)) return
 
     const tag = response.data || response
 
@@ -230,6 +239,7 @@ const loadTagDetail = async () => {
       total.value = tag.articleCount
     }
   } catch (error) {
+    if (!tagGuard.isLatest(token)) return
     logger.error('获取标签详情失败:', error)
     ElMessage.error('获取标签详情失败')
   }
@@ -330,14 +340,15 @@ const loadSiteSettings = async () => {
 watch(
   () => route.params.id,
   newId => {
+    const token = tagGuard.next()
     if (newId) {
       // 有标签ID，加载特定标签的文章
       const tagId = Array.isArray(newId) ? newId[0] : newId
       currentTagId.value = parseInt(tagId)
       queryParams.tagId = parseInt(tagId)
       queryParams.pageNum = 1
-      loadTagDetail()
-      loadTagArticles()
+      loadTagDetail(token)
+      loadTagArticles(false, undefined, token)
       loadRelatedTags()
     } else {
       // 没有标签ID，显示所有标签列表
@@ -346,7 +357,7 @@ watch(
       queryParams.pageNum = 1
       tagName.value = '所有标签'
       tagDescription.value = '浏览所有标签下的文章'
-      loadTagArticles()
+      loadTagArticles(false, undefined, token)
       loadRelatedTags()
     }
   },

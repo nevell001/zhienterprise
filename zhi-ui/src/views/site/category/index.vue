@@ -100,6 +100,7 @@ import { getSiteSettingsAnonymous } from '@/api/site/setting'
 
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { logger } from '@/utils/logger'
+import { createRequestGuard } from '@/utils/requestGuard'
 import {
   ArrowLeft,
   Calendar,
@@ -111,6 +112,9 @@ import {
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
+
+// 陈旧响应守卫：/category/:id 复用同一组件，快速切换分类时慢响应不得覆盖新分类
+const categoryGuard = createRequestGuard()
 
 const siteSettingsStore = useSiteSettingsStore()
 
@@ -151,8 +155,8 @@ const queryParams = reactive({
   status: 1 // 只显示已发布的文章
 })
 
-// 获取分类文章列表
-const loadCategoryArticles = async (append = false, page?: number) => {
+// 获取分类文章列表（token：路由切换驱动的请求，用于丢弃陈旧响应）
+const loadCategoryArticles = async (append = false, page?: number, token?: number) => {
   // 加载更多时页码只有在成功后提交，失败重试不会跳页
   const requestedPage = page ?? queryParams.pageNum
   try {
@@ -164,6 +168,7 @@ const loadCategoryArticles = async (append = false, page?: number) => {
       pageNum: requestedPage,
       categoryId: queryParams.categoryId
     })
+    if (token !== undefined && !categoryGuard.isLatest(token)) return
 
     const newArticles = response.rows || []
     if (append) {
@@ -175,11 +180,14 @@ const loadCategoryArticles = async (append = false, page?: number) => {
     // 只有成功才提交页码：失败后"加载更多"不会跳过一页
     if (append) queryParams.pageNum = requestedPage
   } catch (error) {
+    if (token !== undefined && !categoryGuard.isLatest(token)) return
     logger.error('获取分类文章失败:', error)
     ElMessage.error('获取文章列表失败')
   } finally {
-    loading.value = false
-    loadingMore.value = false
+    if (token === undefined || categoryGuard.isLatest(token)) {
+      loading.value = false
+      loadingMore.value = false
+    }
   }
 }
 
@@ -197,9 +205,10 @@ const loadSiteSettings = async () => {
 }
 
 // 获取分类详情（按数字 ID 或 alias 解析），成功时回填数字 ID 供文章列表过滤
-const loadCategoryDetail = async (): Promise<boolean> => {
+const loadCategoryDetail = async (token: number): Promise<boolean> => {
   try {
     const response = await getCategoryDetail(currentCategoryKey.value)
+    if (!categoryGuard.isLatest(token)) return false
 
     const category = response.data || response
     if (!category || !category.id) return false
@@ -210,32 +219,35 @@ const loadCategoryDetail = async (): Promise<boolean> => {
     lastUpdateTime.value = formatDate(new Date().toISOString())
     return true
   } catch (error) {
+    if (!categoryGuard.isLatest(token)) return false
     logger.error('获取分类详情失败:', error)
     return false
   }
 }
 
 // 按路由标识初始化分类页：解析成功加载该分类，失败（含 alias 未命中）回退全部文章
-const initCategoryPage = async () => {
-  const ok = await loadCategoryDetail()
+const initCategoryPage = async (token: number) => {
+  const ok = await loadCategoryDetail(token)
+  // 分类已再次切换：本次结果整体作废，由最新一次请求收尾
+  if (!categoryGuard.isLatest(token)) return
   if (ok) {
-    loadCategoryArticles()
+    loadCategoryArticles(false, undefined, token)
     loadRelatedCategories()
   } else {
     logger.warn('分类不存在或未启用，回退全部文章:', currentCategoryKey.value)
-    resetToAllCategories()
+    resetToAllCategories(token)
   }
 }
 
 // 重置为「所有分类」视图
-const resetToAllCategories = () => {
+const resetToAllCategories = (token?: number) => {
   currentCategoryId.value = null
   currentCategoryKey.value = ''
   queryParams.categoryId = null
   queryParams.pageNum = 1
   categoryName.value = '所有分类'
   categoryDescription.value = '浏览所有分类下的文章'
-  loadCategoryArticles()
+  loadCategoryArticles(false, undefined, token)
   loadRelatedCategories()
 }
 
@@ -321,14 +333,15 @@ const getTagScale = count => {
 watch(
   () => route.params.id,
   newKey => {
+    const token = categoryGuard.next()
     if (newKey) {
       // 路由参数兼容数字 ID（历史链接）与 alias 伪静态链接：先解析分类，再按解析出的数字 ID 加载文章
       currentCategoryKey.value = String(newKey)
       queryParams.pageNum = 1
-      initCategoryPage()
+      initCategoryPage(token)
     } else {
       // 没有分类标识，显示所有分类列表
-      resetToAllCategories()
+      resetToAllCategories(token)
     }
   },
   { immediate: true }

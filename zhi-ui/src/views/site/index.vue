@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import SiteLayout from '@/components/SiteLayout.vue'
 import CustomPagePanel from './page/CustomPagePanel.vue'
@@ -141,6 +141,7 @@ import { getCategoryList } from '@/api/site/category'
 import { getTagCloud } from '@/api/site/tag'
 import { getPublishedPageBySlug, type SitePage } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { createRequestGuard } from '@/utils/requestGuard'
 import { logger } from '@/utils/logger'
 import { parseTime } from '@/utils/zhi'
 import { buildPageItems } from '@/utils/pageItems'
@@ -205,14 +206,22 @@ const homeMode = computed<'booting' | 'custom' | 'business' | 'list'>(() => {
 // 侧栏「全部文章」入口：首页被接管后指向列表页，否则就是首页自身
 const listHomePath = computed(() => (isCustomHomePage.value ? '/news' : '/'))
 
+// 陈旧响应守卫：首页可能被切走（或 home_page_slug 变更），迟到响应不得写回内容与 SEO
+const homeGuard = createRequestGuard()
+
 const loadHomePage = async () => {
   const slug = homeSlug.value
-  if (!slug) return
+  if (!slug) {
+    homeGuard.invalidate()
+    return
+  }
   homePageLoading.value = true
   homePageNotFound.value = false
+  const token = homeGuard.next()
   try {
     // silent：home_page_slug 指向被删页面/老库缺列时静默降级，不弹全局错误 toast
     const response = await getPublishedPageBySlug(slug, { silent: true })
+    if (!homeGuard.isLatest(token)) return
     if (!response || response.code !== 200 || !response.data) {
       homePage.value = null
       homePageNotFound.value = true
@@ -229,20 +238,34 @@ const loadHomePage = async () => {
       canonical: canonicalUrl()
     })
   } catch (error) {
+    if (!homeGuard.isLatest(token)) return
     logger.error('加载首页自定义页面失败:', error)
     homePage.value = null
     homePageNotFound.value = true
   } finally {
-    homePageLoading.value = false
-    loadedHomeSlug.value = slug
+    if (homeGuard.isLatest(token)) {
+      homePageLoading.value = false
+      loadedHomeSlug.value = slug
+    }
   }
 }
+
+// 卸载后作废在途请求：离开首页时慢响应不得覆盖下一页的 SEO
+onUnmounted(() => {
+  homeGuard.invalidate()
+})
 
 // 首次进入或从 /news 返回首页时按需加载；同一 slug 只加载一次
 watch(
   [showCustomHome, homeSlug],
   () => {
-    if (!showCustomHome.value || !homeSlug.value) return
+    if (!showCustomHome.value || !homeSlug.value) {
+      // 关闭自定义首页：作废在途请求，避免迟到响应把首页内容/SEO 写回来；
+      // 同时复位 loading，否则守卫拦下 finally 后永远停留在加载态
+      homeGuard.invalidate()
+      homePageLoading.value = false
+      return
+    }
     if (homePageLoading.value) return
     if (homePage.value && loadedHomeSlug.value === homeSlug.value) return
     loadHomePage()

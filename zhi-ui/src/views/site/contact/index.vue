@@ -251,7 +251,7 @@ import { addMessage } from '@/api/site/message'
 import { getCodeImg } from '@/api/site/auth'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { applySeo, canonicalUrl } from '@/utils/seo'
-import { setJsonLd } from '@/utils/jsonld'
+import { setJsonLd, removeJsonLd } from '@/utils/jsonld'
 import { getSiteChannels, getSiteFaqs, DEFAULT_PAGE_COPY, getPageCopy } from '@/utils/siteContent'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
@@ -461,6 +461,11 @@ useScrollReveal(rootEl)
 
 // FAQ 结构化数据（方案文档 §6.2）：设置异步加载完成后同步刷新
 const updateFaqJsonLd = () => {
+  // 无 FAQ 时不输出空 mainEntity；同时清理上一次留下的结构化数据
+  if (!faqs.value.length) {
+    removeJsonLd('zh-jsonld-faqpage')
+    return
+  }
   setJsonLd('zh-jsonld-faqpage', {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -493,6 +498,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearCooldownTimer()
+  // JSON-LD 随路由卸载移除，避免 FAQPage 残留污染后续页面
+  removeJsonLd('zh-jsonld-faqpage')
 })
 </script>
 

@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import Contact from './index.vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
+import { setJsonLd, removeJsonLd } from '@/utils/jsonld'
 
 /**
  * 联系我们页「咨询表单」行为测试（挂载真实组件）。
@@ -27,6 +28,12 @@ vi.mock('@/api/site/auth', () => ({
 
 vi.mock('@/utils/seo', () => ({ applySeo: vi.fn(), canonicalUrl: vi.fn(() => 'https://e.com') }))
 vi.mock('@/utils/jsonld', () => ({ setJsonLd: vi.fn(), removeJsonLd: vi.fn() }))
+
+// FAQ 为空时不应输出空 mainEntity；其余站点内容保持真实实现
+vi.mock('@/utils/siteContent', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/utils/siteContent')>()
+  return { ...actual, getSiteFaqs: () => [] }
+})
 
 const stubs = {
   SiteLayout: { template: '<div class="layout-stub"><slot /></div>' },
@@ -154,5 +161,25 @@ describe('联系我们 · 联系方式', () => {
 
     expect(wrapper.text()).toContain('联系电话')
     expect(wrapper.text()).not.toContain('联系邮箱')
+  })
+})
+
+describe('联系我们 · 结构化数据', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    getCodeImg.mockResolvedValue({ captchaEnabled: false })
+  })
+
+  it('无 FAQ 时不输出空 FAQPage，且卸载时清理结构化数据', async () => {
+    const wrapper = await mountContact({ contact_phone: '010-12345678' })
+
+    // 默认没有 FAQ：不写空 mainEntity，并清掉可能残留的旧数据
+    expect(setJsonLd).not.toHaveBeenCalledWith('zh-jsonld-faqpage', expect.anything())
+    expect(removeJsonLd).toHaveBeenCalledWith('zh-jsonld-faqpage')
+
+    removeJsonLd.mockClear()
+    wrapper.unmount()
+    // 离开页面后不得把 FAQPage 留在 <head> 污染后续页面
+    expect(removeJsonLd).toHaveBeenCalledWith('zh-jsonld-faqpage')
   })
 })
