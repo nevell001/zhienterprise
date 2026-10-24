@@ -90,9 +90,7 @@ import ArticleEmptyState from '@/components/ArticleEmptyState.vue'
 import ArticleListSkeleton from '@/components/ArticleListSkeleton.vue'
 import SitePager from '@/components/SitePager.vue'
 
-import { getCategoryDetail, getCategoryList } from '@/api/site/category'
-
-import { getTagCloud } from '@/api/site/tag'
+import { getCategoryDetail } from '@/api/site/category'
 
 import { getArticleList } from '@/api/site/article'
 
@@ -138,12 +136,6 @@ const currentCategoryId = ref(null)
 const currentCategoryKey = ref('')
 
 const lastUpdateTime = ref('')
-
-const relatedCategories = ref([])
-
-const popularTags = ref([])
-
-const recentArticles = ref([])
 
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
 
@@ -232,7 +224,6 @@ const initCategoryPage = async (token: number) => {
   if (!categoryGuard.isLatest(token)) return
   if (ok) {
     loadCategoryArticles(false, undefined, token)
-    loadRelatedCategories()
   } else {
     logger.warn('分类不存在或未启用，回退全部文章:', currentCategoryKey.value)
     resetToAllCategories(token)
@@ -248,38 +239,6 @@ const resetToAllCategories = (token?: number) => {
   categoryName.value = '所有分类'
   categoryDescription.value = '浏览所有分类下的文章'
   loadCategoryArticles(false, undefined, token)
-  loadRelatedCategories()
-}
-
-// 获取相关分类
-const loadRelatedCategories = async () => {
-  try {
-    const response = await getCategoryList({ pageNum: 1, pageSize: 10 })
-    const categories = response.data || response.rows || []
-    relatedCategories.value = categories.filter(cat => cat.id !== currentCategoryId.value)
-  } catch (error) {
-    logger.error('获取相关分类失败:', error)
-  }
-}
-
-// 获取热门标签
-const loadPopularTags = async () => {
-  try {
-    const response = await getTagCloud()
-    popularTags.value = response.data || []
-  } catch (error) {
-    logger.error('获取热门标签失败:', error)
-  }
-}
-
-// 获取最新文章
-const loadRecentArticles = async () => {
-  try {
-    const response = await getArticleList({ pageNum: 1, pageSize: 8, status: 1 })
-    recentArticles.value = response.rows || []
-  } catch (error) {
-    logger.error('获取最新文章失败:', error)
-  }
 }
 
 // 加载更多文章
@@ -350,8 +309,6 @@ watch(
 // 组件挂载时加载数据
 onMounted(() => {
   loadSiteSettings()
-  loadPopularTags()
-  loadRecentArticles()
 })
 </script>
 
@@ -435,7 +392,7 @@ onMounted(() => {
 
 .category-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr);
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--mo-sp-8) var(--mo-sp-5);

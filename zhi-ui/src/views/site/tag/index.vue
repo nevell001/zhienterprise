@@ -95,8 +95,6 @@ import SitePager from '@/components/SitePager.vue'
 
 import { getArticlesByTag, getTagDetail } from '@/api/site/tag'
 
-import { getTagCloud } from '@/api/site/tag'
-
 import { getArticleList } from '@/api/site/article'
 
 import { getSiteSettingsAnonymous } from '@/api/site/setting'
@@ -137,12 +135,6 @@ const loading = ref(false)
 const loadingMore = ref(false)
 
 const currentTagId = ref(null)
-
-const relatedTags = ref([])
-
-const popularTags = ref([])
-
-const recentArticles = ref([])
 
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
 
@@ -245,37 +237,6 @@ const loadTagDetail = async (token: number) => {
   }
 }
 
-// 获取相关标签
-const loadRelatedTags = async () => {
-  try {
-    const response = await getTagCloud()
-    const tags = response.data || []
-    relatedTags.value = tags.filter(tag => tag.id !== currentTagId.value).slice(0, 12)
-  } catch (error) {
-    logger.error('获取相关标签失败:', error)
-  }
-}
-
-// 获取热门标签
-const loadPopularTags = async () => {
-  try {
-    const response = await getTagCloud()
-    popularTags.value = (response.data || []).slice(0, 10)
-  } catch (error) {
-    logger.error('获取热门标签失败:', error)
-  }
-}
-
-// 获取最新文章
-const loadRecentArticles = async () => {
-  try {
-    const response = await getArticleList({ pageNum: 1, pageSize: 8, status: 1 })
-    recentArticles.value = response.rows || []
-  } catch (error) {
-    logger.error('获取最新文章失败:', error)
-  }
-}
-
 // 加载更多文章
 const loadMoreArticles = () => {
   if (loadingMore.value || articleList.value.length >= total.value) return
@@ -349,7 +310,6 @@ watch(
       queryParams.pageNum = 1
       loadTagDetail(token)
       loadTagArticles(false, undefined, token)
-      loadRelatedTags()
     } else {
       // 没有标签ID，显示所有标签列表
       currentTagId.value = null
@@ -358,7 +318,6 @@ watch(
       tagName.value = '所有标签'
       tagDescription.value = '浏览所有标签下的文章'
       loadTagArticles(false, undefined, token)
-      loadRelatedTags()
     }
   },
   { immediate: true }
@@ -367,8 +326,6 @@ watch(
 // 组件挂载时加载数据
 onMounted(() => {
   loadSiteSettings()
-  loadPopularTags()
-  loadRecentArticles()
 })
 </script>
 
@@ -458,7 +415,7 @@ onMounted(() => {
 
 .tag-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr);
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--mo-sp-8) var(--mo-sp-5);
