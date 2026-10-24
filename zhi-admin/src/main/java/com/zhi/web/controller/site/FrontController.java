@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -292,12 +293,28 @@ public class FrontController extends BaseController
         return articleService.selectArticleBySlug(key);
     }
 
+    /** 访问明细允许记录的页面路径：详情接口被文章/核心业务/解决方案三个入口共用 */
+    private static final Pattern VISIT_PATH_PATTERN =
+        Pattern.compile("^/(article|business|solutions)/[A-Za-z0-9_-]{1,100}$");
+
+    /**
+     * 访问路径以调用方传入的实际页面为准（业务/方案详情复用同一详情接口）；
+     * 非法或缺失值回退为文章规范路径，避免任意字符串落进统计明细
+     */
+    private String resolveVisitPath(String pagePath, Long id) {
+        return pagePath != null && VISIT_PATH_PATTERN.matcher(pagePath).matches()
+            ? pagePath
+            : "/article/" + id;
+    }
+
     /**
      * 获取文章详情（前台用）
      */
     @Anonymous
     @GetMapping("/article/{key:[A-Za-z0-9_-]+}")
-    public AjaxResult getArticleDetail(@PathVariable("key") String key, HttpServletRequest request)
+    public AjaxResult getArticleDetail(@PathVariable("key") String key,
+        @RequestParam(value = "pagePath", required = false) String pagePath,
+        HttpServletRequest request)
     {
         logger.info("请求文章详情，key: {}", key);
 
@@ -354,7 +371,7 @@ public class FrontController extends BaseController
                 String viewerKey = buildViewerKey(request);
                 articleService.addViewCount(id, viewerKey);
                 // 文章访问同样写入 zhi_visit_log 明细，否则管理端文章 PV/UV 明细永远为空
-                visitLogService.recordVisit("article", id, "/article/" + id, viewerKey, request);
+                visitLogService.recordVisit("article", id, resolveVisitPath(pagePath, id), viewerKey, request);
                 logger.info("文章浏览量已增加，ID: {}", id);
             } else {
                 logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
@@ -577,7 +594,9 @@ public class FrontController extends BaseController
     @Anonymous
     @RateLimiter(key = "zhi:view:", time = 60, count = 10, limitType = LimitType.IP)
     @PostMapping("/article/view/{id}")
-    public AjaxResult addArticleView(@PathVariable("id") Long id, HttpServletRequest request)
+    public AjaxResult addArticleView(@PathVariable("id") Long id,
+        @RequestParam(value = "pagePath", required = false) String pagePath,
+        HttpServletRequest request)
     {
         // 检查浏览统计开关
         String viewCountEnabled = settingService.selectSettingValueByKey("view_count_enabled");
@@ -588,7 +607,7 @@ public class FrontController extends BaseController
         if (shouldCount) {
             String viewerKey = buildViewerKey(request);
             articleService.addViewCount(id, viewerKey);
-            visitLogService.recordVisit("article", id, "/article/" + id, viewerKey, request);
+            visitLogService.recordVisit("article", id, resolveVisitPath(pagePath, id), viewerKey, request);
             logger.info("文章浏览量已增加（API调用），ID: {}", id);
         } else {
             logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);

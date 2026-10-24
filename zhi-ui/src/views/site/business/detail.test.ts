@@ -201,7 +201,8 @@ describe('详情页相关推荐与返回行为', () => {
     await flushPromises()
 
     expect(router.currentRoute.value.path).toBe('/solutions/8')
-    expect(getArticleDetail).toHaveBeenLastCalledWith('8')
+    // 第二个参数是实际页面路径，供后端访问明细按真实入口记录
+    expect(getArticleDetail).toHaveBeenLastCalledWith('8', '/solutions/8')
     expect(wrapper.text()).toContain('金融数据治理')
     expect(wrapper.text()).not.toContain('制造业数字化')
   })

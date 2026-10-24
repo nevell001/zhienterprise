@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -474,6 +475,59 @@ class FrontControllerTest
 
         verify(articleService, never()).addViewCount(anyLong(), anyString());
         verify(visitLogService, never()).recordVisit(anyString(), anyLong(), anyString(), anyString(), any());
+    }
+
+    /**
+     * 业务/方案详情复用 /api/article/{key}：访问明细要记实际入口（/solutions/7），
+     * 否则统计里所有业务/方案访问都显示成 /article/7。
+     */
+    @Test
+    void articleDetailShouldRecordActualPagePath() throws Exception
+    {
+        when(articleService.selectArticleById(7L)).thenReturn(publishedArticle(7L));
+        when(settingService.selectSettingValueByKey("view_count_enabled")).thenReturn("true");
+
+        mockMvc.perform(get("/api/article/7").param("pagePath", "/solutions/7"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(visitLogService).recordVisit(eq("article"), eq(7L), eq("/solutions/7"), anyString(), any());
+    }
+
+    /** 非法/伪造 path 不得写入统计明细，回退为文章规范路径 */
+    @Test
+    void articleDetailShouldFallbackForInvalidPagePath() throws Exception
+    {
+        when(articleService.selectArticleById(7L)).thenReturn(publishedArticle(7L));
+        when(settingService.selectSettingValueByKey("view_count_enabled")).thenReturn("true");
+
+        mockMvc.perform(get("/api/article/7").param("pagePath", "/admin/system/user"))
+            .andExpect(status().isOk());
+
+        verify(visitLogService).recordVisit(eq("article"), eq(7L), eq("/article/7"), anyString(), any());
+    }
+
+    /** 旧的独立计数接口同样接受 pagePath（公开 API，仍可能有外部调用方） */
+    @Test
+    void articleViewEndpointShouldRecordActualPagePath() throws Exception
+    {
+        when(settingService.selectSettingValueByKey("view_count_enabled")).thenReturn("true");
+
+        mockMvc.perform(post("/api/article/view/7").param("pagePath", "/business/7"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(visitLogService).recordVisit(eq("article"), eq(7L), eq("/business/7"), anyString(), any());
+    }
+
+    private Article publishedArticle(Long id)
+    {
+        Article article = new Article();
+        article.setId(id);
+        article.setTitle("已发布内容");
+        article.setStatus(1L);
+        article.setDelFlag(0L);
+        return article;
     }
 
     /**

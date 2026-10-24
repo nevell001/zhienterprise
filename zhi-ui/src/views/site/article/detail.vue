@@ -420,9 +420,10 @@ const loadArticleDetail = async () => {
     }
 
     // 获取文章详情：预览路由走后台预览接口（跳过 status=1 门槛）
+    // 前台详情带上实际页面路径（支持 slug 伪静态），访问明细按真实入口记录
     const response = isPreview.value
       ? await getArticlePreview(articleKey)
-      : await getArticleDetail(articleKey)
+      : await getArticleDetail(articleKey, route.path)
     // 快速切换文章时，旧详情不能覆盖新详情
     if (!detailGuard.isLatest(detailToken)) return
 
@@ -504,6 +505,9 @@ const loadArticleDetail = async () => {
             })()
           }
         })
+      } else {
+        // 同一篇内容从前台切到预览（或反向）时，上一态的结构化数据不得残留
+        removeJsonLd('zh-jsonld-article')
       }
     } else {
       logger.error('未找到文章数据，响应数据:', response.data)
@@ -833,24 +837,25 @@ onMounted(() => {
   isLoggedIn.value = !!userStore.token
 })
 
-// 监听路由参数变化，当文章ID变化时重新加载，Vue 3 会自动清理
+// 监听路由参数与预览态变化，Vue 3 会自动清理；
+// /article/5 与 /preview/article/5 共用本组件，只比 id 会让预览态切换后内容不刷新
 watch(
-  () => route.params.id,
-  (newId, oldId) => {
-    if (newId && newId !== oldId && newId !== oldId?.toString()) {
-      // 滚动到顶部
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      // 重置文章数据
-      article.value = null
-      prevArticle.value = null
-      nextArticle.value = null
-      relatedArticles.value = []
-      commentList.value = []
-      totalComments.value = 0
-      commentPage.value = 1
-      // 重新加载文章详情（内部会重新拉取评论）
-      loadArticleDetail()
-    }
+  () => [String(route.params.id || ''), isPreview.value] as const,
+  ([newId, preview], [oldId, oldPreview]) => {
+    if (!newId) return
+    if (newId === oldId && preview === oldPreview) return
+    // 滚动到顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    // 重置文章数据
+    article.value = null
+    prevArticle.value = null
+    nextArticle.value = null
+    relatedArticles.value = []
+    commentList.value = []
+    totalComments.value = 0
+    commentPage.value = 1
+    // 重新加载文章详情（内部会重新拉取评论）
+    loadArticleDetail()
   },
   { immediate: false }
 )

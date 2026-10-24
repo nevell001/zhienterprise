@@ -37,11 +37,16 @@ export function getHotArticles(query?: ArticleParams): Promise<QueryResult<Artic
 /**
  * 获取文章详情（前台用，包含完整内容和上下篇文章信息）
  * @param key 数字 ID 或 slug 伪静态别名，由后端统一解析
+ * @param pagePath 实际访问路径（业务/方案详情复用本接口），仅用于访问明细统计
  */
-export function getArticleDetail(key: number | string): Promise<DataResult<ArticleDetailResponse>> {
+export function getArticleDetail(
+  key: number | string,
+  pagePath?: string
+): Promise<DataResult<ArticleDetailResponse>> {
   return request({
     url: '/api/article/' + key,
     method: 'get',
+    params: pagePath ? { pagePath } : undefined,
     headers: { isToken: false }
   })
 }

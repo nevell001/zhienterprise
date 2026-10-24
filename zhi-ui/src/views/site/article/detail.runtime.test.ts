@@ -4,7 +4,7 @@ import { createPinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import ArticleDetail from './detail.vue'
 import { applySeo } from '@/utils/seo'
-import { setJsonLd } from '@/utils/jsonld'
+import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 
 /**
  * 文章详情页评论行为测试（挂载真实组件）。
@@ -469,5 +469,49 @@ describe('未发布文章站点预览', () => {
     )
     // 面包屑结构化数据仍由 SiteBreadcrumb 输出，但文章主体不得向搜索引擎声明
     expect(setJsonLd).not.toHaveBeenCalledWith('zh-jsonld-article', expect.anything())
+  })
+
+  it('同一 id 从前台切到预览路由时重新加载并清理文章结构化数据', async () => {
+    vi.clearAllMocks()
+    getArticleDetail.mockResolvedValue({
+      code: 200,
+      data: {
+        article: {
+          id: 1,
+          title: '前台已发布文章',
+          content: '<p>已发布正文</p>',
+          status: 1,
+          createTime: '2026-01-01 10:00:00'
+        },
+        extraInfo: {}
+      }
+    })
+    getRelatedArticles.mockResolvedValue({ data: [] })
+    getArticlePreview.mockResolvedValue({
+      code: 200,
+      data: {
+        article: {
+          id: 1,
+          title: '未发布草稿',
+          content: '<p>草稿正文</p>',
+          status: 0,
+          createTime: '2026-01-01 10:00:00'
+        },
+        extraInfo: {}
+      }
+    })
+
+    const wrapper = await mountDetail('/article/1')
+    await flushPromises()
+    expect(wrapper.text()).toContain('前台已发布文章')
+
+    // 同 id、仅路由形态变化（前台 → 后台预览），组件实例被复用
+    await (wrapper.vm as any).$router.push('/preview/article/1')
+    await flushPromises()
+
+    expect(getArticlePreview).toHaveBeenCalledWith('1')
+    expect(wrapper.text()).toContain('未发布草稿')
+    expect(wrapper.text()).not.toContain('前台已发布文章')
+    expect(removeJsonLd).toHaveBeenCalledWith('zh-jsonld-article')
   })
 })

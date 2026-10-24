@@ -236,8 +236,11 @@ const loadDetail = async (key: string) => {
   loading.value = true
   const detailToken = detailGuard.next()
   try {
-    // 预览路由走后台预览接口（跳过 status=1 门槛，不增加浏览量）
-    const response = isPreview.value ? await getArticlePreview(key) : await getArticleDetail(key)
+    // 预览路由走后台预览接口（跳过 status=1 门槛，不增加浏览量）；
+    // 前台详情带上实际页面路径，访问明细才不会把业务/方案都记成 /article/{id}
+    const response = isPreview.value
+      ? await getArticlePreview(key)
+      : await getArticleDetail(key, route.path)
     if (!detailGuard.isLatest(detailToken)) return
     if (response && response.code === 200 && response.data?.article) {
       article.value = response.data.article
