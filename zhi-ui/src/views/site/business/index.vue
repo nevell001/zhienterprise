@@ -337,7 +337,22 @@ const thumbStyle = (id?: number) => ({
       : 'linear-gradient(135deg, var(--tpl-p-h), var(--tpl-dark))'
 })
 
-const goItem = (id?: number) => id && router.push(`/business/${id}`)
+// 进入详情时携带筛选 query，详情页「返回」与面包屑才能复原当前分类（方案文档 §3.2）
+const goItem = (id?: number) =>
+  id && router.push({ path: `/business/${id}`, query: { ...route.query } })
+
+// URL → 筛选：同一路由内 query 变化（导航/页脚入口、手改地址、前进后退）也要复原筛选
+watch(
+  () => route.query.cat,
+  () => {
+    const prev = activeCatId.value
+    initCatFromRoute()
+    if (activeCatId.value !== prev) {
+      page.value = 1
+      load()
+    }
+  }
+)
 </script>
 
 <style scoped>

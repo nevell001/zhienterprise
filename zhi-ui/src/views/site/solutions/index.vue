@@ -189,6 +189,22 @@ watch([activeIndustry, activeScenarios], () => {
   router.replace({ query })
 })
 
+// URL → 筛选：同一路由内 query 变化（页脚入口、手改地址、前进后退）也要复原筛选
+watch(
+  () => [route.query.industry, route.query.scenario],
+  () => {
+    const industry =
+      typeof route.query.industry === 'string' && route.query.industry
+        ? route.query.industry
+        : '全部'
+    const scenarios = parseScenariosQuery(route.query.scenario)
+    if (industry !== activeIndustry.value) activeIndustry.value = industry
+    if (scenarios.join(',') !== activeScenarios.value.join(',')) activeScenarios.value = scenarios
+    // 数据已就绪时立刻收敛非法值（首次加载由 load() 内的 normalizeFilters 负责）
+    if (!loading.value && allSolutions.value.length) normalizeFilters()
+  }
+)
+
 const clearFilters = () => {
   activeIndustry.value = '全部'
   activeScenarios.value = []

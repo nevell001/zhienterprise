@@ -100,3 +100,33 @@ describe('核心业务列表的案例入口', () => {
     expect(router.currentRoute.value.path).toBe('/business/2')
   })
 })
+
+describe('分类筛选与 URL 双向同步', () => {
+  beforeEach(() => {
+    getCategoryList.mockResolvedValue({
+      code: 200,
+      data: [{ id: 3, name: '运维服务', alias: 'ops' }]
+    })
+  })
+
+  it('筛选后点击卡片进入详情携带筛选 query（返回可复原）', async () => {
+    const { wrapper, router } = await mountList('/business?cat=ops')
+
+    await wrapper.findAll('.biz-card')[0].trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/business/1')
+    expect(router.currentRoute.value.query.cat).toBe('ops')
+  })
+
+  it('同一路由内 query 变化时同步分类筛选并重新加载', async () => {
+    const { wrapper, router } = await mountList()
+
+    await router.replace({ path: '/business', query: { cat: 'ops' } })
+    await flushPromises()
+
+    expect(wrapper.find('.biz-tabs .tag.on').text()).toBe('运维服务')
+    expect(getArticleList).toHaveBeenLastCalledWith(
+      expect.objectContaining({ categoryId: 3, pageNum: 1 })
+    )
+  })
+})

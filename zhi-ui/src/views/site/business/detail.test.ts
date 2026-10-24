@@ -35,7 +35,7 @@ vi.mock('@/utils/jsonld', () => ({
 
 const stubs = {
   SiteLayout: { template: '<div class="layout-stub"><slot /></div>' },
-  SiteBreadcrumb: { template: '<div class="crumb-stub" />' },
+  SiteBreadcrumb: { props: ['items'], template: '<div class="crumb-stub" />' },
   'el-empty': {
     props: ['description'],
     template: '<div class="empty-stub">{{ description }}</div>'
@@ -215,6 +215,18 @@ describe('详情页相关推荐与返回行为', () => {
     await flushPromises()
     expect(router.currentRoute.value.path).toBe('/solutions')
     expect(router.currentRoute.value.query.industry).toBe('金融')
+  })
+
+  it('面包屑栏目链接带上筛选 query（移动端返回同样可复原）', async () => {
+    getArticleDetail.mockResolvedValue({ code: 200, data: { article: articleOf() } })
+    getArticleList.mockResolvedValue({ code: 200, rows: [] })
+    const { wrapper } = await mountDetail('/solutions/7?industry=金融')
+
+    const items = wrapper.findComponent('.crumb-stub').props('items') as Array<{
+      label: string
+      to?: string
+    }>
+    expect(decodeURIComponent(String(items[1].to))).toBe('/solutions?industry=金融')
   })
 })
 

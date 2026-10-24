@@ -212,10 +212,15 @@ const goItem = (id?: number) =>
 const rootEl = ref<HTMLElement | null>(null)
 useScrollReveal(rootEl)
 
+// 栏目链接带上进入时的筛选 query：面包屑（含移动端返回）也能复原筛选
+const listPathWithQuery = computed(
+  () => router.resolve({ path: listPath.value, query: { ...route.query } }).fullPath
+)
+
 // 面包屑链路（≤3 级）：首页 → 业务栏目 → 当前条目
 const breadcrumbItems = computed(() => [
   { label: '首页', to: '/' },
-  { label: sectionLabel.value, to: listPath.value },
+  { label: sectionLabel.value, to: listPathWithQuery.value },
   { label: article.value?.title || '详情' }
 ])
 

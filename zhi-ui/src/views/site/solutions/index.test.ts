@@ -125,6 +125,16 @@ describe('方案列表页筛选与 URL 同步', () => {
     expect(router.currentRoute.value.query.scenario).toBe('降本增效')
   })
 
+  it('同一路由内 query 变化（页脚入口/手改地址）同步筛选', async () => {
+    const { wrapper, router } = await mountList()
+
+    await router.replace({ path: '/solutions', query: { industry: '零售' } })
+    await flushPromises()
+
+    expect(cardTitles(wrapper)).toEqual(['零售全渠道'])
+    expect(wrapper.find('.sol-tabs .tag.on').text()).toBe('零售')
+  })
+
   it('URL 中不存在的数据值收敛为全部并清空 query', async () => {
     const { wrapper, router } = await mountList('/solutions?industry=不存在&scenario=不存在场景')
     expect(cardTitles(wrapper)).toHaveLength(3)
