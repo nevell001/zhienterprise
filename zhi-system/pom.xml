@@ -112,7 +112,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-observation</artifactId>
-            <version>1.17.1</version>
+            <version>1.17.2</version>
         </dependency>
         <!-- Micrometer Context Propagation (运行时依赖) -->
         <dependency>
