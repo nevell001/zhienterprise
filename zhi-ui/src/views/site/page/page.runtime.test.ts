@@ -11,13 +11,23 @@ import SiteLayout from '@/components/SiteLayout.vue'
  * 这两行 import"，无法证明渲染结果真的被消毒。这里挂载组件并断言 DOM。
  */
 const getPublishedPageBySlug = vi.fn()
+const getPagePreview = vi.fn()
+const routeState = vi.hoisted(() => ({
+  params: { slug: 'about-me' } as Record<string, string>,
+  meta: {} as Record<string, unknown>
+}))
 
 vi.mock('@/api/site/page', () => ({
-  getPublishedPageBySlug: (...args: unknown[]) => getPublishedPageBySlug(...args)
+  getPublishedPageBySlug: (...args: unknown[]) => getPublishedPageBySlug(...args),
+  getPagePreview: (...args: unknown[]) => getPagePreview(...args)
 }))
 
 vi.mock('vue-router', () => ({
-  useRoute: () => ({ params: { slug: 'about-me' }, query: {}, path: '/page/about-me' }),
+  useRoute: () => ({
+    ...routeState,
+    query: {},
+    path: '/page/about-me'
+  }),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() })
 }))
 
@@ -43,6 +53,8 @@ function mountPage() {
 describe('自定义页面（行为）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    routeState.params = { slug: 'about-me' }
+    routeState.meta = {}
   })
 
   it('按 slug 拉取内容并渲染在 SiteLayout 内', async () => {
@@ -57,6 +69,23 @@ describe('自定义页面（行为）', () => {
     expect(getPublishedPageBySlug).toHaveBeenCalledWith('about-me', { silent: true })
     expect(wrapper.findComponent(SiteLayout).exists()).toBe(true)
     expect(wrapper.text()).toContain('关于我')
+  })
+
+  it('预览路由走后台预览接口，可渲染草稿且不调用公开接口', async () => {
+    routeState.params = { id: '9' }
+    routeState.meta = { preview: true }
+    getPagePreview.mockResolvedValue({
+      code: 200,
+      data: { id: 9, title: '草稿页面', slug: 'draft-page', content: '## 预览内容' }
+    })
+
+    const wrapper = mountPage()
+    await flushPromises()
+
+    expect(getPagePreview).toHaveBeenCalledWith('9')
+    expect(getPublishedPageBySlug).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('草稿页面')
+    expect(wrapper.text()).toContain('预览模式')
   })
 
   it('Markdown 内容被渲染成 HTML', async () => {

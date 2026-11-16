@@ -142,13 +142,14 @@ describe('Site Routes 详细测试', () => {
     expect(previews.map(r => r.path).sort()).toEqual([
       '/preview/article/:id',
       '/preview/business/:id',
+      '/preview/page/:id',
       '/preview/solution/:id'
     ])
     expect(previews.every(r => r.path.startsWith('/preview/'))).toBe(true)
   })
 
-  it('路由总数应该为 25 个', () => {
-    expect(siteRoutes.length).toBe(25)
+  it('路由总数应该为 26 个', () => {
+    expect(siteRoutes.length).toBe(26)
   })
 
   it('不再存在任何 /blog 前缀的页面路由（短路径为唯一规范）', () => {

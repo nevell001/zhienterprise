@@ -122,4 +122,33 @@ describe('Page API 测试', () => {
       })
     })
   })
+
+  describe('schedulePage', () => {
+    it('应该调用定时发布接口', () => {
+      pageApi.schedulePage(123, '2099-01-01 00:00:00')
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/page/schedule/123',
+        method: 'put',
+        params: { publishTime: '2099-01-01 00:00:00' }
+      })
+    })
+  })
+
+  describe('restorePage / purgePage', () => {
+    it('应该调用恢复接口', () => {
+      pageApi.restorePage([1, 2])
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/page/restore/1,2',
+        method: 'put'
+      })
+    })
+
+    it('应该调用彻底删除接口', () => {
+      pageApi.purgePage(3)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/page/purge/3',
+        method: 'delete'
+      })
+    })
+  })
 })

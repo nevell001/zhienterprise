@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import type { App } from 'vue'
 import { createPinia } from 'pinia'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import PageManage from './index.vue'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 
@@ -18,7 +19,10 @@ const {
   addPage,
   updatePage,
   changePageStatus,
+  schedulePage,
   delPage,
+  restorePage,
+  purgePage,
   listNav,
   addNav,
   delNav,
@@ -29,7 +33,10 @@ const {
   addPage: vi.fn(),
   updatePage: vi.fn(),
   changePageStatus: vi.fn(),
+  schedulePage: vi.fn(),
   delPage: vi.fn(),
+  restorePage: vi.fn(),
+  purgePage: vi.fn(),
   listNav: vi.fn(),
   addNav: vi.fn(),
   delNav: vi.fn(),
@@ -42,7 +49,10 @@ vi.mock('@/api/admin/page', () => ({
   addPage: (...args: unknown[]) => addPage(...args),
   updatePage: (...args: unknown[]) => updatePage(...args),
   changePageStatus: (...args: unknown[]) => changePageStatus(...args),
-  delPage: (...args: unknown[]) => delPage(...args)
+  schedulePage: (...args: unknown[]) => schedulePage(...args),
+  delPage: (...args: unknown[]) => delPage(...args),
+  restorePage: (...args: unknown[]) => restorePage(...args),
+  purgePage: (...args: unknown[]) => purgePage(...args)
 }))
 
 vi.mock('@/api/admin/nav', () => ({
@@ -138,10 +148,17 @@ type PageVm = {
 
 function mountView(options?: { onError?: (err: unknown) => void }) {
   const pinia = createPinia()
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', component: { template: '<div />' } },
+      { path: '/preview/page/:id', name: 'AdminPagePreview', component: { template: '<div />' } }
+    ]
+  })
   const wrapper = mount(PageManage, {
     global: {
       config: options?.onError ? { errorHandler: options.onError } : {},
-      plugins: [pinia, globalPropertiesPlugin],
+      plugins: [pinia, router, globalPropertiesPlugin],
       directives: {
         hasPermi: {},
         loading: {}
@@ -169,6 +186,7 @@ function mountView(options?: { onError?: (err: unknown) => void }) {
         'el-radio': { template: '<label><slot /></label>' },
         'el-radio-button': { template: '<label><slot /></label>' },
         'el-input-number': { props: ['modelValue'], template: '<input type="number" />' },
+        'el-date-picker': { props: ['modelValue'], template: '<input />' },
         'el-tooltip': { template: '<span><slot /></span>' },
         'el-dropdown': { template: '<div><slot /></div>' },
         'el-dropdown-menu': { template: '<div><slot /></div>' },

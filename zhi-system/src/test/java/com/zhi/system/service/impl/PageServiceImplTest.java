@@ -161,6 +161,30 @@ class PageServiceImplTest {
     }
 
     @Test
+    void testInsertPageRejectsIllegalStatus() {
+        Page page = new Page();
+        page.setTitle("标题");
+        page.setSlug("slug-only");
+        page.setStatus("5");
+
+        ServiceException exception = assertThrows(ServiceException.class, () -> pageService.insertPage(page));
+
+        assertEquals("页面状态不合法", exception.getMessage());
+    }
+
+    @Test
+    void testInsertPageRejectsScheduledWithoutPublishTime() {
+        Page page = new Page();
+        page.setTitle("标题");
+        page.setSlug("slug-only");
+        page.setStatus("2");
+
+        ServiceException exception = assertThrows(ServiceException.class, () -> pageService.insertPage(page));
+
+        assertEquals("请选择定时发布时间", exception.getMessage());
+    }
+
+    @Test
     void testInsertPageRejectsDuplicateSlug() {
         Page exist = new Page();
         exist.setId(9L);
@@ -258,6 +282,92 @@ class PageServiceImplTest {
             () -> pageService.changePageStatus(1L, "5"));
 
         assertEquals("页面状态不合法", exception.getMessage());
+    }
+
+    @Test
+    void testSchedulePageAcceptsFutureTime() {
+        when(pageMapper.schedulePage(eq(1L), any(java.util.Date.class))).thenReturn(1);
+
+        assertEquals(1, pageService.schedulePage(1L, "2099-01-01 00:00:00"));
+        verify(pageMapper).schedulePage(eq(1L), any(java.util.Date.class));
+    }
+
+    @Test
+    void testSchedulePageRejectsPastTime() {
+        ServiceException exception = assertThrows(ServiceException.class,
+            () -> pageService.schedulePage(1L, "2000-01-01 00:00:00"));
+
+        assertEquals("定时发布时间必须晚于当前时间", exception.getMessage());
+        verify(pageMapper, never()).schedulePage(anyLong(), any(java.util.Date.class));
+    }
+
+    @Test
+    void testSchedulePageRejectsInvalidTime() {
+        ServiceException exception = assertThrows(ServiceException.class,
+            () -> pageService.schedulePage(1L, "not-a-date"));
+
+        assertEquals("定时发布时间格式不正确", exception.getMessage());
+    }
+
+    @Test
+    void testPublishScheduledPages() {
+        when(pageMapper.publishScheduledPages()).thenReturn(2);
+
+        assertEquals(2, pageService.publishScheduledPages());
+    }
+
+    @Test
+    void testRestorePageRejectsSlugConflict() {
+        Page deleted = new Page();
+        deleted.setId(1L);
+        deleted.setSlug("__deleted_1_about");
+        deleted.setDeletedSlug("about");
+        deleted.setDelFlag("1");
+        when(pageMapper.selectPageByIdIncludingDeleted(1L)).thenReturn(deleted);
+
+        Page conflict = new Page();
+        conflict.setId(2L);
+        conflict.setSlug("about");
+        when(pageMapper.checkSlugUnique("about")).thenReturn(conflict);
+
+        ServiceException exception = assertThrows(ServiceException.class,
+            () -> pageService.restorePageByIds(new Long[] { 1L }));
+
+        assertTrue(exception.getMessage().contains("页面别名已被占用"));
+        verify(pageMapper, never()).restorePageByIds(any(Long[].class));
+    }
+
+    @Test
+    void testRestorePageWhenSlugIsFree() {
+        Page deleted = new Page();
+        deleted.setId(1L);
+        deleted.setSlug("__deleted_1_about");
+        deleted.setDeletedSlug("about");
+        deleted.setDelFlag("1");
+        when(pageMapper.selectPageByIdIncludingDeleted(1L)).thenReturn(deleted);
+        when(pageMapper.checkSlugUnique("about")).thenReturn(null);
+        when(pageMapper.restorePageByIds(any(Long[].class))).thenReturn(1);
+
+        assertEquals(1, pageService.restorePageByIds(new Long[] { 1L }));
+        verify(pageMapper).restorePageByIds(new Long[] { 1L });
+    }
+
+    @Test
+    void testRestorePageRejectsMissingPage() {
+        when(pageMapper.selectPageByIdIncludingDeleted(1L)).thenReturn(null);
+
+        ServiceException exception = assertThrows(ServiceException.class,
+            () -> pageService.restorePageByIds(new Long[] { 1L }));
+
+        assertTrue(exception.getMessage().contains("不在回收站"));
+    }
+
+    @Test
+    void testPurgePageByIds() {
+        Long[] ids = { 1L, 2L };
+        when(pageMapper.purgePageByIds(ids)).thenReturn(2);
+
+        assertEquals(2, pageService.purgePageByIds(ids));
     }
 
     @Test

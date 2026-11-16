@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Log;
 import com.zhi.common.core.controller.BaseController;
@@ -70,6 +71,25 @@ public class PageController extends BaseController
     }
 
     /**
+     * 预览页面（草稿 / 定时 / 已发布均可，含回收站拒绝）
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:page:query')")
+    @GetMapping(value = "/preview/{id}")
+    public AjaxResult preview(@PathVariable("id") Long id)
+    {
+        Page page = pageService.selectPageById(id);
+        if (page == null)
+        {
+            return error("页面不存在或已删除");
+        }
+        if (page.getViewCount() == null)
+        {
+            page.setViewCount(0L);
+        }
+        return success(page);
+    }
+
+    /**
      * 新增页面
      */
     @PreAuthorize("@ss.hasPermi('zhi:page:add')")
@@ -100,6 +120,40 @@ public class PageController extends BaseController
     public AjaxResult changeStatus(@PathVariable("id") Long id, @PathVariable("status") String status)
     {
         return toAjax(pageService.changePageStatus(id, status));
+    }
+
+    /**
+     * 设置页面定时发布
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:page:edit')")
+    @Log(title = "页面管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/schedule/{id}")
+    public AjaxResult schedule(@PathVariable("id") Long id,
+        @RequestParam("publishTime") String publishTime)
+    {
+        return toAjax(pageService.schedulePage(id, publishTime));
+    }
+
+    /**
+     * 从回收站恢复页面
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:page:edit')")
+    @Log(title = "页面管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/restore/{ids}")
+    public AjaxResult restore(@PathVariable("ids") Long[] ids)
+    {
+        return toAjax(pageService.restorePageByIds(ids));
+    }
+
+    /**
+     * 彻底删除回收站中的页面
+     */
+    @PreAuthorize("@ss.hasPermi('zhi:page:remove')")
+    @Log(title = "页面管理", businessType = BusinessType.DELETE)
+    @DeleteMapping("/purge/{ids}")
+    public AjaxResult purge(@PathVariable("ids") Long[] ids)
+    {
+        return toAjax(pageService.purgePageByIds(ids));
     }
 
     /**

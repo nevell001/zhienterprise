@@ -2,6 +2,7 @@ package com.zhi.system.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhi.common.annotation.Excel;
 import com.zhi.common.core.domain.BaseEntity;
 
@@ -26,6 +27,9 @@ public class Page extends BaseEntity
     @Excel(name = "页面别名")
     private String slug;
 
+    /** 删除前别名（回收站恢复用；删除时 slug 会被改名为内部占位值） */
+    private String deletedSlug;
+
     /** 页面摘要 */
     @Excel(name = "页面摘要")
     private String summary;
@@ -33,9 +37,13 @@ public class Page extends BaseEntity
     /** 页面内容（Markdown） */
     private String content;
 
-    /** 状态（0草稿 1已发布） */
-    @Excel(name = "状态", readConverterExp = "0=草稿,1=已发布")
+    /** 状态（0草稿 1已发布 2定时发布） */
+    @Excel(name = "状态", readConverterExp = "0=草稿,1=已发布,2=定时发布")
     private String status;
+
+    /** 定时发布时间（status=2 时生效） */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private java.util.Date publishTime;
 
     /** 是否在导航显示（0否 1是） */
     @Excel(name = "导航显示", readConverterExp = "0=否,1=是")
@@ -97,6 +105,16 @@ public class Page extends BaseEntity
         return slug;
     }
 
+    public void setDeletedSlug(String deletedSlug)
+    {
+        this.deletedSlug = deletedSlug;
+    }
+
+    public String getDeletedSlug()
+    {
+        return deletedSlug;
+    }
+
     public void setSummary(String summary) 
     {
         this.summary = summary;
@@ -125,6 +143,16 @@ public class Page extends BaseEntity
     public String getStatus() 
     {
         return status;
+    }
+
+    public void setPublishTime(java.util.Date publishTime)
+    {
+        this.publishTime = publishTime;
+    }
+
+    public java.util.Date getPublishTime()
+    {
+        return publishTime;
     }
 
     public void setShowInNav(String showInNav) 
@@ -223,8 +251,10 @@ public class Page extends BaseEntity
             .append("id", getId())
             .append("title", getTitle())
             .append("slug", getSlug())
+            .append("deletedSlug", getDeletedSlug())
             .append("summary", getSummary())
             .append("status", getStatus())
+            .append("publishTime", getPublishTime())
             .append("showInNav", getShowInNav())
             .append("sort", getSort())
             .append("viewCount", getViewCount())

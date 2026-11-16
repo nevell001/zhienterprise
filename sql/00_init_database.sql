@@ -775,11 +775,13 @@ CREATE TABLE IF NOT EXISTS `zhi_page` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `title` varchar(100) NOT NULL COMMENT '页面标题',
   `slug` varchar(100) NOT NULL COMMENT '页面别名（用于前台 URL）',
+  `deleted_slug` varchar(100) DEFAULT NULL COMMENT '删除前别名（回收站恢复用）',
   `summary` varchar(255) DEFAULT NULL COMMENT '页面摘要',
   `content` longtext COMMENT '页面内容（Markdown，richtext 页）',
   `page_type` varchar(20) NOT NULL DEFAULT 'richtext' COMMENT '页面类型：richtext 富文本页 builder 模块组装页',
   `sections` json DEFAULT NULL COMMENT '模块列表（builder 页）：[{type,config,visible}]，顺序即渲染顺序',
-  `status` tinyint DEFAULT '0' COMMENT '状态 0草稿 1已发布',
+  `status` tinyint DEFAULT '0' COMMENT '状态 0草稿 1已发布 2定时发布',
+  `publish_time` datetime DEFAULT NULL COMMENT '定时发布时间（status=2 时生效）',
   `show_in_nav` tinyint DEFAULT '1' COMMENT '是否在导航显示 0否 1是',
   `sort` int DEFAULT '0' COMMENT '排序',
   `view_count` bigint DEFAULT '0' COMMENT '浏览次数',
@@ -2743,6 +2745,25 @@ SET @add_page_sections := IF(@has_page_sections = 0,
 PREPARE add_page_sections_stmt FROM @add_page_sections;
 EXECUTE add_page_sections_stmt;
 DEALLOCATE PREPARE add_page_sections_stmt;
+
+-- 老库升级：页面回收站与定时发布（幂等）
+SET @has_page_deleted_slug := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_page' AND COLUMN_NAME = 'deleted_slug');
+SET @add_page_deleted_slug := IF(@has_page_deleted_slug = 0,
+    'ALTER TABLE `zhi_page` ADD COLUMN `deleted_slug` varchar(100) DEFAULT NULL COMMENT ''删除前别名（回收站恢复用）'' AFTER `slug`',
+    'SELECT 1');
+PREPARE add_page_deleted_slug_stmt FROM @add_page_deleted_slug;
+EXECUTE add_page_deleted_slug_stmt;
+DEALLOCATE PREPARE add_page_deleted_slug_stmt;
+
+SET @has_page_publish_time := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'zhi_page' AND COLUMN_NAME = 'publish_time');
+SET @add_page_publish_time := IF(@has_page_publish_time = 0,
+    'ALTER TABLE `zhi_page` ADD COLUMN `publish_time` datetime DEFAULT NULL COMMENT ''定时发布时间（status=2 时生效）'' AFTER `status`',
+    'SELECT 1');
+PREPARE add_page_publish_time_stmt FROM @add_page_publish_time;
+EXECUTE add_page_publish_time_stmt;
+DEALLOCATE PREPARE add_page_publish_time_stmt;
 
 -- 模块化建站：首页 builder 页（slug=home）。
 -- 幂等：依赖 slug 唯一键；删除后不自动重建（管理员有意为之）。

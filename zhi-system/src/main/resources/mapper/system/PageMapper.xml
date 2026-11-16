@@ -8,9 +8,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="id"    column="id"    />
         <result property="title"    column="title"    />
         <result property="slug"    column="slug"    />
+        <result property="deletedSlug"    column="deleted_slug"    />
         <result property="summary"    column="summary"    />
         <result property="content"    column="content"    />
         <result property="status"    column="status"    />
+        <result property="publishTime"    column="publish_time"    />
         <result property="showInNav"    column="show_in_nav"    />
         <result property="sort"    column="sort"    />
         <result property="viewCount"    column="view_count"    />
@@ -27,14 +29,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPageVo">
-        select id, title, slug, summary, content, page_type, sections, status, show_in_nav, sort, view_count,
+        select id, title, slug, deleted_slug, summary, content, page_type, sections, status, publish_time, show_in_nav, sort, view_count,
                seo_title, seo_keywords, seo_description,
                create_by, create_time, update_by, update_time, del_flag
         from zhi_page
     </sql>
 
     <sql id="selectPageBriefVo">
-        select id, title, slug, summary, status, show_in_nav, sort, view_count,
+        select id, title, slug, deleted_slug, summary, status, publish_time, show_in_nav, sort, view_count,
                create_by, create_time, update_by, update_time, del_flag
         from zhi_page
     </sql>
@@ -45,7 +47,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="title != null and title != ''"> and title like concat('%', #{title}, '%')</if>
             <if test="slug != null and slug != ''"> and slug like concat('%', #{slug}, '%')</if>
             <if test="status != null and status != ''"> and status = #{status}</if>
-            and del_flag = '0'
+            <choose>
+                <when test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag}</when>
+                <otherwise> and del_flag = '0'</otherwise>
+            </choose>
         </where>
         order by sort asc, id desc
     </select>
@@ -59,6 +64,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectPageById" parameterType="Long" resultMap="PageResult">
         <include refid="selectPageVo"/>
         where id = #{id} and del_flag = '0'
+    </select>
+
+    <select id="selectPageByIdIncludingDeleted" parameterType="Long" resultMap="PageResult">
+        <include refid="selectPageVo"/>
+        where id = #{id}
     </select>
 
     <select id="selectPageBySlug" parameterType="String" resultMap="PageResult">
@@ -83,6 +93,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="pageType != null and pageType != ''">page_type,</if>
             <if test="sections != null">sections,</if>
             <if test="status != null">status,</if>
+            <if test="publishTime != null">publish_time,</if>
             <if test="showInNav != null">show_in_nav,</if>
             <if test="sort != null">sort,</if>
             <if test="viewCount != null">view_count,</if>
@@ -103,6 +114,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="pageType != null and pageType != ''">#{pageType},</if>
             <if test="sections != null">#{sections},</if>
             <if test="status != null">#{status},</if>
+            <if test="publishTime != null">#{publishTime},</if>
             <if test="showInNav != null">#{showInNav},</if>
             <if test="sort != null">#{sort},</if>
             <if test="viewCount != null">#{viewCount},</if>
@@ -127,6 +139,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="pageType != null and pageType != ''">page_type = #{pageType},</if>
             <if test="sections != null">sections = #{sections},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test='status != null and status != "2"'>publish_time = NULL,</if>
             <if test="showInNav != null">show_in_nav = #{showInNav},</if>
             <if test="sort != null">sort = #{sort},</if>
             <if test="seoTitle != null">seo_title = #{seoTitle},</if>
@@ -143,15 +157,57 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePageById" parameterType="Long">
-        update zhi_page set del_flag = '1' where id = #{id}
+        update zhi_page
+        set deleted_slug = slug,
+            slug = concat('__deleted_', id, '_', left(slug, 60)),
+            del_flag = '1',
+            update_time = now()
+        where id = #{id} and del_flag = '0'
     </delete>
 
     <delete id="deletePageByIds" parameterType="String">
-        update zhi_page set del_flag = '1' where id in
+        update zhi_page
+        set deleted_slug = slug,
+            slug = concat('__deleted_', id, '_', left(slug, 60)),
+            del_flag = '1',
+            update_time = now()
+        where del_flag = '0' and id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+
+    <update id="restorePageByIds" parameterType="String">
+        update zhi_page
+        set del_flag = '0',
+            slug = coalesce(deleted_slug, slug),
+            deleted_slug = null,
+            update_time = now()
+        where del_flag = '1' and id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="purgePageByIds" parameterType="String">
+        delete from zhi_page
+        where del_flag = '1' and id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="schedulePage">
+        update zhi_page
+        set status = '2', publish_time = #{publishTime}, update_time = now()
+        where id = #{id} and del_flag = '0'
+    </update>
+
+    <update id="publishScheduledPages">
+        update zhi_page
+        set status = '1', publish_time = null, update_time = now()
+        where status = '2' and publish_time is not null and publish_time &lt;= now() and del_flag = '0'
+    </update>
 
     <!-- 媒体库引用检查：富文本正文与 builder 区块配置都可能引用上传文件 -->
     <select id="selectMediaReferences" resultType="MediaReference">

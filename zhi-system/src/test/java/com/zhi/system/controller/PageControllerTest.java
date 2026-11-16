@@ -1,6 +1,7 @@
 package com.zhi.system.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zhi.common.utils.DateUtils;
 import com.zhi.system.domain.Page;
 import com.zhi.system.service.IPageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,6 +105,23 @@ class PageControllerTest {
     }
 
     @Test
+    void testEditAcceptsScheduledPublishTime() throws Exception {
+        when(pageService.updatePage(any(Page.class))).thenReturn(1);
+
+        Page page = buildPage();
+        page.setStatus("2");
+        page.setPublishTime(DateUtils.parseDate("2099-01-01 00:00:00"));
+
+        mockMvc.perform(put("/system/page")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(page)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(pageService).updatePage(any(Page.class));
+    }
+
+    @Test
     void testChangeStatus() throws Exception {
         when(pageService.changePageStatus(eq(1L), eq("1"))).thenReturn(1);
 
@@ -123,5 +141,48 @@ class PageControllerTest {
             .andExpect(jsonPath("$.code").value(200));
 
         verify(pageService).deletePageByIds(any(Long[].class));
+    }
+
+    @Test
+    void testPreview() throws Exception {
+        when(pageService.selectPageById(1L)).thenReturn(buildPage());
+
+        mockMvc.perform(get("/system/page/preview/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.slug").value("about-site"));
+    }
+
+    @Test
+    void testSchedule() throws Exception {
+        when(pageService.schedulePage(eq(1L), eq("2099-01-01 00:00:00"))).thenReturn(1);
+
+        mockMvc.perform(put("/system/page/schedule/1")
+                .param("publishTime", "2099-01-01 00:00:00"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(pageService).schedulePage(1L, "2099-01-01 00:00:00");
+    }
+
+    @Test
+    void testRestore() throws Exception {
+        when(pageService.restorePageByIds(any(Long[].class))).thenReturn(1);
+
+        mockMvc.perform(put("/system/page/restore/1,2"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(pageService).restorePageByIds(any(Long[].class));
+    }
+
+    @Test
+    void testPurge() throws Exception {
+        when(pageService.purgePageByIds(any(Long[].class))).thenReturn(1);
+
+        mockMvc.perform(delete("/system/page/purge/1,2"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(pageService).purgePageByIds(any(Long[].class));
     }
 }

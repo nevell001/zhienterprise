@@ -38,6 +38,7 @@ public class SpaRouterController {
         "/tag/**",
         "/guestbook",
         "/page/**",
+        "/preview/page/**",
         "/friend-links/**",
         "/agreement",
         "/privacy",

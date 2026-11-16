@@ -1,12 +1,17 @@
 package com.zhi.system.service.impl;
 
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.zhi.common.core.redis.RedisCache;
 import com.zhi.common.exception.ServiceException;
+import com.zhi.common.utils.DateUtils;
 import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
@@ -28,6 +33,9 @@ public class PageServiceImpl implements IPageService
 
     /** 已发布 */
     private static final String STATUS_PUBLISHED = "1";
+
+    /** 定时发布 */
+    private static final String STATUS_SCHEDULED = "2";
 
     /** 别名允许的字符：字母、数字、下划线、连字符 */
     private static final Pattern SLUG_PATTERN = Pattern.compile("^[A-Za-z0-9_-]{1,100}$");
@@ -73,6 +81,12 @@ public class PageServiceImpl implements IPageService
         return pageMapper.selectPageById(id);
     }
 
+    @Override
+    public Page selectPageByIdIncludingDeleted(Long id)
+    {
+        return pageMapper.selectPageByIdIncludingDeleted(id);
+    }
+
     /**
      * 通过别名查询已发布页面
      * 
@@ -107,6 +121,8 @@ public class PageServiceImpl implements IPageService
         {
             page.setStatus(STATUS_DRAFT);
         }
+        validateStatus(page.getStatus());
+        validatePublishTime(page);
         if (StringUtils.isEmpty(page.getShowInNav()))
         {
             page.setShowInNav("1");
@@ -143,6 +159,11 @@ public class PageServiceImpl implements IPageService
                 throw new ServiceException("页面别名已存在：" + page.getSlug());
             }
         }
+        if (StringUtils.isNotEmpty(page.getStatus()))
+        {
+            validateStatus(page.getStatus());
+        }
+        validatePublishTime(page);
         page.setUpdateBy(SecurityUtils.getUsername());
         page.setUpdateTime(ModernDateUtils.now());
         return pageMapper.updatePage(page);
@@ -168,6 +189,31 @@ public class PageServiceImpl implements IPageService
         page.setUpdateBy(SecurityUtils.getUsername());
         page.setUpdateTime(ModernDateUtils.now());
         return pageMapper.updatePage(page);
+    }
+
+    @Override
+    public int schedulePage(Long id, String publishTime)
+    {
+        if (id == null)
+        {
+            throw new ServiceException("页面ID不能为空");
+        }
+        Date scheduled = DateUtils.parseDate(publishTime);
+        if (scheduled == null)
+        {
+            throw new ServiceException("定时发布时间格式不正确");
+        }
+        if (!scheduled.after(new Date()))
+        {
+            throw new ServiceException("定时发布时间必须晚于当前时间");
+        }
+        return pageMapper.schedulePage(id, scheduled);
+    }
+
+    @Override
+    public int publishScheduledPages()
+    {
+        return pageMapper.publishScheduledPages();
     }
 
     /**
@@ -235,6 +281,51 @@ public class PageServiceImpl implements IPageService
         return pageMapper.deletePageByIds(ids);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int restorePageByIds(Long[] ids)
+    {
+        if (ids == null || ids.length == 0)
+        {
+            throw new ServiceException("请选择要恢复的页面");
+        }
+        Set<String> batchSlugs = new HashSet<>();
+        for (Long id : ids)
+        {
+            Page page = pageMapper.selectPageByIdIncludingDeleted(id);
+            if (page == null || !"1".equals(page.getDelFlag()))
+            {
+                throw new ServiceException("页面不在回收站：" + id);
+            }
+            String originalSlug = page.getDeletedSlug() != null && !page.getDeletedSlug().trim().isEmpty()
+                ? page.getDeletedSlug().trim() : page.getSlug();
+            if (originalSlug == null || !SLUG_PATTERN.matcher(originalSlug).matches())
+            {
+                throw new ServiceException("页面原别名无法恢复，请先彻底删除后重新创建：" + id);
+            }
+            if (!batchSlugs.add(originalSlug))
+            {
+                throw new ServiceException("所选页面的原别名重复，无法同时恢复：" + originalSlug);
+            }
+            Page conflict = pageMapper.checkSlugUnique(originalSlug);
+            if (conflict != null && !conflict.getId().equals(id))
+            {
+                throw new ServiceException("页面别名已被占用，请先修改占用页面后再恢复：" + originalSlug);
+            }
+        }
+        return pageMapper.restorePageByIds(ids);
+    }
+
+    @Override
+    public int purgePageByIds(Long[] ids)
+    {
+        if (ids == null || ids.length == 0)
+        {
+            return 0;
+        }
+        return pageMapper.purgePageByIds(ids);
+    }
+
     /**
      * 新增时的字段校验
      */
@@ -263,6 +354,32 @@ public class PageServiceImpl implements IPageService
         if (!SLUG_PATTERN.matcher(slug.trim()).matches())
         {
             throw new ServiceException("页面别名只能包含字母、数字、下划线和连字符，且不超过100个字符");
+        }
+    }
+
+    private void validateStatus(String status)
+    {
+        if (!STATUS_DRAFT.equals(status) && !STATUS_PUBLISHED.equals(status)
+            && !STATUS_SCHEDULED.equals(status))
+        {
+            throw new ServiceException("页面状态不合法");
+        }
+    }
+
+    /** 定时发布必须带未来时间；草稿/已发布不需要发布时间 */
+    private void validatePublishTime(Page page)
+    {
+        if (!STATUS_SCHEDULED.equals(page.getStatus()))
+        {
+            return;
+        }
+        if (page.getPublishTime() == null)
+        {
+            throw new ServiceException("请选择定时发布时间");
+        }
+        if (!page.getPublishTime().after(new Date()))
+        {
+            throw new ServiceException("定时发布时间必须晚于当前时间");
         }
     }
 

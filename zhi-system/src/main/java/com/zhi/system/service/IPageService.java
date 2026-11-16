@@ -35,6 +35,14 @@ public interface IPageService
     public Page selectPageById(Long id);
 
     /**
+     * 通过ID查询单条数据（含回收站）
+     *
+     * @param id 页面ID
+     * @return 实例对象
+     */
+    public Page selectPageByIdIncludingDeleted(Long id);
+
+    /**
      * 通过别名查询已发布页面
      * 
      * @param slug 页面别名
@@ -68,6 +76,22 @@ public interface IPageService
     public int changePageStatus(Long id, String status);
 
     /**
+     * 设置页面定时发布
+     *
+     * @param id 页面ID
+     * @param publishTime 发布时间（yyyy-MM-dd HH:mm:ss）
+     * @return 结果
+     */
+    public int schedulePage(Long id, String publishTime);
+
+    /**
+     * 定时发布：将已到发布时间的定时页面置为已发布
+     *
+     * @return 发布的页面数量
+     */
+    public int publishScheduledPages();
+
+    /**
      * 增加浏览次数
      * 
      * @param id 页面ID
@@ -99,4 +123,20 @@ public interface IPageService
      * @return 影响行数
      */
     public int deletePageByIds(Long[] ids);
+
+    /**
+     * 从回收站恢复页面
+     *
+     * @param ids 页面ID
+     * @return 影响行数
+     */
+    public int restorePageByIds(Long[] ids);
+
+    /**
+     * 彻底删除回收站中的页面
+     *
+     * @param ids 页面ID
+     * @return 影响行数
+     */
+    public int purgePageByIds(Long[] ids);
 }

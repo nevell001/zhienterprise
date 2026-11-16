@@ -37,6 +37,13 @@ export const siteRoutes: RouteRecordRaw[] = [
     meta: { title: '方案预览', preview: true }
   },
   {
+    // 页面预览：草稿/定时稿按真实前台布局渲染（含 builder 模块）
+    path: '/preview/page/:id',
+    component: () => import('@/views/site/page/index.vue'),
+    name: 'AdminPagePreview',
+    meta: { title: '页面预览', preview: true }
+  },
+  {
     // 核心业务（article_type=business 的文章）：企业官网模板的落地页
     path: '/business',
     component: () => import('@/views/site/business/index.vue'),

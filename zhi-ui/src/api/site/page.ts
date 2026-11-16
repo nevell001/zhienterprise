@@ -22,6 +22,7 @@ export interface SitePage {
   seoKeywords?: string | null
   seoDescription?: string | null
   updateTime?: string | null
+  publishTime?: string | null
 }
 
 /** 已发布页面列表响应 */
@@ -62,5 +63,16 @@ export function getPublishedPageBySlug(
     method: 'get',
     headers: { isToken: false },
     ...config
+  })
+}
+
+/**
+ * 预览页面（草稿 / 定时 / 已发布均可）。仅拥有 zhi:page:query 权限的后台用户可用，
+ * 必须携带 token；不累计浏览量。
+ */
+export function getPagePreview(id: number | string): Promise<SitePageDetailResult> {
+  return request({
+    url: '/system/page/preview/' + id,
+    method: 'get'
   })
 }

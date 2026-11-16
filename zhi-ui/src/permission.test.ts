@@ -82,7 +82,7 @@ describe('未发布内容预览（需登录）', () => {
     setActivePinia(createPinia())
   })
 
-  it.each(['/preview/article/1', '/preview/business/1', '/preview/solution/1'])(
+  it.each(['/preview/article/1', '/preview/business/1', '/preview/solution/1', '/preview/page/1'])(
     '匿名访问 %s 被带到登录页（含回跳地址）',
     async path => {
       await router.push({ path, query: { case: path } })

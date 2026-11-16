@@ -1,5 +1,6 @@
 package com.zhi.system.mapper;
 
+import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import com.zhi.system.domain.MediaReference;
@@ -35,6 +36,14 @@ public interface PageMapper
      * @return 实例对象
      */
     public Page selectPageById(Long id);
+
+    /**
+     * 通过ID查询单条数据（含回收站）
+     *
+     * @param id 页面ID
+     * @return 实例对象
+     */
+    public Page selectPageByIdIncludingDeleted(Long id);
 
     /**
      * 通过别名查询已发布页面
@@ -91,6 +100,38 @@ public interface PageMapper
      * @return 影响行数
      */
     public int deletePageByIds(Long[] ids);
+
+    /**
+     * 从回收站恢复页面
+     *
+     * @param ids 页面ID
+     * @return 影响行数
+     */
+    public int restorePageByIds(Long[] ids);
+
+    /**
+     * 彻底删除回收站中的页面
+     *
+     * @param ids 页面ID
+     * @return 影响行数
+     */
+    public int purgePageByIds(Long[] ids);
+
+    /**
+     * 设置页面定时发布
+     *
+     * @param id 页面ID
+     * @param publishTime 发布时间
+     * @return 影响行数
+     */
+    public int schedulePage(@Param("id") Long id, @Param("publishTime") Date publishTime);
+
+    /**
+     * 定时发布：将已到发布时间的定时页面置为已发布
+     *
+     * @return 发布的页面数量
+     */
+    public int publishScheduledPages();
 
     /**
      * 查询引用了指定文件名的自定义页面（媒体库删除前检查，含已删除页面）

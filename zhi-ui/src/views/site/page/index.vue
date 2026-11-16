@@ -1,5 +1,11 @@
 <template>
   <SiteLayout>
+    <ArticlePreviewBanner
+      v-if="isPreview && page"
+      :status="page.status"
+      :publish-time="page.publishTime"
+      admin-path="/admin/page"
+    />
     <!-- builder 页：模块化渲染（sections 顺序即渲染顺序） -->
     <div
       v-if="!loading && page && page.pageType === 'builder'"
@@ -25,10 +31,11 @@
 <script setup lang="ts" name="PublicSitePage">
 import { computed, ref, watch } from 'vue'
 import SiteLayout from '@/components/SiteLayout.vue'
+import ArticlePreviewBanner from '@/components/ArticlePreviewBanner.vue'
 import CustomPagePanel from './CustomPagePanel.vue'
 import { parseSections } from '@/views/site/sections/registry'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
-import { getPublishedPageBySlug, type SitePage } from '@/api/site/page'
+import { getPagePreview, getPublishedPageBySlug, type SitePage } from '@/api/site/page'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { createRequestGuard } from '@/utils/requestGuard'
@@ -41,6 +48,7 @@ const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const loading = ref(true)
 const notFound = ref(false)
 const page = ref<SitePage | null>(null)
+const isPreview = computed(() => route.meta.preview === true)
 
 const builderRoot = ref<HTMLElement | null>(null)
 useScrollReveal(builderRoot)
@@ -56,13 +64,21 @@ const slug = computed(() => {
   return value ? String(value) : ''
 })
 
+const pageId = computed(() => {
+  const raw = route.params.id
+  const value = Array.isArray(raw) ? raw[0] : raw
+  return value ? String(value) : ''
+})
+
 // 陈旧响应守卫：详见 loadPage 内注释
 const pageGuard = createRequestGuard()
 
 const loadPage = async () => {
   const currentSlug = slug.value
-  if (!currentSlug) {
-    // slug 清空即作废在途请求，防止旧响应稍后覆盖 404 态
+  const currentId = pageId.value
+  const preview = isPreview.value
+  if ((!preview && !currentSlug) || (preview && !currentId)) {
+    // 标识清空即作废在途请求，防止旧响应稍后覆盖 404 态
     pageGuard.invalidate()
     page.value = null
     notFound.value = true
@@ -74,10 +90,12 @@ const loadPage = async () => {
   notFound.value = false
   const token = pageGuard.next()
   try {
-    // silent：slug 可选内容缺失属正常态（前台已有 404 面板），不弹全局错误 toast
-    const response = await getPublishedPageBySlug(currentSlug, { silent: true })
-    // 陈旧响应守卫：/page/:slug 路由复用组件（router-view 无 :key），
-    // 快速切换 slug 时慢的旧响应不得覆盖新页面（内容与 SEO 同理）
+    // 预览走受权限保护的后台接口（草稿/定时稿均可），公开页走按 slug 的匿名接口
+    const response = preview
+      ? await getPagePreview(currentId)
+      : await getPublishedPageBySlug(currentSlug, { silent: true })
+    // 陈旧响应守卫：/page/:slug 与预览路由复用组件（router-view 无 :key），
+    // 快速切换目标时慢的旧响应不得覆盖新页面（内容与 SEO 同理）
     if (!pageGuard.isLatest(token)) return
     if (!response || response.code !== 200 || !response.data) {
       page.value = null
@@ -88,10 +106,13 @@ const loadPage = async () => {
     page.value = response.data
     const siteName = (siteSettings.value as { blog_name?: string }).blog_name || '知企建站系统'
     applySeo({
-      title: page.value.seoTitle || `${page.value.title} - ${siteName}`,
+      title: preview
+        ? `【预览】${page.value.title || '未命名页面'}`
+        : page.value.seoTitle || `${page.value.title} - ${siteName}`,
       description: page.value.seoDescription || page.value.summary || '',
       keywords: page.value.seoKeywords || '',
-      canonical: canonicalUrl()
+      canonical: preview ? undefined : canonicalUrl(),
+      robots: preview ? 'noindex,nofollow' : undefined
     })
   } catch (error) {
     if (!pageGuard.isLatest(token)) return
@@ -105,7 +126,7 @@ const loadPage = async () => {
   }
 }
 
-watch(slug, () => {
+watch([slug, pageId, isPreview], () => {
   loadPage()
 })
 

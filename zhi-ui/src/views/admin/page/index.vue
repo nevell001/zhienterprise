@@ -37,6 +37,7 @@
         >
           <el-option label="草稿" value="0" />
           <el-option label="已发布" value="1" />
+          <el-option label="定时发布" value="2" />
         </el-select>
       </el-form-item>
       <el-form-item label="">
@@ -47,51 +48,84 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          v-hasPermi="['zhi:page:add']"
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-        >
-          新增
+        <el-button icon="Refresh" plain @click="toggleRecycle">
+          {{ isRecycleBin ? '返回列表' : '回收站' }}
         </el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          v-hasPermi="['zhi:page:edit']"
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate()"
-        >
-          修改
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          v-hasPermi="['zhi:page:remove']"
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete()"
-        >
-          删除
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          v-hasPermi="['zhi:page:export']"
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-        >
-          导出
-        </el-button>
-      </el-col>
+      <template v-if="!isRecycleBin">
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:page:add']"
+            type="primary"
+            plain
+            icon="Plus"
+            @click="handleAdd"
+          >
+            新增
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:page:edit']"
+            type="success"
+            plain
+            icon="Edit"
+            :disabled="single"
+            @click="handleUpdate()"
+          >
+            修改
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:page:remove']"
+            type="danger"
+            plain
+            icon="Delete"
+            :disabled="multiple"
+            @click="handleDelete()"
+          >
+            删除
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:page:export']"
+            type="warning"
+            plain
+            icon="Download"
+            @click="handleExport"
+          >
+            导出
+          </el-button>
+        </el-col>
+      </template>
+      <template v-else>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:page:edit']"
+            type="success"
+            plain
+            icon="Refresh"
+            :disabled="multiple"
+            @click="handleRestore()"
+          >
+            恢复
+          </el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            v-hasPermi="['zhi:page:remove']"
+            type="danger"
+            plain
+            icon="Delete"
+            :disabled="multiple"
+            @click="handlePurge()"
+          >
+            彻底删除
+          </el-button>
+        </el-col>
+      </template>
       <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
@@ -121,7 +155,12 @@
       >
         <template #default="scope">
           <span>{{ scope.row.title }}</span>
-          <el-tag v-if="isHomePage(scope.row)" size="small" type="warning" class="home-tag">
+          <el-tag
+            v-if="!isRecycleBin && isHomePage(scope.row)"
+            size="small"
+            type="warning"
+            class="home-tag"
+          >
             首页
           </el-tag>
         </template>
@@ -132,7 +171,12 @@
         prop="slug"
         min-width="100"
         :show-overflow-tooltip="true"
-      />
+      >
+        <template #default="scope">
+          <span>{{ scope.row.deletedSlug || scope.row.slug }}</span>
+          <el-tag v-if="isRecycleBin" size="small" type="info" class="home-tag">回收站</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         label="摘要"
         align="center"
@@ -152,7 +196,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!isEnterpriseMode"
+        v-if="!isEnterpriseMode && !isRecycleBin"
         label="导航显示"
         align="center"
         prop="showInNav"
@@ -164,7 +208,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="顶部导航" align="center" width="150">
+      <el-table-column v-if="!isRecycleBin" label="顶部导航" align="center" width="150">
         <template #default="scope">
           <span v-if="navUnavailable" class="nav-hint">导航数据不可用</span>
           <template v-else-if="scope.row.slug">
@@ -189,7 +233,13 @@
       <el-table-column label="浏览数" align="center" prop="viewCount" width="80" />
       <!-- 更新时间与操作同为右侧固定列：整表列宽合计较大，窄屏出现横向溢出时
            未固定的列会被 fixed 列压住导致“显示不全”，钉住可保证时间始终完整可见 -->
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" fixed="right">
+      <el-table-column
+        :label="isRecycleBin ? '删除时间' : '更新时间'"
+        align="center"
+        prop="updateTime"
+        width="180"
+        fixed="right"
+      >
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime || scope.row.createTime) }}</span>
         </template>
@@ -202,36 +252,73 @@
         class-name="small-padding fixed-width"
       >
         <template #default="scope">
-          <el-tooltip content="修改" placement="top">
-            <el-button
-              v-hasPermi="['zhi:page:edit']"
-              link
-              type="primary"
-              icon="Edit"
-              size="small"
-              @click="handleUpdate(scope.row)"
-            />
-          </el-tooltip>
-          <el-tooltip :content="String(scope.row.status) === '1' ? '下架' : '发布'" placement="top">
-            <el-button
-              v-hasPermi="['zhi:page:edit']"
-              link
-              :type="String(scope.row.status) === '1' ? 'warning' : 'success'"
-              :icon="String(scope.row.status) === '1' ? 'Bottom' : 'Top'"
-              size="small"
-              @click="handleStatusChange(scope.row)"
-            />
-          </el-tooltip>
-          <el-tooltip content="删除" placement="top">
-            <el-button
-              v-hasPermi="['zhi:page:remove']"
-              link
-              type="danger"
-              icon="Delete"
-              size="small"
-              @click="handleDelete(scope.row)"
-            />
-          </el-tooltip>
+          <template v-if="isRecycleBin">
+            <el-tooltip content="恢复" placement="top">
+              <el-button
+                v-hasPermi="['zhi:page:edit']"
+                link
+                type="success"
+                icon="Refresh"
+                size="small"
+                @click="handleRestore(scope.row)"
+              />
+            </el-tooltip>
+            <el-tooltip content="彻底删除" placement="top">
+              <el-button
+                v-hasPermi="['zhi:page:remove']"
+                link
+                type="danger"
+                icon="Delete"
+                size="small"
+                @click="handlePurge(scope.row)"
+              />
+            </el-tooltip>
+          </template>
+          <template v-else>
+            <el-tooltip content="前台预览" placement="top">
+              <el-button
+                v-hasPermi="['zhi:page:query']"
+                link
+                type="primary"
+                icon="View"
+                size="small"
+                @click="openPreview(scope.row.id)"
+              />
+            </el-tooltip>
+            <el-tooltip content="修改" placement="top">
+              <el-button
+                v-hasPermi="['zhi:page:edit']"
+                link
+                type="primary"
+                icon="Edit"
+                size="small"
+                @click="handleUpdate(scope.row)"
+              />
+            </el-tooltip>
+            <el-tooltip
+              :content="String(scope.row.status) === '1' ? '下架' : '发布'"
+              placement="top"
+            >
+              <el-button
+                v-hasPermi="['zhi:page:edit']"
+                link
+                :type="String(scope.row.status) === '1' ? 'warning' : 'success'"
+                :icon="String(scope.row.status) === '1' ? 'Bottom' : 'Top'"
+                size="small"
+                @click="handleStatusChange(scope.row)"
+              />
+            </el-tooltip>
+            <el-tooltip content="删除" placement="top">
+              <el-button
+                v-hasPermi="['zhi:page:remove']"
+                link
+                type="danger"
+                icon="Delete"
+                size="small"
+                @click="handleDelete(scope.row)"
+              />
+            </el-tooltip>
+          </template>
         </template>
       </el-table-column>
     </el-table>
@@ -804,7 +891,18 @@
           <el-radio-group v-model="form.status">
             <el-radio label="0">草稿</el-radio>
             <el-radio label="1">已发布</el-radio>
+            <el-radio label="2">定时发布</el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="form.status === '2'" label="发布时间" prop="publishTime">
+          <el-date-picker
+            v-model="form.publishTime"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="选择发布时间"
+            :disabled-date="disablePastDate"
+          />
+          <div class="slug-tip">到达设定时间后自动发布为公开页面</div>
         </el-form-item>
         <!-- 企业官网模式下导航由「菜单管理」表驱动，本字段无任何消费点（含 sitemap） -->
         <el-form-item v-if="!isEnterpriseMode" label="导航显示" prop="showInNav">
@@ -855,6 +953,14 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
+          <el-button
+            v-if="form.id"
+            v-hasPermi="['zhi:page:query']"
+            icon="View"
+            @click="openPreview(form.id)"
+          >
+            前台预览
+          </el-button>
           <el-button type="primary" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>
@@ -869,7 +975,16 @@
 </template>
 
 <script setup lang="ts" name="SitePage">
-import { listPage, getPage, addPage, updatePage, changePageStatus, delPage } from '@/api/admin/page'
+import {
+  listPage,
+  getPage,
+  addPage,
+  updatePage,
+  changePageStatus,
+  delPage,
+  restorePage,
+  purgePage
+} from '@/api/admin/page'
 import type { SitePage, PageQueryParams, PageStatus } from '@/api/admin/page'
 import { listNav, addNav, delNav } from '@/api/admin/nav'
 import type { SiteNavItem } from '@/api/site/nav'
@@ -881,6 +996,7 @@ import { renderMarkdown } from '@/utils/markdown'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 
 const { proxy } = getCurrentInstance()
+const router = useRouter()
 const siteSettingsStore = useSiteSettingsStore()
 
 /**
@@ -927,6 +1043,7 @@ function createDefaultForm(): SitePage {
     content: '',
     pageType: 'richtext',
     status: '0',
+    publishTime: '',
     showInNav: '1',
     sort: 0,
     viewCount: 0,
@@ -1076,8 +1193,11 @@ const queryParams = ref<PageQueryParams>({
   pageSize: 10,
   title: undefined,
   slug: undefined,
-  status: undefined
+  status: undefined,
+  delFlag: undefined
 })
+
+const isRecycleBin = computed(() => queryParams.value.delFlag === '1')
 
 const rules = {
   title: [
@@ -1106,7 +1226,13 @@ const dialogWidth = computed(() => {
 
 /** 页面状态文本 */
 function statusText(status?: PageStatus): string {
+  if (status === '2') return '定时发布'
   return status === '1' ? '已发布' : '草稿'
+}
+
+/** 定时发布时间只允许今天及以后 */
+function disablePastDate(date: Date): boolean {
+  return date.getTime() < Date.now() - 86400000
 }
 
 /* ---------- 顶部导航联动：与「菜单管理」同一数据源（site_nav_item） ---------- */
@@ -1175,7 +1301,8 @@ const handleRemoveFromNav = async (row: SitePage) => {
 }
 
 /** 页面状态标签类型 */
-function statusTagType(status?: PageStatus): 'success' | 'info' {
+function statusTagType(status?: PageStatus): 'success' | 'info' | 'warning' {
+  if (status === '2') return 'warning'
   return status === '1' ? 'success' : 'info'
 }
 
@@ -1223,9 +1350,59 @@ function resetQuery() {
     pageSize: 10,
     title: undefined,
     slug: undefined,
-    status: undefined
+    status: undefined,
+    delFlag: undefined
   }
   handleQuery()
+}
+
+/** 切换回收站 */
+function toggleRecycle() {
+  queryParams.value.delFlag = isRecycleBin.value ? undefined : '1'
+  queryParams.value.pageNum = 1
+  ids.value = []
+  getList()
+}
+
+/** 从回收站恢复 */
+function handleRestore(row?: SitePage) {
+  const restoreIds = row?.id || ids.value
+  proxy.$modal
+    .confirm('是否确认恢复所选页面？')
+    .then(() => restorePage(restoreIds))
+    .then(() => {
+      proxy.$modal.msgSuccess('恢复成功')
+      getList()
+    })
+    .catch((error: unknown) => {
+      if (error !== 'cancel') {
+        proxy.$modal.msgError(resolveErrorMessage(error, '恢复失败'))
+      }
+    })
+}
+
+/** 彻底删除回收站页面 */
+function handlePurge(row?: SitePage) {
+  const purgeIds = row?.id || ids.value
+  proxy.$modal
+    .confirm('彻底删除后不可恢复，是否继续？')
+    .then(() => purgePage(purgeIds))
+    .then(() => {
+      proxy.$modal.msgSuccess('已彻底删除')
+      getList()
+    })
+    .catch((error: unknown) => {
+      if (error !== 'cancel') {
+        proxy.$modal.msgError(resolveErrorMessage(error, '彻底删除失败'))
+      }
+    })
+}
+
+/** 前台预览（与真实布局一致，含 builder 模块） */
+function openPreview(id?: number) {
+  if (!id) return
+  const { href } = router.resolve({ name: 'AdminPagePreview', params: { id } })
+  window.open(href, '_blank', 'noopener')
 }
 
 /** 多选框选中数据 */
@@ -1300,7 +1477,12 @@ function handleUpdate(row?: SitePage) {
         summary: data.summary || '',
         content: data.content || '',
         pageType: data.pageType === 'builder' ? 'builder' : 'richtext',
-        status: String(data.status) === '1' ? '1' : '0',
+        status: ['0', '1', '2'].includes(String(data.status))
+          ? (String(data.status) as PageStatus)
+          : '0',
+        publishTime: data.publishTime
+          ? String(data.publishTime).replace('T', ' ').slice(0, 19)
+          : '',
         showInNav: String(data.showInNav) === '0' ? '0' : '1',
         sort: Number(data.sort) || 0,
         seoTitle: data.seoTitle || '',
@@ -1347,6 +1529,18 @@ function submitForm() {
 
     const isEdit = !!form.value.id
     const isBuilder = form.value.pageType === 'builder'
+    const scheduled = form.value.status === '2'
+    const publishTime = scheduled ? String(form.value.publishTime || '') : ''
+    if (scheduled) {
+      if (!publishTime) {
+        proxy.$modal.msgError('请选择定时发布时间')
+        return
+      }
+      if (new Date(publishTime.replace(/-/g, '/')).getTime() <= Date.now()) {
+        proxy.$modal.msgError('定时发布时间必须晚于当前时间')
+        return
+      }
+    }
     const payload: SitePage = {
       ...form.value,
       title: (form.value.title || '').trim(),
@@ -1355,7 +1549,8 @@ function submitForm() {
       content: isBuilder ? '' : form.value.content || '',
       pageType: isBuilder ? 'builder' : 'richtext',
       sections: isBuilder ? JSON.stringify(sectionList.value) : null,
-      status: form.value.status === '1' ? '1' : '0',
+      status: scheduled ? '2' : form.value.status === '1' ? '1' : '0',
+      publishTime: scheduled ? publishTime : null,
       showInNav: form.value.showInNav === '0' ? '0' : '1',
       sort: Number(form.value.sort) || 0,
       seoTitle: (form.value.seoTitle || '').trim(),

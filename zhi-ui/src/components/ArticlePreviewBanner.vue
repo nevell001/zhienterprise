@@ -1,7 +1,7 @@
 <template>
   <div class="preview-banner" role="status">
     <span class="preview-badge">预览模式</span>
-    <span class="preview-text">{{ statusText }} · 仅登录管理员可见，未发布内容不会对外展示</span>
+    <span class="preview-text">{{ statusText }} · 仅登录管理员可见</span>
     <span v-if="statusText === '定时发布' && formattedPublishTime" class="preview-time">
       计划发布：{{ formattedPublishTime }}
     </span>
@@ -19,7 +19,12 @@ const props = defineProps<{
   adminPath: string
 }>()
 
-const statusText = computed(() => (Number(props.status) === 2 ? '定时发布' : '草稿'))
+const statusText = computed(() => {
+  const status = Number(props.status)
+  if (status === 2) return '定时发布'
+  if (status === 1) return '已发布'
+  return '草稿'
+})
 const formattedPublishTime = computed(() =>
   props.publishTime ? parseTime(props.publishTime, '{y}-{m}-{d} {h}:{i}') : ''
 )
