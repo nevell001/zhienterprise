@@ -28,18 +28,8 @@
           <el-icon><View /></el-icon>
           {{ article.viewCount || 0 }} 阅读
         </span>
-        <span v-if="article.likeCount" class="article-card-meta-item">
-          <el-icon><Star /></el-icon>
-          {{ article.likeCount }} 点赞
-        </span>
-        <span v-if="article.commentCount" class="article-card-meta-item">
-          <el-icon><ChatDotRound /></el-icon>
-          {{ article.commentCount }} 评论
-        </span>
       </div>
-      <p class="article-card-summary">
-        {{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}
-      </p>
+      <p class="article-card-summary">{{ summaryText }}</p>
       <div v-if="article.tags && article.tags.length" class="article-card-tags">
         <span v-for="tag in article.tags.slice(0, 3)" :key="tag.id" class="article-card-tag">
           {{ tag.name }}
@@ -56,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowRight, Calendar, ChatDotRound, Star, View } from '@element-plus/icons-vue'
+import { ArrowRight, Calendar, View } from '@element-plus/icons-vue'
 import { articleDetailPath } from '@/utils/articlePath'
 
 interface ArticleCardTag {
@@ -82,7 +72,15 @@ export interface ArticleCardItem {
   tags?: ArticleCardTag[]
 }
 
-withDefaults(defineProps<{ article: ArticleCardItem; index?: number }>(), { index: 0 })
+const props = withDefaults(defineProps<{ article: ArticleCardItem; index?: number }>(), {
+  index: 0
+})
+
+const summaryText = computed(() => {
+  if (props.article.summary) return props.article.summary
+  const text = stripHtmlTags(props.article.content).substring(0, 150)
+  return text ? `${text}...` : '暂无摘要'
+})
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return ''
@@ -101,7 +99,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: white;
+  background: var(--tpl-bg, var(--mo-n0, #fff));
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);

@@ -13,6 +13,8 @@ interface SiteSettingsState {
   site_banner: string
   blog_copyright: string
   blog_beian: string
+  /** 统计/第三方脚本（仅前台公开页面注入） */
+  custom_js: string
   comment_enabled: boolean
   comment_review: boolean
   view_count_enabled: boolean
@@ -64,6 +66,7 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
       site_banner: '',
       blog_copyright: '',
       blog_beian: '',
+      custom_js: '',
 
       // 功能设置
       // 企业官网定位：评论默认关闭（与 SQL 种子 / 后台默认一致）

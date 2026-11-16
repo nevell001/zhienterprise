@@ -530,6 +530,50 @@ class SettingControllerTest {
         verify(configService, never()).deleteConfigByIds(any(Long[].class));
     }
 
+    @Test
+    void testUpdateSettingByKey_CustomJsSkipsSysConfigMirror() throws Exception {
+        when(settingService.updateSettingValueByKey(eq("custom_js"), anyString())).thenReturn(1);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("settingKey", "custom_js");
+        params.put("settingValue", "b64:" + "A".repeat(2000));
+
+        mockMvc.perform(post("/system/setting/updateByKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(configService, never()).updateConfig(any(com.zhi.system.domain.SysConfig.class));
+        verify(configService, never()).insertConfig(any(com.zhi.system.domain.SysConfig.class));
+        verify(unifiedCacheManager).delete("sys_config:custom_js");
+    }
+
+    @Test
+    void testUpdateSettingByKey_ClearingCustomJsClearsLegacyMirror() throws Exception {
+        when(settingService.updateSettingValueByKey("custom_js", "")).thenReturn(1);
+
+        com.zhi.system.domain.SysConfig legacy = new com.zhi.system.domain.SysConfig();
+        legacy.setConfigKey("custom_js");
+        legacy.setConfigValue("old-short-value");
+        when(configService.selectConfigList(any(com.zhi.system.domain.SysConfig.class)))
+            .thenReturn(List.of(legacy));
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("settingKey", "custom_js");
+        params.put("settingValue", "");
+
+        mockMvc.perform(post("/system/setting/updateByKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(configService).updateConfigValueByKey("custom_js", "");
+        verify(configService, never()).updateConfig(any(com.zhi.system.domain.SysConfig.class));
+        verify(unifiedCacheManager).delete("sys_config:custom_js");
+    }
+
     /**
      * 清空一个从未镜像过的设置：不需要创建空的 sys_config 行，保持"无行 = 未配置"。
      */

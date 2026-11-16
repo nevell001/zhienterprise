@@ -1,7 +1,7 @@
 <template>
   <div class="search-page">
     <SiteLayout>
-      <div class="search-container">
+      <div class="search-container tpl-legacy">
         <div class="search-head">
           <h1 class="search-title">搜索文章</h1>
           <div v-if="isSearchEnabled" class="search-form">
@@ -42,13 +42,11 @@
                 <div class="result-card-title">{{ article.title }}</div>
                 <p v-if="article.summary" class="result-card-excerpt">{{ article.summary }}</p>
                 <div class="result-card-meta">
-                  <span class="author">{{ article.authorName || '作者' }}</span>
-                  <span class="dot">·</span>
-                  <span>{{ formatDate(article.createTime) }}</span>
-                  <span class="dot">·</span>
-                  <span>👁 {{ article.viewCount || 0 }}</span>
-                  <span class="dot">·</span>
-                  <span>💬 {{ article.commentCount || 0 }}</span>
+                  <span v-if="typeLabel(article.articleType)" class="result-type">
+                    {{ typeLabel(article.articleType) }}
+                  </span>
+                  <span v-if="article.categoryName">{{ article.categoryName }}</span>
+                  <span v-if="article.createTime">{{ formatDate(article.createTime) }}</span>
                 </div>
               </article>
 
@@ -102,6 +100,15 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.v
 const formatDate = (date: string) => {
   return parseTime(date, '{y}-{m}-{d}')
 }
+
+const TYPE_LABELS: Record<string, string> = {
+  news: '资讯',
+  business: '核心业务',
+  case: '客户案例',
+  solution: '解决方案'
+}
+
+const typeLabel = (articleType?: string) => (articleType ? TYPE_LABELS[articleType] || '' : '')
 
 const requestGuard = createRequestGuard()
 
@@ -195,6 +202,18 @@ watch(
   max-width: 860px;
   margin: 0 auto;
   padding: var(--mo-sp-12) var(--mo-sp-5) var(--mo-sp-9);
+  /* 企业模板用 --tpl-*，经典模式回退到 --mo-* 与 --el-*，避免深色模式变白底 */
+  --search-bg: var(--tpl-bg, var(--mo-n0, #fff));
+  --search-border: var(--tpl-border, var(--el-border-color, #e5e7eb));
+  --search-text: var(--tpl-ink-900, var(--el-text-color-primary, #111827));
+  --search-muted: var(--tpl-ink-500, var(--mo-n500, #6b7280));
+  --search-faint: var(--tpl-ink-400, var(--mo-n400, #6b7280));
+  --search-primary: var(--tpl-p, var(--el-color-primary, #2563eb));
+  --search-primary-text: var(--tpl-p-text, var(--mo-primary-text, #1d4ed8));
+  --search-primary-sub: var(--tpl-p-sub, var(--el-color-primary-light-9, #eef3fe));
+  --search-on-primary: var(--tpl-white, var(--mo-on-primary, #fff));
+  --search-radius: var(--tpl-r-md, var(--mo-r-md, 10px));
+  --search-shadow: var(--tpl-sh-md, var(--mo-shadow-md, 0 8px 24px rgba(15, 23, 42, 0.1)));
 }
 .search-head {
   margin-bottom: var(--mo-sp-6);
@@ -203,7 +222,8 @@ watch(
   margin: 0 0 14px;
   font-size: 26px;
   font-weight: 700;
-  color: var(--el-text-color-primary, #303133);
+  color: var(--search-text);
+  font-family: var(--tpl-serif, var(--mo-font-serif, inherit));
 }
 .search-form {
   display: flex;
@@ -213,15 +233,15 @@ watch(
 .search-form input {
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid var(--el-border-color, #dcdfe6);
-  border-radius: var(--mo-r-md);
+  border: 1px solid var(--search-border);
+  border-radius: var(--search-radius);
   font-size: var(--mo-fs-sm);
   outline: none;
-  background: var(--el-bg-color-overlay, #fff);
-  color: var(--el-text-color-primary, #303133);
+  background: var(--search-bg);
+  color: var(--search-text);
 }
 .search-form input:focus {
-  border-color: var(--el-color-primary, #409eff);
+  border-color: var(--search-primary);
 }
 /* 移动端输入字号 ≥16px：iOS Safari 聚焦时否则自动放大页面（方案文档 §5.3） */
 @media (max-width: 767px) {
@@ -232,15 +252,14 @@ watch(
 .search-form button {
   padding: 0 var(--mo-sp-5);
   border: none;
-  border-radius: var(--mo-r-md);
-  background: var(--el-color-primary, #409eff);
-  /* 与主色配对的前景色（默认主题亮主色 → 深墨；Mo-Blog 靛蓝 → 白） */
-  color: var(--mo-on-primary, #fff);
+  border-radius: var(--search-radius);
+  background: var(--search-primary);
+  color: var(--search-on-primary);
   font-size: var(--mo-fs-sm);
   cursor: pointer;
 }
 .search-disabled-tip {
-  color: var(--el-text-color-secondary, #909399);
+  color: var(--search-muted);
   font-size: var(--mo-fs-sm);
 }
 .search-loading {
@@ -249,14 +268,14 @@ watch(
 .search-summary {
   margin-bottom: 14px;
   font-size: var(--mo-fs-sm);
-  color: var(--el-text-color-secondary, #606266);
+  color: var(--search-muted);
 }
 .result-card {
   padding: 16px 18px;
   margin-bottom: var(--mo-sp-3);
-  background: var(--el-bg-color-overlay, #fff);
-  border: 1px solid var(--el-border-color-lighter, #ebeef5);
-  border-radius: 10px;
+  background: var(--search-bg);
+  border: 1px solid var(--search-border);
+  border-radius: var(--search-radius);
   cursor: pointer;
   transition:
     transform 0.2s ease,
@@ -264,21 +283,21 @@ watch(
 }
 .result-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--search-shadow);
 }
 .result-card-title {
   font-size: 17px;
   font-weight: 600;
-  color: var(--el-text-color-primary, #303133);
+  color: var(--search-text);
 }
 .result-card:hover .result-card-title {
-  color: var(--mo-primary-text, #409eff);
+  color: var(--search-primary-text);
 }
 .result-card-excerpt {
   margin: 8px 0 10px;
   font-size: 13px;
   line-height: 1.6;
-  color: var(--el-text-color-regular, #606266);
+  color: var(--search-muted);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -287,15 +306,17 @@ watch(
 .result-card-meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--mo-sp-2);
   font-size: var(--mo-fs-xs);
-  color: var(--el-text-color-secondary, #909399);
+  color: var(--search-faint);
 }
-.result-card-meta .author {
-  color: var(--mo-primary-text, #409eff);
-}
-.dot {
-  color: var(--el-border-color, #dcdfe6);
+.result-type {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--search-primary-sub);
+  color: var(--search-primary-text);
+  font-weight: 600;
 }
 .search-pagination {
   display: flex;
@@ -306,10 +327,10 @@ watch(
 }
 .search-pagination button {
   padding: 6px 16px;
-  border: 1px solid var(--el-border-color, #dcdfe6);
-  border-radius: var(--mo-r-md);
-  background: var(--el-bg-color-overlay, #fff);
-  color: var(--el-text-color-primary, #303133);
+  border: 1px solid var(--search-border);
+  border-radius: var(--search-radius);
+  background: var(--search-bg);
+  color: var(--search-text);
   cursor: pointer;
 }
 .search-pagination button:disabled {
@@ -318,6 +339,6 @@ watch(
 }
 .page-info {
   font-size: 13px;
-  color: var(--el-text-color-secondary, #909399);
+  color: var(--search-muted);
 }
 </style>

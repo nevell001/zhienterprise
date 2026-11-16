@@ -29,6 +29,7 @@ class FrontConfigKeysTest
         assertTrue(KEYS.contains("site_banner"), "前台需要 site_banner 才能显示首页 Banner");
         assertTrue(KEYS.contains("blog_name"), "品牌名取 blog_name");
         assertTrue(KEYS.contains("theme_color"), "前台匿名用户需要 theme_color 才能跟随主题色");
+        assertTrue(KEYS.contains("custom_js"), "统计/第三方脚本需要下发到前台才能注入");
     }
 
     @Test

@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-page mo-custom-page">
+  <div class="custom-page mo-custom-page tpl-legacy">
     <div class="custom-page-shell">
       <div v-if="loading" v-loading="loading" class="custom-page-panel custom-page-loading"></div>
 
@@ -94,7 +94,7 @@ const formatTime = (time?: string | null) => {
 .custom-page-panel {
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-lg);
-  background: #fff;
+  background: var(--tpl-bg, var(--mo-n0, #fff));
   box-shadow: var(--mo-shadow-sm);
 }
 

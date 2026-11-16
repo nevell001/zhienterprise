@@ -48,6 +48,9 @@ public class SettingController extends BaseController
     /** 栏目名称最大长度（与前端输入框 maxlength 一致） */
     private static final int MAX_BUSINESS_LABEL_LENGTH = 20;
 
+    /** 统计代码：可能远超 sys_config.config_value(1000)，只存 zhi_setting 的 longtext */
+    private static final String CUSTOM_JS_KEY = "custom_js";
+
     /** 注册开关的参数键与取值：两个注册入口都按"仅字面 true 开启"判定 */
     private static final String REGISTER_USER_CONFIG_KEY = "sys.account.registerUser";
 
@@ -208,6 +211,25 @@ public class SettingController extends BaseController
         int result = settingService.updateSettingValueByKey(settingKey, settingValue);
         if (result <= 0)
         {
+            return toAjax(result);
+        }
+
+        if (CUSTOM_JS_KEY.equals(settingKey))
+        {
+            // 统计代码以 base64 存储且可能超过 sys_config 的 1000 字符上限；
+            // 前台优先读 zhi_setting（longtext），因此不镜像。清空时同步清掉历史镜像，防止旧值复活。
+            if (StringUtils.isEmpty(settingValue))
+            {
+                SysConfig query = new SysConfig();
+                query.setConfigKey(settingKey);
+                boolean mirrored = configService.selectConfigList(query).stream()
+                    .anyMatch(c -> settingKey.equals(c.getConfigKey()));
+                if (mirrored)
+                {
+                    configService.updateConfigValueByKey(settingKey, "");
+                }
+            }
+            unifiedCacheManager.delete("sys_config:" + settingKey);
             return toAjax(result);
         }
 

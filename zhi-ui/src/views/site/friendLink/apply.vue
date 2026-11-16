@@ -1,7 +1,7 @@
 <template>
   <div class="friendlink-apply-page">
     <SiteLayout>
-      <div class="apply-container">
+      <div class="apply-container tpl-legacy">
         <!-- 友链申请开关关闭：展示友好提示，避免白屏 -->
         <div v-if="!applyEnabled" class="apply-card apply-closed">
           <h1 class="apply-title">本站暂未开放友链申请</h1>
@@ -227,9 +227,9 @@ onMounted(async () => {
 }
 .apply-card {
   padding: 28px;
-  background: var(--el-bg-color-overlay, #fff);
-  border: 1px solid var(--el-border-color-lighter, #ebeef5);
-  border-radius: var(--mo-r-lg);
+  background: var(--tpl-bg, var(--el-bg-color-overlay, #fff));
+  border: 1px solid var(--tpl-border, var(--el-border-color-lighter, #ebeef5));
+  border-radius: var(--tpl-r-lg, var(--mo-r-lg));
 }
 .apply-closed {
   text-align: center;
@@ -240,12 +240,12 @@ onMounted(async () => {
 .apply-title {
   margin: 0 0 6px;
   font-size: 22px;
-  color: var(--el-text-color-primary, #303133);
+  color: var(--tpl-ink-900, var(--el-text-color-primary, #303133));
 }
 .apply-sub {
   margin: 0 0 22px;
   font-size: 13px;
-  color: var(--el-text-color-secondary, #909399);
+  color: var(--tpl-ink-500, var(--el-text-color-secondary, #909399));
 }
 .captcha-row {
   display: flex;
@@ -261,7 +261,7 @@ onMounted(async () => {
   height: 32px;
   object-fit: cover;
   cursor: pointer;
-  border: 1px solid var(--el-border-color, #dcdfe6);
-  border-radius: var(--mo-r-sm);
+  border: 1px solid var(--tpl-border, var(--el-border-color, #dcdfe6));
+  border-radius: var(--tpl-r-sm, var(--mo-r-sm));
 }
 </style>

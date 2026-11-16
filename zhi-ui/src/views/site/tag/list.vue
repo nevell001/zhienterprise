@@ -1,7 +1,7 @@
 <template>
-  <div class="tag-page">
+  <div class="tag-page tpl-legacy">
     <SiteLayout>
-      <div class="tag-shell">
+      <div class="tag-shell tpl-legacy">
         <header class="tag-head">
           <span class="tag-head-icon" aria-hidden="true">
             <el-icon><PriceTag /></el-icon>

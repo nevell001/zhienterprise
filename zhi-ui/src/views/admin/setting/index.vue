@@ -92,6 +92,21 @@
                 show-word-limit
               />
             </el-form-item>
+            <el-divider content-position="left">统计与第三方脚本</el-divider>
+            <el-form-item label="统计代码" prop="custom_js">
+              <el-input
+                v-model="settingsMap.custom_js"
+                type="textarea"
+                :rows="6"
+                maxlength="20000"
+                show-word-limit
+                placeholder="粘贴百度统计、Google Analytics 等 <script> 代码"
+              />
+              <div class="setting-tip">
+                仅在站点前台公开页面注入（预览页与后台不加载）；支持 script 标签与内联脚本。
+                脚本以管理员身份原样执行，请只粘贴可信内容。
+              </div>
+            </el-form-item>
             <el-divider content-position="left">联系信息（企业官网模板展示）</el-divider>
             <el-form-item label="联系邮箱" prop="contact_email">
               <el-input
@@ -913,6 +928,7 @@ import {
   FAQ_FIELDS
 } from './contentFields'
 import { normalizeUploadUrl } from '@/utils/uploadUrl'
+import { decodeCustomJs, encodeCustomJs } from '@/utils/customJsCodec'
 import { clearSiteCache } from '@/api/site/setting'
 import { getPublishedPages } from '@/api/site/page'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
@@ -1209,6 +1225,7 @@ const defaultSettings: Record<string, any> = {
   site_banner: '',
   blog_copyright: '',
   blog_beian: '',
+  custom_js: '',
   blog_url: '',
   home_page_slug: '',
   home_layout: 'business',
@@ -1270,6 +1287,7 @@ const managedKeys = [
   'site_banner',
   'blog_copyright',
   'blog_beian',
+  'custom_js',
   'blog_url',
   'home_page_slug',
   'home_layout',
@@ -1544,6 +1562,9 @@ async function getAllSettings() {
     // 无法解析）：展示与提交统一收敛为站内相对路径
     settingsMap.value.site_logo = normalizeUploadUrl(settingsMap.value.site_logo)
     settingsMap.value.site_banner = normalizeUploadUrl(settingsMap.value.site_banner)
+    // custom_js 以 base64 存储（绕开 XSS 过滤器），编辑态还原为源码
+    settingsMap.value.custom_js = decodeCustomJs(settingsMap.value.custom_js)
+    originalSettings.value.custom_js = settingsMap.value.custom_js
   } catch (error) {
     settingsMap.value = structuredClone(defaultSettings)
     originalSettings.value = toStoredMap(settingsMap.value)
@@ -1578,7 +1599,10 @@ async function saveAllSettings() {
     for (const key of Object.keys(settingsMap.value)) {
       const comparable = toStoredValue(settingsMap.value[key])
       if (comparable !== originalSettings.value[key]) {
-        modified.push({ key, value: comparable })
+        modified.push({
+          key,
+          value: key === 'custom_js' ? encodeCustomJs(comparable) : comparable
+        })
       }
     }
 

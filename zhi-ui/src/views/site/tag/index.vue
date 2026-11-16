@@ -1,9 +1,9 @@
 <template>
-  <div class="tag-container">
+  <div class="tag-container tpl-legacy">
     <!-- 站点导航 -->
     <SiteLayout>
       <!-- 标签头部 -->
-      <div class="tag-header">
+      <div class="tag-header tpl-legacy">
         <div class="header-content">
           <div class="tag-info">
             <div class="tag-icon-large">
@@ -36,7 +36,7 @@
       </div>
 
       <!-- 主要内容区域 -->
-      <div class="tag-main">
+      <div class="tag-main tpl-legacy">
         <div class="main-content">
           <!-- 加载状态 -->
           <ArticleListSkeleton v-if="loading" />
@@ -434,7 +434,7 @@ onMounted(() => {
 }
 
 .recent-item {
-  background: white;
+  background: var(--tpl-bg, #fff);
   border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;

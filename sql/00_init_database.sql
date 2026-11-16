@@ -941,6 +941,7 @@ INSERT IGNORE INTO `zhi_setting` (`config_key`, `config_value`, `description`, `
 ('blog_keywords', '企业官网,建站系统,企业网站建设,数字化转型,Vue,Spring Boot', '站点关键词', NOW(), NOW()),
 ('blog_copyright', 'Copyright © 2025-2026 知企建站系统. All rights reserved.', '版权信息', NOW(), NOW()),
 ('blog_beian', '陕ICP备12345678号', '备案信息', NOW(), NOW()),
+('custom_js', '', '统计/第三方脚本（仅前台公开页面注入，请只粘贴可信代码）', NOW(), NOW()),
 
 -- 联系方式设置
 ('contact_email', 'admin@example.com', '站点联系邮箱', NOW(), NOW()),

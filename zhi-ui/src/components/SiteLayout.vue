@@ -263,6 +263,8 @@ import { normalizeUploadUrl } from '@/utils/uploadUrl'
 import { applySiteAppearanceClasses } from '@/utils/siteAppearance'
 import { handleThemeStyle } from '@/utils/theme'
 import { buildNavMenus, hasCustomHomePage } from '@/utils/siteNav'
+import { injectCustomJs } from '@/utils/customJs'
+import { decodeCustomJs } from '@/utils/customJsCodec'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 import EnterpriseNav from '@/components/enterprise/EnterpriseNav.vue'
 import EnterpriseFooter from '@/components/enterprise/EnterpriseFooter.vue'
@@ -281,6 +283,19 @@ const siteSettingsStore = useSiteSettingsStore()
 const siteSettings = computed(() => siteSettingsStore.siteSettings)
 const isDark = computed(() => settingsStore.isDark)
 const themeMode = computed(() => settingsStore.themeMode)
+
+/** 统计/第三方脚本：仅前台公开页面注入，预览页与后台不加载 */
+let customJsCleanup: (() => void) | null = null
+const applyCustomJs = () => {
+  customJsCleanup?.()
+  customJsCleanup = null
+  if (route.meta.preview === true) return
+  const code = String(siteSettingsStore.siteSettings.custom_js || '').trim()
+  if (code) customJsCleanup = injectCustomJs(decodeCustomJs(code))
+}
+watch(() => [siteSettingsStore.siteSettings.custom_js, route.meta.preview], applyCustomJs, {
+  immediate: true
+})
 
 // 主题模式提示文本
 const themeModeTooltip = computed(() => {
@@ -625,6 +640,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  customJsCleanup?.()
+  customJsCleanup = null
   if (notifTimer) {
     clearInterval(notifTimer)
     notifTimer = null

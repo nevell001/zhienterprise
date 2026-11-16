@@ -1,7 +1,7 @@
 <template>
-  <div class="category-overview-page">
+  <div class="category-overview-page tpl-legacy">
     <SiteLayout>
-      <div class="category-overview-container">
+      <div class="category-overview-container tpl-legacy">
         <header class="ov-header">
           <h1>文章分类</h1>
           <p>浏览不同主题的文章，找到感兴趣的内容</p>
@@ -111,8 +111,8 @@ onMounted(loadCategories)
 .cat-card {
   display: block;
   padding: 18px;
-  background: var(--el-bg-color-overlay, #fff);
-  border: 1px solid var(--el-border-color-lighter, #ebeef5);
+  background: var(--tpl-bg, var(--mo-n0, #fff));
+  border: 1px solid var(--tpl-border, var(--el-border-color-lighter, #ebeef5));
   border-radius: 10px;
   text-decoration: none;
   transition:
@@ -134,14 +134,14 @@ onMounted(loadCategories)
 .cat-name {
   margin: 0;
   font-size: 17px;
-  color: var(--el-text-color-primary, #303133);
+  color: var(--tpl-ink-900, var(--el-text-color-primary, #303133));
 }
 .cat-desc {
   margin: 10px 0 12px;
   min-height: 20px;
   font-size: 13px;
   line-height: 1.5;
-  color: var(--el-text-color-regular, #606266);
+  color: var(--tpl-ink-500, var(--el-text-color-regular, #606266));
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -149,6 +149,6 @@ onMounted(loadCategories)
 }
 .cat-meta {
   font-size: var(--mo-fs-xs);
-  color: var(--mo-primary-text, #409eff);
+  color: var(--tpl-p-text, var(--mo-primary-text, #409eff));
 }
 </style>

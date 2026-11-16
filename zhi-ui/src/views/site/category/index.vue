@@ -1,9 +1,9 @@
 <template>
-  <div class="category-container">
+  <div class="category-container tpl-legacy">
     <!-- 站点导航 -->
     <SiteLayout>
       <!-- 分类头部 -->
-      <div class="category-header">
+      <div class="category-header tpl-legacy">
         <div class="header-content">
           <div class="category-info">
             <h1 class="category-title">
@@ -33,7 +33,7 @@
       </div>
 
       <!-- 主要内容区域 -->
-      <div class="category-main">
+      <div class="category-main tpl-legacy">
         <div class="main-content">
           <!-- 加载状态 -->
           <ArticleListSkeleton v-if="loading" />
@@ -411,7 +411,7 @@ onMounted(() => {
 }
 
 .recent-item {
-  background: white;
+  background: var(--tpl-bg, #fff);
   border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;

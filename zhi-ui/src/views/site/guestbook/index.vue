@@ -1,6 +1,6 @@
 <template>
   <SiteLayout>
-    <div class="guestbook-page mo-guestbook-page">
+    <div class="guestbook-page mo-guestbook-page tpl-legacy">
       <div class="guestbook-shell">
         <header class="guestbook-panel guestbook-hero">
           <span class="section-label">Guestbook</span>
@@ -392,7 +392,7 @@ onUnmounted(() => {
 .guestbook-panel {
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-lg);
-  background: #fff;
+  background: var(--tpl-bg, var(--mo-n0, #fff));
   box-shadow: var(--mo-shadow-sm);
 }
 
@@ -491,7 +491,7 @@ onUnmounted(() => {
   cursor: pointer;
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-sm);
-  background: #fff;
+  background: var(--tpl-bg, var(--mo-n0, #fff));
 }
 
 .message-body {

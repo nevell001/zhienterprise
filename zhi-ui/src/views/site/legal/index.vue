@@ -1,6 +1,6 @@
 <template>
   <SiteLayout>
-    <div class="legal-page mo-legal-page">
+    <div class="legal-page mo-legal-page tpl-legacy">
       <div class="legal-shell">
         <section class="legal-panel">
           <header class="legal-head">
@@ -92,7 +92,7 @@ onMounted(() => {
   padding: var(--mo-sp-7) var(--mo-sp-8) var(--mo-sp-8);
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-lg);
-  background: #fff;
+  background: var(--tpl-bg, var(--mo-n0, #fff));
   box-shadow: var(--mo-shadow-sm);
 }
 

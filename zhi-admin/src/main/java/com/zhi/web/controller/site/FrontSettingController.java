@@ -160,6 +160,9 @@ public class FrontSettingController extends BaseController {
             case "blog_beian":
                 settings.put(configKey, "");
                 break;
+            case "custom_js":
+                settings.put(configKey, "");
+                break;
             case "contact_email":
                 settings.put(configKey, "");
                 break;

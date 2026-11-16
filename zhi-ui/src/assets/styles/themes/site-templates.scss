@@ -66,6 +66,74 @@ html:not(.dark).tpl-site {
   --tpl-on-hero: var(--tpl-ink-900);
 }
 
+/* 尚未迁移到 --tpl-* 的旧页面（搜索/分类/标签/自定义页正文/协议/留言板/友链申请）
+   在页面根节点挂 .tpl-legacy，把 --mo-* 色阶指到模板令牌，使这些页面随行业模板换色。
+   作用域在页面根节点而非 .site-layout：theme-dark.css 会给 .site-layout 重映射 --mo-*，
+   若挂在布局外层会被更近的深色映射覆盖。 */
+html.tpl-site:not(.dark) .tpl-legacy {
+  --mo-n0: var(--tpl-bg);
+  --mo-n50: var(--tpl-surface);
+  --mo-n100: color-mix(in srgb, var(--tpl-ink-900) 5%, var(--tpl-bg));
+  --mo-n200: var(--tpl-border);
+  --mo-n300: color-mix(in srgb, var(--tpl-ink-400) 45%, var(--tpl-bg));
+  --mo-n400: var(--tpl-ink-400);
+  --mo-n500: var(--tpl-ink-500);
+  --mo-n600: var(--tpl-ink-500);
+  --mo-n700: var(--tpl-ink-700);
+  --mo-n800: var(--tpl-ink-700);
+  --mo-n900: var(--tpl-ink-900);
+  --mo-p50: var(--tpl-p-sub);
+  --mo-p100: color-mix(in srgb, var(--tpl-p) 20%, var(--tpl-bg));
+  --mo-p200: color-mix(in srgb, var(--tpl-p) 30%, var(--tpl-bg));
+  --mo-p300: color-mix(in srgb, var(--tpl-p) 50%, var(--tpl-bg));
+  --mo-p400: color-mix(in srgb, var(--tpl-p) 70%, var(--tpl-bg));
+  --mo-p500: var(--tpl-p);
+  --mo-p600: var(--tpl-p);
+  --mo-p700: var(--tpl-p-text);
+  --mo-p800: var(--tpl-p-h);
+  --mo-primary-text: var(--tpl-p-text);
+  --mo-on-primary: var(--tpl-white);
+  --mo-r-sm: var(--tpl-r-sm);
+  --mo-r-md: var(--tpl-r-md);
+  --mo-r-lg: var(--tpl-r-lg);
+  --mo-shadow-sm: var(--tpl-sh-sm);
+  --mo-shadow-md: var(--tpl-sh-md);
+  --mo-font-serif: var(--tpl-serif);
+}
+
+/* 深色模式沿用 --mo-* 的深色契约：n0/n50/n800/n900 是底色，n100/n200/n600 是文字，
+   n300/n400/n500 是次要文字（见 theme-dark.css）。不能用亮色映射（n900=文字色），
+   否则页面里的 `html.dark ... background: var(--mo-n900)` 会变成浅底。 */
+html.dark.tpl-site .tpl-legacy {
+  --mo-n0: var(--tpl-bg);
+  --mo-n50: var(--tpl-surface);
+  --mo-n800: color-mix(in srgb, var(--tpl-bg) 82%, #000);
+  --mo-n900: var(--tpl-bg);
+  --mo-n100: var(--tpl-ink-900);
+  --mo-n200: var(--tpl-ink-700);
+  --mo-n600: var(--tpl-ink-700);
+  --mo-n300: var(--tpl-ink-500);
+  --mo-n400: var(--tpl-ink-500);
+  --mo-n500: var(--tpl-ink-500);
+  --mo-p50: var(--tpl-p-sub);
+  --mo-p100: color-mix(in srgb, var(--tpl-p) 20%, var(--tpl-bg));
+  --mo-p200: color-mix(in srgb, var(--tpl-p) 30%, var(--tpl-bg));
+  --mo-p300: var(--tpl-p-d);
+  --mo-p400: var(--tpl-p-d);
+  --mo-p500: var(--tpl-p);
+  --mo-p600: var(--tpl-p);
+  --mo-p700: var(--tpl-p-d);
+  --mo-p800: var(--tpl-p-h);
+  --mo-primary-text: var(--tpl-p-text);
+  --mo-on-primary: var(--tpl-white);
+  --mo-r-sm: var(--tpl-r-sm);
+  --mo-r-md: var(--tpl-r-md);
+  --mo-r-lg: var(--tpl-r-lg);
+  --mo-shadow-sm: var(--tpl-sh-sm);
+  --mo-shadow-md: var(--tpl-sh-md);
+  --mo-font-serif: var(--tpl-serif);
+}
+
 /* ---------- 1. 管理咨询：指针罗盘 · 方向与决断 ---------- */
 html.tpl-consult {
   --tpl-p: #185fa5;
