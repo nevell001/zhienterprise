@@ -1033,15 +1033,16 @@ public class FrontController extends BaseController
         if (siteDesc == null || siteDesc.trim().isEmpty()) {
             siteDesc = "欢迎来到我的站点";
         }
+        siteUrl = normalizeBaseUrl(siteUrl);
 
         DateTimeFormatter rfc1123 = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
 
         out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         out.println("<rss version=\"2.0\">");
         out.println("<channel>");
-        out.println("<title><![CDATA[" + siteName + "]]></title>");
-        out.println("<link>" + siteUrl + "</link>");
-        out.println("<description><![CDATA[" + siteDesc + "]]></description>");
+        out.println("<title>" + cdata(siteName) + "</title>");
+        out.println("<link>" + escapeXml(siteUrl) + "</link>");
+        out.println("<description>" + cdata(siteDesc) + "</description>");
         out.println("<language>zh-CN</language>");
 
         // 获取最新的10篇文章
@@ -1064,11 +1065,12 @@ public class FrontController extends BaseController
             }
 
             out.println("<item>");
-            out.println("<title><![CDATA[" + (item.getTitle() != null ? item.getTitle() : "") + "]]></title>");
-            out.println("<link>" + siteUrl + "/article/" + item.getId() + "</link>");
-            out.println("<description><![CDATA[" + (item.getSummary() != null ? item.getSummary() : "") + "]]></description>");
+            out.println("<title>" + cdata(item.getTitle()) + "</title>");
+            String itemUrl = siteUrl + rssArticlePath(item);
+            out.println("<link>" + escapeXml(itemUrl) + "</link>");
+            out.println("<description>" + cdata(item.getSummary()) + "</description>");
             out.println("<pubDate>" + pubDate + "</pubDate>");
-            out.println("<guid>" + siteUrl + "/article/" + item.getId() + "</guid>");
+            out.println("<guid isPermaLink=\"true\">" + escapeXml(itemUrl) + "</guid>");
             out.println("</item>");
 
             count++;
@@ -1077,6 +1079,53 @@ public class FrontController extends BaseController
         out.println("</channel>");
         out.println("</rss>");
         out.flush();
+    }
+
+    /** RSS 条目按内容类型使用与 sitemap 一致的规范入口，优先 slug。 */
+    private static String rssArticlePath(Article article)
+    {
+        String type = article.getArticleType();
+        String slug = article.getSlug();
+        String segment = slug != null && !slug.trim().isEmpty()
+            ? slug.trim() : String.valueOf(article.getId());
+        if ("solution".equals(type))
+        {
+            return "/solutions/" + segment;
+        }
+        if ("business".equals(type) || "case".equals(type))
+        {
+            return "/business/" + segment;
+        }
+        return "/article/" + segment;
+    }
+
+    private static String normalizeBaseUrl(String url)
+    {
+        String value = url == null ? "" : url.trim();
+        while (value.endsWith("/"))
+        {
+            value = value.substring(0, value.length() - 1);
+        }
+        return value;
+    }
+
+    private static String cdata(String value)
+    {
+        String text = value == null ? "" : value;
+        return "<![CDATA[" + text.replace("]]>", "]]]]><![CDATA[>") + "]]>";
+    }
+
+    private static String escapeXml(String value)
+    {
+        if (value == null)
+        {
+            return "";
+        }
+        return value.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;");
     }
 
     /**

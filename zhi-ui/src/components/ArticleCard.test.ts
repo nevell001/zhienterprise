@@ -82,6 +82,24 @@ describe('ArticleCard 组件', () => {
     expect(wrapper.find('.article-card-more').attributes('data-to')).toBe('/article/42')
   })
 
+  it('业务/案例/解决方案链接到各自的规范详情入口，并优先使用 slug', () => {
+    expect(
+      mountCard({ id: 1, title: '业务', articleType: 'business' })
+        .find('.article-card-more')
+        .attributes('data-to')
+    ).toBe('/business/1')
+    expect(
+      mountCard({ id: 2, title: '案例', articleType: 'case' })
+        .find('.article-card-more')
+        .attributes('data-to')
+    ).toBe('/business/2')
+    expect(
+      mountCard({ id: 3, title: '方案', articleType: 'solution', slug: 'smart-factory' })
+        .find('.article-card-more')
+        .attributes('data-to')
+    ).toBe('/solutions/smart-factory')
+  })
+
   it('入场动画延迟应该跟随索引', () => {
     const wrapper = mountCard({ id: 1, title: 't', summary: 's' }, 5)
 

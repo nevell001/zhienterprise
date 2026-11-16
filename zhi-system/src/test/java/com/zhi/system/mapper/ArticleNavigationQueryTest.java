@@ -55,4 +55,26 @@ class ArticleNavigationQueryTest
                 id + " 的 SELECT 必须包含 status 列，否则控制器判定未发布、导航项被丢弃");
         }
     }
+
+    @Test
+    void navigationMustCarryArticleTypeAndSlug() throws Exception
+    {
+        String xml = mapperXml();
+
+        int mapStart = xml.indexOf("id=\"SimpleArticleResult\"");
+        assertTrue(mapStart > 0, "SimpleArticleResult 结果映射缺失");
+        String mapBlock = xml.substring(mapStart, xml.indexOf("</resultMap>", mapStart));
+        assertTrue(mapBlock.contains("property=\"articleType\""),
+            "SimpleArticleResult 必须映射 articleType，上一页/下一页才能跳到规范详情入口");
+        assertTrue(mapBlock.contains("property=\"slug\""),
+            "SimpleArticleResult 必须映射 slug，上一页/下一页才能使用伪静态地址");
+
+        for (String id : new String[] { "getPrevArticle", "getNextArticle" })
+        {
+            int start = xml.indexOf("id=\"" + id + "\"");
+            String block = xml.substring(start, xml.indexOf("</select>", start));
+            assertTrue(block.contains("article_type") && block.contains("slug"),
+                id + " 的 SELECT 必须包含 article_type 与 slug");
+        }
+    }
 }

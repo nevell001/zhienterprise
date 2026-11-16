@@ -37,7 +37,7 @@
                 v-for="article in results"
                 :key="article.id"
                 class="result-card"
-                @click="goArticle(article.id)"
+                @click="goArticle(article)"
               >
                 <div class="result-card-title">{{ article.title }}</div>
                 <p v-if="article.summary" class="result-card-excerpt">{{ article.summary }}</p>
@@ -77,6 +77,7 @@ import { searchArticles } from '@/api/site/article'
 import { createRequestGuard } from '@/utils/requestGuard'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
 import { parseTime } from '@/utils/zhi'
+import { articleDetailPath } from '@/utils/articlePath'
 import logger from '@/utils/logger'
 
 const route = useRoute()
@@ -162,8 +163,9 @@ const resetSearch = () => {
   router.replace('/search')
 }
 
-const goArticle = (id: number) => {
-  if (id) router.push(`/article/${id}`)
+const goArticle = (article: { id?: number; articleType?: string; slug?: string }) => {
+  if (!article.id && !article.slug) return
+  router.push(articleDetailPath(article))
 }
 
 // 从 URL 初始化或关键词变化时重新搜索

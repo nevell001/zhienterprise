@@ -46,7 +46,7 @@
             v-for="article in articles"
             :key="article.id"
             class="article-card"
-            @click="goToArticle(article.id)"
+            @click="goToArticle(article)"
           >
             <div
               class="thumb"
@@ -147,6 +147,7 @@ import { parseTime } from '@/utils/zhi'
 import { buildPageItems } from '@/utils/pageItems'
 import { hasCustomHomePage } from '@/utils/siteNav'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { articleDetailPath } from '@/utils/articlePath'
 
 const router = useRouter()
 const route = useRoute()
@@ -287,8 +288,9 @@ const fallbackGradient = (id: number) => {
     : 'linear-gradient(135deg,var(--mo-n100),var(--mo-p100))'
 }
 
-const goToArticle = (id: number) => {
-  if (id) router.push(`/article/${id}`)
+const goToArticle = (article: { id?: number; articleType?: string; slug?: string }) => {
+  if (!article.id && !article.slug) return
+  router.push(articleDetailPath(article))
 }
 
 const scrollToAllArticles = () => {

@@ -82,6 +82,22 @@ class ArticleListQueryShapeTest
     }
 
     @Test
+    @DisplayName("跨类型列表查询必须投影 article_type 与 slug")
+    void crossTypeQueriesMustExposeTypeAndSlug() throws Exception
+    {
+        String xml = readXml();
+        for (String id : List.of("selectArticleList", "selectArticlesByTagId", "searchArticles",
+            "searchArticlesFullText", "selectHotArticles", "selectRelatedArticles", "selectArticlesByArchive"))
+        {
+            String block = selectBlock(xml, id);
+            assertTrue(block.contains("ba.article_type"),
+                id + " 必须投影 article_type，否则前端只能把所有内容当成资讯详情");
+            assertTrue(block.contains("ba.slug"),
+                id + " 必须投影 slug，前端才能使用与 sitemap 一致的规范入口");
+        }
+    }
+
+    @Test
     @DisplayName("单条查询不许为标签 JOIN 扇出（否则 selectOne 直接抛 TooManyResults）")
     void singleRowQueryMustNotFanOutOnTags() throws Exception
     {

@@ -20,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -59,6 +60,7 @@ class FrontControllerTest
     private ISettingService settingService;
     private ITagService tagService;
     private IVisitLogService visitLogService;
+    private FrontController controller;
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
@@ -72,7 +74,7 @@ class FrontControllerTest
         tagService = mock(ITagService.class);
         visitLogService = mock(IVisitLogService.class);
 
-        FrontController controller = new FrontController();
+        controller = new FrontController();
         ReflectionTestUtils.setField(controller, "articleService", articleService);
         ReflectionTestUtils.setField(controller, "categoryService", categoryService);
         ReflectionTestUtils.setField(controller, "commentService", commentService);
@@ -107,6 +109,33 @@ class FrontControllerTest
             .andExpect(jsonPath("$.code").value(500))
             .andExpect(jsonPath("$.msg").value("搜索功能已关闭"))
             .andExpect(jsonPath("$.total").value(0));
+    }
+
+    @Test
+    void rssShouldUseCanonicalPathsAndEscapeXml() throws Exception
+    {
+        when(settingService.selectSettingValueByKey("blog_url"))
+            .thenReturn("https://example.com/?a=1&b=2");
+        when(settingService.selectSettingValueByKey("blog_name")).thenReturn("A]]>B");
+        when(settingService.selectSettingValueByKey("blog_desc")).thenReturn("站点描述");
+        when(articleService.selectArticleList(any(Article.class))).thenReturn(List.of(
+            rssArticle(10L, "业务", "business", "biz-slug"),
+            rssArticle(11L, "方案", "solution", null),
+            rssArticle(12L, "新闻", "news", "news-slug")));
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        controller.getRssFeed(response);
+
+        String xml = response.getContentAsString();
+        assertTrue(xml.contains("<title><![CDATA[A]]]]><![CDATA[>B]]></title>"),
+            "CDATA 必须安全拆分 ]]>，否则 XML 失效：" + xml);
+        assertTrue(xml.contains(
+            "<link>https://example.com/?a=1&amp;b=2/business/biz-slug</link>"),
+            "业务内容必须指向 /business/{slug} 且 URL 正确转义：" + xml);
+        assertTrue(xml.contains("<link>https://example.com/?a=1&amp;b=2/solutions/11</link>"),
+            "无 slug 的解决方案必须回退数字 ID：" + xml);
+        assertTrue(xml.contains("<link>https://example.com/?a=1&amp;b=2/article/news-slug</link>"),
+            "资讯仍走 /article/{slug}：" + xml);
     }
 
     @Test
@@ -530,8 +559,17 @@ class FrontControllerTest
         return article;
     }
 
+    private static Article rssArticle(Long id, String title, String articleType, String slug)
+    {
+        Article article = new Article();
+        article.setId(id);
+        article.setTitle(title);
+        article.setArticleType(articleType);
+        article.setSlug(slug);
+        return article;
+    }
+
     /**
-     * 文章详情端点必须进入 @Anonymous 扫描出的匿名放行清单。    /**
      * 文章详情端点必须进入 @Anonymous 扫描出的匿名放行清单。
      *
      * <p>事故回归：@Anonymous 曾夹在两段 Javadoc 之间、挂到了私有方法 resolvePublishedArticle 上，

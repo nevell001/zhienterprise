@@ -101,10 +101,7 @@
               v-for="related in relatedArticles.slice(0, 3)"
               :key="related.id"
               class="na-related-card"
-              :to="{
-                name: 'PublicSiteArticleDetail',
-                params: { id: related.id ?? related.articleId ?? related.uuid }
-              }"
+              :to="articleDetailPath(related)"
             >
               <span v-if="related.categoryName" class="na-related-cat">
                 {{ related.categoryName }}
@@ -134,10 +131,7 @@
           <router-link
             v-if="prevArticle"
             class="na-prevnext-item"
-            :to="{
-              name: 'PublicSiteArticleDetail',
-              params: { id: prevArticle.id ?? prevArticle.articleId ?? prevArticle.uuid }
-            }"
+            :to="articleDetailPath(prevArticle)"
           >
             <span class="na-prevnext-label">上一篇</span>
             <span class="na-prevnext-title">{{ prevArticle.title }}</span>
@@ -146,10 +140,7 @@
           <router-link
             v-if="nextArticle"
             class="na-prevnext-item is-next"
-            :to="{
-              name: 'PublicSiteArticleDetail',
-              params: { id: nextArticle.id ?? nextArticle.articleId ?? nextArticle.uuid }
-            }"
+            :to="articleDetailPath(nextArticle)"
           >
             <span class="na-prevnext-label">下一篇</span>
             <span class="na-prevnext-title">{{ nextArticle.title }}</span>
@@ -297,6 +288,7 @@ import { getSiteSettings, getSiteSettingsAnonymous } from '@/api/site/setting'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { createRequestGuard } from '@/utils/requestGuard'
 import { applySeo, canonicalUrl } from '@/utils/seo'
+import { articleDetailPath } from '@/utils/articlePath'
 import { removeJsonLd, setJsonLd } from '@/utils/jsonld'
 import { normalizeUploadUrl } from '@/utils/uploadUrl'
 

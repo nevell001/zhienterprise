@@ -246,6 +246,8 @@ class ArticleMapperTest {
             searchArticle.setContent("这是一篇用于测试搜索功能的文章");
             searchArticle.setStatus(1L);  // 设置为已发布状态
             searchArticle.setCategoryId(1L);
+            searchArticle.setArticleType("business");
+            searchArticle.setSlug("search-test-article");
 
             int insertResult = articleMapper.insertArticle(searchArticle);
             assertEquals(1, insertResult, "插入文章失败");
@@ -267,6 +269,13 @@ class ArticleMapperTest {
                     .anyMatch(article -> article.getId().equals(searchArticle.getId()));
 
             assertTrue(found, "搜索功能未找到预期文章");
+
+            Article hit = searchResults.stream()
+                    .filter(article -> article.getId().equals(searchArticle.getId()))
+                    .findFirst()
+                    .orElseThrow();
+            assertEquals("business", hit.getArticleType(), "搜索结果必须带内容类型，前端才能跳规范详情");
+            assertEquals("search-test-article", hit.getSlug(), "搜索结果必须带 slug");
 
             // 清理数据
             if (searchArticle.getId() != null) {

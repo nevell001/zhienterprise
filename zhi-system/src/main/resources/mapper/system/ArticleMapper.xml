@@ -40,6 +40,8 @@
     <resultMap type="Article" id="SimpleArticleResult">
         <result property="id"    column="id"    />
         <result property="title"    column="title"    />
+        <result property="articleType"    column="article_type"    />
+        <result property="slug"    column="slug"    />
         <result property="status"    column="status"    />
         <result property="delFlag"    column="del_flag"    />
     </resultMap>
@@ -54,7 +56,7 @@
     </select>
 
     <select id="selectArticleList" parameterType="Article" resultMap="ArticleResult">
-        select ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.industry, ba.scenario, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.slug, ba.industry, ba.scenario, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -208,7 +210,7 @@
     </update>
 
     <select id="selectArticlesByTagId" parameterType="Long" resultMap="ArticleResult">
-        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.slug, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -220,7 +222,7 @@
     </select>
 
     <select id="searchArticles" resultMap="ArticleResult">
-        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.slug, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -245,7 +247,7 @@
     </select>
 
     <select id="searchArticlesFullText" resultMap="ArticleResult">
-        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.slug, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name,
@@ -281,13 +283,13 @@
     </select>
 
     <select id="getPrevArticle" resultMap="SimpleArticleResult" parameterType="Long">
-        SELECT id, title, status, del_flag FROM zhi_article 
+        SELECT id, title, article_type, slug, status, del_flag FROM zhi_article
         WHERE id &lt; #{id} AND status = 1 AND del_flag = 0 
         ORDER BY id DESC LIMIT 1
     </select>
 
     <select id="getNextArticle" resultMap="SimpleArticleResult" parameterType="Long">
-        SELECT id, title, status, del_flag FROM zhi_article 
+        SELECT id, title, article_type, slug, status, del_flag FROM zhi_article
         WHERE id &gt; #{id} AND status = 1 AND del_flag = 0 
         ORDER BY id ASC LIMIT 1
     </select>
@@ -362,7 +364,7 @@
     <!-- 获取热门文章（按浏览量降序排序）：与列表查询同样不投影正文，标签另走批量查询 -->
     <select id="selectHotArticles" parameterType="Article" resultMap="ArticleResult">
         SELECT
-            ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
+            ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.slug, ba.category_id, ba.author_id,
             ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
             ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
             bc.name as category_name
@@ -378,7 +380,7 @@
     <!-- 根据归档月份获取文章列表：归档页正文为空时才回退到 content 截断，故保留正文列 -->
     <select id="selectArticlesByArchive" parameterType="Article" resultMap="ArticleResult">
         SELECT
-            ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+            ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.article_type, ba.slug, ba.category_id, ba.author_id,
             ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
             ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
             bc.name as category_name
@@ -427,7 +429,7 @@
     <!-- 获取相关文章（基于相同分类，排除当前文章） -->
     <select id="selectRelatedArticles" resultMap="ArticleResult">
         SELECT
-            ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
+            ba.id, ba.title, ba.summary, ba.cover_url, ba.article_type, ba.slug, ba.category_id, ba.author_id,
             ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
             ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
             bc.name as category_name
