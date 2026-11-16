@@ -83,7 +83,7 @@ class UserDetailsServiceImplTest
 
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername("zhangsan"))
                 .isInstanceOf(ServiceException.class)
-                .hasMessage(MessageUtils.message("user.password.delete"));
+                .hasMessage(MessageUtils.message("user.not.exists"));
         verify(passwordService, never()).validate(Mockito.any());
     }
 
@@ -96,7 +96,7 @@ class UserDetailsServiceImplTest
 
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername("zhangsan"))
                 .isInstanceOf(ServiceException.class)
-                .hasMessage(MessageUtils.message("user.blocked"));
+                .hasMessage(MessageUtils.message("user.not.exists"));
         verify(passwordService, never()).validate(Mockito.any());
     }
 

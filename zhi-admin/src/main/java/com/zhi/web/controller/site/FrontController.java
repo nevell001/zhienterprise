@@ -479,6 +479,7 @@ public class FrontController extends BaseController
      * 搜索文章（前台用，支持分页）
      */
     @Anonymous
+    @RateLimiter(key = "zhi:search:", time = 60, count = 30, limitType = LimitType.IP)
     @GetMapping("/article/search")
     public TableDataInfo searchArticles(Article article, @RequestParam(value = "keyword", required = false) String keyword)
     {
